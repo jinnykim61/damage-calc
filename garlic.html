@@ -47,10 +47,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 
 /* 입력 칸 */
-input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:right}
+input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:right}
+select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:left;text-align-last:left;direction:ltr}
 input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
 input.inp::placeholder{color:var(--hint);text-align:left}
-input.inp.filled,select.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+select.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 input.inp.filled:focus,select.inp.filled:focus{box-shadow:0 0 0 3px rgba(29,158,117,0.15)}
 
 /* 자동 계산 칸 */
@@ -309,7 +311,7 @@ let samples=[];
 
 // ── 입력 색상 변경 ────────────────────────────────
 function markFilled(el){
-  el.classList.toggle('filled', el.value!=='' && el.value!=='0');
+  el.classList.toggle('filled', el.value!=='');
 }
 
 // ── 표본구간 수 계산 ──────────────────────────────
@@ -541,7 +543,12 @@ function loadState(){
       if(s[id]!==undefined && s[id]!==''){
         const el=document.getElementById(id);
         el.value=s[id];
-        el.classList.toggle('filled', s[id]!=='' && s[id]!=='0');
+        // 날짜칸 제외하고 값 있으면 filled
+        if(id!=='survey_date' && id!=='harvest_date'){
+          el.classList.toggle('filled', s[id]!=='');
+        } else {
+          el.classList.toggle('filled', s[id]!=='');
+        }
       }
     });
     if(s.samples && s.samples.length>0) samples=s.samples;
@@ -564,8 +571,30 @@ document.getElementById('btn-install').addEventListener('click',async()=>{
 // ── 초기 실행 ─────────────────────────────────────
 const loaded = loadState();
 if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
-renderSamples();
-updateSamplesAndCalc();
+
+if(loaded){
+  // 조사대상면적/면적오차 즉시 표시
+  const actArea=parseFloat(document.getElementById('act_area').value)||0;
+  const insArea=parseFloat(document.getElementById('ins_area').value)||0;
+  const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
+  const otherArea=parseFloat(document.getElementById('other_area').value)||0;
+  const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
+  const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
+  const areaErr=insArea>0?((actArea-insArea)/insArea*100).toFixed(2):'-';
+  document.getElementById('survey_area_disp').value=surveyArea>0?surveyArea.toLocaleString()+' ㎡':'';
+  document.getElementById('area_err_disp').value=areaErr!=='-'?areaErr+'%':'';
+
+  if(samples.length>0){
+    // 저장된 샘플 그대로 렌더링
+    renderSamples();
+    calcTotals();
+  } else {
+    // 샘플 없으면 면적 기반 자동 생성
+    updateSamplesAndCalc();
+  }
+} else {
+  updateSamplesAndCalc();
+}
 </script>
 </body>
 </html>
