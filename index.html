@@ -375,6 +375,19 @@ function resetAll(){
 }
 
 function doCalc(){
+  // 필수값 체크
+  const missing=[];
+  if(!document.getElementById('avg_yield').value) missing.push('평년수확량');
+  if(!document.getElementById('ins_area').value) missing.push('가입면적');
+  if(!document.getElementById('act_area').value) missing.push('실제경작면적');
+  if(!document.getElementById('survey_date').value) missing.push('조사일자');
+  if(!document.getElementById('harvest_date').value) missing.push('수확예정일');
+  const hasNorm=samples.some(s=>parseFloat(s.norm)>0);
+  if(!hasNorm) missing.push('표본구간 정상중량');
+  if(missing.length>0){
+    alert('아래 항목을 입력해주세요:\n\n• '+missing.join('\n• '));
+    return;
+  }
   calc();
   document.getElementById('result-section').classList.add('show');
   const btn=document.getElementById('calc-btn');
@@ -395,10 +408,8 @@ const COEFF={
 const GROW={onion:0.022,garlic_s:0.008,garlic_n:0.008};
 
 let samples=[
-  {len:'0.59',wid:'1.68',norm:'1880',d80:'',d50:''},
-  {len:'0.58',wid:'1.66',norm:'1690',d80:'',d50:''},
-  {len:'0.58',wid:'1.68',norm:'1540',d80:'',d50:''},
-  {len:'0.58',wid:'1.69',norm:'1720',d80:'',d50:''}
+  {len:'',wid:'',norm:'',d80:'',d50:''},
+  {len:'',wid:'',norm:'',d80:'',d50:''}
 ];
 
 function getCoeff(crop,area){
@@ -502,8 +513,8 @@ function calc(){
 
 async function saveImage(){
   try{
-    const el=document.getElementById('result-section');
-    const canvas=await html2canvas(el,{backgroundColor:'#185FA5',scale:2,useCORS:true});
+    const el=document.querySelector('.content');
+    const canvas=await html2canvas(el,{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:420});
     const link=document.createElement('a');
     const now=new Date();
     const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
