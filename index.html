@@ -64,6 +64,8 @@
     -webkit-appearance: none;
   }
   input.inp:focus, select.inp:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(55,138,221,0.15); }
+  input.inp.filled { border-color: var(--green); background: #f0fdf8; }
+  input.inp.filled:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,158,117,0.15); }
 
   input.auto {
     height: 40px; border: 0.5px solid var(--border);
@@ -196,38 +198,38 @@
     <div class="row3">
       <div class="field">
         <label>평년수확량 (kg)</label>
-        <input type="number" id="avg_yield" class="inp" value="3106" inputmode="decimal" oninput="calc()">
+        <input type="number" id="avg_yield" class="inp" value="3106" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
       <div class="field">
-        <label>가입면적 (㎡)</label>
-        <input type="number" id="ins_area" class="inp" value="1339" inputmode="decimal" oninput="calc()">
+        <label>가입면적</label>
+        <input type="number" id="ins_area" class="inp" value="1339" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
       <div class="field">
-        <label>실제경작면적 (㎡)</label>
-        <input type="number" id="act_area" class="inp" value="1339" inputmode="decimal" oninput="calc()">
+        <label>실제경작면적</label>
+        <input type="number" id="act_area" class="inp" value="1339" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
     </div>
     <div class="row4">
       <div class="field">
-        <label>고사면적 (㎡)</label>
-        <input type="number" id="dead_area" class="inp" value="0" inputmode="decimal" oninput="calc()">
+        <label>고사면적</label>
+        <input type="number" id="dead_area" class="inp" value="0" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
       <div class="field">
-        <label>타작물/미보상 (㎡)</label>
-        <input type="number" id="other_area" class="inp" value="0" inputmode="decimal" oninput="calc()">
+        <label>타작물/미보상</label>
+        <input type="number" id="other_area" class="inp" value="0" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
       <div class="field">
-        <label>기수확면적 (㎡)</label>
-        <input type="number" id="harv_area" class="inp" value="0" inputmode="decimal" oninput="calc()">
+        <label>기수확면적</label>
+        <input type="number" id="harv_area" class="inp" value="0" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
       <div class="field">
-        <label>미보상비율 (%)</label>
-        <input type="number" id="unins_rate" class="inp" value="0" min="0" max="100" inputmode="decimal" oninput="calc()">
+        <label>미보상비율</label>
+        <input type="number" id="unins_rate" class="inp" value="0" min="0" max="100" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
     </div>
     <div class="row2">
       <div class="field">
-        <label>조사대상면적 (㎡)</label>
+        <label>조사대상면적</label>
         <input type="text" id="survey_area_disp" class="auto" readonly>
       </div>
       <div class="field">
@@ -333,6 +335,8 @@
 </div>
 
 <script>
+function onInp(el){el.classList.toggle('filled',el.value!==''&&el.value!=='0');}
+
 const COEFF={
   onion:[[1,1999,.9],[2000,2999,1],[3000,3999,1.1],[4000,4999,1.1],[5000,5999,1.2],[6000,6999,1.2],[7000,7999,1.3],[8000,8999,1.3],[9000,9999,1.4],[10000,11999,1.4],[12000,14999,1.6],[15000,19999,1.8],[20000,29999,1.9],[30000,1e9,1.9]],
   garlic_s:[[1,1499,4],[1500,2999,5],[3000,4499,6],[4500,1e9,7]],
@@ -356,11 +360,11 @@ function renderSamples(){
   document.getElementById('sample-body').innerHTML=samples.map((s,i)=>`
     <tr>
       <td class="no">${i+1}</td>
-      <td><input type="number" class="t-inp" value="${s.len}" placeholder="0.6" step="0.01" inputmode="decimal" oninput="samples[${i}].len=this.value;calc()"></td>
-      <td><input type="number" class="t-inp" value="${s.wid}" placeholder="1.7" step="0.01" inputmode="decimal" oninput="samples[${i}].wid=this.value;calc()"></td>
-      <td><input type="number" class="t-inp" value="${s.norm}" placeholder="" inputmode="decimal" oninput="samples[${i}].norm=this.value;calc()"></td>
-      <td><input type="number" class="t-inp" value="${s.d80}" placeholder="" inputmode="decimal" oninput="samples[${i}].d80=this.value;calc()"></td>
-      <td><input type="number" class="t-inp" value="${s.d50}" placeholder="" inputmode="decimal" oninput="samples[${i}].d50=this.value;calc()"></td>
+      <td><input type="number" class="t-inp" value="${s.len}" placeholder="0.6" step="0.01" inputmode="decimal" oninput="onInp(this);samples[${i}].len=this.value;calc()"></td>
+      <td><input type="number" class="t-inp" value="${s.wid}" placeholder="1.7" step="0.01" inputmode="decimal" oninput="onInp(this);samples[${i}].wid=this.value;calc()"></td>
+      <td><input type="number" class="t-inp" value="${s.norm}" placeholder="" inputmode="decimal" oninput="onInp(this);samples[${i}].norm=this.value;calc()"></td>
+      <td><input type="number" class="t-inp" value="${s.d80}" placeholder="" inputmode="decimal" oninput="onInp(this);samples[${i}].d80=this.value;calc()"></td>
+      <td><input type="number" class="t-inp" value="${s.d50}" placeholder="" inputmode="decimal" oninput="onInp(this);samples[${i}].d50=this.value;calc()"></td>
       <td><button class="del-btn" onclick="delSample(${i})">×</button></td>
     </tr>`).join('');
 }
