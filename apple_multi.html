@@ -329,24 +329,24 @@ function renderVarieties(totalSurvey, totalProper) {
     }
     const inputtedSamples = v.samples.filter(s => s !== '' && s !== null && !isNaN(parseFloat(s))).length;
 
-    // 4열 가로 배열 - 번호 왼쪽 크게, 입력칸 오른쪽
+    // 4열 가로 배열 - 번호 위, 입력칸 아래
     const cols = 4;
     const rows = Math.ceil(v.samples.length / cols);
-    let samplesHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
+    let samplesHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
     for(let col=0; col<cols; col++){
       samplesHtml += '<div style="display:flex;flex-direction:column;gap:6px">';
       for(let row=0; row<rows; row++){
         const si = row + col * rows;
-        if(si >= v.samples.length){ samplesHtml += '<div style="height:44px"></div>'; continue; }
+        if(si >= v.samples.length){ samplesHtml += '<div style="height:58px"></div>'; continue; }
         const s = v.samples[si];
         const filled = s!=='' && s!==null && !isNaN(parseFloat(s));
         const bc = filled ? 'var(--green)' : 'var(--binp)';
         const bg = filled ? '#e8faf3' : 'white';
         const fc = filled ? '#0d5c35' : 'var(--text)';
-        samplesHtml += `<div style="display:flex;align-items:center;gap:4px;height:44px">
-          <div style="font-size:14px;font-weight:700;color:var(--sub);min-width:20px;text-align:right">${si+1}</div>
+        samplesHtml += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+          <div style="font-size:12px;font-weight:700;color:var(--sub)">${si+1}</div>
           <input type="number" value="${s}" inputmode="decimal" placeholder="-"
-            style="flex:1;height:44px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${fc};text-align:center;-webkit-appearance:none;min-width:0"
+            style="width:100%;height:42px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${fc};text-align:center;-webkit-appearance:none;box-sizing:border-box"
             oninput="this.classList.toggle('filled',this.value!='')"
             onblur="varieties[${vi}].samples[${si}]=this.value;trimSamples(${vi})">
         </div>`;
