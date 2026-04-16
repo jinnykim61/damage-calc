@@ -1,4 +1,4 @@
-const CACHE_NAME = 'damage-calc-v1';
+const CACHE_NAME = 'damage-calc-v3';
 const ASSETS = [
   './index.html',
   './manifest.json'
