@@ -275,7 +275,7 @@ tfoot td.v{color:var(--text)}
     </div>
     <div class="drow"><span>조사대상면적</span><span id="r-area">-</span></div>
     <div class="drow"><span>㎡당 평년수확량</span><span id="r-avg-unit">-</span></div>
-    <div class="drow"><span>환산계수</span><span id="r-coeff">-</span></div>
+    <div class="drow"><span>유효중량계수</span><span id="r-coeff">-</span></div>
     <div class="drow"><span>감수량</span><span id="r-loss">-</span></div>
   </div>
 
@@ -387,11 +387,19 @@ function updateSamplesAndCalc(){
 
 // ── 표본 합계만 업데이트 ──────────────────────────
 function calcTotals(){
+  const crop=document.getElementById('crop').value;
+  // 품목별 유효중량 계수: 양파=1.0, 마늘난지형=0.72, 마늘한지형=0.7
+  const cropCoeff={onion:1.0, garlic_s:0.72, garlic_n:0.7};
+  const cc=cropCoeff[crop]||1.0;
+
   let tN=0,t80=0,t50=0,tA=0,tEff=0,tL=0,tW=0;
   for(const s of samples){
     const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0;
     const n=parseFloat(s.norm)||0,d8=parseFloat(s.d80)||0,d5=parseFloat(s.d50)||0;
-    tL+=l; tW+=w; tN+=n; t80+=d8; t50+=d5; tA+=l*w; tEff+=n+d8*0.8+d5*0.5;
+    tL+=l; tW+=w; tN+=n; t80+=d8; t50+=d5;
+    tA+=l*w;
+    // 유효중량 = (정상 + 80%형×0.2 + 50%형) × 품목계수
+    tEff+=(n + d8*0.2 + d5)*cc;
   }
   document.getElementById('t-len').textContent=tL.toFixed(2)+'m';
   document.getElementById('t-wid').textContent=tW.toFixed(2)+'m';
@@ -427,8 +435,15 @@ function calc(){
   if(sdStr&&hdStr){
     const sp=sdStr.split('-'),hp=hdStr.split('-');
     const sd=new Date(+sp[0],+sp[1]-1,+sp[2]),hd=new Date(+hp[0],+hp[1]-1,+hp[2]);
-    if(hd>sd){ const days=Math.round((hd-sd)/86400000); growIdx=Math.min(days*GROW[crop],1); document.getElementById('remain_info').value=`${days}일 / ${(growIdx*100).toFixed(1)}%`; }
-    else document.getElementById('remain_info').value='수확예정일 확인';
+    if(hd>sd){
+      const days=Math.round((hd-sd)/86400000);
+      growIdx=Math.min(days*GROW[crop],1);
+      document.getElementById('remain_info').value=`${days}일 / ${(growIdx*100).toFixed(1)}%`;
+    } else if(hd.getTime()===sd.getTime()){
+      document.getElementById('remain_info').value='0일 / 0.0%';
+    } else {
+      document.getElementById('remain_info').value='수확예정일 확인';
+    }
   } else { document.getElementById('remain_info').value='-'; }
 
   const resultBox=document.getElementById('result-section');
@@ -441,12 +456,17 @@ function calc(){
     return;
   }
 
+  // 품목별 유효중량 계수
+  const cropCoeff={onion:1.0, garlic_s:0.72, garlic_n:0.7};
+  const cc=cropCoeff[crop]||1.0;
+
   // 표본 합산
   let tA=0,tEff=0;
   for(const s of samples){
     const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0;
     const n=parseFloat(s.norm)||0,d8=parseFloat(s.d80)||0,d5=parseFloat(s.d50)||0;
-    tA+=l*w; tEff+=n+d8*0.8+d5*0.5;
+    tA+=l*w;
+    tEff+=(n + d8*0.2 + d5)*cc;
   }
 
   if(tA<=0||tEff<=0){
@@ -455,12 +475,8 @@ function calc(){
     return;
   }
 
-  // 환산계수
-  let coeff=1;
-  for(const [lo,hi,v] of COEFF[crop]) if(actArea>=lo&&actArea<=hi){coeff=v;break;}
-
   const unitYield=(tEff/1000)/tA;
-  const survYield=unitYield*surveyArea*coeff;
+  const survYield=unitYield*surveyArea;
   const estYield=survYield*growIdx;
   const totalYield=survYield+estYield;
   const loss=Math.max(0,avgYield-totalYield);
@@ -470,7 +486,7 @@ function calc(){
 
   document.getElementById('r-area').textContent=surveyArea.toLocaleString()+' ㎡';
   document.getElementById('r-avg-unit').textContent=(avgYield/actArea).toFixed(4)+' kg/㎡';
-  document.getElementById('r-coeff').textContent=coeff.toFixed(1);
+  document.getElementById('r-coeff').textContent={onion:'1.00(양파)',garlic_s:'0.72(난지형)',garlic_n:'0.70(한지형)'}[crop];
   document.getElementById('r-surv').textContent=survYield.toLocaleString(undefined,{maximumFractionDigits:1})+' kg';
   document.getElementById('r-est').textContent=estYield.toLocaleString(undefined,{maximumFractionDigits:1})+' kg';
   document.getElementById('r-unins').textContent=uninsLoss.toLocaleString(undefined,{maximumFractionDigits:1})+' kg';
