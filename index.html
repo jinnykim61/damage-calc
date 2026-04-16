@@ -91,6 +91,8 @@
     background: white; color: var(--text); text-align: center; width: 100%;
     -webkit-appearance: none;
   }
+  tbody td input.t-inp::placeholder { color: #ccc; }
+  input.inp::placeholder { color: #ccc; }
   tbody td input.t-inp:focus { outline: none; border-color: var(--blue); }
   tfoot td {
     padding: 7px 2px; font-size: 12px; font-weight: 600;
@@ -527,10 +529,12 @@ async function saveImage(){
   }
 }
 
+// 서비스워커 및 캐시 완전 삭제
 if('serviceWorker' in navigator){
-  // 기존 캐시 전부 삭제 후 새로 등록
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>r.unregister());
+  });
   caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
-  navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
 
 let deferredPrompt=null;
