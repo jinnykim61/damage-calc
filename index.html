@@ -36,10 +36,14 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .crop-card:active{transform:scale(0.97)}
 .crop-card.done{border-color:var(--green)}
 .crop-card.ready{border-color:var(--blue)}
-.crop-card.soon{opacity:0.45;cursor:default}
-.crop-icon{font-size:38px;margin-bottom:8px}
-.crop-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px}
-.crop-desc{font-size:11px;color:var(--hint)}
+.crop-card.soon{opacity:0.55;cursor:default}
+.crop-icon{font-size:28px;margin-bottom:10px;line-height:1.4}
+.crop-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px;letter-spacing:-0.02em}
+.crop-desc{font-size:12px;color:var(--sub);font-weight:500}
+.badge{position:absolute;top:10px;right:10px;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
+.badge-done{background:#e8faf3;color:var(--green)}
+.badge-new{background:#EBF4FF;color:var(--blue)}
+.badge-soon{background:#f0f0f0;color:#bbb}
 .badge{position:absolute;top:10px;right:10px;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
 .badge-done{background:#e8faf3;color:var(--green)}
 .badge-new{background:#EBF4FF;color:var(--blue)}
@@ -99,38 +103,36 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 <!-- 과수 4종 -->
 <div class="tab-content" id="tab-1">
   <div class="crop-grid">
-    <div class="crop-card ready" onclick="go('apple')">
-      <span class="badge badge-new">NEW</span>
-      <div class="crop-icon">🍎</div>
-      <div class="crop-name">사과</div>
-      <div class="crop-desc">착과수 조사</div>
+    <div class="crop-card done" onclick="go('apple')">
+      <span class="badge badge-done">완성</span>
+      <div class="crop-icon">🍎🍐🟠🟤</div>
+      <div class="crop-name">착과수 조사</div>
+      <div class="crop-desc">사과·배·단감·떫은감</div>
     </div>
     <div class="crop-card soon">
       <span class="badge badge-soon">준비중</span>
-      <div class="crop-icon">🍐</div>
-      <div class="crop-name">배</div>
-      <div class="crop-desc">착과수 조사</div>
+      <div class="crop-icon">🌪️</div>
+      <div class="crop-name">낙과피해 조사</div>
+      <div class="crop-desc">사과·배·단감·떫은감</div>
     </div>
     <div class="crop-card soon">
       <span class="badge badge-soon">준비중</span>
-      <div class="crop-icon">🟠</div>
-      <div class="crop-name">단감</div>
-      <div class="crop-desc">착과수 조사</div>
-    </div>
-    <div class="crop-card soon">
-      <span class="badge badge-soon">준비중</span>
-      <div class="crop-icon">🟤</div>
-      <div class="crop-name">떫은감</div>
-      <div class="crop-desc">착과수 조사</div>
+      <div class="crop-icon">🍂</div>
+      <div class="crop-name">착과피해 조사</div>
+      <div class="crop-desc">사과·배·단감·떫은감</div>
     </div>
   </div>
 </div>
 
 <!-- 종합과수 -->
 <div class="tab-content" id="tab-2">
-  <div class="coming-soon">
-    <div class="cs-icon">🍑</div>
-    복숭아·포도·자두 등<br>순차적으로 추가 예정이에요
+  <div class="crop-grid">
+    <div class="crop-card soon">
+      <span class="badge badge-soon">준비중</span>
+      <div class="crop-icon">🍇🍑🫐</div>
+      <div class="crop-name">착과수 조사</div>
+      <div class="crop-desc">포도·복숭아·자두</div>
+    </div>
   </div>
 </div>
 
