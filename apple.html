@@ -269,8 +269,15 @@ let varieties = [
 function quickUpdate(vi, field, val){
   const v = varieties[vi];
   const tmp = {...v, [field]: +val||0};
+  const totalSurvey = varieties.reduce((s,vv,i) => {
+    const sv = i===vi ? Math.max(0,tmp.actual-tmp.dead-tmp.unins) : Math.max(0,(vv.actual||0)-(vv.dead||0)-(vv.unins||0));
+    return s+sv;
+  }, 0);
+  const totalProper = getProperSample(totalSurvey);
   const surveyTarget = Math.max(0, tmp.actual - tmp.dead - tmp.unins);
-  const properN = getProperSample(surveyTarget);
+  const properN = surveyTarget > 0 && totalSurvey > 0
+    ? Math.max(1, Math.ceil(totalProper * surveyTarget / totalSurvey))
+    : 0;
 
   const sEl = document.getElementById(`vi-survey-${vi}`);
   const pEl = document.getElementById(`vi-proper-${vi}`);
@@ -322,21 +329,24 @@ function renderVarieties(totalSurvey, totalProper) {
     }
     const inputtedSamples = v.samples.filter(s => s !== '' && s !== null && !isNaN(parseFloat(s))).length;
 
-    // 4열 가로 배열 (노트처럼: 1/6/11/16, 2/7/12/17...)
+    // 4열 가로 배열 - 번호 왼쪽 크게, 입력칸 오른쪽
     const cols = 4;
     const rows = Math.ceil(v.samples.length / cols);
-    let samplesHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+    let samplesHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
     for(let col=0; col<cols; col++){
       samplesHtml += '<div style="display:flex;flex-direction:column;gap:6px">';
       for(let row=0; row<rows; row++){
         const si = row + col * rows;
-        if(si >= v.samples.length){ samplesHtml += '<div style="height:46px"></div>'; continue; }
+        if(si >= v.samples.length){ samplesHtml += '<div style="height:44px"></div>'; continue; }
         const s = v.samples[si];
         const filled = s!=='' && s!==null && !isNaN(parseFloat(s));
-        samplesHtml += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-          <div style="font-size:9px;color:var(--sub);font-weight:600">${si+1}</div>
+        const bc = filled ? 'var(--green)' : 'var(--binp)';
+        const bg = filled ? '#e8faf3' : 'white';
+        const fc = filled ? '#0d5c35' : 'var(--text)';
+        samplesHtml += `<div style="display:flex;align-items:center;gap:4px;height:44px">
+          <div style="font-size:14px;font-weight:700;color:var(--sub);min-width:20px;text-align:right">${si+1}</div>
           <input type="number" value="${s}" inputmode="decimal" placeholder="-"
-            style="height:38px;width:100%;border:1.5px solid ${filled?'var(--green)':'var(--binp)'};border-radius:6px;font-size:13px;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'var(--text)'};text-align:center;-webkit-appearance:none"
+            style="flex:1;height:44px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${fc};text-align:center;-webkit-appearance:none;min-width:0"
             oninput="this.classList.toggle('filled',this.value!='')"
             onblur="varieties[${vi}].samples[${si}]=this.value;trimSamples(${vi})">
         </div>`;
@@ -367,7 +377,7 @@ function renderVarieties(totalSurvey, totalProper) {
           <label>실제결과주수</label>
           <input type="number" class="inp ${v.actual>0?'filled':''}" value="${v.actual||''}" inputmode="decimal"
             oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].actual=+this.value||0;quickUpdate(${vi},'actual',this.value)"
-            onblur="varieties[${vi}].actual=+this.value||0;quickUpdate(${vi},'actual',this.value);saveState()">
+            onblur="varieties[${vi}].actual=+this.value||0;if(this.value){varieties[${vi}].open=true;}quickUpdate(${vi},'actual',this.value);onInput();">
         </div>
         <div class="field">
           <label>고사주</label>
