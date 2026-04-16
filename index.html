@@ -207,29 +207,29 @@
     <div class="row3">
       <div class="field">
         <label>평년수확량 (kg)</label>
-        <input type="number" id="avg_yield" class="inp" value="3106" inputmode="decimal" oninput="onInp(this);calc()">
+        <input type="number" id="avg_yield" class="inp" value="" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
       <div class="field">
         <label>가입면적</label>
-        <input type="number" id="ins_area" class="inp" value="1339" inputmode="decimal" oninput="onInp(this);calc()">
+        <input type="number" id="ins_area" class="inp" value="" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
       <div class="field">
         <label>실제경작면적</label>
-        <input type="number" id="act_area" class="inp" value="1339" inputmode="decimal" oninput="onInp(this);calc()">
+        <input type="number" id="act_area" class="inp" value="" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
     </div>
     <div class="row3">
       <div class="field">
         <label>고사면적</label>
-        <input type="number" id="dead_area" class="inp" value="0" inputmode="decimal" oninput="onInp(this);calc()">
+        <input type="number" id="dead_area" class="inp" value="" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
       <div class="field">
         <label>타작물/미보상</label>
-        <input type="number" id="other_area" class="inp" value="0" inputmode="decimal" oninput="onInp(this);calc()">
+        <input type="number" id="other_area" class="inp" value="" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
       <div class="field">
         <label>기수확면적</label>
-        <input type="number" id="harv_area" class="inp" value="0" inputmode="decimal" oninput="onInp(this);calc()">
+        <input type="number" id="harv_area" class="inp" value="" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
     </div>
     <div class="row2">
@@ -263,7 +263,7 @@
       </div>
       <div class="field">
         <label>미보상비율</label>
-        <input type="number" id="unins_rate" class="inp" value="0" min="0" max="100" inputmode="decimal" oninput="onInp(this);calc()">
+        <input type="number" id="unins_rate" class="inp" value="" min="0" max="100" inputmode="decimal" oninput="onInp(this);calc()">
       </div>
     </div>
   </div>
@@ -358,10 +358,10 @@ function resetAll(){
   document.getElementById('avg_yield').value='';
   document.getElementById('ins_area').value='';
   document.getElementById('act_area').value='';
-  document.getElementById('dead_area').value='0';
-  document.getElementById('other_area').value='0';
-  document.getElementById('harv_area').value='0';
-  document.getElementById('unins_rate').value='0';
+  document.getElementById('dead_area').value='';
+  document.getElementById('other_area').value='';
+  document.getElementById('harv_area').value='';
+  document.getElementById('unins_rate').value='';
   document.getElementById('survey_date').value=fmt(new Date());
   document.getElementById('harvest_date').value='';
   document.getElementById('remain_info').value='-';
@@ -528,6 +528,8 @@ async function saveImage(){
 }
 
 if('serviceWorker' in navigator){
+  // 기존 캐시 전부 삭제 후 새로 등록
+  caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
   navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
 
