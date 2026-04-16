@@ -279,6 +279,9 @@ function quickUpdate(vi, field, val){
   if(pEl) pEl.value = properN > 0 ? properN+'주' : '';
   if(iEl) iEl.value = surveyTarget > 0 && properN > 0 ? Math.floor(surveyTarget/properN)+'주' : '';
 }
+
+// ── 표본주수 계산 ─────────────────────────────────
+function getProperSample(total) {
   if (!total || total <= 0) return 0;
   for (const [lo,hi,n] of SAMPLE_TABLE) if (total>=lo && total<=hi) return n;
   return 17;
