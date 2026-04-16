@@ -264,8 +264,21 @@ let varieties = [
   {name:'', reg:0, actual:0, dead:0, unins:0, samples:[], open:false}
 ];
 
-// ── 표본주수 계산 ─────────────────────────────────
-function getProperSample(total) {
+// ── 즉시 자동계산칸 업데이트 (리렌더 없이) ────────
+function quickUpdate(vi, field, val){
+  const v = varieties[vi];
+  const tmp = {...v, [field]: +val||0};
+  const surveyTarget = Math.max(0, tmp.actual - tmp.dead - tmp.unins);
+  const properN = getProperSample(surveyTarget);
+
+  const sEl = document.getElementById(`vi-survey-${vi}`);
+  const pEl = document.getElementById(`vi-proper-${vi}`);
+  const iEl = document.getElementById(`vi-interval-${vi}`);
+
+  if(sEl) sEl.value = surveyTarget > 0 ? surveyTarget.toLocaleString() : '';
+  if(pEl) pEl.value = properN > 0 ? properN+'주' : '';
+  if(iEl) iEl.value = surveyTarget > 0 && properN > 0 ? Math.floor(surveyTarget/properN)+'주' : '';
+}
   if (!total || total <= 0) return 0;
   for (const [lo,hi,n] of SAMPLE_TABLE) if (total>=lo && total<=hi) return n;
   return 17;
@@ -323,34 +336,34 @@ function renderVarieties() {
         <div class="field">
           <label>실제결과주수</label>
           <input type="number" class="inp ${v.actual>0?'filled':''}" value="${v.actual||''}" inputmode="decimal"
-            oninput="this.classList.toggle('filled',this.value!='')"
+            oninput="this.classList.toggle('filled',this.value!='');quickUpdate(${vi},'actual',this.value)"
             onblur="varieties[${vi}].actual=+this.value||0;onInput()">
         </div>
         <div class="field">
           <label>고사주</label>
           <input type="number" class="inp ${v.dead>0?'filled':''}" value="${v.dead||''}" inputmode="decimal"
-            oninput="this.classList.toggle('filled',this.value!='')"
+            oninput="this.classList.toggle('filled',this.value!='');quickUpdate(${vi},'dead',this.value)"
             onblur="varieties[${vi}].dead=+this.value||0;onInput()">
         </div>
         <div class="field">
           <label>미보상주수</label>
           <input type="number" class="inp ${v.unins>0?'filled':''}" value="${v.unins||''}" inputmode="decimal"
-            oninput="this.classList.toggle('filled',this.value!='')"
+            oninput="this.classList.toggle('filled',this.value!='');quickUpdate(${vi},'unins',this.value)"
             onblur="varieties[${vi}].unins=+this.value||0;onInput()">
         </div>
       </div>
       <div class="g3">
         <div class="field">
           <label>조사대상주</label>
-          <input type="text" class="auto" value="${surveyTarget > 0 ? surveyTarget.toLocaleString() : ''}" readonly>
+          <input type="text" class="auto" id="vi-survey-${vi}" value="${surveyTarget > 0 ? surveyTarget.toLocaleString() : ''}" readonly>
         </div>
         <div class="field">
           <label>적정 표본주수</label>
-          <input type="text" class="auto" value="${properN > 0 ? properN+'주' : ''}" readonly>
+          <input type="text" class="auto" id="vi-proper-${vi}" value="${properN > 0 ? properN+'주' : ''}" readonly>
         </div>
         <div class="field">
           <label>표본주 간격</label>
-          <input type="text" class="auto" value="${surveyTarget > 0 && properN > 0 ? Math.floor(surveyTarget/properN)+'주' : ''}" readonly>
+          <input type="text" class="auto" id="vi-interval-${vi}" value="${surveyTarget > 0 && properN > 0 ? Math.floor(surveyTarget/properN)+'주' : ''}" readonly>
         </div>
       </div>
       <div class="sample-toggle" onclick="toggleSamples(${vi})">
