@@ -190,7 +190,10 @@
 <div class="content">
 
   <div class="section">
-    <div class="sec-title">품목 및 품종</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="sec-title" style="margin-bottom:0">품목 및 품종</div>
+      <button onclick="resetAll()" style="height:34px;padding:0 14px;background:transparent;border:1.5px solid #e24b4a;border-radius:var(--radius-sm);color:#e24b4a;font-size:13px;font-weight:600;cursor:pointer;">전체 초기화</button>
+    </div>
     <div class="field">
       <select id="crop" class="inp" onchange="calc()" style="max-width:200px">
         <option value="onion">양파</option>
@@ -348,7 +351,25 @@
 </div>
 
 <script>
-function onInp(el){el.classList.toggle('filled',el.value!==''&&el.value!=='0');}
+function resetAll(){
+  if(!confirm('모든 입력값을 초기화할까요?')) return;
+  document.getElementById('crop').value='onion';
+  document.getElementById('avg_yield').value='';
+  document.getElementById('ins_area').value='';
+  document.getElementById('act_area').value='';
+  document.getElementById('dead_area').value='0';
+  document.getElementById('other_area').value='0';
+  document.getElementById('harv_area').value='0';
+  document.getElementById('unins_rate').value='0';
+  document.getElementById('survey_date').value=fmt(new Date());
+  document.getElementById('harvest_date').value='';
+  document.getElementById('remain_info').value='-';
+  document.querySelectorAll('input.inp').forEach(el=>el.classList.remove('filled'));
+  samples=[{len:'',wid:'',norm:'',d80:'',d50:''},{len:'',wid:'',norm:'',d80:'',d50:''}];
+  renderSamples();
+  calc();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
 function doCalc(){
   calc();
