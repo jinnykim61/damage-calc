@@ -110,11 +110,8 @@
   .info-strip { font-size: 12px; color: var(--text-sub); margin-top: 8px; display: flex; gap: 14px; flex-wrap: wrap; }
   .info-strip strong { color: var(--text); }
 
-  /* 결과 박스 */
-  .result-box {
-    background: var(--blue); border-radius: var(--radius);
-    padding: 18px 16px; margin-bottom: 10px; color: white;
-  }
+  .result-box { display: none; background: var(--blue); border-radius: var(--radius); padding: 18px 16px; margin-bottom: 10px; color: white; }
+  .result-box.show { display: block; }
   .result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   .result-label { font-size: 13px; opacity: 0.8; margin-bottom: 4px; }
   .result-pct { font-size: 44px; font-weight: 700; color: white; line-height: 1; }
@@ -150,6 +147,8 @@
   }
   .calc-btn:active { background: #0d4a8a; transform: scale(0.98); }
   .calc-btn.done { background: var(--green); }
+
+  #save-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.5); z-index: 300;
     align-items: center; justify-content: center;
@@ -333,10 +332,12 @@
 
 </div>
 
+
+
 <div id="save-overlay">
   <div class="save-modal">
     <div style="font-size:36px;margin-bottom:10px">✅</div>
-    <p>결과가 저장됐어요!</p>
+    <p>결과가 갤러리에 저장됐어요!</p>
     <button class="btn-ok" onclick="document.getElementById('save-overlay').classList.remove('show')">확인</button>
   </div>
 </div>
@@ -364,15 +365,18 @@ function resetAll(){
   document.getElementById('survey_date').value=fmt(new Date());
   document.getElementById('harvest_date').value='';
   document.getElementById('remain_info').value='-';
+  document.getElementById('survey_area_disp').value='';
+  document.getElementById('area_err_disp').value='';
   document.querySelectorAll('input.inp').forEach(el=>el.classList.remove('filled'));
+  document.getElementById('result-section').classList.remove('show');
   samples=[{len:'',wid:'',norm:'',d80:'',d50:''},{len:'',wid:'',norm:'',d80:'',d50:''}];
   renderSamples();
-  calc();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function doCalc(){
   calc();
+  document.getElementById('result-section').classList.add('show');
   const btn=document.getElementById('calc-btn');
   btn.classList.add('done');
   btn.innerHTML='<span>✅</span><span>계산 완료!</span>';
