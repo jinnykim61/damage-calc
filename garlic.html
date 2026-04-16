@@ -138,7 +138,7 @@ tfoot td.v{color:var(--text)}
       <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
     </div>
     <div class="field">
-      <select id="crop" class="inp" onchange="markFilled(this);calc()" style="max-width:200px">
+      <select id="crop" class="inp" onchange="markFilled(this);calc()" style="max-width:200px;text-align:left;text-align-last:left">
         <option value="onion">양파</option>
         <option value="garlic_s">마늘 난지형</option>
         <option value="garlic_n">마늘 한지형</option>
@@ -537,20 +537,24 @@ function loadState(){
     const raw=localStorage.getItem('garlic_state');
     if(!raw) return false;
     const s=JSON.parse(raw);
-    if(s.crop) document.getElementById('crop').value=s.crop;
+
+    // 품목 복원 + filled
+    if(s.crop){
+      const cropEl=document.getElementById('crop');
+      cropEl.value=s.crop;
+      cropEl.classList.add('filled');
+    }
+
+    // 나머지 필드 복원 + filled
     const fields=['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','survey_date','harvest_date'];
     fields.forEach(id=>{
       if(s[id]!==undefined && s[id]!==''){
         const el=document.getElementById(id);
         el.value=s[id];
-        // 날짜칸 제외하고 값 있으면 filled
-        if(id!=='survey_date' && id!=='harvest_date'){
-          el.classList.toggle('filled', s[id]!=='');
-        } else {
-          el.classList.toggle('filled', s[id]!=='');
-        }
+        el.classList.add('filled');
       }
     });
+
     if(s.samples && s.samples.length>0) samples=s.samples;
     return true;
   }catch(e){ return false; }
@@ -572,29 +576,28 @@ document.getElementById('btn-install').addEventListener('click',async()=>{
 const loaded = loadState();
 if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
 
-if(loaded){
-  // 조사대상면적/면적오차 즉시 표시
-  const actArea=parseFloat(document.getElementById('act_area').value)||0;
-  const insArea=parseFloat(document.getElementById('ins_area').value)||0;
-  const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
-  const otherArea=parseFloat(document.getElementById('other_area').value)||0;
-  const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
-  const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
-  const areaErr=insArea>0?((actArea-insArea)/insArea*100).toFixed(2):'-';
-  document.getElementById('survey_area_disp').value=surveyArea>0?surveyArea.toLocaleString()+' ㎡':'';
-  document.getElementById('area_err_disp').value=areaErr!=='-'?areaErr+'%':'';
+setTimeout(()=>{
+  if(loaded){
+    const actArea=parseFloat(document.getElementById('act_area').value)||0;
+    const insArea=parseFloat(document.getElementById('ins_area').value)||0;
+    const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
+    const otherArea=parseFloat(document.getElementById('other_area').value)||0;
+    const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
+    const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
+    const areaErr=insArea>0?((actArea-insArea)/insArea*100).toFixed(2):'-';
+    document.getElementById('survey_area_disp').value=surveyArea>0?surveyArea.toLocaleString()+' ㎡':'';
+    document.getElementById('area_err_disp').value=areaErr!=='-'?areaErr+'%':'';
 
-  if(samples.length>0){
-    // 저장된 샘플 그대로 렌더링
-    renderSamples();
-    calcTotals();
+    if(samples.length>0){
+      renderSamples();
+      calcTotals();
+    } else {
+      updateSamplesAndCalc();
+    }
   } else {
-    // 샘플 없으면 면적 기반 자동 생성
     updateSamplesAndCalc();
   }
-} else {
-  updateSamplesAndCalc();
-}
+}, 50);
 </script>
 </body>
 </html>
