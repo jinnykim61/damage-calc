@@ -155,29 +155,29 @@ tfoot td.v{color:var(--text)}
           oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>가입면적</label>
+        <label>가입면적 (㎡)</label>
         <input type="number" id="ins_area" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>실제경작면적</label>
+        <label>실제경작면적 (㎡)</label>
         <input type="number" id="act_area" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
       </div>
     </div>
     <div class="g3">
       <div class="field">
-        <label>고사면적</label>
+        <label>고사면적 (㎡)</label>
         <input type="number" id="dead_area" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
       </div>
       <div class="field">
-        <label>타작물/미보상</label>
+        <label>타작물/미보상 (㎡)</label>
         <input type="number" id="other_area" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
       </div>
       <div class="field">
-        <label>기수확면적</label>
+        <label>기수확면적 (㎡)</label>
         <input type="number" id="harv_area" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
       </div>
@@ -521,7 +521,15 @@ function resetAll(){
 async function saveImage(){
   try{
     const el=document.querySelector('.content');
+    // html2canvas 캡처 전 input 센터정렬 강제 적용
+    el.querySelectorAll('input.inp, input.auto').forEach(i=>{
+      i.style.textAlign='center';
+    });
     const canvas=await html2canvas(el,{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:420});
+    // 복원
+    el.querySelectorAll('input.inp, input.auto').forEach(i=>{
+      i.style.textAlign='';
+    });
     const link=document.createElement('a');
     const now=new Date();
     const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;

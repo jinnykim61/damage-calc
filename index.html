@@ -109,6 +109,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
       <div class="crop-name">착과수 조사</div>
       <div class="crop-desc">사과·배·단감·떫은감</div>
     </div>
+    <div class="crop-card done" onclick="go('apple_multi')">
+      <span class="badge badge-done">완성</span>
+      <div class="crop-icon">🌳🌳🌳</div>
+      <div class="crop-name">다품종 착과수 조사</div>
+      <div class="crop-desc">최대 20품종</div>
+    </div>
     <div class="crop-card soon">
       <span class="badge badge-soon">준비중</span>
       <div class="crop-icon">🌪️</div>
@@ -133,6 +139,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
       <div class="crop-name">착과수 조사</div>
       <div class="crop-desc">포도·복숭아·자두</div>
     </div>
+    <div class="crop-card done" onclick="go('apple_multi')">
+      <span class="badge badge-done">활용가능</span>
+      <div class="crop-icon">🌳🌳🌳</div>
+      <div class="crop-name">다품종 착과수 조사</div>
+      <div class="crop-desc">최대 20품종</div>
+    </div>
   </div>
 </div>
 
@@ -156,6 +168,7 @@ function switchTab(i){
 function go(page){
   if(page==='garlic') location.href='./garlic.html';
   if(page==='apple') location.href='./apple.html';
+  if(page==='apple_multi') location.href='./apple_multi.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
