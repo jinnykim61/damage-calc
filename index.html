@@ -355,6 +355,8 @@
 </div>
 
 <script>
+const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
 function resetAll(){
   if(!confirm('모든 입력값을 초기화할까요?')) return;
   // 품목품종은 유지
@@ -436,6 +438,8 @@ function updateSamplesByArea(){
   }
   renderSamples();
 }
+
+function getCoeff(crop,area){
   for(const [lo,hi,v] of COEFF[crop]) if(area>=lo&&area<=hi) return v;
   return 1;
 }
@@ -584,7 +588,6 @@ document.getElementById('btn-install').addEventListener('click',async()=>{
 window.addEventListener('appinstalled',()=>dismissBanner());
 function dismissBanner(){document.getElementById('install-banner').classList.remove('show');}
 
-const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 document.getElementById('survey_date').value=fmt(new Date());
 renderSamples();
 calc();
