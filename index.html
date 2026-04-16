@@ -356,7 +356,7 @@
 <script>
 function resetAll(){
   if(!confirm('모든 입력값을 초기화할까요?')) return;
-  document.getElementById('crop').value='onion';
+  // 품목품종은 유지
   document.getElementById('avg_yield').value='';
   document.getElementById('ins_area').value='';
   document.getElementById('act_area').value='';
@@ -423,8 +423,8 @@ function renderSamples(){
   document.getElementById('sample-body').innerHTML=samples.map((s,i)=>`
     <tr>
       <td class="no">${i+1}</td>
-      <td><input type="number" class="t-inp" value="${s.len}" placeholder="0.6" step="0.01" inputmode="decimal" oninput="onInp(this);samples[${i}].len=this.value;calc()"></td>
-      <td><input type="number" class="t-inp" value="${s.wid}" placeholder="1.7" step="0.01" inputmode="decimal" oninput="onInp(this);samples[${i}].wid=this.value;calc()"></td>
+      <td><input type="number" class="t-inp" value="${s.len}" placeholder="" step="0.01" inputmode="decimal" oninput="onInp(this);samples[${i}].len=this.value;calc()"></td>
+      <td><input type="number" class="t-inp" value="${s.wid}" placeholder="" step="0.01" inputmode="decimal" oninput="onInp(this);samples[${i}].wid=this.value;calc()"></td>
       <td><input type="number" class="t-inp" value="${s.norm}" placeholder="" inputmode="decimal" oninput="onInp(this);samples[${i}].norm=this.value;calc()"></td>
       <td><input type="number" class="t-inp" value="${s.d80}" placeholder="" inputmode="decimal" oninput="onInp(this);samples[${i}].d80=this.value;calc()"></td>
       <td><input type="number" class="t-inp" value="${s.d50}" placeholder="" inputmode="decimal" oninput="onInp(this);samples[${i}].d50=this.value;calc()"></td>
