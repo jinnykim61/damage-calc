@@ -47,16 +47,16 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 
 /* 입력 칸 */
-input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:right}
-select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:left;text-align-last:left;direction:ltr}
+input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center}
+select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center;text-align-last:center;direction:ltr}
 input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
-input.inp::placeholder{color:var(--hint);text-align:left}
+input.inp::placeholder{color:var(--hint);text-align:center}
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 select.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 input.inp.filled:focus,select.inp.filled:focus{box-shadow:0 0 0 3px rgba(29,158,117,0.15)}
 
 /* 자동 계산 칸 */
-input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:right}
+input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:center}
 
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 
@@ -258,10 +258,10 @@ tfoot td.v{color:var(--text)}
 
   <!-- 결과 — 항상 표시 -->
   <div class="result-box pending" id="result-section">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
-      <div>
-        <div class="result-label" style="font-size:12px;opacity:0.8;margin-bottom:4px">최종 산출 피해율</div>
-        <div class="result-pct" id="result-pct" style="font-size:44px;font-weight:700;line-height:1">입력 대기중</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="flex:1">
+        <div style="font-size:12px;opacity:0.8;margin-bottom:4px">최종 산출 피해율</div>
+        <div id="result-pct" style="font-size:44px;font-weight:700;line-height:1">입력 대기중</div>
       </div>
       <button class="save-btn" onclick="saveImage()">
         <span style="font-size:20px">📷</span>
@@ -487,10 +487,10 @@ function calc(){
   document.getElementById('r-area').textContent=surveyArea.toLocaleString()+' ㎡';
   document.getElementById('r-avg-unit').textContent=(avgYield/actArea).toFixed(4)+' kg/㎡';
   document.getElementById('r-coeff').textContent={onion:'1.00(양파)',garlic_s:'0.72(난지형)',garlic_n:'0.70(한지형)'}[crop];
-  document.getElementById('r-surv').textContent=survYield.toLocaleString(undefined,{maximumFractionDigits:1})+' kg';
-  document.getElementById('r-est').textContent=estYield.toLocaleString(undefined,{maximumFractionDigits:1})+' kg';
-  document.getElementById('r-unins').textContent=uninsLoss.toLocaleString(undefined,{maximumFractionDigits:1})+' kg';
-  document.getElementById('r-loss').textContent=netLoss.toLocaleString(undefined,{maximumFractionDigits:1})+' kg';
+  document.getElementById('r-surv').textContent=survYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
+  document.getElementById('r-est').textContent=estYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
+  document.getElementById('r-unins').textContent=uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
+  document.getElementById('r-loss').textContent=netLoss.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
 
   resultBox.className='result-box';
   pctEl.textContent=pct.toFixed(2)+'%';
