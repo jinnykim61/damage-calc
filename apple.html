@@ -228,6 +228,7 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
           <th>품종</th>
           <th>조사대상주</th>
           <th>표본주수</th>
+          <th>표본착과수합</th>
           <th>1주당착과수</th>
           <th>적과후착과수</th>
         </tr>
@@ -321,28 +322,28 @@ function renderVarieties(totalSurvey, totalProper) {
     }
     const inputtedSamples = v.samples.filter(s => s !== '' && s !== null && !isNaN(parseFloat(s))).length;
 
-    // 5주씩 그룹화
-    const groupSize = 5;
-    const groups = [];
-    for(let g=0; g<v.samples.length; g+=groupSize){
-      groups.push(v.samples.slice(g, g+groupSize).map((s,idx)=>({s,si:g+idx})));
-    }
-    const samplesHtml = groups.map((group, gi) => {
-      const from = gi*groupSize+1;
-      const to = Math.min((gi+1)*groupSize, v.samples.length);
-      const rows = group.map(({s,si}) => `
-        <div class="sample-row">
-          <div class="no">${si+1}</div>
-          <input type="number" value="${s}" inputmode="decimal" placeholder="착과수 입력"
-            class="${s!=='' && s!==null && !isNaN(parseFloat(s)) ? 'filled' : ''}"
+    // 4열 가로 배열 (노트처럼: 1/6/11/16, 2/7/12/17...)
+    const cols = 4;
+    const rows = Math.ceil(v.samples.length / cols);
+    let samplesHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+    for(let col=0; col<cols; col++){
+      samplesHtml += '<div style="display:flex;flex-direction:column;gap:6px">';
+      for(let row=0; row<rows; row++){
+        const si = row + col * rows;
+        if(si >= v.samples.length){ samplesHtml += '<div style="height:46px"></div>'; continue; }
+        const s = v.samples[si];
+        const filled = s!=='' && s!==null && !isNaN(parseFloat(s));
+        samplesHtml += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+          <div style="font-size:9px;color:var(--sub);font-weight:600">${si+1}</div>
+          <input type="number" value="${s}" inputmode="decimal" placeholder="-"
+            style="height:38px;width:100%;border:1.5px solid ${filled?'var(--green)':'var(--binp)'};border-radius:6px;font-size:13px;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'var(--text)'};text-align:center;-webkit-appearance:none"
             oninput="this.classList.toggle('filled',this.value!='')"
             onblur="varieties[${vi}].samples[${si}]=this.value;trimSamples(${vi})">
-        </div>`).join('');
-      return `<div style="margin-bottom:10px">
-        <div style="font-size:10px;color:var(--sub);font-weight:600;margin-bottom:4px;padding-left:2px">${from}~${to}번</div>
-        ${rows}
-      </div>`;
-    }).join('');
+        </div>`;
+      }
+      samplesHtml += '</div>';
+    }
+    samplesHtml += '</div>';
 
     const warnClass = inputtedSamples > 0 && inputtedSamples < properN ? 'warn' : (inputtedSamples >= properN ? 'ok' : '');
 
@@ -533,6 +534,7 @@ function doCalc() {
       name: v.name || '-',
       surveyTarget,
       sampleCount,
+      sampleSum,
       perTree,
       afterFruit
     });
@@ -555,6 +557,7 @@ function doCalc() {
       <td>${r.name}</td>
       <td>${r.surveyTarget.toLocaleString()}</td>
       <td>${r.sampleCount}</td>
+      <td>${Math.round(r.sampleSum).toLocaleString()}</td>
       <td>${r.perTree.toFixed(4)}</td>
       <td>${Math.round(r.afterFruit).toLocaleString()}</td>
     </tr>`).join('') + `
