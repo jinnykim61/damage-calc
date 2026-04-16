@@ -258,11 +258,11 @@ tfoot td.v{color:var(--text)}
 
   <!-- 결과 — 항상 표시 -->
   <div class="result-box pending" id="result-section">
-    <div style="text-align:center;margin-bottom:16px">
-      <div class="result-label">최종 산출 피해율</div>
-      <div class="result-pct" id="result-pct">입력 대기중</div>
-    </div>
-    <div style="display:flex;justify-content:flex-end;margin-top:-60px;margin-bottom:16px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div class="result-label" style="font-size:12px;opacity:0.8;margin-bottom:4px">최종 산출 피해율</div>
+        <div class="result-pct" id="result-pct" style="font-size:44px;font-weight:700;line-height:1">입력 대기중</div>
+      </div>
       <button class="save-btn" onclick="saveImage()">
         <span style="font-size:20px">📷</span>
         <span>갤러리 저장</span>
@@ -437,7 +437,7 @@ function calc(){
   // 필수값 미입력시 대기 상태
   if(!avgYield||!actArea||surveyArea<=0){
     resultBox.className='result-box pending';
-    pctEl.textContent='입력 대기중'; pctEl.className='result-pct';
+    pctEl.textContent='입력 대기중'; pctEl.style.color='white';
     return;
   }
 
@@ -451,7 +451,7 @@ function calc(){
 
   if(tA<=0||tEff<=0){
     resultBox.className='result-box pending';
-    pctEl.textContent='표본 입력 대기'; pctEl.className='result-pct';
+    pctEl.textContent='표본 입력 대기'; pctEl.style.color='white';
     return;
   }
 
@@ -478,7 +478,7 @@ function calc(){
 
   resultBox.className='result-box';
   pctEl.textContent=pct.toFixed(2)+'%';
-  pctEl.className='result-pct'+(pct>=20?' danger':' safe');
+  pctEl.style.color=pct>=20?'#FFD0D0':'#A8F0D8';
   saveState();
 }
 
