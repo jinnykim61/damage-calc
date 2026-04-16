@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#185FA5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>과수4종 착과수 계산기</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --blue:#185FA5;--blue2:#378ADD;
+  --auto:#F3F1EA;--border:#D8D6CE;--binp:#378ADD;
+  --text:#1a1a1a;--sub:#666;--hint:#aaa;
+  --bg:#F5F4F0;--card:#fff;
+  --red:#e24b4a;--green:#1D9E75;--orange:#E8860A;
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+
+/* 헤더 */
+.header{background:var(--blue);color:white;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
+.back-btn{width:32px;height:32px;background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1}
+.header-icon{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.header h1{font-size:15px;font-weight:600}
+.header-sub{font-size:11px;opacity:0.75;margin-top:1px}
+
+/* 범례 */
+.legend{display:flex;gap:12px;padding:8px 16px;background:var(--card);border-bottom:0.5px solid var(--border)}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
+.dot-inp{width:10px;height:10px;border-radius:2px;background:white;border:1.5px solid var(--binp)}
+.dot-auto{width:10px;height:10px;border-radius:2px;background:var(--auto);border:0.5px solid var(--border)}
+
+/* 품목 선택 탭 */
+.crop-tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);padding:0 12px;gap:4px}
+.crop-tab{flex:1;padding:10px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer}
+.crop-tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* 컨텐츠 */
+.content{padding:12px 12px 40px}
+.section{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:0.5px solid var(--border)}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-title{font-size:12px;font-weight:600;color:var(--sub);letter-spacing:0.04em}
+.reset-btn{height:32px;padding:0 12px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:12px;font-weight:600;cursor:pointer}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:11px;color:var(--sub);font-weight:500}
+
+input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none}
+input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
+input.inp::placeholder{color:var(--hint)}
+input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+input.inp.filled:focus{box-shadow:0 0 0 3px rgba(29,158,117,0.15)}
+input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none}
+input.auto.warn{background:#FFF3CD;color:#856404;border-color:#ffc107}
+input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
+
+/* 품종 카드 */
+.variety-card{background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:10px;border:0.5px solid var(--border)}
+.variety-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.variety-num{width:24px;height:24px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.variety-name{flex:1;margin:0 8px}
+.variety-name input{height:36px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:13px;background:white;color:var(--text);width:100%;-webkit-appearance:none}
+.del-variety-btn{height:32px;width:32px;border:none;background:transparent;color:var(--red);cursor:pointer;font-size:18px;border-radius:6px;flex-shrink:0}
+
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+
+/* 표본주 테이블 */
+.sample-toggle{font-size:12px;color:var(--blue);cursor:pointer;font-weight:600;padding:6px 0;display:flex;align-items:center;gap:4px}
+.sample-section{display:none}
+.sample-section.open{display:block}
+.sample-grid{display:grid;gap:6px;margin-top:8px}
+.sample-row{display:grid;grid-template-columns:28px 1fr;gap:6px;align-items:center}
+.sample-row .no{font-size:11px;color:var(--hint);text-align:center}
+.sample-row input{height:34px;border:1.5px solid var(--binp);border-radius:6px;padding:0 8px;font-size:13px;background:white;color:var(--text);text-align:center;width:100%;-webkit-appearance:none;transition:background 0.2s,border-color 0.2s}
+.sample-row input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
+.sample-row input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+.sample-row input.filled:focus{box-shadow:0 0 0 3px rgba(29,158,117,0.15)}
+
+.add-variety-btn{width:100%;height:38px;border:1.5px dashed var(--border);background:transparent;border-radius:var(--rs);font-size:13px;color:var(--sub);cursor:pointer;margin-top:4px}
+.add-variety-btn:active{background:var(--auto)}
+
+/* 계산 버튼 */
+.calc-btn{width:100%;height:52px;background:var(--blue);color:white;border:none;border-radius:var(--r);font-size:17px;font-weight:700;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+.calc-btn:active{background:#0d4a8a}
+.calc-btn.done{background:var(--green)}
+
+/* 결과 */
+.result-box{display:none;background:var(--blue);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;color:white}
+.result-box.show{display:block}
+.result-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.result-label{font-size:13px;opacity:0.8;margin-bottom:4px}
+.result-main-val{font-size:44px;font-weight:700;line-height:1}
+.result-main-val.danger{color:#FFD0D0}
+.result-main-val.safe{color:#A8F0D8}
+.result-main-val.warn{color:#FFE082}
+
+.save-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;border-radius:var(--rs);padding:10px 14px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap}
+.save-btn:active{background:rgba(255,255,255,0.35)}
+
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.metric{background:rgba(255,255,255,0.15);border-radius:var(--rs);padding:10px 8px}
+.metric .ml{font-size:10px;opacity:0.75;margin-bottom:4px}
+.metric .mv{font-size:13px;font-weight:600}
+
+.drow{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:0.5px solid rgba(255,255,255,0.15)}
+.drow:last-child{border-bottom:none}
+.drow span:first-child{opacity:0.75}
+.drow span:last-child{font-weight:600}
+
+.variety-result-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px}
+.variety-result-table th{background:rgba(255,255,255,0.15);padding:5px 4px;text-align:center;font-weight:600;font-size:10px}
+.variety-result-table td{padding:5px 4px;text-align:center;border-top:0.5px solid rgba(255,255,255,0.1)}
+
+/* 팝업 */
+#save-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center}
+#save-overlay.show{display:flex}
+.save-modal{background:white;border-radius:var(--r);padding:24px 20px;text-align:center;width:260px}
+.save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
+.save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <button class="back-btn" onclick="location.href='./index.html'">‹</button>
+  <div class="header-icon">🍎</div>
+  <div>
+    <h1>과수 4종 착과수 계산기</h1>
+    <div class="header-sub">적과후 착과수 조사</div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot-inp"></div>직접 입력</div>
+  <div class="legend-item"><div class="dot-auto"></div>자동 계산</div>
+</div>
+
+<!-- 품목 선택 탭 -->
+<div class="crop-tabs">
+  <div class="crop-tab on" onclick="setCrop('apple',0)">🍎 사과</div>
+  <div class="crop-tab" onclick="setCrop('pear',1)">🍐 배</div>
+  <div class="crop-tab" onclick="setCrop('sweetpersimmon',2)">🟠 단감</div>
+  <div class="crop-tab" onclick="setCrop('persimmon',3)">🟤 떫은감</div>
+</div>
+
+<div class="content">
+
+  <!-- 기본 정보 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">기본 정보</div>
+      <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label>평년착과수 (개)</label>
+        <input type="number" id="avg_fruit" class="inp" inputmode="decimal" placeholder="예) 44040"
+          oninput="this.classList.toggle('filled',this.value!='');onInput()">
+      </div>
+      <div class="field">
+        <label>주당평년착과수</label>
+        <input type="text" id="avg_per_tree" class="auto" readonly>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label>전체 가입주수</label>
+        <input type="text" id="total_trees" class="auto" readonly>
+      </div>
+      <div class="field">
+        <label>적정 표본주수</label>
+        <input type="text" id="proper_sample" class="auto" readonly>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label>인수검토 여부</label>
+        <input type="text" id="review_yn" class="auto" readonly>
+      </div>
+      <div class="field">
+        <label>계약변경 여부</label>
+        <input type="text" id="contract_yn" class="auto" readonly>
+      </div>
+    </div>
+  </div>
+
+  <!-- 품종별 조사 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">품종별 조사 <span id="variety-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+    </div>
+    <div id="variety-list"></div>
+    <button class="add-variety-btn" onclick="addVariety()">+ 품종 추가</button>
+  </div>
+
+  <!-- 계산 버튼 -->
+  <button class="calc-btn" id="calc-btn" onclick="doCalc()">
+    <span>🧮</span><span>착과율 계산하기</span>
+  </button>
+
+  <!-- 결과 -->
+  <div class="result-box" id="result-section">
+    <div class="result-top">
+      <div>
+        <div class="result-label">착과율</div>
+        <div class="result-main-val" id="result-rate">-</div>
+      </div>
+      <button class="save-btn" onclick="saveImage()">
+        <span style="font-size:20px">📷</span>
+        <span>갤러리 저장</span>
+      </button>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="ml">평년착과수</div><div class="mv" id="r-avg">-</div></div>
+      <div class="metric"><div class="ml">적과후착과수</div><div class="mv" id="r-total">-</div></div>
+      <div class="metric"><div class="ml">표본주수</div><div class="mv" id="r-samples">-</div></div>
+    </div>
+    <table class="variety-result-table" id="result-table">
+      <thead>
+        <tr>
+          <th>품종</th>
+          <th>조사대상주</th>
+          <th>표본주수</th>
+          <th>1주당착과수</th>
+          <th>적과후착과수</th>
+        </tr>
+      </thead>
+      <tbody id="result-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<div id="save-overlay">
+  <div class="save-modal">
+    <div style="font-size:36px;margin-bottom:10px">✅</div>
+    <p>결과가 갤러리에 저장됐어요!</p>
+    <button class="btn-ok" onclick="document.getElementById('save-overlay').classList.remove('show')">확인</button>
+  </div>
+</div>
+
+<script>
+// ── 상수 ──────────────────────────────────────────
+// 표본주수 기준표 (조사대상주 합계 기준)
+const SAMPLE_TABLE = [
+  [1,49,5],[50,99,6],[100,149,7],[150,199,8],
+  [200,299,9],[300,399,10],[400,499,11],[500,599,12],
+  [600,699,13],[700,799,14],[800,899,15],[900,999,16],[1000,1e9,17]
+];
+
+const CROP_NAMES = {apple:'사과', pear:'배', sweetpersimmon:'단감', persimmon:'떫은감'};
+let currentCrop = 'apple';
+
+// ── 품종 데이터 ──────────────────────────────────
+let varieties = [
+  {name:'', reg:0, actual:0, dead:0, unins:0, samples:[], open:false},
+  {name:'', reg:0, actual:0, dead:0, unins:0, samples:[], open:false}
+];
+
+// ── 표본주수 계산 ─────────────────────────────────
+function getProperSample(total) {
+  if (!total || total <= 0) return 0;
+  for (const [lo,hi,n] of SAMPLE_TABLE) if (total>=lo && total<=hi) return n;
+  return 17;
+}
+
+// ── 품목 전환 ─────────────────────────────────────
+function setCrop(crop, idx) {
+  currentCrop = crop;
+  document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===idx));
+  onInput();
+}
+
+// ── 품종 렌더링 ───────────────────────────────────
+function renderVarieties() {
+  const container = document.getElementById('variety-list');
+  const badge = document.getElementById('variety-count-badge');
+  badge.textContent = `(${varieties.length}품종)`;
+
+  container.innerHTML = varieties.map((v, vi) => {
+    const surveyTarget = Math.max(0, (v.actual||0) - (v.dead||0) - (v.unins||0));
+    const properN = getProperSample(surveyTarget);
+    // 실제 입력된 표본주 수
+    const inputtedSamples = v.samples.filter(s => s !== '' && s !== null).length;
+    const sampleCount = Math.max(properN, inputtedSamples, v.samples.length);
+    // 표본주 행 배열 확보
+    while (v.samples.length < properN) v.samples.push('');
+
+    const samplesHtml = v.samples.map((s, si) => `
+      <div class="sample-row">
+        <div class="no">${si+1}</div>
+        <input type="number" value="${s}" inputmode="decimal" placeholder="착과수 입력"
+          class="${s!=='' && s!==null && !isNaN(parseFloat(s)) ? 'filled' : ''}"
+          oninput="varieties[${vi}].samples[${si}]=this.value;this.classList.toggle('filled',this.value!='');onInput()"
+          onblur="trimSamples(${vi})">
+      </div>`).join('');
+
+    const warnClass = inputtedSamples > 0 && inputtedSamples < properN ? 'warn' : (inputtedSamples >= properN ? 'ok' : '');
+
+    return `
+    <div class="variety-card" id="vc-${vi}">
+      <div class="variety-head">
+        <div class="variety-num">${vi+1}</div>
+        <div class="variety-name">
+          <input type="text" value="${v.name}" placeholder="품종명 입력" oninput="varieties[${vi}].name=this.value">
+        </div>
+        <button class="del-variety-btn" onclick="delVariety(${vi})">×</button>
+      </div>
+      <div class="g4">
+        <div class="field">
+          <label>가입주수</label>
+          <input type="number" class="inp ${v.reg>0?'filled':''}" value="${v.reg||''}" inputmode="decimal"
+            oninput="varieties[${vi}].reg=+this.value||0;this.classList.toggle('filled',this.value!='');onInput()">
+        </div>
+        <div class="field">
+          <label>실제결과주수</label>
+          <input type="number" class="inp ${v.actual>0?'filled':''}" value="${v.actual||''}" inputmode="decimal"
+            oninput="varieties[${vi}].actual=+this.value||0;this.classList.toggle('filled',this.value!='');onInput()">
+        </div>
+        <div class="field">
+          <label>고사주</label>
+          <input type="number" class="inp ${v.dead>0?'filled':''}" value="${v.dead||''}" inputmode="decimal"
+            oninput="varieties[${vi}].dead=+this.value||0;this.classList.toggle('filled',this.value!='');onInput()">
+        </div>
+        <div class="field">
+          <label>미보상주수</label>
+          <input type="number" class="inp ${v.unins>0?'filled':''}" value="${v.unins||''}" inputmode="decimal"
+            oninput="varieties[${vi}].unins=+this.value||0;this.classList.toggle('filled',this.value!='');onInput()">
+        </div>
+      </div>
+      <div class="g3">
+        <div class="field">
+          <label>조사대상주</label>
+          <input type="text" class="auto" value="${surveyTarget > 0 ? surveyTarget.toLocaleString() : ''}" readonly>
+        </div>
+        <div class="field">
+          <label>적정 표본주수</label>
+          <input type="text" class="auto" value="${properN > 0 ? properN+'주' : ''}" readonly>
+        </div>
+        <div class="field">
+          <label>표본주 간격</label>
+          <input type="text" class="auto" value="${surveyTarget > 0 && properN > 0 ? Math.floor(surveyTarget/properN)+'주' : ''}" readonly>
+        </div>
+      </div>
+      <div class="sample-toggle" onclick="toggleSamples(${vi})">
+        <span id="toggle-icon-${vi}">${v.open ? '▼' : '▶'}</span>
+        표본주 착과수 입력
+        <span style="font-size:11px;color:var(--hint);margin-left:4px" id="sample-status-${vi}">
+          ${inputtedSamples > 0 ? `(${inputtedSamples}/${properN}주 입력됨)` : ''}
+        </span>
+      </div>
+      <div class="sample-section ${v.open ? 'open' : ''}" id="ss-${vi}">
+        <div class="sample-grid">${samplesHtml}</div>
+        <button style="margin-top:8px;width:100%;height:32px;border:1px dashed var(--border);background:transparent;border-radius:6px;font-size:12px;color:var(--sub);cursor:pointer"
+          onclick="addSampleRow(${vi})">+ 표본주 추가</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSamples(vi) {
+  varieties[vi].open = !varieties[vi].open;
+  const ss = document.getElementById(`ss-${vi}`);
+  const icon = document.getElementById(`toggle-icon-${vi}`);
+  ss.classList.toggle('open', varieties[vi].open);
+  icon.textContent = varieties[vi].open ? '▼' : '▶';
+}
+
+function trimSamples(vi) {
+  // 뒤에서부터 빈 값 제거
+  while (varieties[vi].samples.length > 0 && varieties[vi].samples[varieties[vi].samples.length-1] === '') {
+    varieties[vi].samples.pop();
+  }
+  onInput();
+}
+
+function addSampleRow(vi) {
+  varieties[vi].samples.push('');
+  varieties[vi].open = true;
+  onInput();
+}
+
+function addVariety() {
+  if (varieties.length >= 6) { alert('품종은 최대 6개까지 입력 가능해요'); return; }
+  varieties.push({name:'', reg:0, actual:0, dead:0, unins:0, samples:[], open:true});
+  onInput();
+}
+
+function delVariety(vi) {
+  if (varieties.length <= 1) { alert('최소 1개 품종은 있어야 해요'); return; }
+  varieties.splice(vi, 1);
+  onInput();
+}
+
+// ── 입력값 변경시 자동계산 ─────────────────────────
+function onInput() {
+  const avgFruit = parseFloat(document.getElementById('avg_fruit').value) || 0;
+
+  // 전체 가입주수 합산
+  const totalReg = varieties.reduce((s,v) => s + (v.reg||0), 0);
+  // 전체 조사대상주 합산
+  const totalSurvey = varieties.reduce((s,v) => s + Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)), 0);
+  const properSample = getProperSample(totalSurvey);
+
+  document.getElementById('total_trees').value = totalReg > 0 ? totalReg.toLocaleString()+'주' : '';
+  document.getElementById('proper_sample').value = properSample > 0 ? properSample+'주' : '';
+
+  // 주당평년착과수
+  if (avgFruit > 0 && totalReg > 0) {
+    document.getElementById('avg_per_tree').value = (avgFruit / totalReg).toFixed(4)+'개';
+  } else {
+    document.getElementById('avg_per_tree').value = '';
+  }
+
+  // 인수검토 여부 (품종별 주수 오차 ±5% 초과)
+  let needReview = false;
+  for (const v of varieties) {
+    if (v.reg > 0 && v.actual > 0) {
+      const ratio = Math.abs(v.actual - v.reg) / v.reg;
+      if (ratio > 0.05) { needReview = true; break; }
+    }
+  }
+  const reviewEl = document.getElementById('review_yn');
+  reviewEl.value = totalReg > 0 ? (needReview ? '인수검토 대상' : '이상무') : '';
+  reviewEl.className = 'auto' + (needReview ? ' warn' : (totalReg > 0 ? ' ok' : ''));
+
+  // 계약변경 여부
+  const contractEl = document.getElementById('contract_yn');
+  contractEl.value = totalReg > 0 ? (needReview ? '계약변경 검토' : '이상무') : '';
+  contractEl.className = 'auto' + (needReview ? ' warn' : (totalReg > 0 ? ' ok' : ''));
+
+  renderVarieties();
+}
+
+// ── 계산 실행 ─────────────────────────────────────
+function doCalc() {
+  const avgFruit = parseFloat(document.getElementById('avg_fruit').value) || 0;
+
+  // 필수값 체크
+  const missing = [];
+  if (!avgFruit) missing.push('평년착과수');
+  const hasActual = varieties.some(v => v.actual > 0);
+  if (!hasActual) missing.push('실제결과주수');
+  const hasSamples = varieties.some(v => v.samples.some(s => parseFloat(s) > 0));
+  if (!hasSamples) missing.push('표본주 착과수');
+  if (missing.length > 0) {
+    alert('아래 항목을 입력해주세요:\n\n• ' + missing.join('\n• '));
+    return;
+  }
+
+  // 표본주 부족 경고
+  const shortVarieties = [];
+  for (const v of varieties) {
+    const surveyTarget = Math.max(0, (v.actual||0)-(v.dead||0)-(v.unins||0));
+    if (surveyTarget <= 0) continue;
+    const properN = getProperSample(surveyTarget);
+    const inputted = v.samples.filter(s => s!=='' && parseFloat(s)>=0).length;
+    if (inputted < properN) shortVarieties.push(`${v.name||'미입력'} (${inputted}/${properN}주)`);
+  }
+  if (shortVarieties.length > 0) {
+    if (!confirm(`표본주수가 부족한 품종이 있어요:\n${shortVarieties.join('\n')}\n\n그래도 계산할까요?`)) return;
+  }
+
+  // 품종별 계산
+  let totalAfterFruit = 0;
+  let totalSampleUsed = 0;
+  const results = [];
+
+  for (const v of varieties) {
+    const surveyTarget = Math.max(0, (v.actual||0)-(v.dead||0)-(v.unins||0));
+    if (surveyTarget <= 0) continue;
+
+    const validSamples = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s)));
+    const sampleSum = validSamples.reduce((s,x) => s + parseFloat(x), 0);
+    const sampleCount = validSamples.length;
+    if (sampleCount === 0) continue;
+
+    const perTree = sampleSum / sampleCount;
+    const afterFruit = Math.round(perTree * surveyTarget * 10) / 10;
+
+    totalAfterFruit += afterFruit;
+    totalSampleUsed += sampleCount;
+
+    results.push({
+      name: v.name || '-',
+      surveyTarget,
+      sampleCount,
+      perTree,
+      afterFruit
+    });
+  }
+
+  const rate = avgFruit > 0 ? totalAfterFruit / avgFruit : 0;
+
+  // 결과 표시
+  document.getElementById('r-avg').textContent = avgFruit.toLocaleString()+'개';
+  document.getElementById('r-total').textContent = Math.round(totalAfterFruit).toLocaleString()+'개';
+  document.getElementById('r-samples').textContent = totalSampleUsed+'주';
+
+  const rateEl = document.getElementById('result-rate');
+  rateEl.textContent = (rate * 100).toFixed(2)+'%';
+  rateEl.className = 'result-main-val' + (rate >= 1 ? ' safe' : rate >= 0.8 ? ' warn' : ' danger');
+
+  // 품종별 결과 테이블
+  document.getElementById('result-tbody').innerHTML = results.map(r => `
+    <tr>
+      <td>${r.name}</td>
+      <td>${r.surveyTarget.toLocaleString()}</td>
+      <td>${r.sampleCount}</td>
+      <td>${r.perTree.toFixed(4)}</td>
+      <td>${Math.round(r.afterFruit).toLocaleString()}</td>
+    </tr>`).join('') + `
+    <tr style="font-weight:700;border-top:1px solid rgba(255,255,255,0.4)">
+      <td>합계</td>
+      <td>${results.reduce((s,r)=>s+r.surveyTarget,0).toLocaleString()}</td>
+      <td>${totalSampleUsed}</td>
+      <td>-</td>
+      <td>${Math.round(totalAfterFruit).toLocaleString()}</td>
+    </tr>`;
+
+  document.getElementById('result-section').classList.add('show');
+
+  const btn = document.getElementById('calc-btn');
+  btn.classList.add('done');
+  btn.innerHTML = '<span>✅</span><span>계산 완료!</span>';
+  setTimeout(() => {
+    btn.classList.remove('done');
+    btn.innerHTML = '<span>🧮</span><span>착과율 계산하기</span>';
+  }, 2000);
+  document.getElementById('result-section').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── 초기화 ───────────────────────────────────────
+function resetAll() {
+  if (!confirm('모든 입력값을 초기화할까요?')) return;
+  document.getElementById('avg_fruit').value = '';
+  varieties = [
+    {name:'', reg:0, actual:0, dead:0, unins:0, samples:[], open:false},
+    {name:'', reg:0, actual:0, dead:0, unins:0, samples:[], open:false}
+  ];
+  document.getElementById('result-section').classList.remove('show');
+  onInput();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── 갤러리 저장 ───────────────────────────────────
+async function saveImage() {
+  try {
+    const el = document.querySelector('.content');
+    const canvas = await html2canvas(el, {backgroundColor:'#F5F4F0', scale:2, useCORS:true, windowWidth:420});
+    const link = document.createElement('a');
+    const now = new Date();
+    const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+    link.download = `착과율_${stamp}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    document.getElementById('save-overlay').classList.add('show');
+  } catch(e) {
+    alert('저장 중 오류가 발생했어요. 스크린샷을 이용해주세요.');
+  }
+}
+
+// ── 서비스워커 캐시 제거 ──────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+  caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
+}
+
+// ── 초기 실행 ─────────────────────────────────────
+onInput();
+</script>
+</body>
+</html>
