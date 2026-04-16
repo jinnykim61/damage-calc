@@ -47,14 +47,14 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 
 /* 입력 칸 */
-input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s}
+input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:right}
 input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
-input.inp::placeholder{color:var(--hint)}
+input.inp::placeholder{color:var(--hint);text-align:left}
 input.inp.filled,select.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 input.inp.filled:focus,select.inp.filled:focus{box-shadow:0 0 0 3px rgba(29,158,117,0.15)}
 
 /* 자동 계산 칸 */
-input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none}
+input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:right}
 
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 
@@ -80,14 +80,14 @@ tfoot td.v{color:var(--text)}
 .result-box{background:var(--blue);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;color:white}
 .result-box.pending{background:#888;opacity:0.5}
 .result-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.result-label{font-size:13px;opacity:0.8;margin-bottom:4px}
-.result-pct{font-size:44px;font-weight:700;line-height:1}
+.result-label{font-size:13px;opacity:0.8;margin-bottom:4px;text-align:center}
+.result-pct{font-size:44px;font-weight:700;line-height:1;text-align:center}
 .result-pct.danger{color:#FFD0D0}
 .result-pct.safe{color:#A8F0D8}
 .save-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;border-radius:var(--rs);padding:10px 14px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap}
 .save-btn:active{background:rgba(255,255,255,0.35)}
 .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.metric{background:rgba(255,255,255,0.15);border-radius:var(--rs);padding:10px 8px}
+.metric{background:rgba(255,255,255,0.15);border-radius:var(--rs);padding:10px 8px;text-align:center}
 .metric .ml{font-size:10px;opacity:0.75;margin-bottom:4px}
 .metric .mv{font-size:13px;font-weight:600}
 .drow{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:0.5px solid rgba(255,255,255,0.15)}
@@ -256,11 +256,11 @@ tfoot td.v{color:var(--text)}
 
   <!-- 결과 — 항상 표시 -->
   <div class="result-box pending" id="result-section">
-    <div class="result-top">
-      <div>
-        <div class="result-label">최종 산출 피해율</div>
-        <div class="result-pct" id="result-pct">입력 대기중</div>
-      </div>
+    <div style="text-align:center;margin-bottom:16px">
+      <div class="result-label">최종 산출 피해율</div>
+      <div class="result-pct" id="result-pct">입력 대기중</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:-60px;margin-bottom:16px">
       <button class="save-btn" onclick="saveImage()">
         <span style="font-size:20px">📷</span>
         <span>갤러리 저장</span>
@@ -380,9 +380,8 @@ function updateSamplesAndCalc(){
 
   renderSamples();
   calc();
-}
-
-// ── 표본 합계만 업데이트 ──────────────────────────
+  saveState();
+} ──────────────────────────
 function calcTotals(){
   let tN=0,t80=0,t50=0,tA=0,tEff=0,tL=0,tW=0;
   for(const s of samples){
@@ -398,6 +397,7 @@ function calcTotals(){
   document.getElementById('s-area').textContent=tA.toFixed(2)+' ㎡';
   document.getElementById('s-unit').textContent=tA>0?((tEff/1000)/tA).toFixed(4)+' kg/㎡':'-';
   calc();
+  saveState();
 }
 
 // ── 메인 계산 ─────────────────────────────────────
@@ -467,19 +467,21 @@ function calc(){
   document.getElementById('r-area').textContent=surveyArea.toLocaleString()+' ㎡';
   document.getElementById('r-avg-unit').textContent=(avgYield/actArea).toFixed(4)+' kg/㎡';
   document.getElementById('r-coeff').textContent=coeff.toFixed(1);
-  document.getElementById('r-surv').textContent=survYield.toFixed(1)+' kg';
-  document.getElementById('r-est').textContent=estYield.toFixed(1)+' kg';
-  document.getElementById('r-unins').textContent=uninsLoss.toFixed(1)+' kg';
-  document.getElementById('r-loss').textContent=netLoss.toFixed(1)+' kg';
+  document.getElementById('r-surv').textContent=survYield.toLocaleString(undefined,{maximumFractionDigits:1})+' kg';
+  document.getElementById('r-est').textContent=estYield.toLocaleString(undefined,{maximumFractionDigits:1})+' kg';
+  document.getElementById('r-unins').textContent=uninsLoss.toLocaleString(undefined,{maximumFractionDigits:1})+' kg';
+  document.getElementById('r-loss').textContent=netLoss.toLocaleString(undefined,{maximumFractionDigits:1})+' kg';
 
   resultBox.className='result-box';
   pctEl.textContent=pct.toFixed(2)+'%';
   pctEl.className='result-pct'+(pct>=20?' danger':' safe');
+  saveState();
 }
 
 // ── 초기화 ───────────────────────────────────────
 function resetAll(){
   if(!confirm('모든 입력값을 초기화할까요?')) return;
+  try{ localStorage.removeItem('garlic_state'); }catch(e){}
   ['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','harvest_date'].forEach(id=>{
     const el=document.getElementById(id);
     el.value=''; el.classList.remove('filled');
@@ -510,7 +512,42 @@ async function saveImage(){
   }catch(e){ alert('저장 중 오류가 발생했어요. 스크린샷을 이용해주세요.'); }
 }
 
-// ── 서비스워커 캐시 제거 ──────────────────────────
+// ── localStorage 저장/불러오기 ────────────────────
+function saveState(){
+  const state={
+    crop: document.getElementById('crop').value,
+    avg_yield: document.getElementById('avg_yield').value,
+    ins_area: document.getElementById('ins_area').value,
+    act_area: document.getElementById('act_area').value,
+    dead_area: document.getElementById('dead_area').value,
+    other_area: document.getElementById('other_area').value,
+    harv_area: document.getElementById('harv_area').value,
+    unins_rate: document.getElementById('unins_rate').value,
+    survey_date: document.getElementById('survey_date').value,
+    harvest_date: document.getElementById('harvest_date').value,
+    samples: samples
+  };
+  try{ localStorage.setItem('garlic_state', JSON.stringify(state)); }catch(e){}
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem('garlic_state');
+    if(!raw) return false;
+    const s=JSON.parse(raw);
+    if(s.crop) document.getElementById('crop').value=s.crop;
+    const fields=['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','survey_date','harvest_date'];
+    fields.forEach(id=>{
+      if(s[id]!==undefined && s[id]!==''){
+        const el=document.getElementById(id);
+        el.value=s[id];
+        el.classList.toggle('filled', s[id]!=='' && s[id]!=='0');
+      }
+    });
+    if(s.samples && s.samples.length>0) samples=s.samples;
+    return true;
+  }catch(e){ return false; }
+}
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
   caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
@@ -525,9 +562,10 @@ document.getElementById('btn-install').addEventListener('click',async()=>{
 });
 
 // ── 초기 실행 ─────────────────────────────────────
-document.getElementById('survey_date').value=fmt(new Date());
+const loaded = loadState();
+if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
 renderSamples();
-calc();
+updateSamplesAndCalc();
 </script>
 </body>
 </html>
