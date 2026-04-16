@@ -298,8 +298,8 @@ function renderVarieties() {
         <div class="no">${si+1}</div>
         <input type="number" value="${s}" inputmode="decimal" placeholder="착과수 입력"
           class="${s!=='' && s!==null && !isNaN(parseFloat(s)) ? 'filled' : ''}"
-          oninput="varieties[${vi}].samples[${si}]=this.value;this.classList.toggle('filled',this.value!='');onInput()"
-          onblur="trimSamples(${vi})">
+          oninput="this.classList.toggle('filled',this.value!='')"
+          onblur="varieties[${vi}].samples[${si}]=this.value;trimSamples(${vi})">
       </div>`).join('');
 
     const warnClass = inputtedSamples > 0 && inputtedSamples < properN ? 'warn' : (inputtedSamples >= properN ? 'ok' : '');
@@ -317,22 +317,26 @@ function renderVarieties() {
         <div class="field">
           <label>가입주수</label>
           <input type="number" class="inp ${v.reg>0?'filled':''}" value="${v.reg||''}" inputmode="decimal"
-            oninput="varieties[${vi}].reg=+this.value||0;this.classList.toggle('filled',this.value!='');onInput()">
+            oninput="this.classList.toggle('filled',this.value!='')"
+            onblur="varieties[${vi}].reg=+this.value||0;onInput()">
         </div>
         <div class="field">
           <label>실제결과주수</label>
           <input type="number" class="inp ${v.actual>0?'filled':''}" value="${v.actual||''}" inputmode="decimal"
-            oninput="varieties[${vi}].actual=+this.value||0;this.classList.toggle('filled',this.value!='');onInput()">
+            oninput="this.classList.toggle('filled',this.value!='')"
+            onblur="varieties[${vi}].actual=+this.value||0;onInput()">
         </div>
         <div class="field">
           <label>고사주</label>
           <input type="number" class="inp ${v.dead>0?'filled':''}" value="${v.dead||''}" inputmode="decimal"
-            oninput="varieties[${vi}].dead=+this.value||0;this.classList.toggle('filled',this.value!='');onInput()">
+            oninput="this.classList.toggle('filled',this.value!='')"
+            onblur="varieties[${vi}].dead=+this.value||0;onInput()">
         </div>
         <div class="field">
           <label>미보상주수</label>
           <input type="number" class="inp ${v.unins>0?'filled':''}" value="${v.unins||''}" inputmode="decimal"
-            oninput="varieties[${vi}].unins=+this.value||0;this.classList.toggle('filled',this.value!='');onInput()">
+            oninput="this.classList.toggle('filled',this.value!='')"
+            onblur="varieties[${vi}].unins=+this.value||0;onInput()">
         </div>
       </div>
       <div class="g3">
