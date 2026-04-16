@@ -377,7 +377,18 @@ function renderVarieties(totalSurvey, totalProper) {
           <label>실제결과주수</label>
           <input type="number" class="inp ${v.actual>0?'filled':''}" value="${v.actual||''}" inputmode="decimal"
             oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].actual=+this.value||0;quickUpdate(${vi},'actual',this.value)"
-            onblur="varieties[${vi}].actual=+this.value||0;if(this.value){varieties[${vi}].open=true;}quickUpdate(${vi},'actual',this.value);onInput();">
+            onblur="
+      varieties[${vi}].actual=+this.value||0;
+      if(this.value && +this.value>0){
+        varieties[${vi}].open=true;
+        // 샘플 배열 미리 확보
+        const _ts=varieties.reduce((s,vv,i)=>s+Math.max(0,(i===${vi}?+this.value||0:vv.actual||0)-(vv.dead||0)-(vv.unins||0)),0);
+        const _tp=getProperSample(_ts);
+        const _st=Math.max(0,(+this.value||0)-(varieties[${vi}].dead||0)-(varieties[${vi}].unins||0));
+        const _pn=_st>0&&_ts>0?Math.max(1,Math.ceil(_tp*_st/_ts)):0;
+        while(varieties[${vi}].samples.length<_pn) varieties[${vi}].samples.push('');
+      }
+      onInput();">
         </div>
         <div class="field">
           <label>고사주</label>
