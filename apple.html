@@ -459,11 +459,11 @@ function toggleSamples(vi) {
 }
 
 function trimSamples(vi) {
-  // 뒤에서부터 빈 값 제거
+  // 뒤에서부터 빈 값 제거 (리렌더링 없이 저장만)
   while (varieties[vi].samples.length > 0 && varieties[vi].samples[varieties[vi].samples.length-1] === '') {
     varieties[vi].samples.pop();
   }
-  onInput();
+  saveState();
 }
 
 function addSampleRow(vi) {
