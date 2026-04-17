@@ -87,12 +87,6 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     </div>
     <div class="crop-card soon">
       <span class="badge badge-soon">준비중</span>
-      <div class="crop-icon">🌶️</div>
-      <div class="crop-name">고추</div>
-      <div class="crop-desc">수확량 조사</div>
-    </div>
-    <div class="crop-card soon">
-      <span class="badge badge-soon">준비중</span>
       <div class="crop-icon">🌿</div>
       <div class="crop-name">인삼</div>
       <div class="crop-desc">전수조사</div>
@@ -117,6 +111,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     </div>
     <div class="crop-card soon">
       <span class="badge badge-soon">준비중</span>
+      <div class="crop-icon">☀️</div>
+      <div class="crop-name">일소피해 조사</div>
+      <div class="crop-desc">사과·배·단감·떫은감</div>
+    </div>
+    <div class="crop-card soon">
+      <span class="badge badge-soon">준비중</span>
       <div class="crop-icon">🌪️</div>
       <div class="crop-name">낙과피해 조사</div>
       <div class="crop-desc">사과·배·단감·떫은감</div>
@@ -133,8 +133,8 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 <!-- 종합과수 -->
 <div class="tab-content" id="tab-2">
   <div class="crop-grid">
-    <div class="crop-card soon">
-      <span class="badge badge-soon">준비중</span>
+    <div class="crop-card done" onclick="go('fruit')">
+      <span class="badge badge-done">완성</span>
       <div class="crop-icon">🍇🍑🫐</div>
       <div class="crop-name">착과수 조사</div>
       <div class="crop-desc">포도·복숭아·자두</div>
@@ -169,6 +169,7 @@ function go(page){
   if(page==='garlic') location.href='./garlic.html';
   if(page==='apple') location.href='./apple.html';
   if(page==='apple_multi') location.href='./apple_multi.html';
+  if(page==='fruit') location.href='./fruit.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
