@@ -313,12 +313,23 @@ function renderVarieties(totalSurvey, totalProper) {
   const badge = document.getElementById('variety-count-badge');
   badge.textContent = `(${varieties.length}품종)`;
 
+  // Largest Remainder Method로 품종별 표본주수 정확히 배분
+  const surveyTargets = varieties.map(v => Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)));
+  let properNs;
+  if(totalSurvey > 0 && totalProper > 0){
+    const floors = surveyTargets.map(st => st > 0 ? Math.floor(totalProper * st / totalSurvey) : 0);
+    const remainder = totalProper - floors.reduce((a,b)=>a+b,0);
+    const fracs = surveyTargets.map((st,i) => ({i, f: st>0 ? (totalProper * st / totalSurvey) - floors[i] : -1}));
+    fracs.sort((a,b) => b.f - a.f);
+    for(let k=0; k<remainder; k++) floors[fracs[k].i]++;
+    properNs = floors.map((p,i) => surveyTargets[i]>0 ? Math.max(1,p) : 0);
+  } else {
+    properNs = surveyTargets.map(() => 0);
+  }
+
   container.innerHTML = varieties.map((v, vi) => {
-    const surveyTarget = Math.max(0, (v.actual||0) - (v.dead||0) - (v.unins||0));
-    // 품종별 표본주수 = 전체표본 × (품종별조사대상/전체조사대상), 최소 1주
-    const properN = surveyTarget > 0 && totalSurvey > 0
-      ? Math.max(1, Math.ceil(totalProper * surveyTarget / totalSurvey))
-      : 0;
+    const surveyTarget = surveyTargets[vi];
+    const properN = properNs[vi];
     // 표본주 배열을 properN에 맞게 조정 (늘리기+줄이기)
     if (properN > v.samples.length) {
       while (v.samples.length < properN) v.samples.push('');
@@ -331,7 +342,7 @@ function renderVarieties(totalSurvey, totalProper) {
 
     // N자형 배열 - 5주씩 열로 (1~5, 6~10, 11~15, 16~20)
     const cols = 4;
-    const rowsPerCol = 5;
+    const rowsPerCol = Math.max(5, Math.ceil(total/cols));
     const total = v.samples.length;
     let samplesHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
     for(let col=0; col<cols; col++){
@@ -345,7 +356,7 @@ function renderVarieties(totalSurvey, totalProper) {
         const bg = filled ? '#e8faf3' : 'white';
         const fc = filled ? '#0d5c35' : 'var(--text)';
         samplesHtml += `<div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px">
-          <div style="font-size:12px;font-weight:700;color:var(--sub)">${si+1}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--sub);width:100%;text-align:left;padding-left:2px">${si+1}</div>
           <input type="number" value="${s}" inputmode="decimal" placeholder="-"
             style="width:100%;height:42px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${fc};text-align:center;-webkit-appearance:none;box-sizing:border-box"
             oninput="this.classList.toggle('filled',this.value!='')"
@@ -517,14 +528,24 @@ function doCalc() {
     return;
   }
 
-  // 표본주 부족 경고 - 전체 기준 비례 계산
+  // 표본주 부족 경고 - Largest Remainder Method
   const _totalSurvey = varieties.reduce((s,v) => s + Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)), 0);
   const _totalProper = getProperSample(_totalSurvey);
+  const _sts = varieties.map(v => Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)));
+  let _properNs;
+  if(_totalSurvey > 0 && _totalProper > 0){
+    const _fl = _sts.map(st => st>0 ? Math.floor(_totalProper*st/_totalSurvey) : 0);
+    const _rem = _totalProper - _fl.reduce((a,b)=>a+b,0);
+    const _fr = _sts.map((st,i)=>({i, f:st>0?(_totalProper*st/_totalSurvey)-_fl[i]:-1}));
+    _fr.sort((a,b)=>b.f-a.f);
+    for(let k=0;k<_rem;k++) _fl[_fr[k].i]++;
+    _properNs = _fl.map((p,i)=>_sts[i]>0?Math.max(1,p):0);
+  } else { _properNs = _sts.map(()=>0); }
   const shortVarieties = [];
-  for (const v of varieties) {
-    const _st = Math.max(0, (v.actual||0)-(v.dead||0)-(v.unins||0));
-    if (_st <= 0) continue;
-    const _pn = Math.max(1, Math.ceil(_totalProper * _st / _totalSurvey));
+  for (let _vi=0; _vi<varieties.length; _vi++) {
+    const v = varieties[_vi];
+    if (_sts[_vi] <= 0) continue;
+    const _pn = _properNs[_vi];
     const inputted = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s))).length;
     if (inputted < _pn) shortVarieties.push(`${v.name||'미입력'} (${inputted}/${_pn}주)`);
   }
