@@ -25,9 +25,9 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .header-icon{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .header h1{font-size:16px;font-weight:600}
 .header-sub{font-size:11px;opacity:0.75;margin-top:1px}
-.mode-tabs{display:flex;background:var(--card);border-bottom:0.5px solid var(--border)}
-.mode-tab{flex:1;height:40px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent}
-.mode-tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.mode-tabs{display:flex;background:var(--card);border-bottom:0.5px solid var(--border);padding:0 12px;gap:6px}
+.mode-tab{flex:1;height:38px;border:1.5px solid var(--border);background:white;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer;border-radius:var(--rs);margin:6px 0}
+.mode-tab.on{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 .legend{display:flex;gap:12px;padding:8px 16px;background:var(--card);border-bottom:0.5px solid var(--border)}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
 .dot-inp{width:10px;height:10px;border-radius:2px;background:white;border:1.5px solid var(--binp)}
@@ -89,8 +89,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 </div>
 
 <div class="mode-tabs">
-  <button class="mode-tab on" onclick="setMode('sample')">표본조사</button>
-  <button class="mode-tab" onclick="setMode('full')">전수조사</button>
+  <button class="mode-tab on" id="tab-sample" onclick="setMode('sample')">표본조사</button>
+  <button class="mode-tab" id="tab-full" onclick="setMode('full')">전수조사</button>
 </div>
 
 <div class="legend">
@@ -119,14 +119,20 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       </div>
       <div class="field">
         <label>병충해단독사고</label>
-        <label style="display:flex;align-items:center;height:40px;gap:8px;border:1.5px solid var(--border);border-radius:var(--rs);padding:0 12px;background:white;cursor:pointer" id="disease-label">
-          <input type="checkbox" id="disease-chk" onchange="onDiseaseChk()" style="width:18px;height:18px;accent-color:var(--blue);cursor:pointer">
-          <span id="disease-txt" style="font-size:14px;font-weight:600;color:var(--hint)">부</span>
-        </label>
+        <div style="display:flex;height:40px;gap:6px">
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--border);border-radius:var(--rs);background:white;cursor:pointer" id="dis-y-label">
+            <input type="radio" name="disease" id="dis-y" value="y" onchange="onDiseaseChk()" style="accent-color:#e24b4a;cursor:pointer">
+            <span style="font-size:14px;font-weight:600;color:var(--sub)">여</span>
+          </label>
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--border);border-radius:var(--rs);background:white;cursor:pointer" id="dis-n-label">
+            <input type="radio" name="disease" id="dis-n" value="n" checked onchange="onDiseaseChk()" style="accent-color:var(--blue);cursor:pointer">
+            <span style="font-size:14px;font-weight:600;color:var(--sub)">부</span>
+          </label>
+        </div>
       </div>
     </div>
     <!-- 평년수확량 / 가입면적 / 계약변경 / 표본구간수 -->
-    <div style="display:grid;grid-template-columns:1.8fr 1.4fr 1fr 0.8fr;gap:6px;margin-bottom:8px">
+    <div style="display:grid;grid-template-columns:1.8fr 1.4fr 1fr 1fr;gap:6px;margin-bottom:8px">
       <div class="field">
         <label>평년수확량 (kg)</label>
         <input type="text" id="avgYield" class="inp" inputmode="decimal"
@@ -147,7 +153,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       </div>
     </div>
     <!-- 면적 라인 -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
+    <div style="display:grid;grid-template-columns:1.1fr 1fr 1.1fr 0.8fr;gap:6px;margin-bottom:8px">
       <div class="field">
         <label>실경작면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="text" id="actArea" class="inp" inputmode="decimal"
@@ -304,21 +310,19 @@ const STD_MOISTURE = {mebyeo: 0.15, chalbyeo: 0.13, bunjil: 0.14};
 const VARIETY_LABEL = {mebyeo:'메벼', chalbyeo:'찰벼', bunjil:'분질미'};
 
 function onDiseaseChk(){
-  const chk = document.getElementById('disease-chk');
-  const txt = document.getElementById('disease-txt');
-  const lbl = document.getElementById('disease-label');
-  if(chk.checked){
-    txt.textContent = '여';
-    txt.style.color = '#e24b4a';
-    txt.style.fontWeight = '700';
-    lbl.style.borderColor = '#e24b4a';
-    lbl.style.background = '#fff5f5';
+  const isY = document.getElementById('dis-y').checked;
+  const nLbl = document.getElementById('dis-n-label');
+  const yLbl = document.getElementById('dis-y-label');
+  if(isY){
+    yLbl.style.borderColor='#e24b4a'; yLbl.style.background='#fff5f5';
+    yLbl.querySelector('span').style.color='#e24b4a';
+    nLbl.style.borderColor='var(--border)'; nLbl.style.background='white';
+    nLbl.querySelector('span').style.color='var(--sub)';
   } else {
-    txt.textContent = '부';
-    txt.style.color = 'var(--hint)';
-    txt.style.fontWeight = '600';
-    lbl.style.borderColor = 'var(--border)';
-    lbl.style.background = 'white';
+    nLbl.style.borderColor='var(--green)'; nLbl.style.background='#e8faf3';
+    nLbl.querySelector('span').style.color='#0d5c35';
+    yLbl.style.borderColor='var(--border)'; yLbl.style.background='white';
+    yLbl.querySelector('span').style.color='var(--sub)';
   }
   calc();
 }
@@ -335,7 +339,8 @@ function markFilled(el){ el.classList.toggle('filled', el.value !== ''); }
 
 function setMode(m){
   mode = m;
-  document.querySelectorAll('.mode-tab').forEach((t,i)=>t.classList.toggle('on',i===(m==='sample'?0:1)));
+  document.getElementById('tab-sample').className = 'mode-tab' + (m==='sample'?' on':'');
+  document.getElementById('tab-full').className = 'mode-tab' + (m==='full'?' on':'');
   document.getElementById('sec-sample').style.display = m==='sample' ? '' : 'none';
   document.getElementById('sec-full').style.display = m==='full' ? '' : 'none';
   calc();
@@ -351,13 +356,14 @@ function getProperSample(area){
 }
 
 function renderSampleInputs(n){
+  // overflow 방지 처리
   const container = document.getElementById('sample-inputs');
   const cols = n <= 4 ? n : n <= 6 ? 3 : 4;
   const rpc = Math.ceil(n / cols);
   const colW = cols===1?'160px':cols===2?'1fr 1fr':cols===3?'repeat(3,1fr)':'repeat(4,1fr)';
-  let html = `<div style="display:grid;grid-template-columns:${colW};gap:8px;margin-bottom:8px">`;
+  let html = `<div style="display:grid;grid-template-columns:${colW};gap:8px;margin-bottom:8px;width:100%;overflow:hidden">`;
   for(let c=0; c<cols; c++){
-    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+    html += '<div style="display:flex;flex-direction:column;gap:6px;min-width:0;overflow:hidden">';
     for(let r=0; r<rpc; r++){
       const si = c*rpc+r;
       if(si>=n){ html+=`<div style="height:46px"></div>`; continue; }
@@ -385,8 +391,7 @@ function calc(){
   const uninsArea = parseFloat(document.getElementById('uninsArea').value)||0;
   const preArea = parseFloat(document.getElementById('preArea').value)||0;
   const variety = document.getElementById('variety').value;
-  const diseaseChk = document.getElementById('disease-chk');
-  const disease = diseaseChk && diseaseChk.checked ? 'y' : 'n';
+  const disease = document.getElementById('dis-y')?.checked ? 'y' : 'n';
   const uninsRate = (parseFloat(document.getElementById('uninsRate').value)||0)/100;
 
   const realArea = actArea || insArea;
@@ -423,7 +428,7 @@ function calc(){
     // 적정 표본구간수
     const proper = surveyArea > 0 ? getProperSample(surveyArea) : 0;
     document.getElementById('properSample').value = proper > 0 ? proper + '구간' : '';
-    document.getElementById('properSampleDisp').value = proper > 0 ? proper + '구간' : '';
+    document.getElementById('properSampleDisp').value = proper > 0 ? String(proper) : '';
 
     // 표본 입력칸 렌더링
     if(proper > 0 && proper !== lastProper){
@@ -525,7 +530,7 @@ function showResult(box, pctEl, avg, survey, eff, area, unins, pihaeyul, isDis){
 function saveState(){
   const ids = ['avgYield','insArea','actArea','deadArea','uninsArea','preArea',
                'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture'];
-  const state = {mode, disease: document.getElementById('disease-chk')?.checked ? 'y' : 'n'};
+  const state = {mode, disease: document.getElementById('dis-y')?.checked ? 'y' : 'n'};
   ids.forEach(id => { const el=document.getElementById(id); if(el) state[id]=el.value; });
   try{ localStorage.setItem('rice_state', JSON.stringify(state)); }catch(e){}
 }
@@ -537,9 +542,9 @@ function loadState(){
     const s = JSON.parse(raw);
     if(s.mode) setMode(s.mode);
     if(s.disease === 'y'){
-      const chk = document.getElementById('disease-chk');
-      if(chk){ chk.checked = true; onDiseaseChk(); }
-    }
+      const dy = document.getElementById('dis-y');
+      if(dy){ dy.checked = true; onDiseaseChk(); }
+    } else { onDiseaseChk(); }
     Object.keys(s).forEach(id => {
       if(id==='mode') return;
       const el = document.getElementById(id);
@@ -556,8 +561,8 @@ function resetAll(){
     const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
   });
   document.getElementById('variety').value='mebyeo';
-  const dchk = document.getElementById('disease-chk');
-  if(dchk){ dchk.checked=false; onDiseaseChk(); }
+  const dn = document.getElementById('dis-n');
+  if(dn){ dn.checked=true; onDiseaseChk(); }
 
   document.getElementById('sample-inputs').innerHTML='';
   const psd=document.getElementById('properSampleDisp'); if(psd) psd.value='';
