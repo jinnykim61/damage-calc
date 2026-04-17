@@ -413,17 +413,26 @@ function addSample(){samples.push({len:'',wid:'',norm:'',d80:'',d50:''});renderS
 function delSample(i){if(samples.length<=1)return;samples.splice(i,1);renderSamples();calcTotals();}
 
 // ── 면적 변경 → 표본 자동 생성 + 계산 ───────────
-function updateGarlicNote(){
+function showGarlicNote(){
+  document.getElementById('garlic-popup').style.display='flex';
+}
+function closeGarlicNote(){
+  const noShow = document.getElementById('garlic-no-show').checked;
+  if(noShow) try{ localStorage.setItem('garlic_note_seen','1'); }catch(e){}
+  document.getElementById('garlic-popup').style.display='none';
+}
+function checkGarlicNote(){
   const crop = document.getElementById('crop').value;
-  const isGarlic = (crop==='garlic_s'||crop==='garlic_n');
-  if(!isGarlic) return;
-  // 1회만 표시
-  try{
-    const seen = localStorage.getItem('garlic_guide_seen');
-    if(!seen){
-      document.getElementById('garlic-guide-overlay').style.display='flex';
-    }
-  }catch(e){}
+  if(crop==='garlic_s'||crop==='garlic_n'){
+    try{
+      if(!localStorage.getItem('garlic_note_seen')){
+        document.getElementById('garlic-popup').style.display='flex';
+      }
+    }catch(e){}
+  }
+}
+function updateGarlicNote(){
+  checkGarlicNote();
 }
 
 function closeGarlicGuide(){
