@@ -230,8 +230,8 @@ tfoot td.v{color:var(--text)}
             <th>이랑길이&#10;(m/5주)</th>
             <th>이랑폭&#10;(m)</th>
             <th>정상&#10;(g)</th>
-            <th>80%형&#10;(g)</th>
-            <th>50%형&#10;(g)</th>
+            <th id="th-d80">80%형&#10;(g)</th>
+            <th id="th-d50">50%형&#10;(g)</th>
             <th style="width:26px"></th>
           </tr>
         </thead>
@@ -248,6 +248,12 @@ tfoot td.v{color:var(--text)}
           </tr>
         </tfoot>
       </table>
+    </div>
+    <div id="garlic-note" style="display:none;background:#FFF9E6;border:1px solid #FFD966;border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:11px;color:#7A5C00;line-height:1.7">
+      <div style="font-weight:700;margin-bottom:4px">📌 마늘 등급별 입력 안내</div>
+      <div>• <b>80%형</b>: 기준 미달 소형 마늘 → <b>실중량 입력</b> (×0.8 자동 적용)</div>
+      <div>• <b>50%형 (벌마늘)</b>: 속 빈 마늘 → <b>실중량×50% 계산 후 입력</b></div>
+      <div style="color:#e24b4a;margin-top:2px">※ 벌마늘 인정기준은 연도별·구역별 지침 확인 필요 (구역장마다 상이)</div>
     </div>
     <button class="add-btn" id="add-btn" style="display:none" onclick="addSample()">+ 표본구간 추가</button>
     <div class="info-strip">
@@ -378,6 +384,12 @@ function addSample(){samples.push({len:'',wid:'',norm:'',d80:'',d50:''});renderS
 function delSample(i){if(samples.length<=1)return;samples.splice(i,1);renderSamples();calcTotals();}
 
 // ── 면적 변경 → 표본 자동 생성 + 계산 ───────────
+function updateGarlicNote(){
+  const crop = document.getElementById('crop').value;
+  const note = document.getElementById('garlic-note');
+  if(note) note.style.display = (crop==='garlic_s'||crop==='garlic_n') ? 'block' : 'none';
+}
+
 function updateSamplesAndCalc(){
   const actArea=toNum(document.getElementById('act_area'));
   const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
@@ -612,6 +624,7 @@ document.getElementById('btn-install').addEventListener('click',async()=>{
 const loaded = loadState();
 if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
 
+updateGarlicNote();
 setTimeout(()=>{
   if(loaded){
     const actArea=toNum(document.getElementById('act_area'))||toNum(document.getElementById('ins_area'));
