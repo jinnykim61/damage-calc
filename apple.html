@@ -122,11 +122,11 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
 .variety-result-table td{padding:5px 4px;text-align:center;border-top:0.5px solid rgba(255,255,255,0.1)}
 
 /* 표본주 그리드 */
-.sg-wrap{display:grid;gap:8px}
+.sg-wrap{display:grid;gap:6px}
 .sg-col{display:flex;flex-direction:column;gap:6px}
-.sg-cell{display:flex;flex-direction:column;gap:4px}
-.sg-no{font-size:13px;font-weight:700;color:var(--text);padding-left:2px;text-align:left;line-height:1}
-.sg-inp{width:100%;height:48px;border:1.5px solid var(--binp);border-radius:6px;font-size:17px;font-weight:600;background:white;color:var(--text);text-align:center;-webkit-appearance:none;box-sizing:border-box;display:block}
+.sg-cell{display:flex;flex-direction:row;align-items:center;gap:4px}
+.sg-no{font-size:13px;font-weight:700;color:var(--sub);min-width:18px;text-align:right;flex-shrink:0}
+.sg-inp{flex:1;height:40px;border:1.5px solid var(--binp);border-radius:6px;font-size:15px;font-weight:600;background:white;color:var(--text);text-align:center;-webkit-appearance:none;box-sizing:border-box;min-width:0}
 .sg-inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 .sg-inp:focus{outline:none;border-color:var(--blue)}
 
