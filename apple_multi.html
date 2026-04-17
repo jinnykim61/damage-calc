@@ -325,19 +325,11 @@ function renderVarieties(totalSurvey, totalProper) {
   const badge = document.getElementById('variety-count-badge');
   badge.textContent = `(${varieties.length}품종)`;
 
-  // Largest Remainder Method로 품종별 표본주수 정확히 배분
+  // 품종별 표본주수 = ceil(전체표본 × 품종별조사대상 / 전체조사대상), 최소 1주
   const surveyTargets = varieties.map(v => Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)));
-  let properNs;
-  if(totalSurvey > 0 && totalProper > 0){
-    const floors = surveyTargets.map(st => st > 0 ? Math.floor(totalProper * st / totalSurvey) : 0);
-    const remainder = totalProper - floors.reduce((a,b)=>a+b,0);
-    const fracs = surveyTargets.map((st,i) => ({i, f: st>0 ? (totalProper * st / totalSurvey) - floors[i] : -1}));
-    fracs.sort((a,b) => b.f - a.f);
-    for(let k=0; k<remainder; k++) floors[fracs[k].i]++;
-    properNs = floors.map((p,i) => surveyTargets[i]>0 ? Math.max(1,p) : 0);
-  } else {
-    properNs = surveyTargets.map(() => 0);
-  }
+  const properNs = surveyTargets.map(st =>
+    st > 0 && totalSurvey > 0 ? Math.max(1, Math.ceil(totalProper * st / totalSurvey)) : 0
+  );
 
   container.innerHTML = varieties.map((v, vi) => {
     const surveyTarget = surveyTargets[vi];
@@ -580,24 +572,14 @@ function doCalc() {
     return;
   }
 
-  // 표본주 부족 경고 - Largest Remainder Method
+  // 표본주 부족 경고 - ceil 방식
   const _totalSurvey = varieties.reduce((s,v) => s + Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)), 0);
   const _totalProper = getProperSample(_totalSurvey);
-  const _sts = varieties.map(v => Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)));
-  let _properNs;
-  if(_totalSurvey > 0 && _totalProper > 0){
-    const _fl = _sts.map(st => st>0 ? Math.floor(_totalProper*st/_totalSurvey) : 0);
-    const _rem = _totalProper - _fl.reduce((a,b)=>a+b,0);
-    const _fr = _sts.map((st,i)=>({i, f:st>0?(_totalProper*st/_totalSurvey)-_fl[i]:-1}));
-    _fr.sort((a,b)=>b.f-a.f);
-    for(let k=0;k<_rem;k++) _fl[_fr[k].i]++;
-    _properNs = _fl.map((p,i)=>_sts[i]>0?Math.max(1,p):0);
-  } else { _properNs = _sts.map(()=>0); }
   const shortVarieties = [];
-  for (let _vi=0; _vi<varieties.length; _vi++) {
-    const v = varieties[_vi];
-    if (_sts[_vi] <= 0) continue;
-    const _pn = _properNs[_vi];
+  for (const v of varieties) {
+    const _st = Math.max(0, (v.actual||0)-(v.dead||0)-(v.unins||0));
+    if (_st <= 0) continue;
+    const _pn = Math.max(1, Math.ceil(_totalProper * _st / _totalSurvey));
     const inputted = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s))).length;
     if (inputted < _pn) shortVarieties.push(`${v.name||'미입력'} (${inputted}/${_pn}주)`);
   }
