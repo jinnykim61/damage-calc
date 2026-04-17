@@ -427,7 +427,7 @@ function calc(){
   const crop=document.getElementById('crop').value;
   const avgYield=toNum(document.getElementById('avg_yield'));
   const insArea=toNum(document.getElementById('ins_area'));
-  const actArea=parseFloat(document.getElementById('act_area').value)||insArea;
+  const actArea=toNum(document.getElementById('act_area'))||insArea;
   const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
   const otherArea=parseFloat(document.getElementById('other_area').value)||0;
   const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
@@ -614,7 +614,7 @@ if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
 
 setTimeout(()=>{
   if(loaded){
-    const actArea=toNum(document.getElementById('act_area'));
+    const actArea=toNum(document.getElementById('act_area'))||toNum(document.getElementById('ins_area'));
     const insArea=toNum(document.getElementById('ins_area'));
     const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
     const otherArea=parseFloat(document.getElementById('other_area').value)||0;
