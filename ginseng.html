@@ -104,12 +104,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>가입면적 (㎡)</label>
+        <label>가입면적</label>
         <input type="number" id="insArea" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="calc()">
       </div>
     </div>
-    <div class="g4">
+    <div class="g3">
       <div class="field">
         <label>가입연근</label>
         <select id="insYear" class="inp" onchange="markFilled(this);onYearChange()">
@@ -122,11 +122,13 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         </select>
       </div>
       <div class="field">
-        <label style="display:flex;justify-content:space-between;align-items:baseline"><span>기준수확량</span><span style="font-size:10px;color:var(--hint)">(kg/㎡)</span></label>
+        <label>기준수확량 <span style="font-size:10px;color:var(--hint)">(kg/㎡)</span></label>
         <input type="number" id="stdYield" class="inp" inputmode="decimal" step="0.01"
           style="text-align:left"
           oninput="markFilled(this)" onblur="calc()">
       </div>
+    </div>
+    <div class="g2">
       <div class="field">
         <label>자부담비율</label>
         <select id="selfDed" class="inp" onchange="markFilled(this);calc()">
@@ -142,25 +144,25 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
   <!-- 조사칸 설정 -->
   <div class="section">
-    <div class="sec-title">② 조사칸 설정</div>
+    <div class="sec-head"><div class="sec-title">② 조사칸 설정</div><div style="font-size:11px;color:var(--hint)">단위: cm</div></div>
     <div class="g4">
       <div class="field">
-        <label>지주목간격 (cm)</label>
+        <label>지주목간격</label>
         <input type="number" id="poleGap" class="inp filled" inputmode="decimal"
           value="180" oninput="markFilled(this)" onblur="calcKanArea()">
       </div>
       <div class="field">
-        <label>두둑폭 (cm)</label>
+        <label>두둑폭</label>
         <input type="number" id="ridgeW" class="inp filled" inputmode="decimal"
           value="90" oninput="markFilled(this)" onblur="calcKanArea()">
       </div>
       <div class="field">
-        <label>고랑폭 (cm)</label>
+        <label>고랑폭</label>
         <input type="number" id="furrowW" class="inp filled" inputmode="decimal"
           value="90" oninput="markFilled(this)" onblur="calcKanArea()">
       </div>
       <div class="field">
-        <label>조사칸넓이 (㎡)</label>
+        <label>조사칸넓이 <span style="font-size:10px;color:var(--hint)">(㎡)</span></label>
         <input type="text" id="kanArea" class="auto" readonly>
       </div>
     </div>
@@ -193,11 +195,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
     <div class="g3">
       <div class="field">
-        <label>금차수확면적 (㎡)</label>
+        <label>금차수확면적</label>
         <input type="text" id="harvestArea" class="auto" readonly>
       </div>
       <div class="field">
-        <label>재배면적 (㎡)</label>
+        <label>재배면적</label>
         <input type="text" id="farmArea" class="auto" readonly>
       </div>
       <div class="field">
@@ -209,29 +211,29 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
   <!-- 수확량 조사 -->
   <div class="section">
-    <div class="sec-title">④ 수확량 조사</div>
-    <div class="g5">
+    <div class="sec-head"><div class="sec-title">④ 수확량 조사</div><div style="font-size:11px;color:var(--hint)">총수확량·흙감량·공톤백: kg</div></div>
+    <div class="g4">
       <div class="field">
-        <label style="display:flex;justify-content:space-between;align-items:baseline"><span>총수확량</span><span style="font-size:10px;color:var(--hint)">(kg)</span></label>
+        <label>총수확량</label>
         <input type="number" id="totalYield" class="inp" inputmode="decimal" step="0.01"
           oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label style="display:flex;justify-content:space-between;align-items:baseline"><span>흙감량</span><span style="font-size:10px;color:var(--hint)">(kg)</span></label>
+        <label>흙감량</label>
         <input type="number" id="soilLoss" class="inp" inputmode="decimal" step="0.01"
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label style="display:flex;justify-content:space-between;align-items:baseline"><span>공톤백</span><span style="font-size:10px;color:var(--hint)">(kg)</span></label>
+        <label>공톤백</label>
         <input type="number" id="bagLoss" class="inp" inputmode="decimal" step="0.01"
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label style="display:flex;justify-content:space-between;align-items:baseline"><span>비례보상</span><span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
+        <label>비례보상 <span style="font-size:10px;color:var(--hint)">(자동)</span></label>
         <input type="text" id="propYield" class="auto" readonly>
       </div>
       <div class="field">
-        <label style="display:flex;justify-content:space-between;align-items:baseline"><span>미보상비율</span><span style="font-size:10px;color:var(--hint)">(%)</span></label>
+        <label>미보상비율</label>
         <input type="number" id="uninsRate" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
