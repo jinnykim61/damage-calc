@@ -64,7 +64,7 @@ input.auto.warn{background:#FFF3CD;color:#856404;border-color:#ffc107}
 input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
 
 /* 품종 카드 */
-.variety-card{background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:10px;border:0.5px solid var(--border)}
+.variety-card{background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:10px;border:0.5px solid var(--border);overflow:hidden}
 .variety-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .variety-num{width:24px;height:24px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
 .variety-name{flex:1;margin:0 8px}
@@ -273,8 +273,8 @@ let currentCrop = 'apple';
 
 // ── 품종 데이터 ──────────────────────────────────
 let varieties = [
-  {name:'', reg:0, actual:0, dead:0, unins:0, samples:[], open:false},
-  {name:'', reg:0, actual:0, dead:0, unins:0, samples:[], open:false}
+  {name:'A', reg:0, actual:0, dead:0, unins:0, samples:[], open:false},
+  {name:'B', reg:0, actual:0, dead:0, unins:0, samples:[], open:false}
 ];
 
 // ── 즉시 자동계산칸 업데이트 (리렌더 없이) ────────
@@ -482,7 +482,9 @@ function addSampleRow(vi) {
 
 function addVariety() {
   if (varieties.length >= 20) { alert('품종은 최대 20개까지 입력 가능해요'); return; }
-  varieties.push({name:'', reg:0, actual:0, dead:0, unins:0, samples:[], open:true});
+  const _alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const _nextName = _alpha[varieties.length] || String(varieties.length+1);
+  varieties.push({name:_nextName, reg:0, actual:0, dead:0, unins:0, samples:[], open:true});
   onInput();
 }
 
@@ -713,8 +715,8 @@ function resetAll() {
   try{ localStorage.removeItem('apple_multi_state'); }catch(e){}
   document.getElementById('avg_fruit').value = '';
   varieties = [
-    {name:'', reg:0, actual:0, dead:0, unins:0, samples:[], open:false},
-    {name:'', reg:0, actual:0, dead:0, unins:0, samples:[], open:false}
+    {name:'A', reg:0, actual:0, dead:0, unins:0, samples:[], open:false},
+    {name:'B', reg:0, actual:0, dead:0, unins:0, samples:[], open:false}
   ];
   document.getElementById('result-section').classList.remove('show');
   onInput();
