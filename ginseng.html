@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="theme-color" content="#185FA5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>인삼 전수조사 계산기</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --blue:#185FA5;--blue2:#378ADD;
+  --auto:#F3F1EA;--border:#D8D6CE;--binp:#378ADD;
+  --text:#1a1a1a;--sub:#666;--hint:#aaa;
+  --bg:#F5F4F0;--card:#fff;
+  --red:#e24b4a;--green:#1D9E75;
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+.header{background:var(--blue);color:white;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
+.back-btn{width:32px;height:32px;background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.header-icon{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.header h1{font-size:16px;font-weight:600}
+.header-sub{font-size:11px;opacity:0.75;margin-top:1px}
+.legend{display:flex;gap:12px;padding:8px 16px;background:var(--card);border-bottom:0.5px solid var(--border)}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
+.dot-inp{width:10px;height:10px;border-radius:2px;background:white;border:1.5px solid var(--binp)}
+.dot-filled{width:10px;height:10px;border-radius:2px;background:#e8faf3;border:1.5px solid var(--green)}
+.dot-auto{width:10px;height:10px;border-radius:2px;background:var(--auto);border:0.5px solid var(--border)}
+.content{padding:12px 12px 40px}
+.section{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:0.5px solid var(--border)}
+.sec-title{font-size:12px;font-weight:600;color:var(--sub);margin-bottom:10px;letter-spacing:0.04em}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-head .sec-title{margin-bottom:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:11px;color:var(--sub);font-weight:500}
+input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center}
+select.inp{text-align:left;text-align-last:left}
+input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
+input.inp::placeholder{color:var(--hint)}
+input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+select.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:center}
+.reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
+.result-box{background:var(--blue);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;color:white}
+.result-box.pending{background:#888;opacity:0.5}
+.result-pct{font-size:40px;font-weight:700;line-height:1}
+.save-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;border-radius:var(--rs);padding:10px 14px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.metric{background:rgba(255,255,255,0.15);border-radius:var(--rs);padding:10px 8px;text-align:center}
+.metric .ml{font-size:10px;opacity:0.75;margin-bottom:4px}
+.metric .mv{font-size:13px;font-weight:600}
+.drow{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:0.5px solid rgba(255,255,255,0.15)}
+.drow:last-child{border-bottom:none}
+.drow span:first-child{opacity:0.75}
+.drow span:last-child{font-weight:600}
+#save-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center}
+#save-overlay.show{display:flex}
+.save-modal{background:white;border-radius:var(--r);padding:24px 20px;text-align:center;width:260px}
+.save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
+.save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="header">
+  <button class="back-btn" onclick="location.href='./index.html'">‹</button>
+  <div class="header-icon">🌿</div>
+  <div>
+    <h1>인삼 전수조사 계산기</h1>
+    <div class="header-sub">밭작물 · 전수조사</div>
+  </div>
+</div>
+<div class="legend">
+  <div class="legend-item"><div class="dot-inp"></div>직접 입력</div>
+  <div class="legend-item"><div class="dot-filled"></div>입력 완료</div>
+  <div class="legend-item"><div class="dot-auto"></div>자동 계산</div>
+</div>
+<div class="content">
+
+  <!-- 보험가입사항 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">① 보험가입사항</div>
+      <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label>보험가입금액 (원)</label>
+        <input type="number" id="insAmt" class="inp" inputmode="decimal"
+          oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>가입칸수</label>
+        <input type="number" id="insKan" class="inp" inputmode="decimal"
+          oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>가입면적 (㎡)</label>
+        <input type="number" id="insArea" class="inp" inputmode="decimal"
+          oninput="markFilled(this)" onblur="calc()">
+      </div>
+    </div>
+    <div class="g4">
+      <div class="field">
+        <label>가입연근</label>
+        <select id="insYear" class="inp" onchange="markFilled(this);onYearChange()">
+          <option value="">선택</option>
+          <option value="2">2년근</option>
+          <option value="3">3년근</option>
+          <option value="4">4년근</option>
+          <option value="5">5년근</option>
+          <option value="6">6년근</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>기준수확량 (kg/㎡)</label>
+        <input type="number" id="stdYield" class="inp" inputmode="decimal" step="0.01"
+          style="text-align:left"
+          oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>자부담비율</label>
+        <select id="selfDed" class="inp" onchange="markFilled(this);calc()">
+          <option value="0.1">10%</option>
+          <option value="0.15">15%</option>
+          <option value="0.2" selected>20%</option>
+          <option value="0.3">30%</option>
+          <option value="0.4">40%</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 조사칸 설정 -->
+  <div class="section">
+    <div class="sec-title">② 조사칸 설정</div>
+    <div class="g4">
+      <div class="field">
+        <label>지주목간격 (cm)</label>
+        <input type="number" id="poleGap" class="inp filled" inputmode="decimal"
+          value="180" oninput="markFilled(this)" onblur="calcKanArea()">
+      </div>
+      <div class="field">
+        <label>두둑폭 (cm)</label>
+        <input type="number" id="ridgeW" class="inp filled" inputmode="decimal"
+          value="90" oninput="markFilled(this)" onblur="calcKanArea()">
+      </div>
+      <div class="field">
+        <label>고랑폭 (cm)</label>
+        <input type="number" id="furrowW" class="inp filled" inputmode="decimal"
+          value="90" oninput="markFilled(this)" onblur="calcKanArea()">
+      </div>
+      <div class="field">
+        <label>조사칸넓이 (㎡)</label>
+        <input type="text" id="kanArea" class="auto" readonly>
+      </div>
+    </div>
+  </div>
+
+  <!-- 전수조사내역 -->
+  <div class="section">
+    <div class="sec-title">③ 전수조사내역</div>
+    <div class="g4">
+      <div class="field">
+        <label>실경작칸수</label>
+        <input type="number" id="actKan" class="inp" inputmode="decimal"
+          oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>금차수확칸수</label>
+        <input type="number" id="harvestKan" class="inp" inputmode="decimal"
+          oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>미수확칸수</label>
+        <input type="number" id="unharvestKan" class="inp" inputmode="decimal"
+          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>기수확칸수</label>
+        <input type="number" id="preharvestKan" class="inp" inputmode="decimal"
+          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label>금차수확면적 (㎡)</label>
+        <input type="text" id="harvestArea" class="auto" readonly>
+      </div>
+      <div class="field">
+        <label>재배면적 (㎡)</label>
+        <input type="text" id="farmArea" class="auto" readonly>
+      </div>
+      <div class="field">
+        <label>칸수오차</label>
+        <input type="text" id="kanErr" class="auto" readonly>
+      </div>
+    </div>
+  </div>
+
+  <!-- 수확량 조사 -->
+  <div class="section">
+    <div class="sec-title">④ 수확량 조사</div>
+    <div class="g5">
+      <div class="field">
+        <label>총수확량 (kg)</label>
+        <input type="number" id="totalYield" class="inp" inputmode="decimal" step="0.01"
+          oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>흙감량 (kg)</label>
+        <input type="number" id="soilLoss" class="inp" inputmode="decimal" step="0.01"
+          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>공톤백 (kg)</label>
+        <input type="number" id="bagLoss" class="inp" inputmode="decimal" step="0.01"
+          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>비례보상(면적) 수확량 (kg)</label>
+        <input type="number" id="propYield" class="inp" inputmode="decimal" step="0.01"
+          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>미보상비율 (%)</label>
+        <input type="number" id="uninsRate" class="inp" inputmode="decimal"
+          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label>조사수확량 (kg)</label>
+        <input type="text" id="surveyYield" class="auto" readonly>
+      </div>
+      <div class="field">
+        <label>단위면적당 조사수확량</label>
+        <input type="text" id="unitYield" class="auto" readonly>
+      </div>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div class="result-box pending" id="result-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-size:12px;opacity:0.8;margin-bottom:4px">피해율</div>
+        <div class="result-pct" id="result-pct">입력 대기중</div>
+      </div>
+      <button class="save-btn" onclick="saveImage()">
+        <span style="font-size:20px">📷</span>
+        <span>갤러리 저장</span>
+      </button>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="ml">단위면적당 조사수확량</div><div class="mv" id="r-unit">-</div></div>
+      <div class="metric"><div class="ml">단위면적당 미보상감수량</div><div class="mv" id="r-unins">-</div></div>
+    </div>
+    <div class="drow"><span>조사수확량</span><span id="r-survey">-</span></div>
+    <div class="drow"><span>금차수확면적</span><span id="r-area">-</span></div>
+    <div class="drow"><span>재배면적</span><span id="r-farm">-</span></div>
+    <div class="drow"><span>피해면적비율</span><span id="r-dmg-ratio">-</span></div>
+    <div class="drow" id="drow-pay"><span>지급보험금</span><span id="r-pay">-</span></div>
+  </div>
+
+</div>
+
+<div id="save-overlay">
+  <div class="save-modal">
+    <div style="font-size:36px;margin-bottom:10px">✅</div>
+    <p>결과가 갤러리에 저장됐어요!</p>
+    <button class="btn-ok" onclick="document.getElementById('save-overlay').classList.remove('show')">확인</button>
+  </div>
+</div>
+
+<script>
+// 연근별 기준수확량 (kg/㎡)
+const STD_YIELD = {2:0.50, 3:0.64, 4:0.71, 5:0.73, 6:0.73};
+
+function markFilled(el){
+  el.classList.toggle('filled', el.value !== '');
+}
+
+function onYearChange(){
+  const yr = document.getElementById('insYear').value;
+  const stdEl = document.getElementById('stdYield');
+  if(yr && STD_YIELD[yr]){
+    stdEl.value = STD_YIELD[yr];
+    stdEl.classList.add('filled');
+  }
+  calc();
+}
+
+function calcKanArea(){
+  const pole = parseFloat(document.getElementById('poleGap').value)||180;
+  const ridge = parseFloat(document.getElementById('ridgeW').value)||90;
+  const furrow = parseFloat(document.getElementById('furrowW').value)||90;
+  const area = pole * (ridge + furrow) / 10000;
+  document.getElementById('kanArea').value = area.toFixed(4) + ' ㎡';
+  calc();
+}
+
+function calc(){
+  const insAmt = parseFloat(document.getElementById('insAmt').value)||0;
+  const insKan = parseFloat(document.getElementById('insKan').value)||0;
+  const stdYield = parseFloat(document.getElementById('stdYield').value)||0;
+  const selfDed = parseFloat(document.getElementById('selfDed').value)||0.2;
+  const uninsRate = (parseFloat(document.getElementById('uninsRate').value)||0)/100;
+
+  const pole = parseFloat(document.getElementById('poleGap').value)||180;
+  const ridge = parseFloat(document.getElementById('ridgeW').value)||90;
+  const furrow = parseFloat(document.getElementById('furrowW').value)||90;
+  const kanArea = pole * (ridge + furrow) / 10000;
+  document.getElementById('kanArea').value = kanArea.toFixed(4) + ' ㎡';
+
+  const actKan = parseFloat(document.getElementById('actKan').value)||0;
+  const harvestKan = parseFloat(document.getElementById('harvestKan').value)||0;
+  const totalYield = parseFloat(document.getElementById('totalYield').value)||0;
+  const soilLoss = parseFloat(document.getElementById('soilLoss').value)||0;
+  const bagLoss = parseFloat(document.getElementById('bagLoss').value)||0;
+  const propYield = parseFloat(document.getElementById('propYield').value)||0;
+
+  // 칸수 오차
+  const kanErr = insKan > 0 ? ((actKan - insKan) / insKan * 100).toFixed(2) + '%' : '-';
+  document.getElementById('kanErr').value = kanErr;
+
+  // 면적
+  const harvestArea = harvestKan * kanArea;
+  const farmArea = actKan * kanArea;
+  document.getElementById('harvestArea').value = harvestArea > 0 ? harvestArea.toFixed(2) + ' ㎡' : '';
+  document.getElementById('farmArea').value = farmArea > 0 ? farmArea.toFixed(2) + ' ㎡' : '';
+
+  // 조사수확량 = 총수확량 - 흙감량 - 공톤백 - 비례보상수확량
+  const surveyYield = Math.max(0, totalYield - soilLoss - bagLoss - propYield);
+  document.getElementById('surveyYield').value = surveyYield > 0 ? surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
+
+  const unitYield = harvestArea > 0 ? surveyYield / harvestArea : 0;
+  document.getElementById('unitYield').value = unitYield > 0 ? unitYield.toFixed(4) + ' kg/㎡' : '';
+
+  const resultBox = document.getElementById('result-section');
+  const pctEl = document.getElementById('result-pct');
+
+  if(!insAmt || !stdYield || !actKan || !harvestKan || !totalYield){
+    resultBox.className = 'result-box pending';
+    pctEl.textContent = '입력 대기중';
+    pctEl.style.color = 'white';
+    return;
+  }
+
+  // 피해율 = (1 - 단위면적당조사수확량/기준수확량) × (금차수확면적/재배면적) - 미보상감수량비율
+  const uninsLossUnit = (stdYield - unitYield) * uninsRate;
+  const dmgRatio = farmArea > 0 ? harvestArea / farmArea : 1;
+  const pihaeyul = Math.max(0, (1 - unitYield / stdYield) * dmgRatio - (uninsLossUnit / stdYield));
+
+  // 지급보험금
+  const payAmt = Math.max(0, insAmt * (pihaeyul - selfDed));
+
+  document.getElementById('r-unit').textContent = unitYield.toFixed(4) + ' kg/㎡';
+  document.getElementById('r-unins').textContent = uninsLossUnit.toFixed(4) + ' kg/㎡';
+  document.getElementById('r-survey').textContent = surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
+  document.getElementById('r-area').textContent = harvestArea.toFixed(2) + ' ㎡';
+  document.getElementById('r-farm').textContent = farmArea.toFixed(2) + ' ㎡';
+  document.getElementById('r-dmg-ratio').textContent = (dmgRatio*100).toFixed(2) + '%';
+
+  const payEl = document.getElementById('r-pay');
+  const drowPay = document.getElementById('drow-pay');
+  if(payAmt > 0){
+    payEl.textContent = payAmt.toLocaleString('ko-KR',{maximumFractionDigits:0}) + ' 원';
+    drowPay.style.color = '#FFD0D0';
+  } else {
+    payEl.textContent = '지급보험금 없음';
+    drowPay.style.color = '';
+  }
+
+  resultBox.className = 'result-box';
+  pctEl.textContent = (pihaeyul*100).toFixed(2) + '%';
+  pctEl.style.color = pihaeyul >= selfDed ? '#FFD0D0' : '#A8F0D8';
+
+  saveState();
+}
+
+function saveState(){
+  const ids = ['insAmt','insKan','insArea','insYear','selfDed','stdYield','uninsRate',
+               'poleGap','ridgeW','furrowW','actKan','harvestKan','unharvestKan',
+               'preharvestKan','totalYield','soilLoss','bagLoss','propYield'];
+  const state = {};
+  ids.forEach(id => { state[id] = document.getElementById(id).value; });
+  try{ localStorage.setItem('ginseng_state', JSON.stringify(state)); }catch(e){}
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem('ginseng_state');
+    if(!raw) return false;
+    const s = JSON.parse(raw);
+    Object.keys(s).forEach(id => {
+      const el = document.getElementById(id);
+      if(el && s[id] !== ''){ el.value = s[id]; el.classList.toggle('filled', true); }
+    });
+    return true;
+  }catch(e){ return false; }
+}
+
+function resetAll(){
+  if(!confirm('모든 입력값을 초기화할까요?')) return;
+  try{ localStorage.removeItem('ginseng_state'); }catch(e){}
+  ['insAmt','insKan','insArea','stdYield','uninsRate','actKan','harvestKan',
+   'unharvestKan','preharvestKan','totalYield','soilLoss','bagLoss','propYield'].forEach(id => {
+    const el = document.getElementById(id); el.value=''; el.classList.remove('filled');
+  });
+  document.getElementById('insYear').value='';
+  document.getElementById('selfDed').value='0.2';
+  document.getElementById('poleGap').value='180';
+  document.getElementById('ridgeW').value='90';
+  document.getElementById('furrowW').value='90';
+  calcKanArea();
+  document.getElementById('result-section').className='result-box pending';
+  document.getElementById('result-pct').textContent='입력 대기중';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function saveImage(){
+  try{
+    const el = document.querySelector('.content');
+    const canvas = await html2canvas(el,{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:420});
+    const link = document.createElement('a');
+    const now = new Date();
+    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+    link.download=`인삼피해율_${stamp}.png`; link.href=canvas.toDataURL('image/png'); link.click();
+    document.getElementById('save-overlay').classList.add('show');
+  }catch(e){ alert('저장 중 오류가 발생했어요.'); }
+}
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
+  caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
+}
+
+loadState();
+setTimeout(()=>{ calcKanArea(); }, 50);
+</script>
+</body>
+</html>
