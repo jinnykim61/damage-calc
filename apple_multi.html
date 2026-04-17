@@ -365,11 +365,14 @@ function renderVarieties(totalSurvey, totalProper) {
         if(si >= _total){ samplesHtml += `<div style="height:62px"></div>`; continue; }
         const s = v.samples[si];
         const filled = s!=='' && s!==null && !isNaN(parseFloat(s));
-        samplesHtml += `<div class="sg-cell">
-          <div class="sg-no">${si+1}</div>
+        const _bc = filled ? '#1D9E75' : '#378ADD';
+        const _bg = filled ? '#e8faf3' : 'white';
+        const _fc = filled ? '#0d5c35' : '#1a1a1a';
+        samplesHtml += `<div style="display:flex;flex-direction:row;align-items:center;gap:4px">
+          <span style="font-size:13px;font-weight:700;color:#666;min-width:18px;text-align:right;flex-shrink:0">${si+1}</span>
           <input type="number" value="${s}" inputmode="decimal" placeholder="-"
-            class="sg-inp${filled?' filled':''}"
-            oninput="this.classList.toggle('filled',this.value!='')"
+            style="flex:1;height:40px;border:1.5px solid ${_bc};border-radius:6px;font-size:15px;font-weight:600;background:${_bg};color:${_fc};text-align:center;-webkit-appearance:none;min-width:0;box-sizing:border-box"
+            oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
             onblur="varieties[${vi}].samples[${si}]=this.value;trimSamples(${vi})">
         </div>`;
       }
