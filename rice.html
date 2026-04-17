@@ -107,24 +107,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="sec-title">① 보험가입사항</div>
       <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
     </div>
-    <div class="g3">
-      <div class="field">
-        <label>평년수확량 (kg)</label>
-        <input type="text" id="avgYield" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="calc()">
-      </div>
-      <div class="field">
-        <label>가입면적 (㎡)</label>
-        <input type="text" id="insArea" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="calc()">
-      </div>
-      <div class="field">
-        <label>실경작면적 (㎡)</label>
-        <input type="text" id="actArea" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="calc()">
-      </div>
-    </div>
-    <div class="g4">
+    <div class="g2">
       <div class="field">
         <label>품종</label>
         <select id="variety" class="inp" onchange="markFilled(this);calc()">
@@ -140,17 +123,33 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           <option value="y">여</option>
         </select>
       </div>
+    </div>
+    <div class="g4">
       <div class="field">
-        <label>미보상비율 (%)</label>
-        <input type="number" id="uninsRate" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+        <label>평년수확량 (kg)</label>
+        <input type="text" id="avgYield" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>가입면적 (㎡)</label>
+        <input type="text" id="insArea" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
       </div>
       <div class="field">
         <label>계약변경여부</label>
         <input type="text" id="contractYn" class="auto" readonly>
       </div>
+      <div class="field">
+        <label>표본구간수 <span style="font-size:10px;color:var(--hint)">(자동)</span></label>
+        <input type="text" id="properSampleDisp" class="auto" readonly>
+      </div>
     </div>
-    <div class="g3">
+    <div class="g4">
+      <div class="field">
+        <label>실경작면적 (㎡)</label>
+        <input type="text" id="actArea" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
+      </div>
       <div class="field">
         <label>고사면적 (㎡)</label>
         <input type="number" id="deadArea" class="inp" inputmode="decimal"
@@ -167,7 +166,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
     </div>
-    <div class="g2">
+    <div class="g3">
       <div class="field">
         <label>조사대상면적</label>
         <input type="text" id="surveyArea" class="auto" readonly>
@@ -175,6 +174,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="field">
         <label>기준함수율</label>
         <input type="text" id="stdMoisture" class="auto" readonly>
+      </div>
+      <div class="field">
+        <label>미보상비율 (%)</label>
+        <input type="number" id="uninsRate" class="inp" inputmode="decimal"
+          placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
     </div>
   </div>
@@ -217,8 +221,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
     <div class="section">
       <div class="sec-head">
-        <div class="sec-title">③ 표본구간별 수확량</div>
-        <div style="font-size:11px;color:var(--hint)">단위: g</div>
+        <div class="sec-title">③ 표본구간별 수확량 <span style="font-size:11px;color:var(--hint)">(g)</span></div>
+        <div style="font-size:11px;color:var(--hint)" id="sample-inputted"></div>
       </div>
       <div id="sample-inputs"></div>
       <div class="g2">
@@ -394,6 +398,7 @@ function calc(){
     // 적정 표본구간수
     const proper = surveyArea > 0 ? getProperSample(surveyArea) : 0;
     document.getElementById('properSample').value = proper > 0 ? proper + '구간' : '';
+    document.getElementById('properSampleDisp').value = proper > 0 ? proper + '구간' : '';
 
     // 표본 입력칸 렌더링
     if(proper > 0 && proper !== lastProper){
@@ -411,6 +416,8 @@ function calc(){
         inputted++;
       }
     }
+    const inputtedDisp = document.getElementById('sample-inputted');
+    if(inputtedDisp) inputtedDisp.textContent = inputted > 0 ? `${inputted}/${proper}구간 입력` : '';
     document.getElementById('sampleTotal').value = sampleTotal > 0 ? sampleTotal + ' g' : '';
 
     const totalSampleArea = unitArea * proper;
@@ -522,6 +529,7 @@ function resetAll(){
   document.getElementById('variety').value='mebyeo';
   document.getElementById('disease').value='n';
   document.getElementById('sample-inputs').innerHTML='';
+  const psd=document.getElementById('properSampleDisp'); if(psd) psd.value='';
   lastProper=0;
   document.getElementById('result-section').className='result-box pending';
   document.getElementById('result-pct').textContent='입력 대기중';
