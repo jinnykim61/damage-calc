@@ -190,6 +190,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
     </div>
+    <div class="field" style="margin-bottom:8px">
+        <label>실제경작면적 (㎡)</label>
+        <input type="number" id="actArea" class="inp" inputmode="decimal"
+          oninput="markFilled(this)" onblur="calc()">
+    </div>
     <div class="g3">
       <div class="field">
         <label>금차수확면적</label>
@@ -231,7 +236,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
     </div>
-    <div class="g3">
+    <div class="g4">
+      <div class="field">
+        <label>평년수확량 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
+        <input type="text" id="stdTotalYield" class="auto" readonly>
+      </div>
       <div class="field">
         <label>비례보상 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
         <input type="text" id="propYield" class="auto" readonly>
@@ -261,8 +270,9 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
     <div class="metrics">
       <div class="metric"><div class="ml">단위면적당 조사수확량</div><div class="mv" id="r-unit">-</div></div>
-      <div class="metric"><div class="ml">단위면적당 미보상감수량</div><div class="mv" id="r-unins">-</div></div>
+      <div class="metric"><div class="ml">미보상감수량</div><div class="mv" id="r-unins">-</div></div>
     </div>
+    <div class="drow"><span>평년수확량</span><span id="r-std">-</span></div>
     <div class="drow"><span>조사수확량</span><span id="r-survey">-</span></div>
     <div class="drow"><span>금차수확면적</span><span id="r-area">-</span></div>
     <div class="drow"><span>재배면적</span><span id="r-farm">-</span></div>
@@ -328,10 +338,18 @@ function calc(){
   // 비례보상 수확량 자동계산
   // = 조사수확량 × (증가면적 / 실경작면적)
   const insArea = parseFloat(document.getElementById('insArea').value)||0;
+  const actArea = parseFloat(document.getElementById('actArea').value)||0;
+  const realArea = actArea > 0 ? actArea : farmArea; // 실제경작면적 (입력없으면 재배면적)
   const surveyYieldRaw = Math.max(0, totalYield - soilLoss - bagLoss);
+
+  // 평년수확량 = 기준수확량 × 가입면적
+  const stdTotalYield = stdYield * insArea;
+  document.getElementById('stdTotalYield').value = stdTotalYield > 0 ? stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
+
+  // 비례보상 = 조사수확량 × (증가면적/실제경작면적)
   let propYield = 0;
-  if(farmArea > 0 && insArea > 0 && farmArea > insArea){
-    propYield = surveyYieldRaw * ((farmArea - insArea) / farmArea);
+  if(realArea > 0 && insArea > 0 && realArea > insArea){
+    propYield = surveyYieldRaw * ((realArea - insArea) / realArea);
   }
   document.getElementById('propYield').value = propYield > 0 ? propYield.toFixed(2) + ' kg' : '0 kg';
 
@@ -362,20 +380,21 @@ function calc(){
     return;
   }
 
-  // 피해율 = (1 - 단위면적당조사수확량/기준수확량) × (금차수확면적/재배면적) - 미보상감수량비율
-  const uninsLossUnit = (stdYield - unitYield) * uninsRate;
-  const dmgRatio = farmArea > 0 ? harvestArea / farmArea : 1;
-  const pihaeyul = Math.max(0, (1 - unitYield / stdYield) * dmgRatio - (uninsLossUnit / stdYield));
+  // 피해율 = (평년수확량 - 조사수확량) / 평년수확량
+  // 피해율 = (평년수확량 - 조사수확량 - 미보상감수량) / 평년수확량
+  const uninsLoss = Math.max(0, stdTotalYield - surveyYield) * uninsRate;
+  const pihaeyul = stdTotalYield > 0 ? Math.max(0, (stdTotalYield - surveyYield - uninsLoss) / stdTotalYield) : 0;
 
   // 지급보험금
   const payAmt = Math.max(0, insAmt * (pihaeyul - selfDed));
 
   document.getElementById('r-unit').textContent = unitYield.toFixed(4) + ' kg/㎡';
-  document.getElementById('r-unins').textContent = uninsLossUnit.toFixed(4) + ' kg/㎡';
+  document.getElementById('r-unins').textContent = uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
   document.getElementById('r-survey').textContent = surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
   document.getElementById('r-area').textContent = harvestArea.toFixed(2) + ' ㎡';
   document.getElementById('r-farm').textContent = farmArea.toFixed(2) + ' ㎡';
   document.getElementById('r-dmg-ratio').textContent = (dmgRatio*100).toFixed(2) + '%';
+  document.getElementById('r-std').textContent = stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
 
   const payEl = document.getElementById('r-pay');
   const drowPay = document.getElementById('drow-pay');
@@ -397,7 +416,7 @@ function calc(){
 function saveState(){
   const ids = ['insAmt','insKan','insArea','insYear','selfDed','stdYield','uninsRate',
                'poleGap','ridgeW','furrowW','actKan','harvestKan','unharvestKan',
-               'preharvestKan','totalYield','soilLoss','bagLoss'];
+               'preharvestKan','actArea','totalYield','soilLoss','bagLoss'];
   const state = {};
   ids.forEach(id => { state[id] = document.getElementById(id).value; });
   try{ localStorage.setItem('ginseng_state', JSON.stringify(state)); }catch(e){}
