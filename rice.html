@@ -107,10 +107,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="sec-title">① 보험가입사항</div>
       <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
     </div>
+    <!-- 품종 + 병충해 -->
     <div class="g2">
       <div class="field">
         <label>품종</label>
-        <select id="variety" class="inp" onchange="markFilled(this);calc()">
+        <select id="variety" class="inp filled" onchange="markFilled(this);calc()">
           <option value="mebyeo">메벼</option>
           <option value="chalbyeo">찰벼</option>
           <option value="bunjil">분질미</option>
@@ -118,54 +119,57 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       </div>
       <div class="field">
         <label>병충해단독사고</label>
-        <select id="disease" class="inp" onchange="markFilled(this);calc()">
-          <option value="n">부</option>
-          <option value="y">여</option>
-        </select>
+        <label style="display:flex;align-items:center;height:40px;gap:8px;border:1.5px solid var(--border);border-radius:var(--rs);padding:0 12px;background:white;cursor:pointer" id="disease-label">
+          <input type="checkbox" id="disease-chk" onchange="onDiseaseChk()" style="width:18px;height:18px;accent-color:var(--blue);cursor:pointer">
+          <span id="disease-txt" style="font-size:14px;font-weight:600;color:var(--hint)">부</span>
+        </label>
       </div>
     </div>
-    <div class="g4">
+    <!-- 평년수확량 / 가입면적 / 계약변경 / 표본구간수 -->
+    <div style="display:grid;grid-template-columns:1.8fr 1.4fr 1fr 0.8fr;gap:6px;margin-bottom:8px">
       <div class="field">
         <label>평년수확량 (kg)</label>
         <input type="text" id="avgYield" class="inp" inputmode="decimal"
           oninput="onCommaInput(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>가입면적 (㎡)</label>
+        <label>가입면적</label>
         <input type="text" id="insArea" class="inp" inputmode="decimal"
           oninput="onCommaInput(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>계약변경여부</label>
+        <label>계약변경</label>
         <input type="text" id="contractYn" class="auto" readonly>
       </div>
       <div class="field">
-        <label>표본구간수 <span style="font-size:10px;color:var(--hint)">(자동)</span></label>
+        <label>표본구간</label>
         <input type="text" id="properSampleDisp" class="auto" readonly>
       </div>
     </div>
-    <div class="g4">
+    <!-- 면적 라인 -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
       <div class="field">
-        <label>실경작면적 (㎡)</label>
+        <label>실경작면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="text" id="actArea" class="inp" inputmode="decimal"
           oninput="onCommaInput(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>고사면적 (㎡)</label>
+        <label>고사면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="number" id="deadArea" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>타작물·미보상 (㎡)</label>
+        <label>타작물미보상 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="number" id="uninsArea" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>기수확 (㎡)</label>
+        <label>기수확 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="number" id="preArea" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
     </div>
+    <!-- 조사대상 / 기준함수율 / 미보상비율 -->
     <div class="g3">
       <div class="field">
         <label>조사대상면적</label>
@@ -299,6 +303,26 @@ let mode = 'sample';
 const STD_MOISTURE = {mebyeo: 0.15, chalbyeo: 0.13, bunjil: 0.14};
 const VARIETY_LABEL = {mebyeo:'메벼', chalbyeo:'찰벼', bunjil:'분질미'};
 
+function onDiseaseChk(){
+  const chk = document.getElementById('disease-chk');
+  const txt = document.getElementById('disease-txt');
+  const lbl = document.getElementById('disease-label');
+  if(chk.checked){
+    txt.textContent = '여';
+    txt.style.color = '#e24b4a';
+    txt.style.fontWeight = '700';
+    lbl.style.borderColor = '#e24b4a';
+    lbl.style.background = '#fff5f5';
+  } else {
+    txt.textContent = '부';
+    txt.style.color = 'var(--hint)';
+    txt.style.fontWeight = '600';
+    lbl.style.borderColor = 'var(--border)';
+    lbl.style.background = 'white';
+  }
+  calc();
+}
+
 function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
 function onCommaInput(el){
   const raw = el.value.replace(/,/g,'').replace(/[^0-9.]/g,'');
@@ -361,7 +385,8 @@ function calc(){
   const uninsArea = parseFloat(document.getElementById('uninsArea').value)||0;
   const preArea = parseFloat(document.getElementById('preArea').value)||0;
   const variety = document.getElementById('variety').value;
-  const disease = document.getElementById('disease').value;
+  const diseaseChk = document.getElementById('disease-chk');
+  const disease = diseaseChk && diseaseChk.checked ? 'y' : 'n';
   const uninsRate = (parseFloat(document.getElementById('uninsRate').value)||0)/100;
 
   const realArea = actArea || insArea;
@@ -499,8 +524,8 @@ function showResult(box, pctEl, avg, survey, eff, area, unins, pihaeyul, isDis){
 
 function saveState(){
   const ids = ['avgYield','insArea','actArea','deadArea','uninsArea','preArea',
-               'variety','disease','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture'];
-  const state = {mode};
+               'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture'];
+  const state = {mode, disease: document.getElementById('disease-chk')?.checked ? 'y' : 'n'};
   ids.forEach(id => { const el=document.getElementById(id); if(el) state[id]=el.value; });
   try{ localStorage.setItem('rice_state', JSON.stringify(state)); }catch(e){}
 }
@@ -511,6 +536,10 @@ function loadState(){
     if(!raw) return;
     const s = JSON.parse(raw);
     if(s.mode) setMode(s.mode);
+    if(s.disease === 'y'){
+      const chk = document.getElementById('disease-chk');
+      if(chk){ chk.checked = true; onDiseaseChk(); }
+    }
     Object.keys(s).forEach(id => {
       if(id==='mode') return;
       const el = document.getElementById(id);
@@ -527,7 +556,9 @@ function resetAll(){
     const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
   });
   document.getElementById('variety').value='mebyeo';
-  document.getElementById('disease').value='n';
+  const dchk = document.getElementById('disease-chk');
+  if(dchk){ dchk.checked=false; onDiseaseChk(); }
+
   document.getElementById('sample-inputs').innerHTML='';
   const psd=document.getElementById('properSampleDisp'); if(psd) psd.value='';
   lastProper=0;
