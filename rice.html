@@ -133,9 +133,9 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       </div>
     </div>
     <!-- 평년수확량 / 가입면적 / 계약변경 / 표본구간수 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 0.8fr 0.8fr;gap:6px;margin-bottom:8px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 0.75fr 0.75fr;gap:6px;margin-bottom:8px">
       <div class="field">
-        <label style="display:flex;justify-content:space-between"><span>평년수확량</span><span style="font-size:10px;color:var(--hint)">(kg)</span></label>
+        <label>평년수확량 <span style="font-size:10px;color:var(--hint)">(kg)</span></label>
         <input type="text" id="avgYield" class="inp" inputmode="decimal"
           oninput="onCommaInput(this)" onblur="calc()">
       </div>
