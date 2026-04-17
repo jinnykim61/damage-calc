@@ -92,21 +92,32 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="sec-title">① 보험가입사항</div>
       <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
     </div>
-    <div class="g3">
+    <div class="g2">
       <div class="field">
         <label>보험가입금액 (원)</label>
-        <input type="number" id="insAmt" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()">
+        <input type="text" id="insAmt" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
       </div>
+      <div class="field">
+        <label>비례보상 대상여부</label>
+        <input type="text" id="propTarget" class="auto" readonly>
+      </div>
+    </div>
+    <div class="g3">
       <div class="field">
         <label>가입칸수</label>
         <input type="number" id="insKan" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>가입면적</label>
-        <input type="number" id="insArea" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()">
+        <label>가입면적 (㎡)</label>
+        <input type="text" id="insArea" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>실제경작면적 (㎡)</label>
+        <input type="text" id="actArea" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
       </div>
     </div>
     <div class="g3">
@@ -190,11 +201,6 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
     </div>
-    <div class="field" style="margin-bottom:8px">
-        <label>실제경작면적 (㎡)</label>
-        <input type="number" id="actArea" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()">
-    </div>
     <div class="g3">
       <div class="field">
         <label>금차수확면적</label>
@@ -205,7 +211,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <input type="text" id="farmArea" class="auto" readonly>
       </div>
       <div class="field">
-        <label>칸수오차</label>
+        <label>면적오차</label>
         <input type="text" id="kanErr" class="auto" readonly>
       </div>
     </div>
@@ -217,8 +223,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     <div class="g4">
       <div class="field">
         <label>총수확량</label>
-        <input type="number" id="totalYield" class="inp" inputmode="decimal" step="0.01"
-          oninput="markFilled(this)" onblur="calc()">
+        <input type="text" id="totalYield" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
       </div>
       <div class="field">
         <label>흙감량</label>
@@ -291,6 +297,16 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 </div>
 
 <script>
+// 천단위 구분 입력 처리
+function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
+function fmtComma(val){ return val > 0 ? Math.round(val).toLocaleString('ko-KR') : ''; }
+function onCommaInput(el){
+  const raw = el.value.replace(/,/g,'').replace(/[^0-9.]/g,'');
+  const num = parseFloat(raw);
+  el.value = raw ? num.toLocaleString('ko-KR') : '';
+  el.classList.toggle('filled', el.value !== '');
+}
+
 // 연근별 기준수확량 (kg/㎡)
 const STD_YIELD = {2:0.50, 3:0.64, 4:0.71, 5:0.73, 6:0.73};
 
@@ -313,12 +329,12 @@ function calcKanArea(){
   const ridge = parseFloat(document.getElementById('ridgeW').value)||90;
   const furrow = parseFloat(document.getElementById('furrowW').value)||90;
   const area = pole * (ridge + furrow) / 10000;
-  document.getElementById('kanArea').value = area.toFixed(4) + ' ㎡';
+  document.getElementById('kanArea').value = parseFloat(area.toFixed(4)) + ' ㎡';
   calc();
 }
 
 function calc(){
-  const insAmt = parseFloat(document.getElementById('insAmt').value)||0;
+  const insAmt = toNum(document.getElementById('insAmt'));
   const insKan = parseFloat(document.getElementById('insKan').value)||0;
   const stdYield = parseFloat(document.getElementById('stdYield').value)||0;
   const selfDed = parseFloat(document.getElementById('selfDed').value)||0.2;
@@ -328,27 +344,63 @@ function calc(){
   const ridge = parseFloat(document.getElementById('ridgeW').value)||90;
   const furrow = parseFloat(document.getElementById('furrowW').value)||90;
   const kanArea = pole * (ridge + furrow) / 10000;
-  document.getElementById('kanArea').value = kanArea.toFixed(4) + ' ㎡';
+  document.getElementById('kanArea').value = parseFloat(kanArea.toFixed(4)) + ' ㎡';
 
   const actKan = parseFloat(document.getElementById('actKan').value)||0;
   const harvestKan = parseFloat(document.getElementById('harvestKan').value)||0;
-  const totalYield = parseFloat(document.getElementById('totalYield').value)||0;
+  const totalYield = toNum(document.getElementById('totalYield'));
   const soilLoss = parseFloat(document.getElementById('soilLoss').value)||0;
   const bagLoss = parseFloat(document.getElementById('bagLoss').value)||0;
   // 비례보상 수확량 자동계산
   // = 조사수확량 × (증가면적 / 실경작면적)
-  const insArea = parseFloat(document.getElementById('insArea').value)||0;
-  const actArea = parseFloat(document.getElementById('actArea').value)||0;
-  const realArea = actArea > 0 ? actArea : farmArea; // 실제경작면적 (입력없으면 재배면적)
+  const insArea = toNum(document.getElementById('insArea'));
+  const actArea = toNum(document.getElementById('actArea'));
+
+  // 실제경작면적 ±10% 이내이면 가입면적으로 계산
+  const areaErr = insArea > 0 && actArea > 0 ? (actArea - insArea) / insArea : 0;
+  const calcArea = (insArea > 0 && actArea > 0 && Math.abs(areaErr) <= 0.1) ? insArea : (actArea || insArea);
+
+  // 면적오차 표시
+  const kanErrEl = document.getElementById('kanErr');
+  if(insArea > 0 && actArea > 0) {
+    kanErrEl.value = (areaErr * 100).toFixed(2) + '%';
+    kanErrEl.style.color = Math.abs(areaErr) > 0.1 ? '#e24b4a' : '';
+    kanErrEl.style.fontWeight = Math.abs(areaErr) > 0.1 ? '700' : '';
+  } else {
+    kanErrEl.value = '-';
+    kanErrEl.style.color = '';
+  }
+
+  // 비례보상 대상여부 (인삼은 증가면적 비례보상 대상)
+  const propTargetEl = document.getElementById('propTarget');
+  if(insArea > 0 && actArea > 0) {
+    if(areaErr > 0.1) {
+      propTargetEl.value = '비례보상 대상';
+      propTargetEl.style.color = '#e24b4a';
+      propTargetEl.style.fontWeight = '700';
+    } else if(areaErr < -0.1) {
+      propTargetEl.value = '원장변경 대상';
+      propTargetEl.style.color = '#e24b4a';
+      propTargetEl.style.fontWeight = '700';
+    } else {
+      propTargetEl.value = '이상무';
+      propTargetEl.style.color = '';
+      propTargetEl.style.fontWeight = '';
+    }
+  } else {
+    propTargetEl.value = '';
+  }
+
+  const realArea = actArea > 0 ? actArea : insArea;
   const surveyYieldRaw = Math.max(0, totalYield - soilLoss - bagLoss);
 
-  // 평년수확량 = 기준수확량 × 가입면적
-  const stdTotalYield = stdYield * insArea;
+  // 평년수확량 = 기준수확량 × 가입면적 (calcArea 적용)
+  const stdTotalYield = stdYield * calcArea;
   document.getElementById('stdTotalYield').value = stdTotalYield > 0 ? stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
 
-  // 비례보상 = 조사수확량 × (증가면적/실제경작면적)
+  // 비례보상 = 조사수확량 × (증가면적/실제경작면적) - 면적 10% 초과시만
   let propYield = 0;
-  if(realArea > 0 && insArea > 0 && realArea > insArea){
+  if(realArea > 0 && insArea > 0 && areaErr > 0.1) {
     propYield = surveyYieldRaw * ((realArea - insArea) / realArea);
   }
   document.getElementById('propYield').value = propYield > 0 ? propYield.toFixed(2) + ' kg' : '0 kg';
@@ -438,10 +490,12 @@ function loadState(){
 function resetAll(){
   if(!confirm('모든 입력값을 초기화할까요?')) return;
   try{ localStorage.removeItem('ginseng_state'); }catch(e){}
-  ['insAmt','insKan','insArea','stdYield','uninsRate','actKan','harvestKan',
-   'unharvestKan','preharvestKan','totalYield','soilLoss','bagLoss','propYield'].forEach(id => {
-    const el = document.getElementById(id); el.value=''; el.classList.remove('filled');
+  ['insAmt','insKan','insArea','actArea','stdYield','uninsRate','actKan','harvestKan',
+   'unharvestKan','preharvestKan','totalYield','soilLoss','bagLoss'].forEach(id => {
+    const el = document.getElementById(id); if(el){el.value=''; el.classList.remove('filled');}
   });
+  const pt = document.getElementById('propTarget');
+  if(pt){pt.value=''; pt.style.color=''; pt.style.fontWeight='';}
   document.getElementById('insYear').value='';
   document.getElementById('selfDed').value='0.2';
   document.getElementById('poleGap').value='180';

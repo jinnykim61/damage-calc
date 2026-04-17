@@ -151,18 +151,18 @@ tfoot td.v{color:var(--text)}
     <div class="g3">
       <div class="field">
         <label>평년수확량 (kg)</label>
-        <input type="number" id="avg_yield" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()">
+        <input type="text" id="avg_yield" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
       </div>
       <div class="field">
         <label>가입면적 (㎡)</label>
-        <input type="number" id="ins_area" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()">
+        <input type="text" id="ins_area" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
       </div>
       <div class="field">
         <label>실제경작면적 (㎡)</label>
-        <input type="number" id="act_area" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
+        <input type="text" id="act_area" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()">
       </div>
     </div>
     <div class="g3">
@@ -299,6 +299,16 @@ tfoot td.v{color:var(--text)}
 </div>
 
 <script>
+// 천단위 구분 입력
+function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
+function onCommaInput(el){
+  const raw = el.value.replace(/,/g,'').replace(/[^0-9.]/g,'');
+  const parts = raw.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  el.value = parts.join('.');
+  el.classList.toggle('filled', el.value !== '' && el.value !== '0');
+}
+
 const COEFF={
   onion:[[1,1999,.9],[2000,2999,1],[3000,3999,1.1],[4000,4999,1.1],[5000,5999,1.2],[6000,6999,1.2],[7000,7999,1.3],[8000,8999,1.3],[9000,9999,1.4],[10000,11999,1.4],[12000,14999,1.6],[15000,19999,1.8],[20000,29999,1.9],[30000,1e9,1.9]],
   garlic_s:[[1,1499,4],[1500,2999,5],[3000,4499,6],[4500,1e9,7]],
@@ -369,7 +379,7 @@ function delSample(i){if(samples.length<=1)return;samples.splice(i,1);renderSamp
 
 // ── 면적 변경 → 표본 자동 생성 + 계산 ───────────
 function updateSamplesAndCalc(){
-  const actArea=parseFloat(document.getElementById('act_area').value)||0;
+  const actArea=toNum(document.getElementById('act_area'));
   const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
   const otherArea=parseFloat(document.getElementById('other_area').value)||0;
   const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
@@ -415,8 +425,8 @@ function calcTotals(){
 // ── 메인 계산 ─────────────────────────────────────
 function calc(){
   const crop=document.getElementById('crop').value;
-  const avgYield=parseFloat(document.getElementById('avg_yield').value)||0;
-  const insArea=parseFloat(document.getElementById('ins_area').value)||0;
+  const avgYield=toNum(document.getElementById('avg_yield'));
+  const insArea=toNum(document.getElementById('ins_area'));
   const actArea=parseFloat(document.getElementById('act_area').value)||insArea;
   const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
   const otherArea=parseFloat(document.getElementById('other_area').value)||0;
@@ -604,8 +614,8 @@ if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
 
 setTimeout(()=>{
   if(loaded){
-    const actArea=parseFloat(document.getElementById('act_area').value)||0;
-    const insArea=parseFloat(document.getElementById('ins_area').value)||0;
+    const actArea=toNum(document.getElementById('act_area'));
+    const insArea=toNum(document.getElementById('ins_area'));
     const deadArea=parseFloat(document.getElementById('dead_area').value)||0;
     const otherArea=parseFloat(document.getElementById('other_area').value)||0;
     const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
