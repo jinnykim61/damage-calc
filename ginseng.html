@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -125,11 +124,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="field">
         <label>기준수확량 <span style="font-size:10px;color:var(--hint)">(kg/㎡)</span></label>
         <input type="number" id="stdYield" class="inp" inputmode="decimal" step="0.01"
-          style="text-align:left"
           oninput="markFilled(this)" onblur="calc()">
       </div>
-    </div>
-    <div class="g2">
       <div class="field">
         <label>자부담비율</label>
         <select id="selfDed" class="inp" onchange="markFilled(this);calc()">
@@ -230,18 +226,18 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>비례보상 <span style="font-size:10px;color:var(--hint)">(자동)</span></label>
-        <input type="text" id="propYield" class="auto" readonly>
-      </div>
-      <div class="field">
-        <label>미보상비율</label>
+        <label>미보상비율 <span style="font-size:10px;color:var(--hint)">(%)</span></label>
         <input type="number" id="uninsRate" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
     </div>
-    <div class="g2">
+    <div class="g3">
       <div class="field">
-        <label>조사수확량 (kg)</label>
+        <label>비례보상 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
+        <input type="text" id="propYield" class="auto" readonly>
+      </div>
+      <div class="field">
+        <label>조사수확량 <span style="font-size:10px;color:var(--hint)">(kg)</span></label>
         <input type="text" id="surveyYield" class="auto" readonly>
       </div>
       <div class="field">
