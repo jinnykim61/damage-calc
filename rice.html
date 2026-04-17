@@ -6,6 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#185FA5">
 <title>벼 피해율 계산기</title>
+<!-- v1776425406 -->
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -540,7 +541,7 @@ function loadState(){
     const raw = localStorage.getItem('rice_state');
     if(!raw) return;
     const s = JSON.parse(raw);
-    if(s.mode) setMode(s.mode); else setMode('sample');
+    if(s.mode) {} // mode는 항상 sample로 시작
     if(s.disease === 'y'){
       const dy = document.getElementById('dis-y');
       if(dy){ dy.checked = true; onDiseaseChk(); }
@@ -589,7 +590,7 @@ if('serviceWorker' in navigator){
 }
 
 loadState();
-setMode('sample');
+setMode('sample'); // 항상 표본조사로 시작
 setTimeout(calc, 50);
 </script>
 </body>
