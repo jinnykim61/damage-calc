@@ -220,7 +220,10 @@ tfoot td.v{color:var(--text)}
   </div>
 
   <div class="section">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div class="sec-title" style="margin-bottom:0">표본구간 조사 <span id="sample-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span id="sample-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+      <button onclick="showGarlicNote()" style="background:none;border:none;font-size:18px;cursor:pointer;padding:0 4px" title="입력 안내 보기">📌</button>
+    </div>
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
     <div id="sample-tbl-wrap" class="tbl-wrap" style="display:none">
       <table>
