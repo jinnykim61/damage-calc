@@ -152,11 +152,11 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 <!-- 논작물 -->
 <div class="tab-content" id="tab-3">
   <div class="crop-grid">
-    <div class="crop-card soon">
-      <span class="badge badge-soon">준비중</span>
+    <div class="crop-card done" onclick="go('rice')">
+      <span class="badge badge-done">완성</span>
       <div class="crop-icon">🌾</div>
       <div class="crop-name">벼</div>
-      <div class="crop-desc">수량 조사</div>
+      <div class="crop-desc">수확량 조사</div>
     </div>
   </div>
 </div>
@@ -171,7 +171,7 @@ function go(page){
   if(page==='apple') location.href='./apple.html';
   if(page==='apple_multi') location.href='./apple_multi.html';
   if(page==='fruit') location.href='./fruit.html';
-  if(page==='ginseng') location.href='./ginseng.html';
+  if(page==='rice') location.href='./rice.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));

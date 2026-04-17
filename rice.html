@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="theme-color" content="#185FA5">
+<title>벼 피해율 계산기</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --blue:#185FA5;--blue2:#378ADD;
+  --auto:#F3F1EA;--border:#D8D6CE;--binp:#378ADD;
+  --text:#1a1a1a;--sub:#666;--hint:#aaa;
+  --bg:#F5F4F0;--card:#fff;
+  --red:#e24b4a;--green:#1D9E75;
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+.header{background:var(--blue);color:white;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
+.back-btn{width:32px;height:32px;background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.header-icon{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.header h1{font-size:16px;font-weight:600}
+.header-sub{font-size:11px;opacity:0.75;margin-top:1px}
+.mode-tabs{display:flex;background:var(--card);border-bottom:0.5px solid var(--border)}
+.mode-tab{flex:1;height:40px;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent}
+.mode-tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.legend{display:flex;gap:12px;padding:8px 16px;background:var(--card);border-bottom:0.5px solid var(--border)}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
+.dot-inp{width:10px;height:10px;border-radius:2px;background:white;border:1.5px solid var(--binp)}
+.dot-filled{width:10px;height:10px;border-radius:2px;background:#e8faf3;border:1.5px solid var(--green)}
+.dot-auto{width:10px;height:10px;border-radius:2px;background:var(--auto);border:0.5px solid var(--border)}
+.content{padding:12px 12px 40px}
+.section{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:0.5px solid var(--border)}
+.sec-title{font-size:12px;font-weight:600;color:var(--sub);margin-bottom:10px;letter-spacing:0.04em}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-head .sec-title{margin-bottom:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:11px;color:var(--sub);font-weight:500}
+input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s;text-align:center}
+select.inp{text-align:left}
+input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
+input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+select.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;text-align:center}
+.reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
+
+/* 표본구간 그리드 */
+.sample-grid{display:grid;gap:6px;margin-bottom:8px}
+.sample-cell{display:flex;flex-direction:row;align-items:center;gap:4px}
+.sample-no{font-size:13px;font-weight:700;color:var(--sub);min-width:18px;text-align:right;flex-shrink:0}
+
+/* 결과 */
+.result-box{background:var(--blue);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;color:white}
+.result-box.pending{background:#888;opacity:0.5}
+.result-pct{font-size:40px;font-weight:700;line-height:1}
+.save-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;border-radius:var(--rs);padding:10px 14px;font-size:12px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.metric{background:rgba(255,255,255,0.15);border-radius:var(--rs);padding:10px 8px;text-align:center}
+.metric .ml{font-size:10px;opacity:0.75;margin-bottom:4px}
+.metric .mv{font-size:13px;font-weight:600}
+.drow{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:0.5px solid rgba(255,255,255,0.15)}
+.drow:last-child{border-bottom:none}
+.drow span:first-child{opacity:0.75}
+.drow span:last-child{font-weight:600}
+
+/* 팝업 */
+#save-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center}
+#save-overlay.show{display:flex}
+.save-modal{background:white;border-radius:var(--r);padding:24px 20px;text-align:center;width:260px}
+.save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
+.save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="header">
+  <button class="back-btn" onclick="location.href='./index.html'">‹</button>
+  <div class="header-icon">🌾</div>
+  <div>
+    <h1>벼 피해율 계산기</h1>
+    <div class="header-sub">논작물 · 수확량조사</div>
+  </div>
+</div>
+
+<div class="mode-tabs">
+  <button class="mode-tab on" onclick="setMode('sample')">표본조사</button>
+  <button class="mode-tab" onclick="setMode('full')">전수조사</button>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot-inp"></div>직접 입력</div>
+  <div class="legend-item"><div class="dot-filled"></div>입력 완료</div>
+  <div class="legend-item"><div class="dot-auto"></div>자동 계산</div>
+</div>
+
+<div class="content">
+
+  <!-- 보험가입사항 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">① 보험가입사항</div>
+      <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label>평년수확량 (kg)</label>
+        <input type="text" id="avgYield" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>가입면적 (㎡)</label>
+        <input type="text" id="insArea" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>실경작면적 (㎡)</label>
+        <input type="text" id="actArea" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
+      </div>
+    </div>
+    <div class="g4">
+      <div class="field">
+        <label>품종</label>
+        <select id="variety" class="inp" onchange="markFilled(this);calc()">
+          <option value="mebyeo">메벼</option>
+          <option value="chalbyeo">찰벼</option>
+          <option value="bunjil">분질미</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>병충해단독사고</label>
+        <select id="disease" class="inp" onchange="markFilled(this);calc()">
+          <option value="n">부</option>
+          <option value="y">여</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>미보상비율 (%)</label>
+        <input type="number" id="uninsRate" class="inp" inputmode="decimal"
+          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>계약변경여부</label>
+        <input type="text" id="contractYn" class="auto" readonly>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label>고사면적 (㎡)</label>
+        <input type="number" id="deadArea" class="inp" inputmode="decimal"
+          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>타작물·미보상 (㎡)</label>
+        <input type="number" id="uninsArea" class="inp" inputmode="decimal"
+          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>기수확 (㎡)</label>
+        <input type="number" id="preArea" class="inp" inputmode="decimal"
+          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label>조사대상면적</label>
+        <input type="text" id="surveyArea" class="auto" readonly>
+      </div>
+      <div class="field">
+        <label>기준함수율</label>
+        <input type="text" id="stdMoisture" class="auto" readonly>
+      </div>
+    </div>
+  </div>
+
+  <!-- 표본조사 -->
+  <div id="sec-sample">
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">② 표본구간 설정</div>
+        <div style="font-size:11px;color:var(--hint)">단위: m</div>
+      </div>
+      <div class="g3">
+        <div class="field">
+          <label>이랑길이</label>
+          <input type="number" id="rowLen" class="inp" inputmode="decimal" step="0.01"
+            oninput="markFilled(this)" onblur="calc()">
+        </div>
+        <div class="field">
+          <label>이랑폭</label>
+          <input type="number" id="rowWid" class="inp" inputmode="decimal" step="0.01"
+            oninput="markFilled(this)" onblur="calc()">
+        </div>
+        <div class="field">
+          <label>표본구간면적</label>
+          <input type="text" id="sampleArea" class="auto" readonly>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label>적정 표본구간수</label>
+          <input type="text" id="properSample" class="auto" readonly>
+        </div>
+        <div class="field">
+          <label>함수율</label>
+          <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.001"
+            placeholder="0.000" oninput="markFilled(this)" onblur="calc()">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">③ 표본구간별 수확량</div>
+        <div style="font-size:11px;color:var(--hint)">단위: g</div>
+      </div>
+      <div id="sample-inputs"></div>
+      <div class="g2">
+        <div class="field">
+          <label>표본수확량 합계</label>
+          <input type="text" id="sampleTotal" class="auto" readonly>
+        </div>
+        <div class="field">
+          <label>표본구간m²당 유효중량</label>
+          <input type="text" id="effWeight" class="auto" readonly>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 전수조사 -->
+  <div id="sec-full" style="display:none">
+    <div class="section">
+      <div class="sec-title">② 전수조사 수확량</div>
+      <div class="g3">
+        <div class="field">
+          <label>총수확량 (kg)</label>
+          <input type="text" id="fullYield" class="inp" inputmode="decimal"
+            oninput="onCommaInput(this)" onblur="calc()">
+        </div>
+        <div class="field">
+          <label>함수율</label>
+          <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.001"
+            placeholder="0.000" oninput="markFilled(this)" onblur="calc()">
+        </div>
+        <div class="field">
+          <label>조사수확량 (kg)</label>
+          <input type="text" id="fullSurvey" class="auto" readonly>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div class="result-box pending" id="result-section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-size:12px;opacity:0.8;margin-bottom:4px">피해율</div>
+        <div class="result-pct" id="result-pct">입력 대기중</div>
+      </div>
+      <button class="save-btn" onclick="saveImage()">
+        <span style="font-size:20px">📷</span>
+        <span>갤러리 저장</span>
+      </button>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="ml">평년수확량</div><div class="mv" id="r-avg">-</div></div>
+      <div class="metric"><div class="ml">조사수확량</div><div class="mv" id="r-survey">-</div></div>
+    </div>
+    <div class="drow"><span>유효중량(m²당)</span><span id="r-eff">-</span></div>
+    <div class="drow"><span>조사대상면적</span><span id="r-area">-</span></div>
+    <div class="drow"><span>미보상감수량</span><span id="r-unins">-</span></div>
+    <div class="drow" id="drow-disease" style="display:none"><span>⚠️ 병충해단독사고</span><span style="color:#FFE082">최고한도 70%</span></div>
+  </div>
+
+</div>
+
+<div id="save-overlay">
+  <div class="save-modal">
+    <div style="font-size:36px;margin-bottom:10px">✅</div>
+    <p>결과가 갤러리에 저장됐어요!</p>
+    <button class="btn-ok" onclick="document.getElementById('save-overlay').classList.remove('show')">확인</button>
+  </div>
+</div>
+
+<script>
+let mode = 'sample';
+
+const STD_MOISTURE = {mebyeo: 0.15, chalbyeo: 0.13, bunjil: 0.14};
+const VARIETY_LABEL = {mebyeo:'메벼', chalbyeo:'찰벼', bunjil:'분질미'};
+
+function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
+function onCommaInput(el){
+  const raw = el.value.replace(/,/g,'').replace(/[^0-9.]/g,'');
+  const parts = raw.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  el.value = parts.join('.');
+  el.classList.toggle('filled', el.value !== '');
+}
+function markFilled(el){ el.classList.toggle('filled', el.value !== ''); }
+
+function setMode(m){
+  mode = m;
+  document.querySelectorAll('.mode-tab').forEach((t,i)=>t.classList.toggle('on',i===(m==='sample'?0:1)));
+  document.getElementById('sec-sample').style.display = m==='sample' ? '' : 'none';
+  document.getElementById('sec-full').style.display = m==='full' ? '' : 'none';
+  calc();
+}
+
+function getProperSample(area){
+  if(area<=1999) return 3;
+  if(area<=2999) return 4;
+  if(area<=3999) return 5;
+  if(area<=4999) return 6;
+  if(area<=5999) return 7;
+  return 8;
+}
+
+function renderSampleInputs(n){
+  const container = document.getElementById('sample-inputs');
+  const cols = n <= 4 ? n : n <= 6 ? 3 : 4;
+  const rpc = Math.ceil(n / cols);
+  const colW = cols===1?'160px':cols===2?'1fr 1fr':cols===3?'repeat(3,1fr)':'repeat(4,1fr)';
+  let html = `<div style="display:grid;grid-template-columns:${colW};gap:8px;margin-bottom:8px">`;
+  for(let c=0; c<cols; c++){
+    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+    for(let r=0; r<rpc; r++){
+      const si = c*rpc+r;
+      if(si>=n){ html+=`<div style="height:46px"></div>`; continue; }
+      html += `<div style="display:flex;flex-direction:row;align-items:center;gap:4px">
+        <span style="font-size:13px;font-weight:700;color:var(--sub);min-width:18px;text-align:right">${si+1}</span>
+        <input type="number" inputmode="decimal" placeholder="-" id="sp${si}"
+          style="flex:1;height:40px;border:1.5px solid var(--binp);border-radius:6px;font-size:15px;font-weight:600;background:white;color:var(--text);text-align:center;-webkit-appearance:none;min-width:0;box-sizing:border-box"
+          oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
+          onblur="calc()">
+      </div>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+let lastProper = 0;
+
+function calc(){
+  const avgYield = toNum(document.getElementById('avgYield'));
+  const insArea = toNum(document.getElementById('insArea'));
+  const actArea = toNum(document.getElementById('actArea'));
+  const deadArea = parseFloat(document.getElementById('deadArea').value)||0;
+  const uninsArea = parseFloat(document.getElementById('uninsArea').value)||0;
+  const preArea = parseFloat(document.getElementById('preArea').value)||0;
+  const variety = document.getElementById('variety').value;
+  const disease = document.getElementById('disease').value;
+  const uninsRate = (parseFloat(document.getElementById('uninsRate').value)||0)/100;
+
+  const realArea = actArea || insArea;
+  const stdMoisture = STD_MOISTURE[variety];
+
+  // 계약변경여부
+  const areaErr = insArea > 0 && actArea > 0 ? (actArea - insArea) / insArea : 0;
+  const contractEl = document.getElementById('contractYn');
+  if(insArea > 0 && actArea > 0){
+    contractEl.value = Math.abs(areaErr) > 0.1 ? '계약변경' : '이상무';
+    contractEl.style.color = Math.abs(areaErr) > 0.1 ? '#e24b4a' : '';
+    contractEl.style.fontWeight = Math.abs(areaErr) > 0.1 ? '700' : '';
+  } else { contractEl.value = ''; }
+
+  // 기준함수율
+  document.getElementById('stdMoisture').value = (stdMoisture*100).toFixed(0) + '%';
+
+  // 조사대상면적
+  const surveyArea = Math.max(0, realArea - deadArea - uninsArea - preArea);
+  document.getElementById('surveyArea').value = surveyArea > 0 ? surveyArea.toLocaleString('ko-KR') + ' ㎡' : '';
+
+  const resultBox = document.getElementById('result-section');
+  const pctEl = document.getElementById('result-pct');
+
+  if(mode === 'sample'){
+    const rowLen = parseFloat(document.getElementById('rowLen').value)||0;
+    const rowWid = parseFloat(document.getElementById('rowWid').value)||0;
+    const moisture = parseFloat(document.getElementById('moisture').value)||0;
+
+    // 표본구간면적 = ROUND(이랑길이×이랑폭, 2)
+    const unitArea = Math.round(rowLen * rowWid * 100) / 100;
+    document.getElementById('sampleArea').value = unitArea > 0 ? unitArea + ' ㎡/구간' : '';
+
+    // 적정 표본구간수
+    const proper = surveyArea > 0 ? getProperSample(surveyArea) : 0;
+    document.getElementById('properSample').value = proper > 0 ? proper + '구간' : '';
+
+    // 표본 입력칸 렌더링
+    if(proper > 0 && proper !== lastProper){
+      lastProper = proper;
+      renderSampleInputs(proper);
+    }
+
+    // 표본수확량 합계
+    let sampleTotal = 0;
+    let inputted = 0;
+    for(let i=0; i<proper; i++){
+      const el = document.getElementById('sp'+i);
+      if(el && el.value !== ''){
+        sampleTotal += parseFloat(el.value)||0;
+        inputted++;
+      }
+    }
+    document.getElementById('sampleTotal').value = sampleTotal > 0 ? sampleTotal + ' g' : '';
+
+    const totalSampleArea = unitArea * proper;
+
+    // 유효중량 = ROUNDDOWN((표본수확량합/1000 × 0.93 × (1-함수율)/(1-기준함수율)) / 표본구간면적합, 2)
+    let effWeight = 0;
+    if(totalSampleArea > 0 && moisture > 0 && sampleTotal > 0){
+      effWeight = Math.floor(((sampleTotal/1000) * 0.93 * (1-moisture)/(1-stdMoisture)) / totalSampleArea * 100) / 100;
+    }
+    document.getElementById('effWeight').value = effWeight > 0 ? effWeight + ' kg/㎡' : '';
+
+    if(!avgYield || !surveyArea || inputted < proper || !moisture){
+      resultBox.className = 'result-box pending';
+      pctEl.textContent = '입력 대기중';
+      return;
+    }
+
+    // 단위면적당 평년수확량
+    const unitAvg = realArea > 0 ? avgYield / realArea : 0;
+    // 수확량 = (유효중량 × 조사대상) + (단위면적당평년 × (타작물·미보상+기수확))
+    const surveyYield = Math.floor(effWeight * surveyArea);
+    const addYield = unitAvg * (uninsArea + preArea);
+    const totalYield = Math.floor(surveyYield + addYield);
+
+    // 미보상감수량 (병충해단독=여이면 0, 최고한도70%)
+    const uninsLoss = disease === 'y' ? 0 : Math.round(Math.max(0, avgYield - totalYield) * uninsRate * 10000) / 10000;
+
+    // 피해율 ROUNDDOWN
+    let pihaeyul = Math.floor((avgYield - totalYield - uninsLoss) / avgYield * 10000) / 10000;
+    pihaeyul = Math.max(0, pihaeyul);
+    // 병충해단독사고: 최고한도 70%
+    if(disease === 'y') pihaeyul = Math.min(pihaeyul, 0.7);
+
+    showResult(resultBox, pctEl, avgYield, totalYield, effWeight + ' kg/㎡', surveyArea, uninsLoss, pihaeyul, disease==='y');
+
+  } else {
+    // 전수조사
+    const fullYield = toNum(document.getElementById('fullYield'));
+    const fullMoisture = parseFloat(document.getElementById('fullMoisture').value)||0;
+
+    if(fullMoisture > 0 && fullYield > 0){
+      // 수확량 = 총수확량 × (1-함수율)/(1-기준함수율)
+      const surveyYield = Math.floor(fullYield * (1-fullMoisture)/(1-stdMoisture));
+      document.getElementById('fullSurvey').value = surveyYield.toLocaleString('ko-KR') + ' kg';
+
+      if(!avgYield){ resultBox.className='result-box pending'; pctEl.textContent='입력 대기중'; return; }
+
+      // 미보상감수량 (병충해단독이어도 미보상 계산, 단 최고한도 70%)
+      // 단위면적당 평년수확량 × (타작물+기수확) 가산
+      const unitAvgF = realArea > 0 ? avgYield / realArea : 0;
+      const addYieldF = unitAvgF * (uninsArea + preArea);
+      const totalYieldF = Math.floor(surveyYield + addYieldF);
+      const uninsLoss = Math.round(Math.max(0, avgYield - totalYieldF) * uninsRate * 10000) / 10000;
+      let pihaeyul = Math.floor((avgYield - totalYieldF - uninsLoss) / avgYield * 10000) / 10000;
+      pihaeyul = Math.max(0, pihaeyul);
+      if(disease === 'y') pihaeyul = Math.min(pihaeyul, 0.7);
+
+      showResult(resultBox, pctEl, avgYield, totalYieldF, '-', surveyArea, uninsLoss, pihaeyul, disease==='y');
+    } else {
+      resultBox.className = 'result-box pending';
+      pctEl.textContent = '입력 대기중';
+    }
+  }
+
+  saveState();
+}
+
+function showResult(box, pctEl, avg, survey, eff, area, unins, pihaeyul, isDis){
+  box.className = 'result-box';
+  pctEl.textContent = (pihaeyul*100).toFixed(2) + '%';
+  pctEl.style.color = pihaeyul >= 0.2 ? '#FFD0D0' : '#A8F0D8';
+  document.getElementById('r-avg').textContent = avg.toLocaleString('ko-KR') + ' kg';
+  document.getElementById('r-survey').textContent = survey.toLocaleString('ko-KR') + ' kg';
+  document.getElementById('r-eff').textContent = eff;
+  document.getElementById('r-area').textContent = area.toLocaleString('ko-KR') + ' ㎡';
+  document.getElementById('r-unins').textContent = isDis ? '해당없음' : unins.toLocaleString('ko-KR') + ' kg';
+  document.getElementById('drow-disease').style.display = isDis ? 'flex' : 'none';
+}
+
+function saveState(){
+  const ids = ['avgYield','insArea','actArea','deadArea','uninsArea','preArea',
+               'variety','disease','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture'];
+  const state = {mode};
+  ids.forEach(id => { const el=document.getElementById(id); if(el) state[id]=el.value; });
+  try{ localStorage.setItem('rice_state', JSON.stringify(state)); }catch(e){}
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem('rice_state');
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    if(s.mode) setMode(s.mode);
+    Object.keys(s).forEach(id => {
+      if(id==='mode') return;
+      const el = document.getElementById(id);
+      if(el && s[id]!==''){ el.value=s[id]; el.classList.toggle('filled', true); }
+    });
+  }catch(e){}
+}
+
+function resetAll(){
+  if(!confirm('모든 입력값을 초기화할까요?')) return;
+  try{ localStorage.removeItem('rice_state'); }catch(e){}
+  ['avgYield','insArea','actArea','deadArea','uninsArea','preArea','uninsRate',
+   'rowLen','rowWid','moisture','fullYield','fullMoisture'].forEach(id=>{
+    const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
+  });
+  document.getElementById('variety').value='mebyeo';
+  document.getElementById('disease').value='n';
+  document.getElementById('sample-inputs').innerHTML='';
+  lastProper=0;
+  document.getElementById('result-section').className='result-box pending';
+  document.getElementById('result-pct').textContent='입력 대기중';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function saveImage(){
+  try{
+    const canvas = await html2canvas(document.querySelector('.content'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:420});
+    const link = document.createElement('a');
+    const now = new Date();
+    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+    link.download=`벼피해율_${stamp}.png`; link.href=canvas.toDataURL('image/png'); link.click();
+    document.getElementById('save-overlay').classList.add('show');
+  }catch(e){ alert('저장 중 오류가 발생했어요.'); }
+}
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(r=>r.forEach(s=>s.unregister()));
+  caches.keys().then(k=>Promise.all(k.map(c=>caches.delete(c))));
+}
+
+loadState();
+setTimeout(calc, 50);
+</script>
+</body>
+</html>
