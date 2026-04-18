@@ -224,8 +224,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         </div>
         <div class="field">
           <label>함수율</label>
-          <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.001"
-            placeholder="0.000" oninput="markFilled(this)" onblur="calc()">
+          <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
+            placeholder="0.0" oninput="markFilled(this)" onblur="calc()">
         </div>
       </div>
     </div>
@@ -261,8 +261,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         </div>
         <div class="field">
           <label>함수율</label>
-          <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.001"
-            placeholder="0.000" oninput="markFilled(this)" onblur="calc()">
+          <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.1"
+            placeholder="0.0" oninput="markFilled(this)" onblur="calc()">
         </div>
         <div class="field">
           <label>조사수확량 (kg)</label>
@@ -274,11 +274,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div>
-        <div style="font-size:12px;opacity:0.8;margin-bottom:4px">피해율</div>
-        <div class="result-pct" id="result-pct">입력 대기중</div>
-      </div>
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:12px;opacity:0.8;margin-bottom:4px">피해율</div>
+      <div class="result-pct" id="result-pct">입력 대기중</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:-50px;margin-bottom:16px">
       <button class="save-btn" onclick="saveImage()">
         <span style="font-size:20px">📷</span>
         <span>갤러리 저장</span>
@@ -420,7 +420,7 @@ function calc(){
   if(mode === 'sample'){
     const rowLen = parseFloat(document.getElementById('rowLen').value)||0;
     const rowWid = parseFloat(document.getElementById('rowWid').value)||0;
-    const moisture = parseFloat(document.getElementById('moisture').value)||0;
+    const moisture = (parseFloat(document.getElementById('moisture').value)||0)/100;
 
     // 표본구간면적 = ROUND(이랑길이×이랑폭, 2)
     const unitArea = Math.round((rowLen * rowWid + Number.EPSILON) * 100) / 100;
