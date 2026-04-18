@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#185FA5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>마늘 피해율계산기</title>
+<title>양파 피해율계산기</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -119,7 +119,7 @@ tfoot td.v{color:var(--text)}
   <button class="back-btn" onclick="location.href='./index.html'">‹</button>
   <div class="header-icon">🧅</div>
   <div>
-    <h1>마늘 피해율계산기</h1>
+    <h1>양파 피해율계산기</h1>
     <div class="header-sub">밭작물 · 수확량 조사</div>
   </div>
 </div>
@@ -134,15 +134,13 @@ tfoot td.v{color:var(--text)}
 
   <div class="section">
     <div class="sec-head">
-      <div class="sec-title">품종</div>
+      <div class="sec-title">품목</div>
       <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
     </div>
-    <div class="field">
-      <select id="crop" class="inp filled" onchange="markFilled(this);onCropChange()" style="text-align:left;text-align-last:left">
-        <option value="garlic_s">마늘 난지형</option>
-        <option value="garlic_n">마늘 한지형</option>
-      </select>
+    <div style="height:40px;background:#e8faf3;border:1.5px solid var(--green);border-radius:var(--rs);display:flex;align-items:center;padding:0 12px;font-size:15px;font-weight:700;color:#0d5c35">
+      🧅 양파
     </div>
+    <input type="hidden" id="crop" value="onion">
   </div>
 
   <div class="section">
@@ -422,7 +420,7 @@ function onCropChange(){
   samples = [];
   renderSamples();
   calcTotals();
-  updateGarlicCols();
+  
   calc();
 }
 
@@ -599,7 +597,7 @@ function calc(){
 // ── 초기화 ───────────────────────────────────────
 function resetAll(){
   if(!confirm('모든 입력값을 초기화할까요?')) return;
-  try{ localStorage.removeItem('garlic_state'); }catch(e){}
+  try{ localStorage.removeItem('onion_state'); }catch(e){}
   ['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','harvest_date'].forEach(id=>{
     const el=document.getElementById(id);
     el.value=''; el.classList.remove('filled');
@@ -653,12 +651,12 @@ function saveState(){
     harvest_date: document.getElementById('harvest_date').value,
     samples: samples
   };
-  try{ localStorage.setItem('garlic_state', JSON.stringify(state)); }catch(e){}
+  try{ localStorage.setItem('onion_state', JSON.stringify(state)); }catch(e){}
 }
 
 function loadState(){
   try{
-    const raw=localStorage.getItem('garlic_state');
+    const raw=localStorage.getItem('onion_state');
     if(!raw) return false;
     const s=JSON.parse(raw);
 
@@ -701,7 +699,6 @@ const loaded = loadState();
 if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
 
 
-updateGarlicCols();
 setTimeout(()=>{
   if(loaded){
     const actArea=toNum(document.getElementById('act_area'))||toNum(document.getElementById('ins_area'));
