@@ -426,8 +426,11 @@ function calc(){
     document.getElementById('properSample').value = proper > 0 ? proper + '구간' : '';
     document.getElementById('properSampleDisp').value = proper > 0 ? String(proper) : '';
 
-    // 표본 입력칸 - 항상 8칸 고정, proper만큼 활성화
-    if(proper !== lastProper){
+    // 표본 입력칸 - 면적 있을때만 렌더링
+    if(proper === 0){
+      document.getElementById('sample-inputs').innerHTML='';
+      lastProper = -1;
+    } else if(proper !== lastProper){
       lastProper = proper;
       renderSampleInputs(proper);
     }
@@ -562,7 +565,10 @@ function resetAll(){
 
   document.getElementById('sample-inputs').innerHTML='';
   const psd=document.getElementById('properSampleDisp'); if(psd) psd.value='';
-  lastProper=0;
+  const ps=document.getElementById('properSample'); if(ps) ps.value='';
+  const sa=document.getElementById('surveyArea'); if(sa) sa.value='';
+  const ka=document.getElementById('sampleArea'); if(ka) ka.value='';
+  lastProper=-1;
   document.getElementById('result-section').className='result-box pending';
   document.getElementById('result-pct').textContent='입력 대기중';
   window.scrollTo({top:0,behavior:'smooth'});
@@ -585,8 +591,8 @@ if('serviceWorker' in navigator){
 }
 
 loadState();
-setMode('sample'); // 항상 표본조사로 시작
-renderSampleInputs(3);
+setMode('sample');
+lastProper=-1;
 setTimeout(calc, 50);
 </script>
 </body>
