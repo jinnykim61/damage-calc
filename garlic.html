@@ -499,9 +499,15 @@ function calc(){
   const uninsRate=(parseFloat(document.getElementById('unins_rate').value)||0)/100;
 
   const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
-  const areaErr=insArea>0?((actArea-insArea)/insArea*100).toFixed(2):'-';
+  const areaErrNum=insArea>0?(actArea-insArea)/insArea:0;
+  const areaErr=insArea>0?(areaErrNum*100).toFixed(2):'-';
   document.getElementById('survey_area_disp').value=surveyArea>0?surveyArea.toLocaleString()+' ㎡':'';
   document.getElementById('area_err_disp').value=areaErr!=='-'?areaErr+'%':'';
+
+  // 면적 10% 초과/부족시 변경 평년수확량 적용
+  const effAvg = (insArea>0 && actArea>0 && Math.abs(areaErrNum)>0.1)
+    ? Math.round(avgYield * (actArea/insArea) * 10) / 10
+    : avgYield;
 
   // 비대추정
   const sdStr=document.getElementById('survey_date').value;
@@ -554,13 +560,13 @@ function calc(){
   const survYield=unitYield*surveyArea;
   const estYield=survYield*growIdx;
   const totalYield=survYield+estYield;
-  const loss=Math.max(0,avgYield-totalYield);
+  const loss=Math.max(0,effAvg-totalYield);
   const uninsLoss=loss*uninsRate;
   const netLoss=Math.max(0,loss-uninsLoss);
-  const pct=netLoss/avgYield*100;
+  const pct=netLoss/effAvg*100;
 
   document.getElementById('r-area').textContent=surveyArea.toLocaleString()+' ㎡';
-  document.getElementById('r-avg-unit').textContent=(avgYield/actArea).toFixed(4)+' kg/㎡';
+  document.getElementById('r-avg-unit').textContent=(effAvg/actArea).toFixed(4)+' kg/㎡';
   document.getElementById('r-coeff').textContent={onion:'1.00(양파)',garlic_s:'0.72(난지형)',garlic_n:'0.70(한지형)'}[crop];
   document.getElementById('r-surv').textContent=survYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
   document.getElementById('r-est').textContent=estYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
