@@ -77,6 +77,18 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 .save-modal{background:white;border-radius:var(--r);padding:24px 20px;text-align:center;width:260px}
 .save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
 .save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
+
+/* 인쇄/PDF 스타일 */
+@media print {
+  .header, .mode-tabs, .legend, .reset-btn, .save-btn, #save-overlay { display:none !important; }
+  body { background:white !important; font-size:12px; }
+  .content { padding:8px !important; }
+  .section { border:1px solid #ccc !important; margin-bottom:8px !important; break-inside:avoid; }
+  .result-box { background:#185FA5 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; break-inside:avoid; }
+  .result-box.pending { display:none !important; }
+  .print-header { display:block !important; }
+}
+.print-header { display:none; }
 </style>
 </head>
 <body>
@@ -101,6 +113,10 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 </div>
 
 <div class="content">
+  <div class="print-header" style="text-align:center;padding:8px 0 12px;border-bottom:2px solid #185FA5;margin-bottom:12px">
+    <div style="font-size:18px;font-weight:700;color:#185FA5">벼 피해율 계산기</div>
+    <div style="font-size:11px;color:#666;margin-top:2px">농업재해보험 손해평가사 전용 · Cool-Running</div>
+  </div>
 
   <!-- 보험가입사항 -->
   <div class="section">
@@ -223,7 +239,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           <input type="text" id="properSample" class="auto" readonly>
         </div>
         <div class="field">
-          <label>함수율</label>
+          <label>함수율 (%)</label>
           <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
             placeholder="0.0" oninput="markFilled(this)" onblur="calc()">
         </div>
@@ -260,7 +276,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
             oninput="onCommaInput(this)" onblur="calc()">
         </div>
         <div class="field">
-          <label>함수율</label>
+          <label>함수율 (%)</label>
           <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.1"
             placeholder="0.0" oninput="markFilled(this)" onblur="calc()">
         </div>
@@ -274,14 +290,18 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
-      <div style="flex:1;text-align:center">
-        <div style="font-size:12px;opacity:0.8;margin-bottom:4px">피해율</div>
-        <div class="result-pct" id="result-pct">입력 대기중</div>
-      </div>
+    <div style="text-align:center;margin-bottom:12px">
+      <div style="font-size:12px;opacity:0.8;margin-bottom:4px">피해율</div>
+      <div class="result-pct" id="result-pct">입력 대기중</div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px">
       <button class="save-btn" onclick="saveImage()">
         <span style="font-size:20px">📷</span>
         <span>갤러리 저장</span>
+      </button>
+      <button class="save-btn" onclick="savePDF()">
+        <span style="font-size:20px">📄</span>
+        <span>PDF 저장</span>
       </button>
     </div>
     <div class="metrics">
@@ -369,7 +389,7 @@ function renderSampleInputs(proper){
       <input type="number" inputmode="decimal" placeholder="${active?'-':'—'}" id="sp${si}"
         ${active ? '' : 'disabled'}
         style="width:100%;height:40px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${active?'var(--text)':'var(--hint)'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
-        oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
+        oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';calc()"
         onblur="calc()">
     </div>`;
   }
@@ -586,6 +606,10 @@ function resetAll(){
   document.getElementById('result-section').className='result-box pending';
   document.getElementById('result-pct').textContent='입력 대기중';
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function savePDF(){
+  window.print();
 }
 
 async function saveImage(){
