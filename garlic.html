@@ -231,9 +231,18 @@ tfoot td.v{color:var(--text)}
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
     <div id="sample-tbl-wrap" class="tbl-wrap" style="display:none">
       <table>
+        <colgroup>
+          <col style="width:24px">
+          <col style="width:60px">
+          <col style="width:50px">
+          <col style="width:70px">
+          <col style="width:70px">
+          <col style="width:70px">
+          <col style="width:26px">
+        </colgroup>
         <thead>
           <tr>
-            <th style="width:20px">No.</th>
+            <th style="width:24px">No.</th>
             <th>이랑길이&#10;(m/5주)</th>
             <th>이랑폭&#10;(m)</th>
             <th>정상&#10;(g)</th>
@@ -381,20 +390,21 @@ function renderSamples(){
         class="${s.wid?'filled':''}"
         oninput="this.classList.toggle('filled',this.value!='')"
         onblur="samples[${i}].wid=this.value;calcTotals()"></td>
-      <td><input type="number" value="${s.norm}" inputmode="decimal"
+      <td><input type="text" value="${s.norm?Number(s.norm).toLocaleString():''}" inputmode="decimal"
         class="${s.norm?'filled':''}"
-        oninput="this.classList.toggle('filled',this.value!='')"
-        onblur="samples[${i}].norm=this.value;calcTotals()"></td>
-      <td><input type="number" value="${s.d80}" inputmode="decimal"
+        oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'')"
+        onblur="samples[${i}].norm=this.value.replace(/,/g,'');calcTotals()"></td>
+      <td><input type="text" value="${s.d80?Number(s.d80).toLocaleString():''}" inputmode="decimal"
         class="${s.d80?'filled':''}"
-        oninput="this.classList.toggle('filled',this.value!='')"
-        onblur="samples[${i}].d80=this.value;calcTotals()"></td>
-      <td class="col-d50"><input type="number" value="${s.d50}" inputmode="decimal"
+        oninput="onCommaInput(this);samples[${i}].d80=this.value.replace(/,/g,'')"
+        onblur="samples[${i}].d80=this.value.replace(/,/g,'');calcTotals()"></td>
+      <td class="col-d50"><input type="text" value="${s.d50?Number(s.d50).toLocaleString():''}" inputmode="decimal"
         class="${s.d50?'filled':''}"
-        oninput="this.classList.toggle('filled',this.value!='')"
-        onblur="samples[${i}].d50=this.value;calcTotals()"></td>
+        oninput="onCommaInput(this);samples[${i}].d50=this.value.replace(/,/g,'')"
+        onblur="samples[${i}].d50=this.value.replace(/,/g,'');calcTotals()"></td>
       <td><button class="del-btn" style="display:none" onclick="delSample(${i})">×</button></td>
     </tr>`).join('');
+  setTimeout(updateGarlicCols, 0);
 }
 
 function addSample(){samples.push({len:'',wid:'',norm:'',d80:'',d50:''});renderSamples();}
@@ -673,6 +683,7 @@ const loaded = loadState();
 if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
 
 
+updateGarlicCols();
 setTimeout(()=>{
   if(loaded){
     const actArea=toNum(document.getElementById('act_area'))||toNum(document.getElementById('ins_area'));
