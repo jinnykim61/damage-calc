@@ -153,12 +153,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="field">
         <label>평년수확량 <span style="font-size:10px;color:var(--hint)">(kg)</span></label>
         <input type="text" id="avgYield" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="calc()">
+          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
       </div>
       <div class="field">
         <label>가입면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="text" id="insArea" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="calc()">
+          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
       </div>
       <div class="field">
         <label>계약변경</label>
@@ -174,22 +174,22 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="field">
         <label>실경작면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="text" id="actArea" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="calc()">
+          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
       </div>
       <div class="field">
         <label>고사면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="number" id="deadArea" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
       </div>
       <div class="field">
         <label>타작물미보상 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="number" id="uninsArea" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
       </div>
       <div class="field">
         <label>기수확 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="number" id="preArea" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
       </div>
     </div>
     <!-- 조사대상 / 기준함수율 / 미보상비율 -->
@@ -205,7 +205,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="field">
         <label>미보상비율 (%)</label>
         <input type="number" id="uninsRate" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
       </div>
     </div>
   </div>
@@ -220,12 +220,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>이랑길이 (m)</label>
           <input type="number" id="rowLen" class="inp" inputmode="decimal" step="0.01"
-            oninput="markFilled(this)" onblur="calc()">
+            oninput="markFilled(this);debouncedCalc()" onblur="calc()">
         </div>
         <div class="field">
           <label>이랑폭 (m)</label>
           <input type="number" id="rowWid" class="inp filled" inputmode="decimal" step="0.01" value="0.3"
-            oninput="markFilled(this)" onblur="calc()">
+            oninput="markFilled(this);debouncedCalc()" onblur="calc()">
         </div>
         <div class="field">
           <label>표본구간면적</label>
@@ -240,7 +240,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>함수율 (%)</label>
           <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
-            oninput="markFilled(this)" onblur="calc()">
+            oninput="markFilled(this);debouncedCalc()" onblur="calc()">
         </div>
       </div>
     </div>
@@ -272,12 +272,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>총수확량 (kg)</label>
           <input type="text" id="fullYield" class="inp" inputmode="decimal"
-            oninput="onCommaInput(this)" onblur="calc()">
+            oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
         </div>
         <div class="field">
           <label>함수율 (%)</label>
           <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.1"
-            oninput="markFilled(this)" onblur="calc()">
+            oninput="markFilled(this);debouncedCalc()" onblur="calc()">
         </div>
         <div class="field">
           <label>조사수확량 (kg)</label>
@@ -327,6 +327,13 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 let mode = 'sample';
 
 const STD_MOISTURE = {mebyeo: 0.15, chalbyeo: 0.13, bunjil: 0.14};
+
+// debounce: 입력후 300ms 후에 계산
+let _calcTimer = null;
+function debouncedCalc(){
+  clearTimeout(_calcTimer);
+  _calcTimer = setTimeout(calc, 300);
+}
 const VARIETY_LABEL = {mebyeo:'메벼', chalbyeo:'찰벼', bunjil:'분질미'};
 
 function onDiseaseChk(){
@@ -388,7 +395,7 @@ function renderSampleInputs(proper){
       <input type="number" inputmode="decimal" placeholder="${active?'-':'—'}" id="sp${si}"
         ${active ? '' : 'disabled'}
         style="width:100%;height:40px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${active?'var(--text)':'var(--hint)'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
-        oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';calc()"
+        oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';debouncedCalc()"
         onblur="calc()">
     </div>`;
   }
