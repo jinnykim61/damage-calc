@@ -142,10 +142,7 @@ tbody td input:focus{outline:none;border-color:var(--blue)}
         <input type="number" id="uninsRate" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
-      <div class="field">
-        <label>표본구간수</label>
-        <input type="text" id="properSample" class="auto" readonly>
-      </div>
+
     </div>
     <div class="g3">
       <div class="field">
@@ -206,7 +203,7 @@ tbody td input:focus{outline:none;border-color:var(--blue)}
   <div id="sec-full" style="display:none">
     <div class="section">
       <div class="sec-title">② 전수조사 수확량</div>
-      <div class="g3">
+      <div class="g2">
         <div class="field">
           <label>계근중량 (kg)</label>
           <input type="text" id="fullWeight" class="inp" inputmode="decimal"
@@ -217,9 +214,16 @@ tbody td input:focus{outline:none;border-color:var(--blue)}
           <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.1"
             placeholder="0.0" oninput="markFilled(this)" onblur="calc()">
         </div>
+      </div>
+      <div class="g2">
         <div class="field">
           <label>조사수확량 (kg)</label>
           <input type="text" id="fullSurvey" class="auto" readonly>
+        </div>
+        <div class="field">
+          <label>미보상비율 (%)</label>
+          <input type="number" id="fullUninsRate" class="inp" inputmode="decimal"
+            placeholder="0" oninput="markFilled(this)" onblur="calc()">
         </div>
       </div>
     </div>
@@ -366,9 +370,13 @@ function calc(){
     contractEl.style.color = Math.abs(areaErr)>0.1?'#e24b4a':'';
   } else contractEl.value='';
 
+  // 면적 10% 초과시 변경 평년수확량 적용
+  const effAvg = (insArea>0 && actArea>0 && Math.abs(areaErr)>0.1)
+    ? Math.round(avgYield * (actArea/insArea) * 10) / 10
+    : avgYield;
+
   // 표본구간수
   const proper = surveyArea>0?getProperSample(surveyArea):0;
-  document.getElementById('properSample').value = proper>0?String(proper):'';
   document.getElementById('surveyArea').value = surveyArea>0?surveyArea.toLocaleString()+' ㎡':'';
 
   // 필요구간 맞게 조정
@@ -399,13 +407,13 @@ function calc(){
       const surveyYield = Math.round(fullWeight*(1-fullMoisture/100)/(1-STD_MOISTURE));
       document.getElementById('fullSurvey').value = surveyYield.toLocaleString()+' kg';
       if(avgYield && surveyArea){
-        const uninsRate2 = parseFloat(document.getElementById('uninsRate').value)||0;
-        const uninsLoss2 = Math.round(Math.max(0,avgYield-surveyYield)*uninsRate2/100);
-        const pihaeyul2 = Math.max(0, Math.floor((avgYield-surveyYield-uninsLoss2)/avgYield*10000)/10000);
+        const uninsRate2 = parseFloat(document.getElementById('fullUninsRate').value)||0;
+        const uninsLoss2 = Math.round(Math.max(0,effAvg-surveyYield)*uninsRate2/100);
+        const pihaeyul2 = Math.max(0, Math.floor((effAvg-surveyYield-uninsLoss2)/effAvg*10000)/10000);
         resultBox.className='result-box';
         pctEl.textContent=(pihaeyul2*100).toFixed(2)+'%';
         pctEl.style.color=pihaeyul2>=0.2?'#FFD0D0':'#A8F0D8';
-        document.getElementById('r-avg').textContent=avgYield.toLocaleString()+' kg';
+        document.getElementById('r-avg').textContent=effAvg.toLocaleString()+' kg';
         document.getElementById('r-survey').textContent=surveyYield.toLocaleString()+' kg';
         document.getElementById('r-unit').textContent='-';
         document.getElementById('r-area').textContent=surveyArea.toLocaleString()+' ㎡';
@@ -429,12 +437,12 @@ function calc(){
 
   const m2당 = totalEff/totalArea/1000;
   const surveyYield = Math.floor(m2당 * surveyArea);
-  const uninsLoss = Math.round(Math.max(0, avgYield-surveyYield)*uninsRate/100);
-  const pihaeyul = Math.max(0, Math.floor((avgYield-surveyYield-uninsLoss)/avgYield*10000)/10000);
+  const uninsLoss = Math.round(Math.max(0, effAvg-surveyYield)*uninsRate/100);
+  const pihaeyul = Math.max(0, Math.floor((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000);
 
   document.getElementById('s-unit').textContent = m2당.toFixed(4)+' kg/㎡';
   document.getElementById('s-survey').textContent = surveyYield.toLocaleString()+' kg';
-  document.getElementById('r-avg').textContent = avgYield.toLocaleString()+' kg';
+  document.getElementById('r-avg').textContent = effAvg.toLocaleString()+' kg';
   document.getElementById('r-survey').textContent = surveyYield.toLocaleString()+' kg';
   document.getElementById('r-unit').textContent = m2당.toFixed(4)+' kg/㎡';
   document.getElementById('r-area').textContent = surveyArea.toLocaleString()+' ㎡';
@@ -472,6 +480,7 @@ function saveState(){
       samples,
       fullWeight: document.getElementById('fullWeight').value,
       fullMoisture: document.getElementById('fullMoisture').value,
+      fullUninsRate: document.getElementById('fullUninsRate').value,
       mode
     };
     localStorage.setItem('bean_state', JSON.stringify(state));
@@ -483,13 +492,11 @@ function loadState(){
     const raw = localStorage.getItem('bean_state');
     if(!raw) return;
     const s = JSON.parse(raw);
-    ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate','fullWeight','fullMoisture'].forEach(id=>{
+    ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate','fullWeight','fullMoisture','fullUninsRate'].forEach(id=>{
       const el=document.getElementById(id);
       if(el&&s[id]){el.value=s[id];el.classList.toggle('filled',true);}
     });
     if(s.mode) setMode(s.mode);
-    if(s.fullWeight){ const el=document.getElementById('fullWeight'); el.value=s.fullWeight; el.classList.add('filled'); }
-    if(s.fullMoisture){ const el=document.getElementById('fullMoisture'); el.value=s.fullMoisture; el.classList.add('filled'); }
     if(s.samples&&s.samples.length>0){
       samples=s.samples;
       renderSamples();
@@ -500,7 +507,7 @@ function loadState(){
 function resetAll(){
   if(!confirm('모든 입력값을 초기화할까요?')) return;
   try{ localStorage.removeItem('bean_state'); }catch(e){}
-  ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate','fullWeight','fullMoisture'].forEach(id=>{
+  ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate','fullWeight','fullMoisture','fullUninsRate'].forEach(id=>{
     const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
   });
   samples=[];

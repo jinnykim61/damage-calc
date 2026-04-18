@@ -402,6 +402,11 @@ function calc(){
     contractEl.style.fontWeight = Math.abs(areaErr) > 0.1 ? '700' : '';
   } else { contractEl.value = ''; }
 
+  // 면적 10% 초과시 변경 평년수확량
+  const effAvg = (insArea > 0 && actArea > 0 && Math.abs(areaErr) > 0.1)
+    ? Math.round(avgYield * (actArea / insArea) * 10) / 10
+    : avgYield;
+
   // 기준함수율
   document.getElementById('stdMoisture').value = (stdMoisture*100).toFixed(0) + '%';
 
@@ -418,7 +423,7 @@ function calc(){
     const moisture = parseFloat(document.getElementById('moisture').value)||0;
 
     // 표본구간면적 = ROUND(이랑길이×이랑폭, 2)
-    const unitArea = Math.round(rowLen * rowWid * 100) / 100;
+    const unitArea = Math.round((rowLen * rowWid + Number.EPSILON) * 100) / 100;
     document.getElementById('sampleArea').value = unitArea > 0 ? unitArea + ' ㎡/구간' : '';
 
     // 적정 표본구간수
@@ -480,7 +485,7 @@ function calc(){
     // 병충해단독사고: 최고한도 70%
     if(disease === 'y') pihaeyul = Math.min(pihaeyul, 0.7);
 
-    showResult(resultBox, pctEl, avgYield, totalYield, effWeight + ' kg/㎡', surveyArea, uninsLoss, pihaeyul, disease==='y');
+    showResult(resultBox, pctEl, effAvg, totalYield, effWeight + ' kg/㎡', surveyArea, uninsLoss, pihaeyul, disease==='y');
 
   } else {
     // 전수조사
@@ -504,7 +509,7 @@ function calc(){
       pihaeyul = Math.max(0, pihaeyul);
       if(disease === 'y') pihaeyul = Math.min(pihaeyul, 0.7);
 
-      showResult(resultBox, pctEl, avgYield, totalYieldF, '-', surveyArea, uninsLoss, pihaeyul, disease==='y');
+      showResult(resultBox, pctEl, effAvg, totalYieldF, '-', surveyArea, uninsLoss, pihaeyul, disease==='y');
     } else {
       resultBox.className = 'result-box pending';
       pctEl.textContent = '입력 대기중';
