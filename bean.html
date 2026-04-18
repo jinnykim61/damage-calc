@@ -341,8 +341,6 @@ function calcTotals(){
   document.getElementById('t-wid').textContent = tWid>0?tWid.toFixed(1)+' m':'-';
   document.getElementById('t-weight').textContent = tWeight>0?tWeight.toLocaleString()+' g':'-';
   document.getElementById('t-moist').textContent = nMoist>0?(sumMoist/nMoist).toFixed(2)+'%':'-';
-  document.getElementById('t-eff').textContent = tEff>0?tEff.toFixed(2)+' g':'-';
-  document.getElementById('t-area').textContent = tArea>0?tArea.toFixed(2)+' ㎡':'-';
 
   // 입력 현황
   const inputted = samples.filter(s=>s.weight&&s.moist).length;
