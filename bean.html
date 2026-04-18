@@ -203,22 +203,75 @@ tbody td input:focus{outline:none;border-color:var(--blue)}
   <div id="sec-full" style="display:none">
     <div class="section">
       <div class="sec-title">② 전수조사 수확량</div>
-      <div class="g2">
+      <!-- 계근중량/고사면적 (평년수확량/가입면적과 동일 비율) -->
+      <div class="g2" style="margin-bottom:8px">
         <div class="field">
           <label>계근중량 (kg)</label>
           <input type="text" id="fullWeight" class="inp" inputmode="decimal"
             oninput="onCommaInput(this)" onblur="calc()">
         </div>
         <div class="field">
+          <label>고사면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
+          <input type="number" id="fullDeadArea" class="inp" inputmode="decimal"
+            placeholder="0" oninput="markFilled(this)" onblur="calc()">
+        </div>
+      </div>
+      <!-- 미보상면적/가입면적 동일 비율 -->
+      <div class="g2" style="margin-bottom:8px">
+        <div class="field">
+          <label>미보상면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
+          <input type="number" id="fullUninsArea" class="inp" inputmode="decimal"
+            placeholder="0" oninput="markFilled(this)" onblur="calc()">
+        </div>
+        <div class="field">
+          <label>조사대상면적</label>
+          <input type="text" id="fullSurveyArea" class="auto" readonly>
+        </div>
+      </div>
+      <!-- 조사수확량/함수율/미보상비율 3칸 -->
+      <div class="g3">
+        <div class="field">
           <label>함수율 (%)</label>
           <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.1"
             placeholder="0.0" oninput="markFilled(this)" onblur="calc()">
         </div>
-      </div>
-      <div class="g2">
         <div class="field">
           <label>조사수확량 (kg)</label>
           <input type="text" id="fullSurvey" class="auto" readonly>
+        </div>
+        <div class="field">
+          <label>미보상비율 (%)</label>
+          <input type="number" id="fullUninsRate" class="inp" inputmode="decimal"
+            placeholder="0" oninput="markFilled(this)" onblur="calc()">
+        </div>
+      </div>
+    </div>
+        <div class="field">
+          <label>고사면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
+          <input type="number" id="fullDeadArea" class="inp" inputmode="decimal"
+            placeholder="0" oninput="markFilled(this)" onblur="calc()">
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label>함수율 (%)</label>
+          <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.1"
+            placeholder="0.0" oninput="markFilled(this)" onblur="calc()">
+        </div>
+        <div class="field">
+          <label>미보상면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
+          <input type="number" id="fullUninsArea" class="inp" inputmode="decimal"
+            placeholder="0" oninput="markFilled(this)" onblur="calc()">
+        </div>
+      </div>
+      <div class="g3">
+        <div class="field">
+          <label>조사수확량 (kg)</label>
+          <input type="text" id="fullSurvey" class="auto" readonly>
+        </div>
+        <div class="field">
+          <label>함수율 체크</label>
+          <input type="text" id="fullSurveyArea" class="auto" readonly>
         </div>
         <div class="field">
           <label>미보상비율 (%)</label>
@@ -404,6 +457,10 @@ function calc(){
     const fullWeight = toNum(document.getElementById('fullWeight'));
     const fullMoisture = parseFloat(document.getElementById('fullMoisture').value)||0;
     if(fullWeight>0 && fullMoisture>0){
+      const fullDeadArea = parseFloat(document.getElementById('fullDeadArea').value)||0;
+      const fullUninsAreaVal = parseFloat(document.getElementById('fullUninsArea').value)||0;
+      const fullSurvArea = Math.max(0, realArea - fullDeadArea - fullUninsAreaVal);
+      document.getElementById('fullSurveyArea').value = fullSurvArea > 0 ? fullSurvArea.toLocaleString()+' ㎡' : '';
       const surveyYield = Math.round(fullWeight*(1-fullMoisture/100)/(1-STD_MOISTURE));
       document.getElementById('fullSurvey').value = surveyYield.toLocaleString()+' kg';
       if(avgYield && surveyArea){
@@ -479,6 +536,8 @@ function saveState(){
       uninsRate: document.getElementById('uninsRate').value,
       samples,
       fullWeight: document.getElementById('fullWeight').value,
+      fullDeadArea: document.getElementById('fullDeadArea').value,
+      fullUninsArea: document.getElementById('fullUninsArea').value,
       fullMoisture: document.getElementById('fullMoisture').value,
       fullUninsRate: document.getElementById('fullUninsRate').value,
       mode
@@ -492,7 +551,7 @@ function loadState(){
     const raw = localStorage.getItem('bean_state');
     if(!raw) return;
     const s = JSON.parse(raw);
-    ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate','fullWeight','fullMoisture','fullUninsRate'].forEach(id=>{
+    ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate','fullWeight','fullMoisture','fullUninsRate','fullDeadArea','fullUninsArea'].forEach(id=>{
       const el=document.getElementById(id);
       if(el&&s[id]){el.value=s[id];el.classList.toggle('filled',true);}
     });
@@ -507,7 +566,7 @@ function loadState(){
 function resetAll(){
   if(!confirm('모든 입력값을 초기화할까요?')) return;
   try{ localStorage.removeItem('bean_state'); }catch(e){}
-  ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate','fullWeight','fullMoisture','fullUninsRate'].forEach(id=>{
+  ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate','fullWeight','fullMoisture','fullUninsRate','fullDeadArea','fullUninsArea'].forEach(id=>{
     const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
   });
   samples=[];
