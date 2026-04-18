@@ -224,7 +224,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         </div>
         <div class="field">
           <label>이랑폭 (m)</label>
-          <input type="number" id="rowWid" class="inp" inputmode="decimal" step="0.01"
+          <input type="number" id="rowWid" class="inp filled" inputmode="decimal" step="0.01" value="0.3"
             oninput="markFilled(this)" onblur="calc()">
         </div>
         <div class="field">
@@ -240,7 +240,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>함수율 (%)</label>
           <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
-            placeholder="0.0" oninput="markFilled(this)" onblur="calc()">
+            oninput="markFilled(this)" onblur="calc()">
         </div>
       </div>
     </div>
@@ -277,7 +277,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>함수율 (%)</label>
           <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.1"
-            placeholder="0.0" oninput="markFilled(this)" onblur="calc()">
+            oninput="markFilled(this)" onblur="calc()">
         </div>
         <div class="field">
           <label>조사수확량 (kg)</label>
@@ -556,6 +556,13 @@ function saveState(){
                'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture'];
   const state = {mode, disease: document.getElementById('dis-y')?.checked ? 'y' : 'n'};
   ids.forEach(id => { const el=document.getElementById(id); if(el) state[id]=el.value; });
+  // 표본구간 중량값 저장
+  const spVals = [];
+  for(let i=0;i<8;i++){
+    const el=document.getElementById('sp'+i);
+    spVals.push(el ? el.value : '');
+  }
+  state.spVals = spVals;
   try{ localStorage.setItem('rice_state', JSON.stringify(state)); }catch(e){}
 }
 
@@ -578,10 +585,24 @@ function loadState(){
       if(dy){ dy.checked = true; onDiseaseChk(); }
     } else { onDiseaseChk(); }
     Object.keys(s).forEach(id => {
-      if(id==='mode') return;
+      if(id==='mode'||id==='spVals') return;
       const el = document.getElementById(id);
       if(el && s[id]!==''){ el.value=s[id]; el.classList.toggle('filled', true); }
     });
+    // 표본구간 중량 복원 (calc 후 렌더링된 뒤에 실행)
+    if(s.spVals && s.spVals.length>0){
+      setTimeout(()=>{
+        s.spVals.forEach((v,i)=>{
+          const el=document.getElementById('sp'+i);
+          if(el && v){ el.value=v;
+            el.style.background='#e8faf3';
+            el.style.borderColor='#1D9E75';
+            el.style.color='#0d5c35';
+          }
+        });
+        calc();
+      }, 200);
+    }
   }catch(e){}
 }
 
