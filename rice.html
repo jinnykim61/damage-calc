@@ -427,7 +427,7 @@ function calc(){
     document.getElementById('sampleArea').value = unitArea > 0 ? unitArea + ' ㎡/구간' : '';
 
     // 적정 표본구간수
-    const proper = surveyArea > 0 ? getProperSample(surveyArea) : 3;
+    const proper = surveyArea > 0 ? getProperSample(surveyArea) : 0;
     document.getElementById('properSample').value = proper > 0 ? proper + '구간' : '';
     document.getElementById('properSampleDisp').value = proper > 0 ? String(proper) : '';
 
