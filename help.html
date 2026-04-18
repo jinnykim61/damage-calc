@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="theme-color" content="#185FA5">
+<title>도움말 · 설정</title>
+<style>
+:root{
+  --blue:#185FA5;--blue2:#378ADD;
+  --border:#D8D6CE;--text:#1a1a1a;--sub:#666;--hint:#aaa;
+  --bg:#F5F4F0;--card:#fff;--red:#e24b4a;--green:#1D9E75;
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+.header{background:var(--blue);color:white;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
+.back-btn{width:32px;height:32px;background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.header-icon{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.header h1{font-size:16px;font-weight:600}
+.content{padding:12px 12px 60px}
+.section{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:10px;border:0.5px solid var(--border)}
+.sec-title{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.sec-title span{font-size:16px}
+.body-text{font-size:13px;color:var(--text);line-height:1.8}
+.body-text b{color:var(--text);font-weight:700}
+.body-text .red{color:var(--red);font-weight:700}
+.divider{height:1px;background:var(--border);margin:10px 0}
+.item{margin-bottom:10px;padding-bottom:10px;border-bottom:0.5px solid #eee}
+.item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.item-title{font-size:12px;font-weight:700;color:var(--sub);margin-bottom:4px}
+.item-body{font-size:13px;color:var(--text);line-height:1.7}
+.badge-blue{display:inline-block;background:#EBF4FF;color:var(--blue);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700}
+.badge-red{display:inline-block;background:#fff0f0;color:var(--red);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700}
+.badge-green{display:inline-block;background:#e8faf3;color:var(--green);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700}
+.warning-box{background:#fff9e6;border:1px solid #FFD966;border-radius:8px;padding:12px;font-size:12px;color:#7A5C00;line-height:1.7;margin-top:8px}
+.disclaimer-box{background:#fff5f5;border:1px solid #fcc;border-radius:8px;padding:14px;font-size:13px;color:#5a0000;line-height:1.8;margin-top:8px}
+.version-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid #eee;font-size:13px}
+.version-row:last-child{border-bottom:none}
+.version-row .label{color:var(--sub)}
+.version-row .value{font-weight:600;color:var(--text)}
+.contact-box{background:var(--bg);border-radius:var(--rs);padding:12px;text-align:center;font-size:13px;color:var(--hint);margin-top:8px;border:0.5px dashed var(--border)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <button class="back-btn" onclick="location.href='./index.html'">‹</button>
+  <div class="header-icon">⚙️</div>
+  <div>
+    <h1>도움말 · 설정</h1>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- 면책 안내 -->
+  <div class="section">
+    <div class="sec-title"><span>⚠️</span> 면책 안내 (Disclaimer)</div>
+    <div class="body-text">
+      본 앱은 농업재해보험 손해평가사의 <b>현장조사 편의를 위한 참고용 도구</b>입니다.
+    </div>
+    <div class="disclaimer-box">
+      <div style="margin-bottom:8px">
+        품목별 업무방법서 지침 변경, 연산 과정에서의 소수점 처리 방식 차이로 인해
+        <b class="red">실제 농협 전산 입력값과 미세한 오차가 발생할 수 있습니다.</b>
+      </div>
+      <div style="margin-bottom:8px">
+        계산 결과는 반드시 현장에서 다시 한번 검토 후 사용하시기 바라며,
+        <b class="red">본 앱의 계산 결과로 인한 어떠한 금전적·법적 책임도 개발자에게 없습니다.</b>
+      </div>
+      <div>
+        본 앱을 사용하시면 위 내용에 동의하는 것으로 간주합니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- 마늘 입력 안내 -->
+  <div class="section">
+    <div class="sec-title"><span>🧄</span> 마늘 등급별 입력 안내</div>
+    <div class="item">
+      <div class="item-title"><span class="badge-blue">80%형</span> 기준 미달 소형 마늘</div>
+      <div class="item-body">실중량을 그대로 입력하세요.<br>앱에서 자동으로 ×0.8 처리합니다.</div>
+    </div>
+    <div class="item">
+      <div class="item-title"><span class="badge-red">벌마늘</span> 속 빈 마늘</div>
+      <div class="item-body">실중량×50%를 계산한 후 입력하세요.<br>예) 실중량 800g → 400g 입력</div>
+    </div>
+    <div class="warning-box">
+      ※ 벌마늘 인정기준은 연도별·구역별 지침을 반드시 확인하세요.
+    </div>
+  </div>
+
+  <!-- 면적 오차 안내 -->
+  <div class="section">
+    <div class="sec-title"><span>📐</span> 면적 오차 처리 안내</div>
+    <div class="item">
+      <div class="item-title"><span class="badge-green">이상무</span> ±10% 이내</div>
+      <div class="item-body">가입면적 기준으로 피해율을 산정합니다.</div>
+    </div>
+    <div class="item">
+      <div class="item-title"><span class="badge-red">원장변경 대상</span> ±10% 초과</div>
+      <div class="item-body">
+        실경작면적 기준으로 평년수확량을 재산정하여 피해율을 산정합니다.<br>
+        <b>변경 평년수확량 = 평년수확량 × (실경작면적 ÷ 가입면적)</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- 공식 기준 -->
+  <div class="section">
+    <div class="sec-title"><span>📋</span> 공식 기준</div>
+    <div class="item">
+      <div class="item-title">기준함수율</div>
+      <div class="item-body">메벼 15% · 찰벼 13% · 분질미 14% · 콩·팥 14%</div>
+    </div>
+    <div class="item">
+      <div class="item-title">Loss율 (벼)</div>
+      <div class="item-body">7% 적용 (유효중량 계수 ×0.93)</div>
+    </div>
+    <div class="item">
+      <div class="item-title">병충해단독사고 (벼)</div>
+      <div class="item-body">미보상감수량 없음 · 최고피해율 70% 한도</div>
+    </div>
+  </div>
+
+  <!-- 버전 정보 -->
+  <div class="section">
+    <div class="sec-title"><span>🔖</span> 버전 정보</div>
+    <div class="version-row"><span class="label">앱 이름</span><span class="value">손해평가 피해율계산기</span></div>
+    <div class="version-row"><span class="label">개발</span><span class="value">Cool-Running</span></div>
+    <div class="version-row"><span class="label">지원 품목</span><span class="value">마늘·양파 · 인삼 · 콩 · 벼 · 과수</span></div>
+    <div class="version-row"><span class="label">기준</span><span class="value">농업재해보험 손해평가 업무방법서</span></div>
+  </div>
+
+  <!-- 피드백 -->
+  <div class="section">
+    <div class="sec-title"><span>✉️</span> 문의 · 피드백</div>
+    <div class="body-text" style="color:var(--sub);margin-bottom:8px">
+      계산 오류나 개선사항을 발견하시면 언제든 알려주세요.<br>
+      적극 검토 후 반영하겠습니다.
+    </div>
+    <div class="contact-box">연락처 추후 공개 예정</div>
+  </div>
+
+</div>
+</body>
+</html>
