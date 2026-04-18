@@ -182,7 +182,7 @@ tfoot td.v{color:var(--text)}
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
       </div>
     </div>
-    <div class="g2">
+    <div class="g3">
       <div class="field">
         <label>조사대상면적</label>
         <input type="text" id="survey_area_disp" class="auto" readonly>
@@ -190,6 +190,10 @@ tfoot td.v{color:var(--text)}
       <div class="field">
         <label>면적오차</label>
         <input type="text" id="area_err_disp" class="auto" readonly>
+      </div>
+      <div class="field">
+        <label>계약변경여부</label>
+        <input type="text" id="contract_yn_disp" class="auto" readonly>
       </div>
     </div>
   </div>
@@ -316,6 +320,19 @@ tfoot td.v{color:var(--text)}
       <span style="font-size:13px;color:var(--sub)">이제 안 봄</span>
     </label>
     <button onclick="closeGarlicNote()" style="width:100%;height:44px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer">확인</button>
+  </div>
+</div>
+
+<!-- 면적 변경 안내 팝업 -->
+<div id="area-change-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:400;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:16px;padding:24px 20px;width:300px;max-width:90vw">
+    <div style="font-size:28px;text-align:center;margin-bottom:12px">⚠️</div>
+    <div style="font-size:15px;font-weight:700;text-align:center;color:#e24b4a;margin-bottom:12px">원장변경 대상</div>
+    <div style="background:#fff5f5;border:1px solid #fcc;border-radius:8px;padding:14px;font-size:13px;color:#7A0000;line-height:1.8;margin-bottom:16px;text-align:center">
+      면적오차가 ±10%를 초과했습니다.<br>
+      <b>변경된 면적으로 평년수확량을<br>재산정하여 피해율을 산정합니다.</b>
+    </div>
+    <button onclick="document.getElementById('area-change-popup').style.display='none'" style="width:100%;height:44px;background:#e24b4a;color:white;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer">확인</button>
   </div>
 </div>
 
@@ -504,8 +521,28 @@ function calc(){
   document.getElementById('survey_area_disp').value=surveyArea>0?surveyArea.toLocaleString()+' ㎡':'';
   document.getElementById('area_err_disp').value=areaErr!=='-'?areaErr+'%':'';
 
+  // 계약변경여부 표시
+  const contractEl = document.getElementById('contract_yn_disp');
+  const isChanged = insArea>0 && actArea>0 && Math.abs(areaErrNum)>0.1;
+  if(insArea>0 && actArea>0){
+    contractEl.value = isChanged ? '원장변경 대상' : '이상무';
+    contractEl.style.color = isChanged ? '#e24b4a' : '#1D9E75';
+    contractEl.style.fontWeight = isChanged ? '700' : '600';
+    // 팝업 표시 (이전에 안 봤을 때만)
+    if(isChanged && !window._areaPopupShown){
+      window._areaPopupShown = true;
+      document.getElementById('area-change-popup').style.display='flex';
+    } else if(!isChanged){
+      window._areaPopupShown = false;
+    }
+  } else {
+    contractEl.value = '';
+    contractEl.style.color = '';
+    window._areaPopupShown = false;
+  }
+
   // 면적 10% 초과/부족시 변경 평년수확량 적용
-  const effAvg = (insArea>0 && actArea>0 && Math.abs(areaErrNum)>0.1)
+  const effAvg = isChanged
     ? Math.round(avgYield * (actArea/insArea) * 10) / 10
     : avgYield;
 
