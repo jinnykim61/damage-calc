@@ -138,7 +138,7 @@ tfoot td.v{color:var(--text)}
       <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
     </div>
     <div class="field">
-      <select id="crop" class="inp" onchange="markFilled(this);calc()" style="max-width:200px;text-align:left;text-align-last:left">
+      <select id="crop" class="inp" onchange="markFilled(this);onCropChange()" style="max-width:200px;text-align:left;text-align-last:left">
         <option value="onion">양파</option>
         <option value="garlic_s">마늘 난지형</option>
         <option value="garlic_n">마늘 한지형</option>
@@ -230,15 +230,15 @@ tfoot td.v{color:var(--text)}
     </div>
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
     <div id="sample-tbl-wrap" class="tbl-wrap" style="display:none">
-      <table>
+      <table style="width:100%;table-layout:fixed">
         <colgroup>
-          <col style="width:24px">
-          <col style="width:60px">
-          <col style="width:50px">
-          <col style="width:70px">
-          <col style="width:70px">
-          <col style="width:70px">
-          <col style="width:26px">
+          <col style="width:6%">
+          <col style="width:18%">
+          <col style="width:15%">
+          <col style="width:20%">
+          <col id="col-d80" style="width:20%">
+          <col id="col-d50" style="width:0%">
+          <col style="width:0%">
         </colgroup>
         <thead>
           <tr>
@@ -418,15 +418,34 @@ function closeGarlicGuide(){
   try{ localStorage.setItem('garlic_guide_seen','1'); }catch(e){}
 }
 
+function onCropChange(){
+  // 품목 변경시 표본구간 초기화
+  samples = [];
+  renderSamples();
+  calcTotals();
+  updateGarlicCols();
+  calc();
+}
+
 function updateGarlicCols(){
   const crop = document.getElementById('crop').value;
   const isGarlic = crop==='garlic_s'||crop==='garlic_n';
+
+  // 헤더/바디 벌마늘 칸 표시/숨김
   const th50 = document.getElementById('th-d50');
   if(th50) th50.style.display = isGarlic ? '' : 'none';
-  // 양파일때 벌마늘 칸 숨기기 (tbody)
   document.querySelectorAll('.col-d50').forEach(el=>{
     el.style.display = isGarlic ? '' : 'none';
   });
+
+  // colgroup 너비 조정
+  const colD50 = document.getElementById('col-d50');
+  const colD80 = document.getElementById('col-d80');
+  if(colD50) colD50.style.width = isGarlic ? '20%' : '0%';
+  if(colD80) colD80.style.width = isGarlic ? '19%' : '25%';
+  // 마지막 빈칸 제거
+  const lastCol = document.querySelector('colgroup col:last-child');
+  if(lastCol) lastCol.style.width = '0%';
 }
 
 function updateSamplesAndCalc(){
