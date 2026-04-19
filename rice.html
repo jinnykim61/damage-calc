@@ -660,30 +660,36 @@ function savePDF(){
 
 async function saveImage(){
   try{
-    // 현재 스크롤 위치 저장 후 최상단으로 이동
     const prevScroll = window.scrollY;
     window.scrollTo(0, 0);
-    await new Promise(r => setTimeout(r, 100)); // 스크롤 안정화 대기
+    await new Promise(r => setTimeout(r, 150));
 
     const captureEl = document.querySelector('.content');
+    const actualWidth = document.documentElement.clientWidth;
+
     const srcCanvas = await html2canvas(captureEl, {
       backgroundColor: '#F5F4F0',
       scale: 2,
       useCORS: true,
-      windowWidth: 420,
+      windowWidth: actualWidth,
+      windowHeight: captureEl.scrollHeight,
       scrollX: 0,
       scrollY: 0,
-      x: 0,
-      y: 0,
-      width: captureEl.scrollWidth,
-      height: captureEl.scrollHeight
+      onclone: (doc) => {
+        const el = doc.querySelector('.content');
+        if(el){
+          el.style.position = 'static';
+          el.style.top = '0';
+          el.style.left = '0';
+          el.style.width = actualWidth + 'px';
+          el.style.overflow = 'visible';
+        }
+      }
     });
 
-    // 캡처 후 원래 스크롤 위치 복원
     window.scrollTo(0, prevScroll);
 
-    // 상단 파란 헤더 추가
-    const titleH = 56;
+    const titleH = 60;
     const out = document.createElement('canvas');
     out.width = srcCanvas.width;
     out.height = srcCanvas.height + titleH;
@@ -691,13 +697,14 @@ async function saveImage(){
 
     ctx.fillStyle = '#185FA5';
     ctx.fillRect(0, 0, out.width, titleH);
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 28px -apple-system, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('벼 피해율 계산기', out.width / 2, 30);
-    ctx.font = '18px -apple-system, sans-serif';
+    ctx.fillStyle = 'white';
+    ctx.font = `bold ${Math.round(srcCanvas.width * 0.07)}px -apple-system, sans-serif`;
+    ctx.fillText('벼 피해율 계산기', out.width / 2, titleH * 0.52);
+    ctx.font = `${Math.round(srcCanvas.width * 0.038)}px -apple-system, sans-serif`;
     ctx.fillStyle = 'rgba(255,255,255,0.75)';
-    ctx.fillText('농업재해보험 손해평가사 · Cool-Running', out.width / 2, 50);
+    ctx.fillText('농업재해보험 손해평가사 · Cool-Running', out.width / 2, titleH * 0.88);
+
     ctx.drawImage(srcCanvas, 0, titleH);
 
     const link = document.createElement('a');
@@ -707,7 +714,7 @@ async function saveImage(){
     link.href = out.toDataURL('image/png');
     link.click();
     document.getElementById('save-overlay').classList.add('show');
-  } catch(e) { alert('저장 중 오류가 발생했어요: ' + e); }
+  } catch(e) { alert('저장 중 오류: ' + e); }
 }
 
 if('serviceWorker' in navigator){
