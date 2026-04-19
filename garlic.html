@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>마늘 피해율계산기</title>
-<!-- v1776611149 -->
+<!-- v1776611953 -->
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -152,17 +152,17 @@ tfoot td.v{color:var(--text)}
       <div class="field">
         <label>평년수확량 (kg)</label>
         <input type="text" id="avg_yield" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="calc()">
+          oninput="onCommaInput(this)" onchange="calc()" onblur="calc()">
       </div>
       <div class="field">
         <label>가입면적 (㎡)</label>
         <input type="text" id="ins_area" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="calc()">
+          oninput="onCommaInput(this)" onchange="calc()" onblur="calc()">
       </div>
       <div class="field">
         <label>실제경작면적 (㎡)</label>
         <input type="text" id="act_area" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()">
+          oninput="onCommaInput(this);updateSamplesAndCalc()" onchange="updateSamplesAndCalc()">
       </div>
     </div>
     <div class="g3">
@@ -203,11 +203,11 @@ tfoot td.v{color:var(--text)}
     <div class="g2">
       <div class="field">
         <label>조사일자</label>
-        <input type="date" id="survey_date" class="inp" oninput="markFilled(this);calc()">
+        <input type="date" id="survey_date" class="inp" onchange="markFilled(this);calc()">
       </div>
       <div class="field">
         <label>수확예정일</label>
-        <input type="date" id="harvest_date" class="inp" oninput="markFilled(this);calc()">
+        <input type="date" id="harvest_date" class="inp" onchange="markFilled(this);calc()">
       </div>
     </div>
     <div style="display:grid;grid-template-columns:2fr 0.75fr 0.75fr;gap:6px;margin-bottom:8px">
