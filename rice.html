@@ -290,17 +290,17 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
-    <div style="width:100%;text-align:center;margin-bottom:12px">
-      <div style="font-size:12px;opacity:0.8;margin-bottom:6px">피해율</div>
-      <div id="result-pct" style="font-size:40px;font-weight:700;line-height:1;text-align:center;display:block;width:100%">입력 대기중</div>
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:12px;opacity:0.8;margin-bottom:6px;letter-spacing:0.05em">피해율</div>
+      <div id="result-pct" style="font-size:52px;font-weight:800;line-height:1;text-align:center;display:block;width:100%;letter-spacing:-0.02em">입력 대기중</div>
     </div>
-    <div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px">
-      <button class="save-btn" onclick="saveImage()">
-        <span style="font-size:20px">📷</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <button class="save-btn" onclick="saveImage()" style="width:100%;justify-content:center;flex-direction:row;gap:6px;height:44px;font-size:13px">
+        <span style="font-size:18px">📷</span>
         <span>갤러리 저장</span>
       </button>
-      <button class="save-btn" id="pdf-btn" onclick="savePDF()" style="opacity:0.5;pointer-events:none">
-        <span style="font-size:20px">📄</span>
+      <button class="save-btn" id="pdf-btn" onclick="savePDF()" style="width:100%;justify-content:center;flex-direction:row;gap:6px;height:44px;font-size:13px;opacity:0.5;pointer-events:none">
+        <span style="font-size:18px">📄</span>
         <span>PDF 저장</span>
       </button>
     </div>
