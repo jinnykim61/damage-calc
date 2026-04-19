@@ -288,17 +288,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
   </div>
 
-  <!-- ④ 특이사항 -->
-  <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">④ 특이사항 <span style="font-size:11px;color:var(--hint)">조사자 의견</span></div>
-      <button onclick="document.getElementById('remarks').value='';markFilled(document.getElementById('remarks'))" style="height:28px;padding:0 10px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--sub);font-size:12px;cursor:pointer">지우기</button>
-    </div>
-    <textarea id="remarks" class="inp" rows="1"
-      style="height:auto;padding:10px 12px;text-align:left;resize:none;line-height:1.6;font-size:14px"
-      placeholder="예) 제초불량, 수발아, 도복피해 등"
-      oninput="markFilled(this)"></textarea>
-  </div>
+
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
