@@ -660,21 +660,27 @@ function savePDF(){
 
 async function saveImage(){
   try{
-    const captureEl = document.querySelector('.content');
-    const rect = captureEl.getBoundingClientRect();
+    // 현재 스크롤 위치 저장 후 최상단으로 이동
+    const prevScroll = window.scrollY;
+    window.scrollTo(0, 0);
+    await new Promise(r => setTimeout(r, 100)); // 스크롤 안정화 대기
 
+    const captureEl = document.querySelector('.content');
     const srcCanvas = await html2canvas(captureEl, {
       backgroundColor: '#F5F4F0',
       scale: 2,
       useCORS: true,
       windowWidth: 420,
       scrollX: 0,
-      scrollY: -window.scrollY,
+      scrollY: 0,
       x: 0,
       y: 0,
       width: captureEl.scrollWidth,
       height: captureEl.scrollHeight
     });
+
+    // 캡처 후 원래 스크롤 위치 복원
+    window.scrollTo(0, prevScroll);
 
     // 상단 파란 헤더 추가
     const titleH = 56;
@@ -683,11 +689,8 @@ async function saveImage(){
     out.height = srcCanvas.height + titleH;
     const ctx = out.getContext('2d');
 
-    // 헤더 배경
     ctx.fillStyle = '#185FA5';
     ctx.fillRect(0, 0, out.width, titleH);
-
-    // 헤더 텍스트
     ctx.fillStyle = 'white';
     ctx.font = 'bold 28px -apple-system, sans-serif';
     ctx.textAlign = 'center';
@@ -695,8 +698,6 @@ async function saveImage(){
     ctx.font = '18px -apple-system, sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.75)';
     ctx.fillText('농업재해보험 손해평가사 · Cool-Running', out.width / 2, 50);
-
-    // 본문
     ctx.drawImage(srcCanvas, 0, titleH);
 
     const link = document.createElement('a');
