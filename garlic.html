@@ -209,7 +209,7 @@ tfoot td.v{color:var(--text)}
         <input type="date" id="harvest_date" class="inp" oninput="markFilled(this);calc()">
       </div>
     </div>
-    <div class="g2">
+    <div class="g3">
       <div class="field">
         <label>잔여일수 / 비대추정지수</label>
         <input type="text" id="remain_info" class="auto" readonly>
@@ -219,8 +219,6 @@ tfoot td.v{color:var(--text)}
         <input type="number" id="열공수" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
-    </div>
-    <div class="g2">
       <div class="field">
         <label>미보상비율 (%)</label>
         <input type="number" id="unins_rate" class="inp" inputmode="decimal"
@@ -232,29 +230,26 @@ tfoot td.v{color:var(--text)}
   <div class="section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
       <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span id="sample-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
-      
     </div>
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
     <div id="sample-tbl-wrap" class="tbl-wrap" style="display:none">
       <table style="width:100%;table-layout:fixed">
         <colgroup>
-          <col style="width:6%">
-          <col style="width:18%">
-          <col style="width:15%">
-          <col style="width:20%">
-          <col id="col-d80" style="width:20%">
-          <col id="col-d50" style="width:0%">
-          <col style="width:0%">
+          <col style="width:8%">
+          <col id="col-len">
+          <col id="col-wid">
+          <col id="col-norm">
+          <col id="col-d80">
+          <col id="col-d50">
         </colgroup>
         <thead>
           <tr>
-            <th style="width:24px">No.</th>
+            <th>No.</th>
             <th>이랑길이&#10;(m/5주)</th>
             <th>이랑폭&#10;(m)</th>
             <th>정상&#10;(g)</th>
             <th id="th-d80">80%형&#10;(g)</th>
             <th id="th-d50">벌마늘&#10;(g)</th>
-            <th style="width:26px"></th>
           </tr>
         </thead>
         <tbody id="sample-body"></tbody>
@@ -266,7 +261,6 @@ tfoot td.v{color:var(--text)}
             <td class="v" id="t-norm">-</td>
             <td class="v" id="t-d80">-</td>
             <td class="v" id="t-d50">-</td>
-            <td></td>
           </tr>
         </tfoot>
       </table>
@@ -278,27 +272,35 @@ tfoot td.v{color:var(--text)}
     </div>
   </div>
 
-  <!-- 결과 — 항상 표시 -->
+  <!-- 결과 — 벼와 동일한 형태 -->
   <div class="result-box pending" id="result-section">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div style="flex:1">
-        <div style="font-size:12px;opacity:0.8;margin-bottom:4px">최종 산출 피해율</div>
-        <div id="result-pct" style="font-size:44px;font-weight:700;line-height:1">입력 대기중</div>
+    <div style="text-align:center;padding:10px 0 14px">
+      <div style="font-size:18px;font-weight:700;opacity:0.85;margin-bottom:6px">피해율</div>
+      <div id="result-pct" style="font-size:38px;font-weight:800;line-height:1;letter-spacing:-0.02em;margin-bottom:16px">입력 대기중</div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-bottom:16px">
+        <button class="save-btn" onclick="saveImage()" style="width:130px;height:36px;justify-content:center;flex-direction:row;gap:5px;font-size:13px;font-weight:700;padding:0">
+          <span style="font-size:14px">📷</span><span>갤러리 저장</span>
+        </button>
+        <button class="save-btn" onclick="window.print()" style="width:130px;height:36px;justify-content:center;flex-direction:row;gap:5px;font-size:13px;font-weight:700;padding:0;opacity:0.5">
+          <span style="font-size:14px">📄</span><span>PDF 저장</span>
+        </button>
       </div>
-      <button class="save-btn" onclick="saveImage()">
-        <span style="font-size:20px">📷</span>
-        <span>갤러리 저장</span>
-      </button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 8px;text-align:center">
+          <div style="font-size:10px;opacity:0.75;margin-bottom:4px">조사수확량</div>
+          <div style="font-size:14px;font-weight:700" id="r-surv">-</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 8px;text-align:center">
+          <div style="font-size:10px;opacity:0.75;margin-bottom:4px">비대추정수확량</div>
+          <div style="font-size:14px;font-weight:700" id="r-est">-</div>
+        </div>
+      </div>
+      <div class="drow"><span>조사대상면적</span><span id="r-area">-</span></div>
+      <div class="drow"><span>㎡당 평년수확량</span><span id="r-avg-unit">-</span></div>
+      <div class="drow"><span>유효중량계수</span><span id="r-coeff">-</span></div>
+      <div class="drow"><span>미보상감수량</span><span id="r-unins">-</span></div>
+      <div class="drow"><span>감수량</span><span id="r-loss">-</span></div>
     </div>
-    <div class="metrics">
-      <div class="metric"><div class="ml">조사수확량</div><div class="mv" id="r-surv">-</div></div>
-      <div class="metric"><div class="ml">비대추정수확량</div><div class="mv" id="r-est">-</div></div>
-      <div class="metric"><div class="ml">미보상감수량</div><div class="mv" id="r-unins">-</div></div>
-    </div>
-    <div class="drow"><span>조사대상면적</span><span id="r-area">-</span></div>
-    <div class="drow"><span>㎡당 평년수확량</span><span id="r-avg-unit">-</span></div>
-    <div class="drow"><span>유효중량계수</span><span id="r-coeff">-</span></div>
-    <div class="drow"><span>감수량</span><span id="r-loss">-</span></div>
   </div>
 
 </div>
@@ -408,7 +410,6 @@ function renderSamples(){
         class="${s.d50?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].d50=this.value.replace(/,/g,'')"
         onblur="samples[${i}].d50=this.value.replace(/,/g,'');calcTotals()"></td>
-      <td><button class="del-btn" style="display:none" onclick="delSample(${i})">×</button></td>
     </tr>`).join('');
   setTimeout(updateGarlicCols, 0);
 }
@@ -437,19 +438,30 @@ function updateGarlicCols(){
   const crop = document.getElementById('crop').value;
   const isGarlic = crop==='garlic_s'||crop==='garlic_n';
 
-  // 헤더/바디 벌마늘 칸 표시/숨김
   const th50 = document.getElementById('th-d50');
   if(th50) th50.style.display = isGarlic ? '' : 'none';
   document.querySelectorAll('.col-d50').forEach(el=>{
     el.style.display = isGarlic ? '' : 'none';
   });
 
-  // colgroup 너비 조정
-  const colD50 = document.getElementById('col-d50');
-  const colD80 = document.getElementById('col-d80');
-  if(colD50) colD50.style.width = isGarlic ? '20%' : '0%';
-  if(colD80) colD80.style.width = isGarlic ? '19%' : '25%';
-  // 마지막 빈칸 제거
+  // 균등 너비: No(8%) + 나머지 균등 분배
+  const colCount = isGarlic ? 5 : 4; // 이랑길이,이랑폭,정상,80%형,[벌마늘]
+  const restPct = Math.floor(92 / colCount);
+  const lastPct = 92 - restPct * (colCount - 1);
+
+  const colIds = ['col-len','col-wid','col-norm','col-d80','col-d50'];
+  colIds.forEach((id, idx) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(id==='col-d50'){
+      el.style.width = isGarlic ? lastPct+'%' : '0%';
+    } else if(idx === colCount - 1){
+      el.style.width = lastPct+'%';
+    } else {
+      el.style.width = restPct+'%';
+    }
+  });
+
   const lastCol = document.querySelector('colgroup col:last-child');
   if(lastCol) lastCol.style.width = '0%';
 }
@@ -690,14 +702,10 @@ async function saveImage(){
     }
 
     function drawRowFit(ctx,x,y,cols){
-      // 칸 너비: minW 기준, 전체 iw 꽉 채움
-      const iw2=W-P*2;
-      const totalMin=cols.reduce((s,c)=>s+(c.minW||40),0)+g*(cols.length-1);
-      const extra=Math.max(0,iw2-totalMin);
-      const perCol=extra/cols.length;
+      // 내용에 맞는 너비로, 좌측 정렬 (우측 여백 있어도 OK)
       let cx=x;
       cols.forEach(col=>{
-        const w=(col.minW||40)+perCol;
+        const w=col.w||(col.minW||40);
         drawCell(ctx,cx,y,w,col.label,col.value,col);
         cx+=w+g;
       });
@@ -760,10 +768,10 @@ async function saveImage(){
     secTitle(ctx,P+2,cy,'① 기본사항');
     cy+=secLH;
     drawRowFit(ctx,P,cy,[
-      {label:'평년수확량(kg)', value:avgYield,  filled:!!avgYield,  minW:80},
-      {label:'품종',           value:cropTxt,   filled:true,        minW:60},
-      {label:'계약변경',       value:contractV, auto:true, color:contractColor, minW:60},
-      {label:'조사일',         value:surveyDate.replace(/-/g,'.'), auto:true, minW:72}
+      {label:'평년수확량(kg)', value:avgYield,  filled:!!avgYield,  w:100},
+      {label:'품종',           value:cropTxt,   filled:true,        w:80},
+      {label:'계약변경',       value:contractV, auto:true, color:contractColor, w:70},
+      {label:'조사일',         value:surveyDate.replace(/-/g,'.'), auto:true, w:84}
     ]);
     cy+=rowH+pad+secGap;
 
@@ -772,18 +780,18 @@ async function saveImage(){
     secTitle(ctx,P+2,cy,'② 면적 조사 (㎡)');
     cy+=secLH;
     drawRowFit(ctx,P,cy,[
-      {label:'실경작면적',   value:actArea,   filled:!!actArea,                   minW:66},
-      {label:'고사면적',     value:deadArea,  filled:deadArea!=='0'&&!!deadArea,  minW:50},
-      {label:'타작물미보상', value:otherArea, filled:otherArea!=='0'&&!!otherArea,minW:64},
-      {label:'기수확',       value:harvArea,  filled:harvArea!=='0'&&!!harvArea,  minW:44},
-      {label:'조사대상면적', value:survAreaV, auto:true,                          minW:68}
+      {label:'실경작면적',   value:actArea,   filled:!!actArea,                    w:88},
+      {label:'고사면적',     value:deadArea,  filled:deadArea!=='0'&&!!deadArea,   w:66},
+      {label:'타작물미보상', value:otherArea, filled:otherArea!=='0'&&!!otherArea, w:80},
+      {label:'기수확',       value:harvArea,  filled:harvArea!=='0'&&!!harvArea,   w:60},
+      {label:'조사대상면적', value:survAreaV, auto:true,                           w:88}
     ]);
     cy+=rowH+g;
     drawRowFit(ctx,P,cy,[
-      {label:'수확예정일',       value:harvestDate.replace(/-/g,'.'), filled:!!harvestDate, minW:80},
-      {label:'잔여일수/비대지수',value:remainInfo, auto:true,                              minW:90},
-      {label:'열공수(개)',        value:열공수V,    filled:!!열공수V,                       minW:52},
-      {label:'미보상비율(%)',    value:uninsRate,  filled:!!uninsRate,                     minW:56}
+      {label:'수확예정일',       value:harvestDate.replace(/-/g,'.'), filled:!!harvestDate, w:84},
+      {label:'잔여일수/비대지수',value:remainInfo, auto:true,                               w:100},
+      {label:'열공수(개)',        value:열공수V,    filled:!!열공수V,                        w:56},
+      {label:'미보상비율(%)',    value:uninsRate,  filled:!!uninsRate,                      w:62}
     ]);
     cy+=rowH+pad+secGap;
 
