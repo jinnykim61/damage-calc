@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -8,6 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>마늘 피해율계산기</title>
+<!-- v1776611149 -->
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -138,7 +138,7 @@ tfoot td.v{color:var(--text)}
       <div class="sec-title">품종</div>
       <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
     </div>
-    <div class="field">
+    <div style="width:50%">
       <select id="crop" class="inp filled" onchange="markFilled(this);onCropChange()" style="text-align:left;text-align-last:left">
         <option value="garlic_s">마늘 난지형</option>
         <option value="garlic_n">마늘 한지형</option>
