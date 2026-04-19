@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#185FA5">
 <title>벼 피해율 계산기</title>
-<!-- v1776589784 -->
+<!-- v1776590535 -->
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -702,17 +702,27 @@ async function saveImage(){
       spVals.push(el ? (el.value||'') : '');
     }
 
-    // ── 디자인 상수 ──
-    const W=680;
-    const P=22;
+    const W=680, P=22;
     const blue='#185FA5', green='#1D9E75', red='#e24b4a';
     const bgPage='#F2F1EE', bgCard='#FFFFFF', bgFilled='#e8faf3', bgAuto='#F3F1EA', bgDisabled='#E8E8E8';
     const borderC='#D4D2CB', filledC=green, filledTxt='#0d5c35', inpC='#8AB8E0';
     const txtDark='#1a1a1a', txtSub='#555', txtHint='#aaa';
 
-    // 라벨 11px / 값 14px → 칸 크기 줄임
-    const LH=14, VH=28, CELL_H=LH+VH;
-    const g=5;
+    // 라벨과 박스 사이 간격 추가
+    const LH=18,  // 라벨 높이 (여유있게)
+          VH=28,  // 박스 높이
+          CELL_H=LH+VH;
+    const g=6;
+
+    // 컨텍스트에서 텍스트 너비 기반으로 칸 너비 계산
+    // 라벨 10px 기준 최소너비 + 양쪽 패딩
+    function calcW(ctx, label, val, minW){
+      ctx.font='700 10px -apple-system,sans-serif';
+      const lw = ctx.measureText(label).width;
+      ctx.font='700 12px -apple-system,sans-serif';
+      const vw = ctx.measureText(val||'000').width;
+      return Math.max(minW||30, Math.max(lw, vw) + 20);
+    }
 
     function drawCell(ctx, x, y, w, label, val, opts){
       const {filled,auto,disabled,color,bold,small}=opts||{};
@@ -721,32 +731,35 @@ async function saveImage(){
       const tc=disabled?txtHint:(color||(filled?filledTxt:(auto?txtSub:txtDark)));
       const lw=disabled?0.4:(filled?1.0:(auto?0.6:1.3));
 
-      // 값 박스
+      // 박스
       ctx.beginPath();
       ctx.roundRect(x, y+LH, w, VH, 4);
       ctx.fillStyle=bg; ctx.fill();
       ctx.strokeStyle=bc; ctx.lineWidth=lw; ctx.stroke();
 
-      // 라벨: 진하게, 크게 (값의 약 70% 크기)
+      // 라벨 (박스 위, 충분한 간격)
       ctx.fillStyle='#777';
       ctx.font='700 10px -apple-system,sans-serif';
       ctx.textAlign='center';
-      ctx.fillText(label, x+w/2, y+LH-2);
+      ctx.fillText(label, x+w/2, y+LH-4);
 
-      // 값: 진하고 선명하게
+      // 값
       if(val && !disabled){
         ctx.fillStyle=tc;
-        ctx.font=`700 ${small?11:14}px -apple-system,sans-serif`;
+        ctx.font=`700 ${small?10:12}px -apple-system,sans-serif`;
         ctx.textAlign='center';
-        ctx.fillText(val, x+w/2, y+LH+VH/2+5);
+        ctx.fillText(val, x+w/2, y+LH+VH/2+4);
       }
     }
 
-    function drawRow(ctx, x, y, cols){
+    // 칸 너비를 내용에 맞게 자동 계산해서 배치 (우측 여백 신경X)
+    function drawRowAuto(ctx, x, y, cols){
+      // 임시 캔버스로 너비 계산
       let cx=x;
       cols.forEach(col=>{
-        drawCell(ctx,cx,y,col.w,col.label,col.value,col);
-        cx+=col.w+g;
+        const w = col.w || calcW(ctx, col.label, col.value, col.minW||36);
+        drawCell(ctx, cx, y, w, col.label, col.value, col);
+        cx += w+g;
       });
     }
 
@@ -759,24 +772,22 @@ async function saveImage(){
 
     function card(ctx, y, h, iw){
       ctx.beginPath();
-      ctx.roundRect(P-3,y-3,iw+6,h+6,8);
+      ctx.roundRect(P-3, y-3, iw+6, h+6, 8);
       ctx.fillStyle=bgCard; ctx.fill();
       ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.stroke();
     }
 
-    // ── 높이 계산 ──
     const secLH=18, rowH=CELL_H, pad=10, secGap=8;
     const iw=W-P*2;
     const detailN=4+(isDis?1:0);
 
     let totalH=60+12;
-    totalH += secLH+rowH+pad+secGap;   // ①
-    totalH += secLH+rowH+pad+secGap;   // ②
+    totalH += secLH+rowH+pad+secGap;
+    totalH += secLH+rowH+pad+secGap;
     if(mode==='sample'){
-      totalH += secLH+rowH+pad+secGap; // ③
-      totalH += secLH+rowH+pad+secGap; // ④
+      totalH += secLH+rowH+pad+secGap;
+      totalH += secLH+rowH+pad+secGap;
     }
-    // ⑤: 제목 + 피해율행(40) + 구분선(14) + 상세N행(22each) + pad
     totalH += secLH+40+14+detailN*24+pad+secGap;
 
     const canvas=document.createElement('canvas');
@@ -789,7 +800,7 @@ async function saveImage(){
         this.moveTo(x+rv[0],y);
         this.lineTo(x+w-rv[1],y); this.quadraticCurveTo(x+w,y,x+w,y+rv[1]);
         this.lineTo(x+w,y+h-rv[2]); this.quadraticCurveTo(x+w,y+h,x+w-rv[2],y+h);
-        this.lineTo(x+rv[3],y+h); this.quadraticCurveTo(x,y+h,x,y+h-rv[3]);
+        this.lineTo(x+rv[3],y+h); this.quadraticCurveTo(x,y+h,x,y+rv[3]);
         this.lineTo(x,y+rv[0]); this.quadraticCurveTo(x,y,x+rv[0],y);
         this.closePath();
       };
@@ -809,68 +820,60 @@ async function saveImage(){
     cy=72;
 
     // ① 기본사항
-    const h1=secLH+rowH+pad;
-    card(ctx,cy,h1,iw);
+    card(ctx,cy,secLH+rowH+pad,iw);
     secTitle(ctx,P+2,cy,'① 기본사항');
     cy+=secLH;
-    const fw1=Math.floor((iw-g*4)/5);
-    const fw1last=iw-fw1*4-g*4;
-    drawRow(ctx,P,cy,[
-      {label:'평년수확량(kg)', value:avgYield,  filled:!!avgYield,  w:fw1last},
-      {label:'품종',          value:varietyTxt, filled:true,        w:fw1},
-      {label:'병충해단독사고', value:disY?'여':'부', filled:true, color:disY?red:green, w:fw1},
-      {label:'계약변경',      value:contractV,  auto:true, color:contractColor, bold:true, w:fw1},
-      {label:'조사일',        value:todayStr,   auto:true, small:true, w:fw1}
+    drawRowAuto(ctx,P,cy,[
+      {label:'평년수확량(kg)', value:avgYield,         filled:!!avgYield,                    minW:80},
+      {label:'품종',           value:varietyTxt,       filled:true,                          minW:50},
+      {label:'병충해단독사고', value:disY?'여':'부',   filled:true, color:disY?red:green,    minW:52},
+      {label:'계약변경',       value:contractV,        auto:true, color:contractColor, bold:true, minW:44},
+      {label:'조사일',         value:todayStr,         auto:true, small:true,                minW:70}
     ]);
     cy+=rowH+pad+secGap;
 
     // ② 면적조사
-    const h2=secLH+rowH+pad;
-    card(ctx,cy,h2,iw);
+    card(ctx,cy,secLH+rowH+pad,iw);
     secTitle(ctx,P+2,cy,'② 면적 조사 (㎡)');
     cy+=secLH;
-    const fw2=Math.floor((iw-g*5)/6);
-    const fw2last=iw-fw2*5-g*5;
-    drawRow(ctx,P,cy,[
-      {label:'실경작면적',   value:actArea,      filled:!!actArea,                      w:fw2last},
-      {label:'고사면적',     value:deadArea,     filled:deadArea!=='0'&&!!deadArea,     w:fw2},
-      {label:'타작물미보상', value:uninsArea,    filled:uninsArea!=='0'&&!!uninsArea,   w:fw2},
-      {label:'기수확',       value:preArea,      filled:preArea!=='0'&&!!preArea,       w:fw2},
-      {label:'조사대상면적', value:surveyAreaV,  auto:true,                             w:fw2},
-      {label:'표본구간수',   value:properSample, auto:true,                             w:fw2}
+    drawRowAuto(ctx,P,cy,[
+      {label:'실경작면적',   value:actArea,      filled:!!actArea,                     minW:68},
+      {label:'고사면적',     value:deadArea,     filled:deadArea!=='0'&&!!deadArea,    minW:52},
+      {label:'타작물미보상', value:uninsArea,    filled:uninsArea!=='0'&&!!uninsArea,  minW:64},
+      {label:'기수확',       value:preArea,      filled:preArea!=='0'&&!!preArea,      minW:44},
+      {label:'조사대상면적', value:surveyAreaV,  auto:true,                            minW:68},
+      {label:'표본구간수',   value:properSample, auto:true,                            minW:52}
     ]);
     cy+=rowH+pad+secGap;
 
     if(mode==='sample'){
       // ③ 표본면적조사
-      const h3=secLH+rowH+pad;
-      card(ctx,cy,h3,iw);
+      card(ctx,cy,secLH+rowH+pad,iw);
       secTitle(ctx,P+2,cy,'③ 표본면적 조사');
       cy+=secLH;
-      drawRow(ctx,P,cy,[
-        {label:'이랑길이(m)',  value:rowLen,     filled:!!rowLen,  w:100},
-        {label:'이랑폭(m)',    value:rowWid,     filled:!!rowWid,  w:90},
-        {label:'표본구간면적', value:sampleAreaV,auto:true,        w:110}
+      drawRowAuto(ctx,P,cy,[
+        {label:'이랑길이(m)',  value:rowLen,      filled:!!rowLen,  minW:60},
+        {label:'이랑폭(m)',    value:rowWid,      filled:!!rowWid,  minW:56},
+        {label:'표본구간면적', value:sampleAreaV, auto:true,        minW:72}
       ]);
       cy+=rowH+pad+secGap;
 
       // ④ 표본구간별 수확량
-      const h4=secLH+rowH+pad;
-      card(ctx,cy,h4,iw);
+      card(ctx,cy,secLH+rowH+pad,iw);
       secTitle(ctx,P+2,cy,'④ 표본구간별 수확량 (g)');
       cy+=secLH;
-      const cw8=Math.floor((iw-g*10-48*3)/8);
+      // 구간칸: 번호는 짧으므로 minW 작게
       const cols4=[
         ...Array.from({length:8},(_,i)=>({
           label:String(i+1), value:spVals[i]||'',
           filled:i<activeCount&&!!spVals[i],
-          disabled:i>=activeCount, w:cw8
+          disabled:i>=activeCount, minW:34
         })),
-        {label:'합계',   value:sampleTotal,                              auto:true,  w:48},
-        {label:'함수율', value:moisture?moisture+'%':'',  filled:!!moisture,         w:48},
-        {label:'미보상', value:uninsRate?uninsRate+'%':'', filled:uninsRate!=='0'&&!!uninsRate, w:48}
+        {label:'합계',   value:sampleTotal,                              auto:true,  minW:48},
+        {label:'함수율', value:moisture?moisture+'%':'',  filled:!!moisture,         minW:44},
+        {label:'미보상', value:uninsRate?uninsRate+'%':'', filled:uninsRate!=='0'&&!!uninsRate, minW:44}
       ];
-      drawRow(ctx,P,cy,cols4);
+      drawRowAuto(ctx,P,cy,cols4);
       cy+=rowH+pad+secGap;
     }
 
@@ -880,23 +883,21 @@ async function saveImage(){
     secTitle(ctx,P+2,cy,'⑤ 결과');
     cy+=secLH+6;
 
-    // 피해율: 좌측 "피해율" 크고 진하게 + 옆에 값
+    // 피해율: 좌측 정렬, "피해율" 크고 진하게 + 바로 옆 값
     const pctColor=parseFloat(pct)>=20?'#C0392B':'#1D9E75';
     ctx.fillStyle=blue;
-    ctx.font='bold 22px -apple-system,sans-serif';
+    ctx.font='bold 20px -apple-system,sans-serif';
     ctx.textAlign='left';
-    ctx.fillText('피해율', P+4, cy+28);
+    ctx.fillText('피해율', P+4, cy+26);
     ctx.fillStyle=pctColor;
-    ctx.font='bold 36px -apple-system,sans-serif';
-    ctx.fillText(pct, P+4+70, cy+30);
+    ctx.font='bold 34px -apple-system,sans-serif';
+    ctx.fillText(pct, P+4+66, cy+28);
     cy+=40+8;
 
-    // 구분선
     ctx.strokeStyle='#EEE'; ctx.lineWidth=0.7;
     ctx.beginPath(); ctx.moveTo(P+2,cy); ctx.lineTo(P+iw-2,cy); ctx.stroke();
     cy+=6;
 
-    // 상세결과
     const details=[
       {label:'평년수확량',     val:rAvg},
       {label:'조사수확량',     val:rSurvey},
@@ -909,7 +910,7 @@ async function saveImage(){
       ctx.font='600 12px -apple-system,sans-serif';
       ctx.textAlign='left'; ctx.fillText(label, P+4, cy+16);
       ctx.fillStyle=warn?red:txtDark;
-      ctx.font='bold 13px -apple-system,sans-serif';
+      ctx.font='bold 12px -apple-system,sans-serif';
       ctx.fillText(val, P+4+130, cy+16);
       cy+=24;
     });
