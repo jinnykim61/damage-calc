@@ -789,20 +789,28 @@ async function saveImage(){
       return r;
     }
 
-    // 카드 높이 계산
+    // 카드 높이 계산 — 드로잉과 완전 동일하게
     function subrowH(sr){
-      if(sr.type==='samples') return 110;
-      return fieldH + gap + 8;
+      if(sr.type==='samples'){
+        const count = sr.vals.filter(v=>v!==null).length;
+        const cols = count <= 4 ? count : 4;  // 4이하면 한줄
+        const numRows = Math.ceil(count / cols);
+        return numRows * 58 + 4;
+      }
+      return fieldH + 8;
     }
     function cardH(card){
-      let h = 52; // 제목
-      card.subrows.forEach(sr => h += subrowH(sr) + 10);
-      h += cardPad;
+      let h = 56; // 제목+구분선
+      card.subrows.forEach((sr,i) => {
+        h += subrowH(sr);
+        if(i < card.subrows.length-1) h += 14; // 행 사이 간격
+      });
+      h += 24; // 하단 패딩
       return h;
     }
     function resultH(){
       const details = 3 + (isDis?1:0);
-      return 52 + 80 + 70 + details*36 + 28;
+      return 48 + 86 + 78 + details*38 + 28; // 라벨+퍼센트+카드+상세+패딩
     }
     function totalHeight(rows){
       let h = 0;
@@ -866,20 +874,24 @@ async function saveImage(){
         const fw=(innerW-gap*3)/4;
         sr.items.forEach((it,i)=> drawField(x+i*(fw+gap), y, fw, it.label, it.val, it));
       } else if(sr.type==='samples'){
-        const fw=(innerW-gap*3)/4;
+        const active = sr.vals.filter(v=>v!==null);
+        const count = active.length;
+        // 4개 이하면 한 줄로, 5~8개면 두 줄 4열
+        const cols = count <= 4 ? count : 4;
+        const fw = (innerW - gap*(cols-1)) / cols;
         sr.vals.forEach((v,i)=>{
           if(v===null) return;
-          const col=i%4, rowIdx=Math.floor(i/4);
-          const sx=x+col*(fw+gap), sy=y+rowIdx*52;
+          const col=i%cols, rowIdx=Math.floor(i/cols);
+          const sx=x+col*(fw+gap), sy=y+rowIdx*58;
           const isFilled=v!=='';
           ctx.fillStyle=textSub; ctx.font='bold 18px -apple-system,sans-serif';
           ctx.textAlign='center';
           ctx.fillText(String(i+1), sx+fw/2, sy+16);
-          roundRect(sx, sy+20, fw, 34, 6, isFilled?filledBg:'#fff', isFilled?filledBorder:inpBorder, 1.5);
+          roundRect(sx, sy+20, fw, 36, 6, isFilled?filledBg:'#fff', isFilled?filledBorder:inpBorder, 1.5);
           if(isFilled){
             ctx.fillStyle=filledText; ctx.font='bold 24px -apple-system,sans-serif';
             ctx.textAlign='center';
-            ctx.fillText(v, sx+fw/2, sy+44);
+            ctx.fillText(v, sx+fw/2, sy+46);
           }
         });
       }
@@ -903,24 +915,22 @@ async function saveImage(){
         cy += row.h;
 
       } else if(row.type==='card'){
-        // 카드 높이 계산
-        let ch = 52;
-        row.subrows.forEach(sr => ch += subrowH(sr) + 10);
-        ch += cardPad;
+        const ch = cardH(row);
         // 흰 카드 배경
         roundRect(pad-4, cy, innerW+8, ch, 14, '#ffffff', borderC, 0.8);
         // 섹션 제목
         ctx.fillStyle=blue; ctx.font='bold 24px -apple-system,sans-serif';
         ctx.textAlign='left';
-        ctx.fillText(row.label, pad+8, cy+34);
+        ctx.fillText(row.label, pad+12, cy+36);
         // 구분선
         ctx.strokeStyle=borderC; ctx.lineWidth=0.8;
-        ctx.beginPath(); ctx.moveTo(pad+4,cy+44); ctx.lineTo(pad+innerW-4,cy+44); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pad+8,cy+46); ctx.lineTo(pad+innerW-8,cy+46); ctx.stroke();
         // 서브행 그리기
-        let sy = cy+52;
+        let sy = cy+56;
         row.subrows.forEach((sr,idx)=>{
-          drawSubrow(sr, pad+8, sy, innerW-16);
-          sy += subrowH(sr) + 10;
+          drawSubrow(sr, pad+12, sy, innerW-24);
+          sy += subrowH(sr);
+          if(idx < row.subrows.length-1) sy += 14;
         });
         cy += ch;
 
@@ -928,44 +938,45 @@ async function saveImage(){
         const rh = resultH();
         roundRect(pad-4, cy, innerW+8, rh, 14, blue);
         // 피해율 라벨
-        ctx.fillStyle='rgba(255,255,255,0.85)';
+        ctx.fillStyle='rgba(255,255,255,0.88)';
         ctx.font='bold 26px -apple-system,sans-serif';
         ctx.textAlign='center';
-        ctx.fillText('피해율', W/2, cy+40);
+        ctx.fillText('피해율', W/2, cy+42);
         // 퍼센트
         ctx.fillStyle=row.pctColor;
         ctx.font='bold 72px -apple-system,sans-serif';
-        ctx.fillText(row.pct, W/2, cy+116);
-        // 평년/조사 카드
+        ctx.fillText(row.pct, W/2, cy+118);
+        // 평년/조사 카드  (cy+48+86=cy+134)
         const cw=(innerW-gap*2-8)/2;
-        const cx1=pad+4, cx2=pad+4+cw+gap, cy2=cy+130;
-        roundRect(cx1,cy2,cw,64,10,'rgba(255,255,255,0.15)');
-        roundRect(cx2,cy2,cw,64,10,'rgba(255,255,255,0.15)');
-        ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='20px -apple-system,sans-serif';
-        ctx.fillText('평년수확량', cx1+cw/2, cy2+22);
-        ctx.fillText('조사수확량', cx2+cw/2, cy2+22);
+        const cx1=pad+4, cx2=pad+4+cw+gap;
+        const cy2=cy+134;
+        roundRect(cx1,cy2,cw,68,10,'rgba(255,255,255,0.15)');
+        roundRect(cx2,cy2,cw,68,10,'rgba(255,255,255,0.15)');
+        ctx.fillStyle='rgba(255,255,255,0.72)'; ctx.font='20px -apple-system,sans-serif';
+        ctx.fillText('평년수확량', cx1+cw/2, cy2+24);
+        ctx.fillText('조사수확량', cx2+cw/2, cy2+24);
         ctx.fillStyle='white'; ctx.font='bold 28px -apple-system,sans-serif';
-        ctx.fillText(row.rAvg, cx1+cw/2, cy2+56);
-        ctx.fillText(row.rSurvey, cx2+cw/2, cy2+56);
-        // 상세행
+        ctx.fillText(row.rAvg, cx1+cw/2, cy2+58);
+        ctx.fillText(row.rSurvey, cx2+cw/2, cy2+58);
+        // 상세행  (cy+134+78=cy+212)
         const details = [
           ['유효중량(m²당)', row.rEff],
           ['조사대상면적', row.rArea],
           ['미보상감수량', row.rUnins],
           ...(row.isDis ? [['⚠️ 병충해단독사고','최고한도 70%']] : [])
         ];
-        let dy = cy+210;
+        let dy = cy+220;
         details.forEach(([lbl,val],idx)=>{
           if(idx>0){
             ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=0.8;
-            ctx.beginPath(); ctx.moveTo(pad+8,dy-4); ctx.lineTo(pad+innerW-8,dy-4); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(pad+8,dy-6); ctx.lineTo(pad+innerW-8,dy-6); ctx.stroke();
           }
-          ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.font='22px -apple-system,sans-serif';
-          ctx.textAlign='left'; ctx.fillText(lbl, pad+12, dy+20);
+          ctx.fillStyle='rgba(255,255,255,0.82)'; ctx.font='22px -apple-system,sans-serif';
+          ctx.textAlign='left'; ctx.fillText(lbl, pad+16, dy+18);
           ctx.fillStyle= lbl.includes('병충해') ? '#FFE082' : 'white';
           ctx.font='bold 22px -apple-system,sans-serif';
-          ctx.textAlign='right'; ctx.fillText(val, pad+innerW-12, dy+20);
-          dy+=36;
+          ctx.textAlign='right'; ctx.fillText(val, pad+innerW-16, dy+18);
+          dy+=38;
         });
         cy += rh;
       }
