@@ -154,12 +154,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="field">
         <label>평년수확량 <span style="font-size:10px;color:var(--hint)">(kg)</span></label>
         <input type="text" id="avgYield" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
+          oninput="onCommaInput(this);debouncedCalc()" onblur="markFilled(this);calc()">
       </div>
       <div class="field">
         <label>가입면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="text" id="insArea" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
+          oninput="onCommaInput(this);debouncedCalc()" onblur="markFilled(this);calc()">
       </div>
       <div class="field">
         <label>계약변경</label>
@@ -175,22 +175,22 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="field">
         <label>실경작면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="text" id="actArea" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
+          oninput="onCommaInput(this);debouncedCalc()" onblur="markFilled(this);calc()">
       </div>
       <div class="field">
         <label>고사면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
-        <input type="number" id="deadArea" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+        <input type="text" id="deadArea" class="inp" inputmode="decimal"
+          placeholder="0" oninput="onCommaInput(this);debouncedCalc()" onblur="markFilled(this);calc()">
       </div>
       <div class="field">
         <label>타작물미보상 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
-        <input type="number" id="uninsArea" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+        <input type="text" id="uninsArea" class="inp" inputmode="decimal"
+          placeholder="0" oninput="onCommaInput(this);debouncedCalc()" onblur="markFilled(this);calc()">
       </div>
       <div class="field">
         <label>기수확 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
-        <input type="number" id="preArea" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+        <input type="text" id="preArea" class="inp" inputmode="decimal"
+          placeholder="0" oninput="onCommaInput(this);debouncedCalc()" onblur="markFilled(this);calc()">
       </div>
     </div>
     <!-- 조사대상 / 기준함수율 / 미보상비율 -->
@@ -273,7 +273,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>총수확량 (kg)</label>
           <input type="text" id="fullYield" class="inp" inputmode="decimal"
-            oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
+            oninput="onCommaInput(this);debouncedCalc()" onblur="markFilled(this);calc()">
         </div>
         <div class="field">
           <label>함수율 (%)</label>
@@ -407,17 +407,25 @@ function getProperSample(area){
 
 function renderSampleInputs(proper){
   const container = document.getElementById('sample-inputs');
+  // 기존 입력값 보존
+  const prevVals = [];
+  for(let i=0; i<8; i++){
+    const prev = document.getElementById('sp'+i);
+    prevVals.push(prev ? prev.value : '');
+  }
   // 4열 2행 가로 순서 (1,2,3,4 / 5,6,7,8)
   let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;width:100%;overflow:hidden">`;
   for(let si=0; si<8; si++){
     const active = si < proper;
-    const bc = active ? 'var(--binp)' : 'var(--border)';
-    const bg = active ? 'white' : 'var(--auto)';
+    const hasVal = !!prevVals[si];
+    const bc = active ? (hasVal ? 'var(--green)' : 'var(--binp)') : 'var(--border)';
+    const bg = active ? (hasVal ? '#e8faf3' : 'white') : 'var(--auto)';
+    const color = active ? (hasVal ? '#0d5c35' : 'var(--text)') : 'var(--hint)';
     html += `<div style="display:flex;flex-direction:column;gap:2px;min-width:0">
       <span style="font-size:12px;font-weight:700;color:${active?'var(--sub)':'var(--hint)'};text-align:center">${si+1}</span>
-      <input type="number" inputmode="decimal" placeholder="" id="sp${si}"
+      <input type="number" inputmode="decimal" placeholder="" id="sp${si}" value="${prevVals[si] || ''}"
         ${active ? '' : 'disabled'}
-        style="width:100%;height:40px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${active?'var(--text)':'var(--hint)'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
+        style="width:100%;height:40px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${color};text-align:center;-webkit-appearance:none;box-sizing:border-box"
         oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';debouncedCalc()"
         onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
         onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';calc()">
@@ -485,8 +493,11 @@ function calc(){
     if(proper === 0){
       document.getElementById('sample-inputs').innerHTML='';
       lastProper = -1;
-    } else if(proper !== lastProper){
-      lastProper = proper;
+    } else {
+      // 면적 입력이 모두 끝난 뒤 표본칸이 확실히 보이도록 매번 렌더링
+      if(proper !== lastProper){
+        lastProper = proper;
+      }
       renderSampleInputs(proper);
     }
 
