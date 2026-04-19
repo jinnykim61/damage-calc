@@ -701,7 +701,7 @@ async function saveImage(){
     }
 
     // ── 디자인 상수 (A4 세로 비율) ──
-    const W = 595;  // A4 너비 기준
+    const W = 720;  // 스마트폰 화면 기준
     const P = 24;
     const blue='#185FA5', green='#1D9E75', red='#e24b4a';
     const bgPage='#f8f8f6';
@@ -735,7 +735,7 @@ async function saveImage(){
       // 값 (볼드, 크게)
       if(value && !disabled){
         ctx.fillStyle = tc;
-        ctx.font = `${bold?'800':'700'} 17px -apple-system,sans-serif`;
+        ctx.font = `${bold?'800':'700'} ${small?14:17}px -apple-system,sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillText(value, x+w/2, y+LH+VH/2+6);
       }
@@ -781,7 +781,8 @@ async function saveImage(){
     totalH += 20; // 하단 여백
 
     const canvas=document.createElement('canvas');
-    canvas.width=W; canvas.height=totalH;
+    const minH = Math.round(W * 16/9); // 최소 9:16 비율
+    canvas.width=W; canvas.height=Math.max(totalH, minH);
     const ctx=canvas.getContext('2d');
 
     // ctx.roundRect polyfill
@@ -830,7 +831,7 @@ async function saveImage(){
       {label:'병충해단독사고', value:disY?'여':'부', filled:true, color:disY?red:green, w:w1[1]},
       {label:'평년수확량(kg)', value:avgYield,  filled:!!avgYield, w:w1[2]},
       {label:'계약변경',    value:contractV,  auto:true, color:contractColor, bold:true, w:w1[3]},
-      {label:'조사일',      value:todayStr,   auto:true, w:w1[4]}
+      {label:'조사일',      value:todayStr,   auto:true, small:true, w:w1[4]}
     ],g);
     cy+=rowH+padV+secGap;
 
