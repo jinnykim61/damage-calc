@@ -714,7 +714,7 @@ async function saveImage(){
     const LH=16, VH=36, CELL_H=LH+VH;
 
     function drawCell(ctx, x, y, w, label, value, opts={}){
-      const {filled, auto, disabled, color, bold} = opts;
+      const {filled, auto, disabled, color, bold, small} = opts;
       const bg = disabled ? bgDisabled : (filled ? bgFilled : (auto ? bgAuto : bgCard));
       const tc = disabled ? txtHint : (color || (filled ? filledTxt : (auto ? txtSub : txtDark)));
       const bc = disabled ? borderLight : (filled ? filledC : (auto ? borderLight : inpC));
