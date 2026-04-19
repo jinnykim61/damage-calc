@@ -289,6 +289,18 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
   </div>
 
+  <!-- ④ 특이사항 -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-title">④ 특이사항 <span style="font-size:11px;color:var(--hint)">조사자 의견</span></div>
+      <button onclick="document.getElementById('remarks').value='';markFilled(document.getElementById('remarks'))" style="height:28px;padding:0 10px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--sub);font-size:12px;cursor:pointer">지우기</button>
+    </div>
+    <textarea id="remarks" class="inp" rows="3"
+      style="height:auto;padding:10px 12px;text-align:left;resize:none;line-height:1.6;font-size:14px"
+      placeholder="예) 배수불량, 제초불량, 도복피해 등"
+      oninput="markFilled(this)"></textarea>
+  </div>
+
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
     <!-- 캡처용 결과 카드 -->
@@ -574,7 +586,7 @@ function showResult(box, pctEl, avg, survey, eff, area, unins, pihaeyul, isDis){
 
 function saveState(){
   const ids = ['avgYield','insArea','actArea','deadArea','uninsArea','preArea',
-               'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture'];
+               'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture','remarks'];
   const state = {mode, disease: document.getElementById('dis-y')?.checked ? 'y' : 'n'};
   ids.forEach(id => { const el=document.getElementById(id); if(el) state[id]=el.value; });
   // 표본구간 중량값 저장
@@ -638,6 +650,7 @@ function resetAll(){
     const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
   });
   document.getElementById('variety').value='mebyeo';
+  const rmEl=document.getElementById('remarks'); if(rmEl){rmEl.value='';rmEl.classList.remove('filled');}
   const dn = document.getElementById('dis-n');
   if(dn){ dn.checked=true; onDiseaseChk(); }
 
@@ -694,6 +707,7 @@ async function saveImage(){
     const todayStr = today.getFullYear()+'.'+(today.getMonth()+1).toString().padStart(2,'0')+'.'+today.getDate().toString().padStart(2,'0');
 
     const activeCount = parseInt(properSample)||0;
+    const remarks = document.getElementById('remarks')?.value||'';
     const spVals=[];
     for(let i=0;i<8;i++){
       const el=document.getElementById('sp'+i);
@@ -701,7 +715,10 @@ async function saveImage(){
     }
 
     // ── 디자인 상수 (A4 세로 비율) ──
-    const W = 720;  // 스마트폰 화면 기준
+    const W = 760;  // 2단 레이아웃
+    const WL = 490; // 좌측 너비
+    const WR = 240; // 우측 너비 (조사자의견)
+    const WDIV = 1; // 구분선
     const P = 24;
     const blue='#185FA5', green='#1D9E75', red='#e24b4a';
     const bgPage='#f8f8f6';
@@ -744,8 +761,8 @@ async function saveImage(){
     // ── 섹션 그리기 ──
     // 섹션: 제목(작게 회색) + 내용
     function drawSecLabel(ctx, x, y, num, title){
-      ctx.fillStyle = '#888';
-      ctx.font = '600 13px -apple-system,sans-serif';
+      ctx.fillStyle = '#185FA5';
+      ctx.font = '600 17px -apple-system,sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText(num + '  ' + title, x, y+12);
     }
@@ -798,7 +815,7 @@ async function saveImage(){
     ctx.fillStyle=bgPage; ctx.fillRect(0,0,W,totalH);
 
     let cy=0;
-    const iw=W-P*2;
+    const iw=WL-P*2;
 
     // ── 헤더 ──
     ctx.fillStyle=blue; ctx.fillRect(0,0,W,62);
@@ -812,7 +829,7 @@ async function saveImage(){
     // ── 섹션 카드 배경 ──
     function secCard(y,h){
       ctx.beginPath();
-      ctx.roundRect(P-4,y-4,iw+8,h+8,10);
+      ctx.roundRect(P-4,y-4,WL-P*2+8,h+8,10);
       ctx.fillStyle=bgCard; ctx.fill();
       ctx.strokeStyle=borderLight; ctx.lineWidth=0.6; ctx.stroke();
     }
@@ -923,6 +940,55 @@ async function saveImage(){
       ctx.font='bold 13px -apple-system,sans-serif';
       ctx.fillText(val, P+8+130, cy+16);
       cy+=24;
+    });
+
+    // ── 우측 조사자의견 패널 ──
+    const rx = WL + WDIV + 8; // 우측 시작 x
+    const rw = WR - 16;
+
+    // 우측 배경
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.roundRect(WL+WDIV, 62, WR, canvas.height-62, [0,10,10,0]);
+    ctx.fill();
+    ctx.strokeStyle = '#E2E0DA'; ctx.lineWidth=0.6;
+    ctx.stroke();
+
+    // 구분선
+    ctx.strokeStyle='#E2E0DA'; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.moveTo(WL+WDIV, 70); ctx.lineTo(WL+WDIV, canvas.height-10); ctx.stroke();
+
+    // 우측 제목
+    ctx.fillStyle='#185FA5'; ctx.font='600 14px -apple-system,sans-serif';
+    ctx.textAlign='left'; ctx.fillText('조사자 의견', rx, 90);
+    ctx.strokeStyle='#E2E0DA'; ctx.lineWidth=0.6;
+    ctx.beginPath(); ctx.moveTo(rx, 96); ctx.lineTo(rx+rw, 96); ctx.stroke();
+
+    // 우측 내용 (텍스트 줄바꿈 처리)
+    const remarkLines = [];
+    if(remarks){
+      // 쉼표/줄바꿈 기준으로 분리
+      const parts = remarks.split(/[,，
+]+/).map(s=>s.trim()).filter(Boolean);
+      parts.forEach(p => remarkLines.push('• ' + p));
+    } else {
+      remarkLines.push('');
+    }
+    ctx.fillStyle='#444'; ctx.font='14px -apple-system,sans-serif';
+    ctx.textAlign='left';
+    let ry2 = 116;
+    remarkLines.forEach(line=>{
+      // 긴 텍스트 자동 줄바꿈
+      const words = line.split('');
+      let row = '';
+      words.forEach(ch=>{
+        const test = row+ch;
+        if(ctx.measureText(test).width > rw-4){
+          ctx.fillText(row, rx, ry2); ry2+=20; row=ch;
+        } else { row=test; }
+      });
+      if(row){ ctx.fillText(row, rx, ry2); ry2+=20; }
+      ry2+=4;
     });
 
     const now2=new Date();
