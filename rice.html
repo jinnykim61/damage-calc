@@ -704,62 +704,59 @@ async function saveImage(){
     }
 
     // Canvas 설정
-    const W = 800, pad = 36;
+    const W = 800, pad = 32;
     const blue = '#185FA5';
     const green = '#1D9E75', red = '#e24b4a';
-    const bg = '#F0EFEb', autoBg = '#F3F1EA';
+    const bg = '#F0EFEB', autoBg = '#F3F1EA';
     const textMain = '#1a1a1a', textSub = '#666', textHint = '#aaa';
     const borderC = '#D8D6CE', inpBorder = '#378ADD', filledBg = '#e8faf3', filledBorder = green, filledText = '#0d5c35';
-    const gap = 10, fieldH = 58, cardPad = 20;
+    const gap = 8, fieldH = 54, cardPad = 20;
 
-    // 카드 그리기 헬퍼
     function buildRows(){
       const r = [];
       r.push({type:'header', h:84});
-      r.push({type:'spacer', h:16});
+      r.push({type:'spacer', h:14});
 
-      // ① 보험가입사항 카드
+      // ① 보험가입사항
+      // 줄1: 품종(넓게) | 병충해단독사고(좁게)
+      // 줄2: 평년수확량 | 계약변경 | 표본구간  (3열)
+      // 줄3: 가입면적 | 실경작면적 | 고사면적 | 타작물미보상 | 기수확  (5열)
       const sec1rows = [
-        {type:'row2', items:[
+        {type:'row_custom', weights:[2,1], items:[
           {label:'품종', val:varietyTxt, filled:true},
-          {label:'병충해단독사고', val: disY?'여':'부', filled:true, color: disY?red:green}
+          {label:'병충해단독사고', val:disY?'여':'부', filled:true, color:disY?red:green}
         ]},
-        {type:'row4', items:[
+        {type:'row3', items:[
           {label:'평년수확량 (kg)', val:avgYield, filled:!!avgYield},
-          {label:'가입면적 ㎡', val:insArea, filled:!!insArea},
           {label:'계약변경', val:contractV, auto:true, color:contractColor, bold:true},
           {label:'표본구간', val:document.getElementById('properSampleDisp').value, auto:true}
         ]},
-        {type:'row4', items:[
+        {type:'row5', items:[
+          {label:'가입면적 ㎡', val:insArea, filled:!!insArea},
           {label:'실경작면적 ㎡', val:actArea, filled:!!actArea},
           {label:'고사면적 ㎡', val:deadArea, filled:deadArea!=='0'&&deadArea!==''},
           {label:'타작물미보상 ㎡', val:uninsArea, filled:uninsArea!=='0'&&uninsArea!==''},
           {label:'기수확 ㎡', val:preArea, filled:preArea!=='0'&&preArea!==''}
-        ]},
-        {type:'row3', items:[
-          {label:'조사대상면적', val:surveyAreaV, auto:true},
-          {label:'기준함수율', val:stdMoist, auto:true},
-          {label:'미보상비율 (%)', val:uninsRate, filled:!!uninsRate}
         ]}
       ];
-      r.push({type:'card', label:'① 보험가입사항', subrows: sec1rows});
-      r.push({type:'spacer', h:12});
+      r.push({type:'card', label:'① 보험가입사항', subrows:sec1rows});
+      r.push({type:'spacer', h:10});
 
       if(isSample){
+        // ② 이랑길이 | 이랑폭 | 표본구간면적 | 적정표본구간수 | 함수율  (5열 한줄)
         const sec2rows = [
-          {type:'row3', items:[
+          {type:'row5', items:[
             {label:'이랑길이 (m)', val:rowLen, filled:!!rowLen},
             {label:'이랑폭 (m)', val:rowWid, filled:!!rowWid},
-            {label:'표본구간면적', val:sampleArea, auto:true}
-          ]},
-          {type:'row2', items:[
+            {label:'표본구간면적', val:sampleArea, auto:true},
             {label:'적정 표본구간수', val:properSample, auto:true},
             {label:'함수율 (%)', val:moisture, filled:!!moisture}
           ]}
         ];
-        r.push({type:'card', label:'② 표본구간 설정', subrows: sec2rows});
-        r.push({type:'spacer', h:12});
+        r.push({type:'card', label:'② 표본구간 설정', subrows:sec2rows});
+        r.push({type:'spacer', h:10});
 
+        // ③ 표본구간 (항상 4열) + 합계/유효중량 한줄
         const sec3rows = [
           {type:'samples', vals:spVals},
           {type:'row2', items:[
@@ -767,50 +764,48 @@ async function saveImage(){
             {label:'표본구간m²당 유효중량', val:effWeight, auto:true}
           ]}
         ];
-        r.push({type:'card', label:'③ 표본구간별 수확량 (g)', subrows: sec3rows});
+        r.push({type:'card', label:'③ 표본구간별 수확량 (g)', subrows:sec3rows});
       } else {
         const fullYield = document.getElementById('fullYield').value;
         const fullMoisture = document.getElementById('fullMoisture').value;
         const fullSurvey = document.getElementById('fullSurvey').value;
-        const sec2rows = [
+        r.push({type:'card', label:'② 전수조사 수확량', subrows:[
           {type:'row3', items:[
             {label:'총수확량 (kg)', val:fullYield, filled:!!fullYield},
             {label:'함수율 (%)', val:fullMoisture, filled:!!fullMoisture},
             {label:'조사수확량 (kg)', val:fullSurvey, auto:true}
           ]}
-        ];
-        r.push({type:'card', label:'② 전수조사 수확량', subrows: sec2rows});
+        ]});
       }
 
-      r.push({type:'spacer', h:16});
+      r.push({type:'spacer', h:14});
       const pctColor2 = parseFloat(pct) >= 20 ? '#FFD0D0' : '#A8F0D8';
       r.push({type:'result', pct, pctColor:pctColor2, rAvg, rSurvey, rEff, rArea, rUnins, isDis});
       r.push({type:'spacer', h:24});
       return r;
     }
 
-    // 카드 높이 계산 — 드로잉과 완전 동일하게
+    // 높이 계산
     function subrowH(sr){
       if(sr.type==='samples'){
         const count = sr.vals.filter(v=>v!==null).length;
-        const cols = count <= 4 ? count : 4;  // 4이하면 한줄
-        const numRows = Math.ceil(count / cols);
-        return numRows * 58 + 4;
+        const numRows = Math.ceil(count/4);
+        return numRows * 56 + 4;
       }
       return fieldH + 8;
     }
     function cardH(card){
-      let h = 56; // 제목+구분선
-      card.subrows.forEach((sr,i) => {
+      let h = 52;
+      card.subrows.forEach((sr,i)=>{
         h += subrowH(sr);
-        if(i < card.subrows.length-1) h += 14; // 행 사이 간격
+        if(i < card.subrows.length-1) h += 12;
       });
-      h += 24; // 하단 패딩
+      h += 20;
       return h;
     }
     function resultH(){
       const details = 3 + (isDis?1:0);
-      return 48 + 86 + 78 + details*38 + 28; // 라벨+퍼센트+카드+상세+패딩
+      return 50 + 84 + 76 + details*38 + 28;
     }
     function totalHeight(rows){
       let h = 0;
@@ -873,25 +868,35 @@ async function saveImage(){
       } else if(sr.type==='row4'){
         const fw=(innerW-gap*3)/4;
         sr.items.forEach((it,i)=> drawField(x+i*(fw+gap), y, fw, it.label, it.val, it));
+      } else if(sr.type==='row5'){
+        const fw=(innerW-gap*4)/5;
+        sr.items.forEach((it,i)=> drawField(x+i*(fw+gap), y, fw, it.label, it.val, it));
+      } else if(sr.type==='row_custom'){
+        // 가중치 비율로 너비 분배
+        const totalWeight = sr.weights.reduce((a,b)=>a+b,0);
+        const totalGap = gap*(sr.items.length-1);
+        let cx = x;
+        sr.items.forEach((it,i)=>{
+          const fw = (innerW - totalGap) * sr.weights[i] / totalWeight;
+          drawField(cx, y, fw, it.label, it.val, it);
+          cx += fw + gap;
+        });
       } else if(sr.type==='samples'){
-        const active = sr.vals.filter(v=>v!==null);
-        const count = active.length;
-        // 4개 이하면 한 줄로, 5~8개면 두 줄 4열
-        const cols = count <= 4 ? count : 4;
-        const fw = (innerW - gap*(cols-1)) / cols;
+        // 항상 4열 고정
+        const fw=(innerW-gap*3)/4;
         sr.vals.forEach((v,i)=>{
           if(v===null) return;
-          const col=i%cols, rowIdx=Math.floor(i/cols);
-          const sx=x+col*(fw+gap), sy=y+rowIdx*58;
+          const col=i%4, rowIdx=Math.floor(i/4);
+          const sx=x+col*(fw+gap), sy=y+rowIdx*56;
           const isFilled=v!=='';
-          ctx.fillStyle=textSub; ctx.font='bold 18px -apple-system,sans-serif';
+          ctx.fillStyle=textSub; ctx.font='bold 17px -apple-system,sans-serif';
           ctx.textAlign='center';
-          ctx.fillText(String(i+1), sx+fw/2, sy+16);
-          roundRect(sx, sy+20, fw, 36, 6, isFilled?filledBg:'#fff', isFilled?filledBorder:inpBorder, 1.5);
+          ctx.fillText(String(i+1), sx+fw/2, sy+15);
+          roundRect(sx, sy+19, fw, 34, 6, isFilled?filledBg:'#fff', isFilled?filledBorder:inpBorder, 1.5);
           if(isFilled){
-            ctx.fillStyle=filledText; ctx.font='bold 24px -apple-system,sans-serif';
+            ctx.fillStyle=filledText; ctx.font='bold 23px -apple-system,sans-serif';
             ctx.textAlign='center';
-            ctx.fillText(v, sx+fw/2, sy+46);
+            ctx.fillText(v, sx+fw/2, sy+43);
           }
         });
       }
