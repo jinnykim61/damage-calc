@@ -716,9 +716,9 @@ async function saveImage(){
     let rows = [];
 
     // 헤더
-    rows.push({type:'header', h:64});
+    rows.push({type:'header', h:80});
     // 섹션1: 보험가입사항
-    rows.push({type:'sec', label:'① 보험가입사항', h:36});
+    rows.push({type:'sec', label:'① 보험가입사항', h:48});
     rows.push({type:'row2', items:[
       {label:'품종', val:varietyTxt, filled:true},
       {label:'병충해단독사고', val: disY?'여':'부', filled:true, color: disY?red:green}
@@ -742,7 +742,8 @@ async function saveImage(){
     ], h:fieldH+gap+8});
 
     if(isSample){
-      rows.push({type:'sec', label:'② 표본구간 설정', h:36});
+      rows.push({type:'divider', h:16});
+      rows.push({type:'sec', label:'② 표본구간 설정', h:48});
       rows.push({type:'row3', items:[
         {label:'이랑길이 (m)', val:rowLen, filled:!!rowLen},
         {label:'이랑폭 (m)', val:rowWid, filled:!!rowWid},
@@ -753,7 +754,8 @@ async function saveImage(){
         {label:'함수율 (%)', val:moisture, filled:!!moisture}
       ], h:fieldH+gap+8});
 
-      rows.push({type:'sec', label:'③ 표본구간별 수확량 (g)', h:36});
+      rows.push({type:'divider', h:16});
+      rows.push({type:'sec', label:'③ 표본구간별 수확량 (g)', h:48});
       rows.push({type:'samples', vals:spVals, h:60+gap});
       rows.push({type:'row2', items:[
         {label:'표본수확량 합계', val:sampleTotal, auto:true},
@@ -763,7 +765,8 @@ async function saveImage(){
       const fullYield = document.getElementById('fullYield').value;
       const fullMoisture = document.getElementById('fullMoisture').value;
       const fullSurvey = document.getElementById('fullSurvey').value;
-      rows.push({type:'sec', label:'② 전수조사 수확량', h:36});
+      rows.push({type:'divider', h:16});
+      rows.push({type:'sec', label:'② 전수조사 수확량', h:48});
       rows.push({type:'row3', items:[
         {label:'총수확량 (kg)', val:fullYield, filled:!!fullYield},
         {label:'함수율 (%)', val:fullMoisture, filled:!!fullMoisture},
@@ -773,7 +776,8 @@ async function saveImage(){
 
     // 결과 섹션
     const pctColor = parseFloat(pct) >= 20 ? '#FFD0D0' : '#A8F0D8';
-    rows.push({type:'result', pct, pctColor, rAvg, rSurvey, rEff, rArea, rUnins, isDis, h:260});
+    rows.push({type:'divider', h:20});
+    rows.push({type:'result', pct, pctColor, rAvg, rSurvey, rEff, rArea, rUnins, isDis, h:290});
 
     const totalH = rows.reduce((s,r)=>s+r.h, 0) + pad*2 + 16;
     const canvas = document.createElement('canvas');
@@ -810,23 +814,23 @@ async function saveImage(){
       ctx.fillText(val||'', x+w/2, y+14+(h-14)/2+8);
     }
 
-    let cy = pad;
+    let cy = 0;
 
     for(const row of rows){
       if(row.type==='header'){
         roundRect(0,cy,W,row.h,0,blue);
         ctx.fillStyle='white'; ctx.textAlign='center';
-        ctx.font='bold 36px -apple-system,sans-serif';
-        ctx.fillText('벼 피해율 계산기', W/2, cy+28);
-        ctx.font='22px -apple-system,sans-serif';
+        ctx.font='bold 34px -apple-system,sans-serif';
+        ctx.fillText('벼 피해율 계산기', W/2, cy+38);
+        ctx.font='20px -apple-system,sans-serif';
         ctx.fillStyle='rgba(255,255,255,0.8)';
-        ctx.fillText('농업재해보험 손해평가사 · Cool-Running', W/2, cy+54);
-        cy += row.h + 16;
+        ctx.fillText('농업재해보험 손해평가사 · Cool-Running', W/2, cy+64);
+        cy += row.h + 20;
 
       } else if(row.type==='sec'){
-        ctx.fillStyle=textSub; ctx.font='bold 24px -apple-system,sans-serif';
+        ctx.fillStyle=blue; ctx.font='bold 24px -apple-system,sans-serif';
         ctx.textAlign='left';
-        ctx.fillText(row.label, pad, cy+22);
+        ctx.fillText(row.label, pad, cy+32);
         cy += row.h;
 
       } else if(row.type==='row2'){
@@ -873,6 +877,9 @@ async function saveImage(){
         });
         cy += row.h;
 
+      } else if(row.type==='divider'){
+        cy += row.h;
+
       } else if(row.type==='result'){
         const rh = row.h, rx=pad, ry=cy;
         roundRect(rx,ry,W-pad*2,rh,14,blue);
@@ -880,22 +887,22 @@ async function saveImage(){
         ctx.fillStyle='rgba(255,255,255,0.85)';
         ctx.font='bold 28px -apple-system,sans-serif';
         ctx.textAlign='center';
-        ctx.fillText('피해율', W/2, ry+36);
+        ctx.fillText('피해율', W/2, ry+44);
         // 퍼센트
         ctx.fillStyle=row.pctColor;
-        ctx.font='bold 72px -apple-system,sans-serif';
-        ctx.fillText(row.pct, W/2, ry+110);
+        ctx.font='bold 68px -apple-system,sans-serif';
+        ctx.fillText(row.pct, W/2, ry+118);
         // 평년/조사 수확량 카드
         const cw=(W-pad*2-gap*2-40)/2;
-        const cx1=rx+20, cx2=rx+20+cw+gap, cy2=ry+128;
-        roundRect(cx1,cy2,cw,56,8,'rgba(255,255,255,0.15)');
-        roundRect(cx2,cy2,cw,56,8,'rgba(255,255,255,0.15)');
+        const cx1=rx+20, cx2=rx+20+cw+gap, cy2=ry+136;
+        roundRect(cx1,cy2,cw,60,8,'rgba(255,255,255,0.15)');
+        roundRect(cx2,cy2,cw,60,8,'rgba(255,255,255,0.15)');
         ctx.fillStyle='rgba(255,255,255,0.75)'; ctx.font='20px -apple-system,sans-serif';
-        ctx.fillText('평년수확량', cx1+cw/2, cy2+20);
-        ctx.fillText('조사수확량', cx2+cw/2, cy2+20);
+        ctx.fillText('평년수확량', cx1+cw/2, cy2+22);
+        ctx.fillText('조사수확량', cx2+cw/2, cy2+22);
         ctx.fillStyle='white'; ctx.font='bold 26px -apple-system,sans-serif';
-        ctx.fillText(row.rAvg, cx1+cw/2, cy2+48);
-        ctx.fillText(row.rSurvey, cx2+cw/2, cy2+48);
+        ctx.fillText(row.rAvg, cx1+cw/2, cy2+52);
+        ctx.fillText(row.rSurvey, cx2+cw/2, cy2+52);
         // 상세행
         const details = [
           ['유효중량(m²당)', row.rEff],
@@ -903,17 +910,17 @@ async function saveImage(){
           ['미보상감수량', row.rUnins],
           ...(row.isDis ? [['⚠️ 병충해단독사고','최고한도 70%']] : [])
         ];
-        let dy = ry+198;
+        let dy = ry+212;
         details.forEach(([lbl,val],idx)=>{
-          if(idx>0){ ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(rx+20,dy-2); ctx.lineTo(rx+W-pad*2-20,dy-2); ctx.stroke(); }
+          if(idx>0){ ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(rx+20,dy-4); ctx.lineTo(rx+W-pad*2-20,dy-4); ctx.stroke(); }
           ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.font='22px -apple-system,sans-serif';
           ctx.textAlign='left'; ctx.fillText(lbl, rx+24, dy+18);
           ctx.fillStyle= lbl.includes('병충해') ? '#FFE082' : 'white';
           ctx.font='bold 22px -apple-system,sans-serif';
           ctx.textAlign='right'; ctx.fillText(val, rx+W-pad*2-24, dy+18);
-          dy+=32;
+          dy+=34;
         });
-        cy += rh + 8;
+        cy += rh + 20;
       }
     }
 
