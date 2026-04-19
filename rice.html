@@ -700,229 +700,229 @@ async function saveImage(){
       spVals.push(el ? (el.value||'') : '');
     }
 
-    // ── 디자인 상수 ──
-    const W=720, P=30;
+    // ── 디자인 상수 (A4 세로 비율) ──
+    const W = 595;  // A4 너비 기준
+    const P = 24;
     const blue='#185FA5', green='#1D9E75', red='#e24b4a';
-    const bgPage='#f6f6f3', bgCard='#ffffff', bgHeader='#EEF2F7', bgFilled='#e8faf3', bgDisabled='#ECECEC', bgAuto='#F3F1EA';
-    const borderC='#C8C6BF', filledC=green, filledTxt='#0d5c35', inpC='#378ADD';
-    const txtDark='#1a1a1a', txtSub='#555', txtHint='#888';
+    const bgPage='#f8f8f6';
+    const bgFilled='#e8faf3', bgAuto='#F3F1EA', bgDisabled='#EDEDEB', bgCard='#ffffff';
+    const borderLight='#E2E0DA', filledC=green, filledTxt='#0d5c35', inpC='#93BDE4';
+    const txtDark='#1a1a1a', txtSub='#666', txtHint='#aaa';
 
-    // 테이블 셀 그리기 (라벨행 + 값행)
-    // cols: [{label, value, filled, auto, disabled, color, bold, w}]
-    // w 지정 없으면 균등 분배
-    function drawTable(ctx, x, y, cols, gap=1){
-      const cellH = 20; // 라벨행 높이
-      const valH  = 38; // 값행 높이
-      const totalW = cols.reduce((s,c)=>s+(c.w||0),0) + (cols.filter(c=>!c.w).length>0 ? 0 : 0);
-      // 너비 없는 칸들에 균등 분배
-      const fixedW = cols.reduce((s,c)=>s+(c.w||0),0);
-      const flexCount = cols.filter(c=>!c.w).length;
-      const allW = cols.reduce((s,c)=>s+(c.w||0),0);
-      // 전체 테이블 너비 = cols에 w 지정된 것의 합 + gap*(n-1)
-      const tableW = cols.reduce((s,c)=>s+(c.w||0),0) + gap*(cols.length-1);
+    // ── 셀 그리기 (라벨 위 + 값 아래, 선 없이 배경만) ──
+    // labelH=16, valH=36
+    const LH=16, VH=36, CELL_H=LH+VH;
 
-      let cx = x;
-      cols.forEach((col,i)=>{
-        const cw = col.w||0;
-        // 라벨 셀
-        ctx.fillStyle = bgHeader;
-        ctx.fillRect(cx, y, cw, cellH);
-        ctx.strokeStyle = borderC; ctx.lineWidth=0.8;
-        ctx.strokeRect(cx, y, cw, cellH);
-        ctx.fillStyle = txtHint; ctx.font='500 12px -apple-system,sans-serif';
-        ctx.textAlign='center';
-        ctx.fillText(col.label, cx+cw/2, y+14);
+    function drawCell(ctx, x, y, w, label, value, opts={}){
+      const {filled, auto, disabled, color, bold} = opts;
+      const bg = disabled ? bgDisabled : (filled ? bgFilled : (auto ? bgAuto : bgCard));
+      const tc = disabled ? txtHint : (color || (filled ? filledTxt : (auto ? txtSub : txtDark)));
+      const bc = disabled ? borderLight : (filled ? filledC : (auto ? borderLight : inpC));
 
-        // 값 셀
-        const bg2 = col.disabled ? bgDisabled : (col.filled ? bgFilled : (col.auto ? bgAuto : bgCard));
-        const bc  = col.disabled ? borderC : (col.filled ? filledC : (col.auto ? borderC : inpC));
-        ctx.fillStyle=bg2; ctx.fillRect(cx, y+cellH+gap, cw, valH);
-        ctx.strokeStyle=bc; ctx.lineWidth = col.disabled?0.6:(col.filled||col.auto?0.8:1.5);
-        ctx.strokeRect(cx, y+cellH+gap, cw, valH);
-        if(col.value && !col.disabled){
-          ctx.fillStyle = col.color||(col.filled?filledTxt:(col.auto?txtSub:txtDark));
-          ctx.font=`${col.bold?'700':'600'} 18px -apple-system,sans-serif`;
-          ctx.textAlign='center';
-          ctx.fillText(col.value, cx+cw/2, y+cellH+gap+valH/2+6);
-        }
-        cx += cw+gap;
-      });
-      return cellH+gap+valH; // 반환: 테이블 전체 높이
-    }
+      // 값 박스 (둥근 모서리, 얇은 테두리)
+      ctx.beginPath();
+      ctx.roundRect(x, y+LH, w, VH, 6);
+      ctx.fillStyle = bg; ctx.fill();
+      ctx.strokeStyle = bc; ctx.lineWidth = disabled?0.4:(filled?1:1.2);
+      ctx.stroke();
 
-    // 섹션 제목
-    function drawSecTitle(ctx, x, y, num, title, sub){
-      ctx.fillStyle=blue; ctx.font='bold 17px -apple-system,sans-serif';
-      ctx.textAlign='left';
-      ctx.fillText(num+' '+title, x, y+17);
-      if(sub){
-        const tw = ctx.measureText(num+' '+title).width;
-        ctx.fillStyle='#888'; ctx.font='13px -apple-system,sans-serif';
-        ctx.fillText('  '+sub, x+tw+2, y+16);
+      // 라벨 (작게, 위)
+      ctx.fillStyle = txtHint;
+      ctx.font = '500 11px -apple-system,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x+w/2, y+LH-3);
+
+      // 값 (볼드, 크게)
+      if(value && !disabled){
+        ctx.fillStyle = tc;
+        ctx.font = `${bold?'800':'700'} 17px -apple-system,sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(value, x+w/2, y+LH+VH/2+6);
       }
     }
 
-    // 결과 라인
-    function drawResultLine(ctx, x, y, label, value, opts={}){
-      ctx.fillStyle = opts.labelColor||txtSub;
-      ctx.font=`${opts.labelBold?'bold':'500'} ${opts.fontSize||16}px -apple-system,sans-serif`;
-      ctx.textAlign='left';
-      ctx.fillText(label+' :', x, y);
-      ctx.fillStyle = opts.valueColor||txtDark;
-      ctx.font=`bold ${opts.fontSize||16}px -apple-system,sans-serif`;
-      ctx.fillText(value, x+180, y);
+    // ── 섹션 그리기 ──
+    // 섹션: 제목(작게 회색) + 내용
+    function drawSecLabel(ctx, x, y, num, title){
+      ctx.fillStyle = '#bbb';
+      ctx.font = '500 11px -apple-system,sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(num + '  ' + title, x, y+10);
+    }
+
+    // 여러 셀을 한 줄에 (cols: [{label,value,w,...opts}])
+    function drawRow(ctx, x, y, cols, gap=6){
+      let cx=x;
+      cols.forEach(col=>{
+        drawCell(ctx, cx, y, col.w, col.label, col.value, col);
+        cx += col.w+gap;
+      });
     }
 
     // ── 높이 계산 ──
-    const secGap=18, titleH=24, tableH=59, sectionPad=16;
-    let totalH=0;
-    totalH += 68+14; // 헤더
-    totalH += titleH+tableH+sectionPad+secGap; // ①
-    totalH += titleH+tableH+sectionPad+secGap; // ②
+    const secLabelH=18, rowH=CELL_H, vgap=14, secGap=20, padV=14;
+
+    let sections=[];
+    // ① 기본사항
+    sections.push({num:'①',title:'기본사항', rows:1});
+    // ② 면적조사
+    sections.push({num:'②',title:'면적 조사', rows:1});
     if(mode==='sample'){
-      totalH += titleH+tableH+sectionPad+secGap; // ③
-      totalH += titleH+tableH+sectionPad+secGap; // ④
+      sections.push({num:'③',title:'표본면적 조사', rows:1});
+      sections.push({num:'④',title:'표본구간별 수확량 (g)', rows:1});
     }
-    const resultLineCount = 4+(isDis?1:0);
-    totalH += titleH + resultLineCount*28 + 46 + sectionPad+10; // ⑤
+    const resultDetailCount = 4+(isDis?1:0);
+    // ⑤ 결과: 피해율 + 상세
+    const resultH = secLabelH+8+44+8+resultDetailCount*24+padV;
+
+    let totalH = 62+16; // 헤더
+    sections.forEach(()=> totalH += secLabelH+rowH+padV+secGap);
+    totalH += resultH+secGap;
+    totalH += 20; // 하단 여백
 
     const canvas=document.createElement('canvas');
     canvas.width=W; canvas.height=totalH;
     const ctx=canvas.getContext('2d');
+
+    // ctx.roundRect polyfill
+    if(!ctx.roundRect){
+      ctx.roundRect=function(x,y,w,h,r){
+        this.moveTo(x+r,y);this.lineTo(x+w-r,y);this.quadraticCurveTo(x+w,y,x+w,y+r);
+        this.lineTo(x+w,y+h-r);this.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+        this.lineTo(x+r,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r);
+        this.lineTo(x,y+r);this.quadraticCurveTo(x,y,x+r,y);
+        this.closePath();
+      };
+    }
+
     ctx.fillStyle=bgPage; ctx.fillRect(0,0,W,totalH);
 
     let cy=0;
-
-    // ── 헤더 ──
-    ctx.fillStyle=blue; ctx.fillRect(0,0,W,68);
-    ctx.fillStyle='white'; ctx.textAlign='center';
-    ctx.font='bold 25px -apple-system,sans-serif';
-    ctx.fillText('벼 피해율 계산기', W/2, 28);
-    ctx.font='14px -apple-system,sans-serif'; ctx.fillStyle='rgba(255,255,255,0.8)';
-    ctx.fillText('농업재해보험 손해평가사 · Cool-Running', W/2, 52);
-    cy=82;
-
     const iw=W-P*2;
 
-    // ── ① 기본사항 ──
-    ctx.fillStyle=bgCard;
-    ctx.fillRect(P-4, cy-4, iw+8, titleH+tableH+sectionPad+8);
-    ctx.strokeStyle=borderC; ctx.lineWidth=0.7;
-    ctx.strokeRect(P-4, cy-4, iw+8, titleH+tableH+sectionPad+8);
-    drawSecTitle(ctx, P+4, cy, '①', '기본사항', '품종 · 병충해 · 평년수확량 · 계약변경 · 조사일');
-    cy+=titleH+4;
+    // ── 헤더 ──
+    ctx.fillStyle=blue; ctx.fillRect(0,0,W,62);
+    ctx.fillStyle='white'; ctx.textAlign='center';
+    ctx.font='bold 22px -apple-system,sans-serif';
+    ctx.fillText('벼 피해율 계산기', W/2, 26);
+    ctx.font='13px -apple-system,sans-serif'; ctx.fillStyle='rgba(255,255,255,0.75)';
+    ctx.fillText('농업재해보험 손해평가사 · Cool-Running', W/2, 48);
+    cy=78;
 
-    // 칸 너비: 품종80 병충해80 평년수확량100 계약변경70 조사일90
-    const colW1=[80,80,110,70,90];
-    drawTable(ctx, P+4, cy, [
-      {label:'품종', value:varietyTxt, filled:true, w:colW1[0]},
-      {label:'병충해단독사고', value:disY?'여':'부', filled:true, color:disY?red:green, w:colW1[1]},
-      {label:'평년수확량(kg)', value:avgYield, filled:!!avgYield, w:colW1[2]},
-      {label:'계약변경', value:contractV, auto:true, color:contractColor, bold:true, w:colW1[3]},
-      {label:'조사일', value:todayStr, auto:true, w:colW1[4]}
-    ]);
-    cy+=tableH+sectionPad+secGap;
+    // ── 섹션 카드 배경 ──
+    function secCard(y,h){
+      ctx.beginPath();
+      ctx.roundRect(P-4,y-4,iw+8,h+8,10);
+      ctx.fillStyle=bgCard; ctx.fill();
+      ctx.strokeStyle=borderLight; ctx.lineWidth=0.6; ctx.stroke();
+    }
+
+    // ── ① 기본사항 ──
+    const h1=secLabelH+rowH+padV;
+    secCard(cy,h1);
+    drawSecLabel(ctx,P+4,cy,'①','기본사항');
+    cy+=secLabelH+4;
+    // 칸 너비: 품종, 병충해, 평년수확량, 계약변경, 조사일 → 합=iw-12(gap*4)
+    const g=6;
+    const w1=[72,76,96,62,iw-72-76-96-62-g*4];
+    drawRow(ctx,P+4,cy,[
+      {label:'품종',        value:varietyTxt, filled:true,  w:w1[0]},
+      {label:'병충해단독사고', value:disY?'여':'부', filled:true, color:disY?red:green, w:w1[1]},
+      {label:'평년수확량(kg)', value:avgYield,  filled:!!avgYield, w:w1[2]},
+      {label:'계약변경',    value:contractV,  auto:true, color:contractColor, bold:true, w:w1[3]},
+      {label:'조사일',      value:todayStr,   auto:true, w:w1[4]}
+    ],g);
+    cy+=rowH+padV+secGap;
 
     // ── ② 면적 조사 ──
-    ctx.fillStyle=bgCard;
-    ctx.fillRect(P-4, cy-4, iw+8, titleH+tableH+sectionPad+8);
-    ctx.strokeStyle=borderC; ctx.lineWidth=0.7;
-    ctx.strokeRect(P-4, cy-4, iw+8, titleH+tableH+sectionPad+8);
-    drawSecTitle(ctx, P+4, cy, '②', '면적 조사', '단위: ㎡');
-    cy+=titleH+4;
-
-    const colW2=[100,80,100,80,100,80];
-    drawTable(ctx, P+4, cy, [
-      {label:'실경작면적', value:actArea, filled:!!actArea, w:colW2[0]},
-      {label:'고사면적', value:deadArea, filled:deadArea!=='0'&&!!deadArea, w:colW2[1]},
-      {label:'타작물미보상', value:uninsArea, filled:uninsArea!=='0'&&!!uninsArea, w:colW2[2]},
-      {label:'기수확', value:preArea, filled:preArea!=='0'&&!!preArea, w:colW2[3]},
-      {label:'조사대상면적', value:surveyAreaV, auto:true, w:colW2[4]},
-      {label:'표본구간수', value:properSample, auto:true, w:colW2[5]}
-    ]);
-    cy+=tableH+sectionPad+secGap;
+    const h2=secLabelH+rowH+padV;
+    secCard(cy,h2);
+    drawSecLabel(ctx,P+4,cy,'②','면적 조사 (㎡)');
+    cy+=secLabelH+4;
+    const w2a=Math.floor((iw-g*5)/6);
+    const w2last=iw-w2a*5-g*5;
+    drawRow(ctx,P+4,cy,[
+      {label:'실경작면적',   value:actArea,      filled:!!actArea, w:w2a},
+      {label:'고사면적',     value:deadArea,     filled:deadArea!=='0'&&!!deadArea, w:w2a},
+      {label:'타작물미보상', value:uninsArea,    filled:uninsArea!=='0'&&!!uninsArea, w:w2a},
+      {label:'기수확',       value:preArea,      filled:preArea!=='0'&&!!preArea, w:w2a},
+      {label:'조사대상면적', value:surveyAreaV,  auto:true, w:w2a},
+      {label:'표본구간수',   value:properSample, auto:true, w:w2last}
+    ],g);
+    cy+=rowH+padV+secGap;
 
     if(mode==='sample'){
       // ── ③ 표본면적 조사 ──
-      ctx.fillStyle=bgCard;
-      ctx.fillRect(P-4, cy-4, iw+8, titleH+tableH+sectionPad+8);
-      ctx.strokeStyle=borderC; ctx.lineWidth=0.7;
-      ctx.strokeRect(P-4, cy-4, iw+8, titleH+tableH+sectionPad+8);
-      drawSecTitle(ctx, P+4, cy, '③', '표본면적 조사');
-      cy+=titleH+4;
-
-      // 3칸만, 우측 여백 있어도 OK
-      drawTable(ctx, P+4, cy, [
-        {label:'이랑길이(m)', value:rowLen, filled:!!rowLen, w:110},
-        {label:'이랑폭(m)',   value:rowWid, filled:!!rowWid, w:100},
-        {label:'표본구간면적', value:sampleAreaV, auto:true, w:120}
-      ]);
-      cy+=tableH+sectionPad+secGap;
+      const h3=secLabelH+rowH+padV;
+      secCard(cy,h3);
+      drawSecLabel(ctx,P+4,cy,'③','표본면적 조사');
+      cy+=secLabelH+4;
+      drawRow(ctx,P+4,cy,[
+        {label:'이랑길이(m)',  value:rowLen,     filled:!!rowLen,  w:100},
+        {label:'이랑폭(m)',    value:rowWid,     filled:!!rowWid,  w:90},
+        {label:'표본구간면적', value:sampleAreaV,auto:true, w:116}
+      ],g);
+      cy+=rowH+padV+secGap;
 
       // ── ④ 표본구간별 수확량 ──
-      ctx.fillStyle=bgCard;
-      ctx.fillRect(P-4, cy-4, iw+8, titleH+tableH+sectionPad+8);
-      ctx.strokeStyle=borderC; ctx.lineWidth=0.7;
-      ctx.strokeRect(P-4, cy-4, iw+8, titleH+tableH+sectionPad+8);
-      drawSecTitle(ctx, P+4, cy, '④', '표본구간별 수확량 (g)');
-      cy+=titleH+4;
-
+      const h4=secLabelH+rowH+padV;
+      secCard(cy,h4);
+      drawSecLabel(ctx,P+4,cy,'④','표본구간별 수확량 (g)');
+      cy+=secLabelH+4;
       // 8구간 고정 + 합계 + 함수율 + 미보상
-      const cw4=46, cw4big=60;
+      const totalCols=11, totalGap=g*10;
+      const cw8=Math.floor((iw-totalGap-54*3)/8); // 8구간 균등
+      const cwExtra=54; // 합계/함수율/미보상
       const cols4=[
         ...Array.from({length:8},(_,i)=>({
-          label:String(i+1),
-          value:spVals[i]||'',
-          filled:i<activeCount && !!spVals[i],
+          label:String(i+1), value:spVals[i]||'',
+          filled:i<activeCount&&!!spVals[i],
           disabled:i>=activeCount,
-          w:cw4
+          w:cw8
         })),
-        {label:'합계', value:sampleTotal, auto:true, w:cw4big},
-        {label:'함수율', value:moisture?moisture+'%':'', filled:!!moisture, w:cw4big},
-        {label:'미보상비율', value:uninsRate?uninsRate+'%':'', filled:uninsRate!=='0'&&!!uninsRate, w:cw4big}
+        {label:'합계',    value:sampleTotal,              auto:true,           w:cwExtra},
+        {label:'함수율',  value:moisture?moisture+'%':'', filled:!!moisture,   w:cwExtra},
+        {label:'미보상',  value:uninsRate?uninsRate+'%':'', filled:uninsRate!=='0'&&!!uninsRate, w:cwExtra}
       ];
-      drawTable(ctx, P+4, cy, cols4);
-      cy+=tableH+sectionPad+secGap;
+      drawRow(ctx,P+4,cy,cols4,g);
+      cy+=rowH+padV+secGap;
     }
 
     // ── ⑤ 결과 ──
-    const pctColor=parseFloat(pct)>=20?'#c0392b':'#1D9E75';
-    ctx.fillStyle=bgCard;
-    const h5=titleH+resultLineCount*28+46+sectionPad;
-    ctx.fillRect(P-4, cy-4, iw+8, h5+8);
-    ctx.strokeStyle=borderC; ctx.lineWidth=0.7;
-    ctx.strokeRect(P-4, cy-4, iw+8, h5+8);
-    drawSecTitle(ctx, P+4, cy, '⑤', '결과');
-    cy+=titleH+10;
+    const h5=resultH;
+    secCard(cy,h5);
+    drawSecLabel(ctx,P+4,cy,'⑤','결과');
+    cy+=secLabelH+8;
 
-    // 피해율 강조 (좌측 정렬)
-    ctx.fillStyle=txtSub; ctx.font='15px -apple-system,sans-serif';
-    ctx.textAlign='left'; ctx.fillText('피해율 :', P+8, cy+18);
-    ctx.fillStyle=pctColor; ctx.font='bold 40px -apple-system,sans-serif';
-    ctx.fillText(pct, P+8+80, cy+32);
-    cy+=42;
+    // 피해율
+    const pctColor=parseFloat(pct)>=20?'#c0392b':'#1D9E75';
+    ctx.fillStyle='#aaa'; ctx.font='13px -apple-system,sans-serif';
+    ctx.textAlign='left'; ctx.fillText('피해율', P+8, cy+14);
+    ctx.fillStyle=pctColor; ctx.font='bold 38px -apple-system,sans-serif';
+    ctx.fillText(pct, P+8+52, cy+36);
+    cy+=44+8;
 
     // 구분선
-    ctx.strokeStyle='#ddd'; ctx.lineWidth=0.8;
+    ctx.strokeStyle='#eee'; ctx.lineWidth=0.8;
     ctx.beginPath(); ctx.moveTo(P+4,cy); ctx.lineTo(P+iw-4,cy); ctx.stroke();
     cy+=10;
 
-    // 상세 결과 (좌측 정렬 텍스트)
+    // 상세 결과
     const details=[
-      {label:'평년수확량', val:rAvg},
-      {label:'조사수확량', val:rSurvey},
+      {label:'평년수확량',     val:rAvg},
+      {label:'조사수확량',     val:rSurvey},
       {label:'유효중량(m²당)', val:rEff},
-      {label:'미보상감수량', val:rUnins},
+      {label:'미보상감수량',   val:rUnins},
       ...(isDis?[{label:'⚠ 병충해단독사고', val:'최고한도 70% 적용', warn:true}]:[])
     ];
     details.forEach(({label,val,warn})=>{
-      ctx.fillStyle=warn?'#c0392b':txtSub;
-      ctx.font='15px -apple-system,sans-serif';
-      ctx.textAlign='left'; ctx.fillText(label+' :', P+8, cy+18);
-      ctx.fillStyle=warn?'#c0392b':txtDark;
-      ctx.font='bold 15px -apple-system,sans-serif';
-      ctx.fillText(val, P+8+160, cy+18);
-      cy+=28;
+      ctx.fillStyle=warn?red:txtSub;
+      ctx.font='13px -apple-system,sans-serif';
+      ctx.textAlign='left'; ctx.fillText(label, P+8, cy+16);
+      ctx.fillStyle=warn?red:txtDark;
+      ctx.font='bold 13px -apple-system,sans-serif';
+      ctx.fillText(val, P+8+130, cy+16);
+      cy+=24;
     });
 
     const now2=new Date();
