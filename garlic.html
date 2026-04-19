@@ -134,28 +134,25 @@ tfoot td.v{color:var(--text)}
 
   <div class="section">
     <div class="sec-head">
-      <div class="sec-title">기본 정보</div>
+      <div class="sec-title">품종</div>
       <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
     </div>
-    <div class="g2" style="margin-bottom:8px">
-      <div class="field">
-        <label>품종</label>
-        <select id="crop" class="inp filled" onchange="markFilled(this);onCropChange()" style="text-align:left;text-align-last:left">
-          <option value="garlic_s">마늘 난지형</option>
-          <option value="garlic_n">마늘 한지형</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>평년수확량 (kg)</label>
-        <input type="text" id="avg_yield" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="calc()">
-      </div>
+    <div class="field">
+      <select id="crop" class="inp filled" onchange="markFilled(this);onCropChange()" style="text-align:left;text-align-last:left">
+        <option value="garlic_s">마늘 난지형</option>
+        <option value="garlic_n">마늘 한지형</option>
+      </select>
     </div>
   </div>
 
   <div class="section">
     <div class="sec-title">면적 정보</div>
-    <div class="g2">
+    <div class="g3">
+      <div class="field">
+        <label>평년수확량 (kg)</label>
+        <input type="text" id="avg_yield" class="inp" inputmode="decimal"
+          oninput="onCommaInput(this)" onblur="calc()">
+      </div>
       <div class="field">
         <label>가입면적 (㎡)</label>
         <input type="text" id="ins_area" class="inp" inputmode="decimal"
