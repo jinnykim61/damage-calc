@@ -717,63 +717,51 @@ async function saveImage(){
       r.push({type:'header', h:84});
       r.push({type:'spacer', h:14});
 
-      // ① 보험가입사항
-      // 줄1: 품종(넓게) | 병충해단독사고(좁게)
-      // 줄2: 평년수확량 | 계약변경 | 표본구간  (3열)
-      // 줄3: 가입면적 | 실경작면적 | 고사면적 | 타작물미보상 | 기수확  (5열)
-      const sec1rows = [
-        {type:'row_custom', weights:[2,1], items:[
-          {label:'품종', val:varietyTxt, filled:true},
-          {label:'병충해단독사고', val:disY?'여':'부', filled:true, color:disY?red:green}
-        ]},
-        {type:'row3', items:[
-          {label:'평년수확량 (kg)', val:avgYield, filled:!!avgYield},
-          {label:'계약변경', val:contractV, auto:true, color:contractColor, bold:true},
-          {label:'표본구간', val:document.getElementById('properSampleDisp').value, auto:true}
-        ]},
+      // 카드1: 면적 정보 (조사서 순서: 실경작→고사→타작물미보상→기수확→조사대상)
+      r.push({type:'card', label:'① 면적 조사', subrows:[
         {type:'row5', items:[
-          {label:'가입면적 ㎡', val:insArea, filled:!!insArea},
           {label:'실경작면적 ㎡', val:actArea, filled:!!actArea},
           {label:'고사면적 ㎡', val:deadArea, filled:deadArea!=='0'&&deadArea!==''},
           {label:'타작물미보상 ㎡', val:uninsArea, filled:uninsArea!=='0'&&uninsArea!==''},
-          {label:'기수확 ㎡', val:preArea, filled:preArea!=='0'&&preArea!==''}
+          {label:'기수확 ㎡', val:preArea, filled:preArea!=='0'&&preArea!==''},
+          {label:'조사대상면적 ㎡', val:surveyAreaV, auto:true}
         ]}
-      ];
-      r.push({type:'card', label:'① 보험가입사항', subrows:sec1rows});
+      ]});
       r.push({type:'spacer', h:10});
 
       if(isSample){
-        // ② 이랑길이 | 이랑폭 | 표본구간면적 | 적정표본구간수 | 함수율  (5열 한줄)
-        const sec2rows = [
-          {type:'row5', items:[
+        // 카드2: 표본구간 설정 (조사서 순서: 표본구간수→품종→이랑길이→이랑폭→함수율→미보상비율)
+        r.push({type:'card', label:'② 표본구간 설정', subrows:[
+          {type:'row6', items:[
+            {label:'표본구간수', val:properSample, auto:true},
+            {label:'품종', val:varietyTxt, filled:true},
             {label:'이랑길이 (m)', val:rowLen, filled:!!rowLen},
             {label:'이랑폭 (m)', val:rowWid, filled:!!rowWid},
-            {label:'표본구간면적', val:sampleArea, auto:true},
-            {label:'적정 표본구간수', val:properSample, auto:true},
-            {label:'함수율 (%)', val:moisture, filled:!!moisture}
+            {label:'함수율 (%)', val:moisture, filled:!!moisture},
+            {label:'미보상비율 (%)', val:uninsRate, filled:!!uninsRate}
           ]}
-        ];
-        r.push({type:'card', label:'② 표본구간 설정', subrows:sec2rows});
+        ]});
         r.push({type:'spacer', h:10});
 
-        // ③ 표본구간 (항상 4열) + 합계/유효중량 한줄
-        const sec3rows = [
+        // 카드3: 구간별 수확량 + 합계/유효중량
+        r.push({type:'card', label:'③ 표본구간별 수확량 (g)', subrows:[
           {type:'samples', vals:spVals},
           {type:'row2', items:[
             {label:'표본수확량 합계', val:sampleTotal, auto:true},
             {label:'표본구간m²당 유효중량', val:effWeight, auto:true}
           ]}
-        ];
-        r.push({type:'card', label:'③ 표본구간별 수확량 (g)', subrows:sec3rows});
+        ]});
       } else {
         const fullYield = document.getElementById('fullYield').value;
         const fullMoisture = document.getElementById('fullMoisture').value;
         const fullSurvey = document.getElementById('fullSurvey').value;
-        r.push({type:'card', label:'② 전수조사 수확량', subrows:[
-          {type:'row3', items:[
+        r.push({type:'card', label:'② 전수조사', subrows:[
+          {type:'row5', items:[
+            {label:'품종', val:varietyTxt, filled:true},
             {label:'총수확량 (kg)', val:fullYield, filled:!!fullYield},
             {label:'함수율 (%)', val:fullMoisture, filled:!!fullMoisture},
-            {label:'조사수확량 (kg)', val:fullSurvey, auto:true}
+            {label:'조사수확량 (kg)', val:fullSurvey, auto:true},
+            {label:'미보상비율 (%)', val:uninsRate, filled:!!uninsRate}
           ]}
         ]});
       }
@@ -870,6 +858,9 @@ async function saveImage(){
         sr.items.forEach((it,i)=> drawField(x+i*(fw+gap), y, fw, it.label, it.val, it));
       } else if(sr.type==='row5'){
         const fw=(innerW-gap*4)/5;
+        sr.items.forEach((it,i)=> drawField(x+i*(fw+gap), y, fw, it.label, it.val, it));
+      } else if(sr.type==='row6'){
+        const fw=(innerW-gap*5)/6;
         sr.items.forEach((it,i)=> drawField(x+i*(fw+gap), y, fw, it.label, it.val, it));
       } else if(sr.type==='row_custom'){
         // 가중치 비율로 너비 분배
