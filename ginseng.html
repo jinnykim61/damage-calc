@@ -396,8 +396,9 @@ function calc(){
   const realArea = actArea > 0 ? actArea : insArea;
   const surveyYieldRaw = Math.max(0, totalYield - soilLoss - bagLoss);
 
-  // 평년수확량 = 기준수확량 × 가입면적 (calcArea 적용)
-  const stdTotalYield = stdYield * calcArea;
+  // 금차평년수확량 = 평년수확량(전체) × (금차수확면적 / 재배면적)
+  const fullStdYield = stdYield * calcArea;
+  const stdTotalYield = farmArea > 0 ? fullStdYield * (harvestArea / farmArea) : fullStdYield;
   document.getElementById('stdTotalYield').value = stdTotalYield > 0 ? stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
 
   // 비례보상 = 조사수확량 × (증가면적/실제경작면적) - 면적 10% 초과시만

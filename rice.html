@@ -226,7 +226,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>이랑폭 (m)</label>
           <input type="number" id="rowWid" class="inp filled" inputmode="decimal" step="0.01" value="0.3"
-            oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+            oninput="markFilled(this);debouncedCalc()" onblur="calc()" data-default="0.3">
         </div>
         <div class="field">
           <label>표본구간면적</label>
@@ -290,9 +290,9 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
-    <div style="text-align:center;margin-bottom:12px">
-      <div style="font-size:12px;opacity:0.8;margin-bottom:4px">피해율</div>
-      <div class="result-pct" id="result-pct">입력 대기중</div>
+    <div style="width:100%;text-align:center;margin-bottom:12px">
+      <div style="font-size:12px;opacity:0.8;margin-bottom:6px">피해율</div>
+      <div id="result-pct" style="font-size:40px;font-weight:700;line-height:1;text-align:center;display:block;width:100%">입력 대기중</div>
     </div>
     <div style="display:flex;justify-content:center;gap:8px;margin-bottom:10px">
       <button class="save-btn" onclick="saveImage()">
@@ -599,6 +599,9 @@ function loadState(){
       const el = document.getElementById(id);
       if(el && s[id]!==''){ el.value=s[id]; el.classList.toggle('filled', true); }
     });
+    // 이랑폭 기본값 복원
+    const rowWidEl = document.getElementById('rowWid');
+    if(rowWidEl && !rowWidEl.value){ rowWidEl.value='0.3'; rowWidEl.classList.add('filled'); }
     // 표본구간 중량 복원 (calc 후 렌더링된 뒤에 실행)
     if(s.spVals && s.spVals.length>0){
       setTimeout(()=>{
