@@ -217,7 +217,7 @@ tfoot td.v{color:var(--text)}
       </div>
       <div class="field">
         <label>열공수 (개)</label>
-        <input type="number" id="열공수" class="inp" inputmode="decimal"
+        <input type="number" id="crack_count" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
@@ -620,7 +620,7 @@ function calc(){
 function resetAll(){
   if(!confirm('모든 입력값을 초기화할까요?')) return;
   try{ localStorage.removeItem('garlic_state'); }catch(e){}
-  ['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','harvest_date','열공수'].forEach(id=>{
+  ['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','harvest_date','crack_count'].forEach(id=>{
     const el=document.getElementById(id);
     el.value=''; el.classList.remove('filled');
   });
@@ -665,7 +665,7 @@ async function saveImage(){
     const surveyDate= document.getElementById('survey_date').value;
     const harvestDate= document.getElementById('harvest_date').value;
     const remainInfo= document.getElementById('remain_info').value;
-    const 열공수V  = document.getElementById('열공수')?.value||'';
+    const crackV  = document.getElementById('crack_count')?.value||'';
     const uninsRate= document.getElementById('unins_rate').value||'0';
 
     // 표본 합계
@@ -791,7 +791,7 @@ async function saveImage(){
     drawRowFit(ctx,P,cy,[
       {label:'수확예정일',       value:harvestDate.replace(/-/g,'.'), filled:!!harvestDate, w:84},
       {label:'잔여일수/비대지수',value:remainInfo, auto:true,                               w:100},
-      {label:'열공수(개)',        value:열공수V,    filled:!!열공수V,                        w:56},
+      {label:'열공수(개)',        value:crackV,    filled:!!crackV,                        w:56},
       {label:'미보상비율(%)',    value:uninsRate,  filled:!!uninsRate,                      w:62}
     ]);
     cy+=rowH+pad+secGap;
@@ -808,11 +808,11 @@ async function saveImage(){
       ?['No','이랑길이(m)','이랑폭(m)','정상(g)','80%형(g)','벌마늘(g)']
       :['No','이랑길이(m)','이랑폭(m)','정상(g)','80%형(g)'];
     const tcn=tCols.length;
-    const tW=Math.round(iw*0.63); const tNoW=26, tRestW=(tW-tNoW-g*(tcn-1))/(tcn-1);
+    const tableW=Math.round(iw*0.63); const tNoW=26, tRestW=(tableW-tNoW-g*(tcn-1))/(tcn-1);
 
     // 헤더행
-    ctx.fillStyle='#F0EEE8'; ctx.fillRect(P,cy,tW,20);
-    ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.strokeRect(P,cy,tW,20);
+    ctx.fillStyle='#F0EEE8'; ctx.fillRect(P,cy,tableW,20);
+    ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.strokeRect(P,cy,tableW,20);
     tCols.forEach((h,i)=>{
       const x=i===0?P:P+tNoW+(i-1)*(tRestW+g)+g;
       const w=i===0?tNoW:tRestW;
@@ -840,8 +840,8 @@ async function saveImage(){
     });
 
     // 합계행
-    ctx.fillStyle='#EEF2F7'; ctx.fillRect(P,cy,tW,20);
-    ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.strokeRect(P,cy,tW,20);
+    ctx.fillStyle='#EEF2F7'; ctx.fillRect(P,cy,tableW,20);
+    ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.strokeRect(P,cy,tableW,20);
     const sumVals=['합계',tL.toFixed(2),tW.toFixed(2),tN.toLocaleString(),
                    t80>0?t80.toLocaleString():'-',
                    ...(isGarlic?[t50>0?t50.toLocaleString():'-']:[])];
@@ -906,7 +906,7 @@ function saveState(){
     other_area: document.getElementById('other_area').value,
     harv_area: document.getElementById('harv_area').value,
     unins_rate: document.getElementById('unins_rate').value,
-    열공수: document.getElementById('열공수')?.value||'',
+    crack_count: document.getElementById('crack_count')?.value||'',
     survey_date: document.getElementById('survey_date').value,
     harvest_date: document.getElementById('harvest_date').value,
     samples: samples
@@ -928,7 +928,7 @@ function loadState(){
     }
 
     // 나머지 필드 복원 + filled
-    const fields=['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','열공수','survey_date','harvest_date'];
+    const fields=['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','crack_count','survey_date','harvest_date'];
     fields.forEach(id=>{
       if(s[id]!==undefined && s[id]!==''){
         const el=document.getElementById(id);
