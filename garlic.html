@@ -209,18 +209,18 @@ tfoot td.v{color:var(--text)}
         <input type="date" id="harvest_date" class="inp" oninput="markFilled(this);calc()">
       </div>
     </div>
-    <div class="g3">
+    <div style="display:grid;grid-template-columns:2.4fr 0.8fr 0.8fr;gap:8px;margin-bottom:8px">
       <div class="field">
-        <label>잔여일수 / 비대추정지수</label>
+        <label>잔여일수 / 비대지수</label>
         <input type="text" id="remain_info" class="auto" readonly>
       </div>
       <div class="field">
         <label>열공수 (개)</label>
         <input type="number" id="열공수" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this)" onblur="calc()">
+          oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>미보상비율 (%)</label>
+        <label>미보상 (%)</label>
         <input type="number" id="unins_rate" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="calc()">
       </div>
@@ -807,11 +807,11 @@ async function saveImage(){
       ?['No','이랑길이(m)','이랑폭(m)','정상(g)','80%형(g)','벌마늘(g)']
       :['No','이랑길이(m)','이랑폭(m)','정상(g)','80%형(g)'];
     const tcn=tCols.length;
-    const tNoW=26, tRestW=(iw-tNoW-g*(tcn-1))/(tcn-1);
+    const tW=Math.round(iw*0.63); const tNoW=26, tRestW=(tW-tNoW-g*(tcn-1))/(tcn-1);
 
     // 헤더행
-    ctx.fillStyle='#F0EEE8'; ctx.fillRect(P,cy,iw,20);
-    ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.strokeRect(P,cy,iw,20);
+    ctx.fillStyle='#F0EEE8'; ctx.fillRect(P,cy,tW,20);
+    ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.strokeRect(P,cy,tW,20);
     tCols.forEach((h,i)=>{
       const x=i===0?P:P+tNoW+(i-1)*(tRestW+g)+g;
       const w=i===0?tNoW:tRestW;
@@ -839,8 +839,8 @@ async function saveImage(){
     });
 
     // 합계행
-    ctx.fillStyle='#EEF2F7'; ctx.fillRect(P,cy,iw,20);
-    ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.strokeRect(P,cy,iw,20);
+    ctx.fillStyle='#EEF2F7'; ctx.fillRect(P,cy,tW,20);
+    ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.strokeRect(P,cy,tW,20);
     const sumVals=['합계',tL.toFixed(2),tW.toFixed(2),tN.toLocaleString(),
                    t80>0?t80.toLocaleString():'-',
                    ...(isGarlic?[t50>0?t50.toLocaleString():'-']:[])];
