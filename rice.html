@@ -290,17 +290,17 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
-    <div style="text-align:center;margin-bottom:14px">
-      <div style="font-size:12px;opacity:0.8;margin-bottom:6px;letter-spacing:0.05em">피해율</div>
-      <div id="result-pct" style="font-size:52px;font-weight:800;line-height:1;text-align:center;display:block;width:100%;letter-spacing:-0.02em">입력 대기중</div>
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:16px">
+      <div style="font-size:11px;opacity:0.75;margin-bottom:6px;letter-spacing:0.08em;text-transform:uppercase">피해율</div>
+      <div id="result-pct" style="font-size:44px;font-weight:800;line-height:1;letter-spacing:-0.02em">입력 대기중</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
-      <button class="save-btn" onclick="saveImage()" style="width:100%;justify-content:center;flex-direction:row;gap:6px;height:44px;font-size:13px">
-        <span style="font-size:18px">📷</span>
+      <button class="save-btn" onclick="saveImage()" style="width:100%;height:44px;justify-content:center;flex-direction:row;gap:6px;font-size:13px;font-weight:600">
+        <span style="font-size:16px">📷</span>
         <span>갤러리 저장</span>
       </button>
-      <button class="save-btn" id="pdf-btn" onclick="savePDF()" style="width:100%;justify-content:center;flex-direction:row;gap:6px;height:44px;font-size:13px;opacity:0.5;pointer-events:none">
-        <span style="font-size:18px">📄</span>
+      <button class="save-btn" id="pdf-btn" onclick="savePDF()" style="width:100%;height:44px;justify-content:center;flex-direction:row;gap:6px;font-size:13px;font-weight:600;opacity:0.5;pointer-events:none">
+        <span style="font-size:16px">📄</span>
         <span>PDF 저장</span>
       </button>
     </div>
@@ -425,7 +425,7 @@ function calc(){
   const areaErr = insArea > 0 && actArea > 0 ? (actArea - insArea) / insArea : 0;
   const contractEl = document.getElementById('contractYn');
   if(insArea > 0 && actArea > 0){
-    contractEl.value = Math.abs(areaErr) > 0.1 ? '계약변경' : '이상무';
+    contractEl.value = Math.abs(areaErr) > 0.1 ? '유' : '무';
     contractEl.style.color = Math.abs(areaErr) > 0.1 ? '#e24b4a' : '';
     contractEl.style.fontWeight = Math.abs(areaErr) > 0.1 ? '700' : '';
   } else { contractEl.value = ''; }
@@ -638,6 +638,9 @@ function resetAll(){
   lastProper=-1;
   document.getElementById('result-section').className='result-box pending';
   document.getElementById('result-pct').textContent='입력 대기중';
+  // 이랑폭 기본값 복원
+  const rwEl=document.getElementById('rowWid');
+  if(rwEl){rwEl.value='0.3';rwEl.classList.add('filled');}
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
