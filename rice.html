@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#185FA5">
 <title>벼 피해율 계산기</title>
-<!-- v1776590535 -->
+<!-- v1776591734 -->
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -709,8 +709,8 @@ async function saveImage(){
     const txtDark='#1a1a1a', txtSub='#555', txtHint='#aaa';
 
     // 라벨과 박스 사이 간격 추가
-    const LH=18,  // 라벨 높이 (여유있게)
-          VH=28,  // 박스 높이
+    const LH=22,  // 라벨 높이 (여유있게)
+          VH=24,  // 박스 높이
           CELL_H=LH+VH;
     const g=6;
 
@@ -739,7 +739,7 @@ async function saveImage(){
 
       // 라벨 (박스 위, 충분한 간격)
       ctx.fillStyle='#777';
-      ctx.font='700 10px -apple-system,sans-serif';
+      ctx.font='900 9px -apple-system,sans-serif';
       ctx.textAlign='center';
       ctx.fillText(label, x+w/2, y+LH-4);
 
@@ -886,12 +886,12 @@ async function saveImage(){
     // 피해율: 좌측 정렬, "피해율" 크고 진하게 + 바로 옆 값
     const pctColor=parseFloat(pct)>=20?'#C0392B':'#1D9E75';
     ctx.fillStyle=blue;
-    ctx.font='bold 20px -apple-system,sans-serif';
+    ctx.font='600 14px -apple-system,sans-serif';
     ctx.textAlign='left';
-    ctx.fillText('피해율', P+4, cy+26);
+    ctx.fillText('피해율', P+4, cy+22);
     ctx.fillStyle=pctColor;
     ctx.font='bold 34px -apple-system,sans-serif';
-    ctx.fillText(pct, P+4+66, cy+28);
+    ctx.fillText(pct, P+4+62, cy+28);
     cy+=40+8;
 
     ctx.strokeStyle='#EEE'; ctx.lineWidth=0.7;
