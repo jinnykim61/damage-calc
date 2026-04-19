@@ -935,8 +935,7 @@ async function saveImage(){
     ry+=12;
 
     if(remarks){
-      const parts=remarks.split(/[,，
-]+/).map(s=>s.trim()).filter(Boolean);
+      const parts=remarks.split(/[,，\n]+/).map(s=>s.trim()).filter(Boolean);
       parts.forEach(p=>{
         const line='• '+p;
         // 자동 줄바꿈
