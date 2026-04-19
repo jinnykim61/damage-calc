@@ -752,7 +752,7 @@ async function saveImage(){
       // 값 (볼드, 크게)
       if(value && !disabled){
         ctx.fillStyle = tc;
-        ctx.font = `${bold?'800':'700'} ${small?13:18}px -apple-system,sans-serif`;
+        ctx.font = `${bold?'800':'700'} ${small?11:15}px -apple-system,sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillText(value, x+w/2, y+LH+VH/2+7);
       }
@@ -841,11 +841,11 @@ async function saveImage(){
     cy+=secLabelH+4;
     // 칸 너비: 품종, 병충해, 평년수확량, 계약변경, 조사일 → 합=iw-12(gap*4)
     const g=6;
-    const w1=[72,76,iw-72-76-62-85-g*4,62,85];
+    const w1=[iw-72-76-62-85-g*4,72,76,62,85];
     drawRow(ctx,P+4,cy,[
-      {label:'품종',        value:varietyTxt, filled:true,  w:w1[0]},
-      {label:'병충해단독사고', value:disY?'여':'부', filled:true, color:disY?red:green, w:w1[1]},
-      {label:'평년수확량(kg)', value:avgYield,  filled:!!avgYield, w:w1[2]},
+      {label:'평년수확량(kg)', value:avgYield,  filled:!!avgYield, w:w1[0]},
+      {label:'품종',        value:varietyTxt, filled:true,  w:w1[1]},
+      {label:'병충해단독사고', value:disY?'여':'부', filled:true, color:disY?red:green, w:w1[2]},
       {label:'계약변경',    value:contractV,  auto:true, color:contractColor, bold:true, w:w1[3]},
       {label:'조사일',      value:todayStr,   auto:true, small:true, w:w1[4]}
     ],g);
