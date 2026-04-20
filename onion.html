@@ -454,7 +454,8 @@ function calcTotals(){
   document.getElementById('t-wid').textContent=tW.toFixed(2)+'m';
   document.getElementById('t-norm').textContent=tN.toLocaleString();
   document.getElementById('t-d80').textContent=t80>0?t80.toLocaleString():'-';
-  document.getElementById('t-d50').textContent=t50>0?t50.toLocaleString():'-';
+  const tD50El=document.getElementById('t-d50');
+  if(tD50El) tD50El.textContent=t50>0?t50.toLocaleString():'-';
   document.getElementById('s-area').textContent=tA.toFixed(2)+' ㎡';
   document.getElementById('s-unit').textContent=tA>0?((tEff/1000)/tA).toFixed(4)+' kg/㎡':'-';
   calc();
@@ -521,6 +522,7 @@ function calc(){
   if(!avgYield||!actArea||surveyArea<=0){
     resultBox.className='result-box pending';
     pctEl.textContent='입력 대기중'; pctEl.style.color='white';
+    saveState();
     return;
   }
 
@@ -540,6 +542,7 @@ function calc(){
   if(tA<=0||tEff<=0||effAvg<=0){
     resultBox.className='result-box pending';
     pctEl.textContent='표본 입력 대기'; pctEl.style.color='white';
+    saveState();
     return;
   }
 
@@ -891,6 +894,25 @@ function loadState(){
     return true;
   }catch(e){ return false; }
 }
+
+
+// ── 입력 중 자동 저장 ─────────────────────────────
+function bindAutoSave(){
+  const ids=['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','crack_count','survey_date','harvest_date'];
+  ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    ['input','change','blur'].forEach(evt=>el.addEventListener(evt, ()=>{ try{ saveState(); }catch(e){} }));
+  });
+
+  window.addEventListener('pagehide', ()=>{ try{ saveState(); }catch(e){} });
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState==='hidden'){
+      try{ saveState(); }catch(e){}
+    }
+  });
+}
+
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
   caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
@@ -909,6 +931,7 @@ const loaded = loadState();
 if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
 
 
+bindAutoSave();
 updateGarlicCols();
 setTimeout(()=>{
   if(loaded){
