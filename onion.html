@@ -50,7 +50,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 /* 입력 칸 */
 input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center}
 select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center;text-align-last:center;direction:ltr}
-input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
+input.inp:focus,select.inp:focus{outline:none !important;border-color:#185FA5 !important;box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;background:#dceeff !important;color:#185FA5 !important}
 input.inp::placeholder{color:var(--hint);text-align:center}
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 select.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
@@ -528,7 +528,7 @@ function calc(){
     tEff+=(n + d8*0.2 + d5)*cc;
   }
 
-  if(tA<=0||tEff<=0){
+  if(tA<=0||tEff<=0||effAvg<=0){
     resultBox.className='result-box pending';
     pctEl.textContent='표본 입력 대기'; pctEl.style.color='white';
     return;
@@ -544,7 +544,7 @@ function calc(){
   const pct=netLoss/effAvg*100;
 
   document.getElementById('r-area').textContent=surveyArea.toLocaleString()+' ㎡';
-  document.getElementById('r-avg-unit').textContent=(effAvg/actArea).toFixed(4)+' kg/㎡';
+  document.getElementById('r-avg-unit').textContent=actArea>0?(effAvg/actArea).toFixed(4)+' kg/㎡':'-';
   document.getElementById('r-coeff').textContent={onion:'1.00(양파)',garlic_s:'0.72(난지형)',garlic_n:'0.70(한지형)'}[crop];
   document.getElementById('r-surv').textContent=survYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
   document.getElementById('r-est').textContent=estYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
