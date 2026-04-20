@@ -442,9 +442,9 @@ tbody td input.filled:active{
       </table>
     </div>
     <div class="sample-btn-row" id="sample-btn-row" style="display:none"><button class="add-btn" id="add-btn" onclick="addSample()">+ 표본구간 추가</button><button class="del-sample-btn" id="del-btn" onclick="removeSample()">- 표본구간 삭제</button></div>
-    <div class="info-strip" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">
-      <span>표본면적: <strong id="s-area">-</strong></span>
-      <span>㎡당 조사수확량: <strong id="s-unit">-</strong></span>
+    <div style="display:flex;flex-direction:row;align-items:center;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:nowrap;overflow:hidden">
+      <span style="font-size:12px;color:var(--sub);white-space:nowrap">표본면적: <strong id="s-area" style="font-size:13px;font-weight:800;color:var(--text)">-</strong></span>
+      <span style="font-size:12px;color:var(--sub);white-space:nowrap">㎡당 조사수확량: <strong id="s-unit" style="font-size:13px;font-weight:800;color:var(--text)">-</strong></span>
     </div>
   </div>
 
@@ -459,7 +459,12 @@ tbody td input.filled:active{
       </div>
     </div>
   </div>
+</div>
 
+<!-- 계산 결과 hidden 저장소 -->
+<div id="garlic-hidden-results" style="display:none">
+  <span id="r-area">-</span><span id="r-avg-unit">-</span><span id="r-coeff">-</span>
+  <span id="r-surv">-</span><span id="r-est">-</span><span id="r-unins">-</span><span id="r-loss">-</span>
 </div>
 
 <!-- 갤러리 저장용 캡처 템플릿 -->
