@@ -9,8 +9,19 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+function openResetModal(){
+  const el = document.getElementById('reset-overlay');
+  if(el) el.style.display = 'flex';
+}
+function closeResetModal(){
+  const el = document.getElementById('reset-overlay');
+  if(el) el.style.display = 'none';
+}
+function confirmResetAll(){
+  closeResetModal();
+  resetAll();
+}
 function savePDF(){ window.print(); }
-
 function removeSample(){
   const {surveyArea} = calcCommon();
   const proper = surveyArea>0 ? getProper(surveyArea) : 0;
@@ -22,7 +33,6 @@ function removeSample(){
   renderSamples();
   calc();
 }
-
 function fillBeanCaptureTemplate(){
   const avgYield = document.getElementById('avgYield')?.value ? document.getElementById('avgYield').value + ' kg' : '-';
   const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
@@ -48,25 +58,39 @@ function fillBeanCaptureTemplate(){
 
   const tbody = document.getElementById('cap-sample-table');
   if(tbody){
-    const rows = (window.samples || []).map((s, idx)=>{
-      const len = s.len || '-';
-      const wid = s.wid || '-';
-      const weight = s.weight || '-';
-      const moist = s.moist || '-';
-      return `
-      <tr>
-        <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
-        <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${len}</td>
-        <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${wid}</td>
-        <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${weight}</td>
-        <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${moist}</td>
-      </tr>`;
-    }).join('');
-  bindBeanMobileFocus();
+    let rows = [];
+    const domRows = document.querySelectorAll('#sample-body tr');
+    if(domRows.length){
+      domRows.forEach((tr, idx)=>{
+        const inputs = tr.querySelectorAll('input');
+        const vals = Array.from(inputs).map(inp => inp.value || '-');
+        if(vals.some(v => v !== '-')){
+          rows.push(`
+          <tr>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[0] || '-'}</td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[1] || '-'}</td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[2] || '-'}</td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[3] || '-'}</td>
+          </tr>`);
+        }
+      });
+    }
+    if(!rows.length && Array.isArray(window.samples)){
+      rows = window.samples.map((s, idx)=>`
+        <tr>
+          <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
+          <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.len || '-'}</td>
+          <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.wid || '-'}</td>
+          <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.weight || '-'}</td>
+          <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.moist || '-'}</td>
+        </tr>`).join('');
+    } else {
+      rows = rows.join('');
+    }
     tbody.innerHTML = rows || '<tr><td colspan="5" style="padding:10px;border:1px solid #d1d5db;text-align:center">-</td></tr>';
   }
 }
-
 function bindBeanMobileFocus(){
   const selectors = 'input.inp, tbody td input';
   document.querySelectorAll(selectors).forEach(el=>{
@@ -190,13 +214,13 @@ tbody td input.filled:active{
   text-align:center;
 }
 .capture-label{
-  font-size:12px;
+  font-size:10px;
   color:#6b7280;
   margin-bottom:4px;
   word-break:keep-all;
 }
 .capture-value{
-  font-size:16px;
+  font-size:13px;
   font-weight:800;
   color:#111827;
 }
@@ -223,7 +247,7 @@ tbody td input.filled:active{
   <div class="section">
     <div class="sec-head">
       <div class="sec-title">① 보험가입사항</div>
-      <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
+      <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
     </div>
     <div class="g3">
       <div class="field"><label>평년수확량 (kg)</label>
@@ -329,9 +353,29 @@ tbody td input.filled:active{
     </div>
   </div>
 </div>
-
   </div>
 </div>
+
+
+<div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div style="font-size:18px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">전체 초기화</div>
+    <div style="font-size:14px;line-height:1.65;color:#666;text-align:center;margin-bottom:20px">입력한 모든 값을 초기화할까요?<br>초기화 후에는 되돌릴 수 없습니다.</div>
+    <div style="display:flex;gap:10px">
+      <button onclick="closeResetModal()" style="flex:1;height:46px;border:1.5px solid #d9d9d9;border-radius:12px;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
+      <button onclick="confirmResetAll()" style="flex:1;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">초기화</button>
+    </div>
+  </div>
+</div>
+
+
+
+<div id="bean-hidden-results" style="display:none">
+  <span id="r-unit">-</span>
+  <span id="r-area">-</span>
+  <span id="r-unins">-</span>
+</div>
+
 
 
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
@@ -350,40 +394,19 @@ tbody td input.filled:active{
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-          <div class="capture-box">
-            <div class="capture-label">평년수확량</div>
-            <div class="capture-value" id="cap-avgYield">-</div>
-          </div>
-          <div class="capture-box">
-            <div class="capture-label">가입면적</div>
-            <div class="capture-value" id="cap-insArea">-</div>
-          </div>
-          <div class="capture-box">
-            <div class="capture-label">원장변경유무</div>
-            <div class="capture-value" id="cap-contract">-</div>
-          </div>
+          <div class="capture-box"><div class="capture-label">평년수확량</div><div class="capture-value" id="cap-avgYield">-</div></div>
+          <div class="capture-box"><div class="capture-label">가입면적</div><div class="capture-value" id="cap-insArea">-</div></div>
+          <div class="capture-box"><div class="capture-label">원장변경유무</div><div class="capture-value" id="cap-contract">-</div></div>
         </div>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 면적조사</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-          <div class="capture-box">
-            <div class="capture-label">실제경작면적</div>
-            <div class="capture-value" id="cap-actArea">-</div>
-          </div>
-          <div class="capture-box">
-            <div class="capture-label">고사면적</div>
-            <div class="capture-value" id="cap-deadArea">-</div>
-          </div>
-          <div class="capture-box">
-            <div class="capture-label">미보상면적</div>
-            <div class="capture-value" id="cap-uninsArea">-</div>
-          </div>
-          <div class="capture-box">
-            <div class="capture-label">기수확면적</div>
-            <div class="capture-value" id="cap-preArea">-</div>
-          </div>
+          <div class="capture-box"><div class="capture-label">실제경작면적</div><div class="capture-value" id="cap-actArea">-</div></div>
+          <div class="capture-box"><div class="capture-label">고사면적</div><div class="capture-value" id="cap-deadArea">-</div></div>
+          <div class="capture-box"><div class="capture-label">미보상면적</div><div class="capture-value" id="cap-uninsArea">-</div></div>
+          <div class="capture-box"><div class="capture-label">기수확면적</div><div class="capture-value" id="cap-preArea">-</div></div>
         </div>
       </div>
 
@@ -406,34 +429,14 @@ tbody td input.filled:active{
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">4. 결과</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-          <div class="capture-box">
-            <div class="capture-label">조사수확량</div>
-            <div class="capture-value" id="cap-result-survey">-</div>
-          </div>
-          <div class="capture-box">
-            <div class="capture-label">m²당 유효중량</div>
-            <div class="capture-value" id="cap-result-unit">-</div>
-          </div>
-          <div class="capture-box">
-            <div class="capture-label">조사면적</div>
-            <div class="capture-value" id="cap-area">-</div>
-          </div>
-          <div class="capture-box">
-            <div class="capture-label">미보상감수량</div>
-            <div class="capture-value" id="cap-uninsLoss">-</div>
-          </div>
+          <div class="capture-box"><div class="capture-label">조사수확량</div><div class="capture-value" id="cap-result-survey">-</div></div>
+          <div class="capture-box"><div class="capture-label">㎡당 유효중량</div><div class="capture-value" id="cap-result-unit">-</div></div>
+          <div class="capture-box"><div class="capture-label">조사면적</div><div class="capture-value" id="cap-area">-</div></div>
+          <div class="capture-box"><div class="capture-label">미보상감수량</div><div class="capture-value" id="cap-uninsLoss">-</div></div>
         </div>
       </div>
     </div>
   </div>
-</div>
-
-
-
-<div id="bean-hidden-results" style="display:none">
-  <span id="r-unit">-</span>
-  <span id="r-area">-</span>
-  <span id="r-unins">-</span>
 </div>
 
 
@@ -655,7 +658,7 @@ function loadState(){
 }
 
 function resetAll(){
-  if(!confirm('모든 입력값을 초기화할까요?')) return;
+  
   try{localStorage.removeItem('bean_state');}catch(e){}
   ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate',
    'fullWeight','fullMoisture','fullDeadArea','fullUninsArea','fullUninsRate',
@@ -700,8 +703,19 @@ setMode('sample');
 loadState();
 setTimeout(()=>{ if(mode==='sample') calc(); else calcFull(); }, 50);
 
+function openResetModal(){
+  const el = document.getElementById('reset-overlay');
+  if(el) el.style.display = 'flex';
+}
+function closeResetModal(){
+  const el = document.getElementById('reset-overlay');
+  if(el) el.style.display = 'none';
+}
+function confirmResetAll(){
+  closeResetModal();
+  resetAll();
+}
 function savePDF(){ window.print(); }
-
 function removeSample(){
   const {surveyArea} = calcCommon();
   const proper = surveyArea>0 ? getProper(surveyArea) : 0;
@@ -713,7 +727,6 @@ function removeSample(){
   renderSamples();
   calc();
 }
-
 function fillBeanCaptureTemplate(){
   const avgYield = document.getElementById('avgYield')?.value ? document.getElementById('avgYield').value + ' kg' : '-';
   const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
@@ -739,24 +752,39 @@ function fillBeanCaptureTemplate(){
 
   const tbody = document.getElementById('cap-sample-table');
   if(tbody){
-    const rows = (window.samples || []).map((s, idx)=>{
-      const len = s.len || '-';
-      const wid = s.wid || '-';
-      const weight = s.weight || '-';
-      const moist = s.moist || '-';
-      return `
-      <tr>
-        <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
-        <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${len}</td>
-        <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${wid}</td>
-        <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${weight}</td>
-        <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${moist}</td>
-      </tr>`;
-    }).join('');
+    let rows = [];
+    const domRows = document.querySelectorAll('#sample-body tr');
+    if(domRows.length){
+      domRows.forEach((tr, idx)=>{
+        const inputs = tr.querySelectorAll('input');
+        const vals = Array.from(inputs).map(inp => inp.value || '-');
+        if(vals.some(v => v !== '-')){
+          rows.push(`
+          <tr>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[0] || '-'}</td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[1] || '-'}</td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[2] || '-'}</td>
+            <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[3] || '-'}</td>
+          </tr>`);
+        }
+      });
+    }
+    if(!rows.length && Array.isArray(window.samples)){
+      rows = window.samples.map((s, idx)=>`
+        <tr>
+          <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
+          <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.len || '-'}</td>
+          <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.wid || '-'}</td>
+          <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.weight || '-'}</td>
+          <td style="padding:8px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.moist || '-'}</td>
+        </tr>`).join('');
+    } else {
+      rows = rows.join('');
+    }
     tbody.innerHTML = rows || '<tr><td colspan="5" style="padding:10px;border:1px solid #d1d5db;text-align:center">-</td></tr>';
   }
 }
-
 function bindBeanMobileFocus(){
   const selectors = 'input.inp, tbody td input';
   document.querySelectorAll(selectors).forEach(el=>{
