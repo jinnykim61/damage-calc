@@ -1040,6 +1040,7 @@ document.getElementById('btn-install').addEventListener('click',async()=>{
 const loaded = loadState();
 if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
 
+window.addEventListener('beforeunload', saveState);
 
 updateGarlicCols();
 setTimeout(()=>{
@@ -1060,6 +1061,7 @@ setTimeout(()=>{
     } else {
       updateSamplesAndCalc();
     }
+    calc();
   } else {
     updateSamplesAndCalc();
   }
