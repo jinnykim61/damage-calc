@@ -450,13 +450,12 @@ tbody td input.filled:active{
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
-    <div style="text-align:center;padding:10px 0 14px">
-      <div style="font-size:18px;font-weight:700;opacity:0.85;margin-bottom:6px">피해율</div>
-      <div id="result-pct" style="font-size:40px;font-weight:700;line-height:1;margin-bottom:16px">입력 대기중</div>
-      <div style="display:flex;justify-content:center;gap:10px;margin-bottom:4px">
-        <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
-        <button class="save-btn" style="opacity:0.45;cursor:not-allowed" disabled><span style="font-size:14px">📄</span><span>PDF 저장</span></button>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px">
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <span style="font-size:13px;opacity:0.7;letter-spacing:0.04em;white-space:nowrap">피해율</span>
+        <span id="result-pct" style="font-size:40px;font-weight:700;line-height:1;color:#FFD0D0;white-space:nowrap">- -</span>
       </div>
+      <button class="save-btn" onclick="saveImage()" style="flex-shrink:0"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
     </div>
   </div>
 </div>
@@ -850,7 +849,7 @@ function calc(){
   // 필수값 미입력시 대기 상태
   if(!avgYield||!actArea||surveyArea<=0){
     resultBox.className='result-box pending';
-    pctEl.textContent='입력 대기중'; pctEl.style.color='white';
+    pctEl.textContent='- -'; pctEl.style.color='white';
     return;
   }
 
@@ -869,7 +868,7 @@ function calc(){
 
   if(tA<=0||tEff<=0){
     resultBox.className='result-box pending';
-    pctEl.textContent='표본 입력 대기'; pctEl.style.color='white';
+    pctEl.textContent='- -'; pctEl.style.color='white';
     return;
   }
 
@@ -892,7 +891,7 @@ function calc(){
 
   resultBox.className='result-box';
   pctEl.textContent=pct.toFixed(2)+'%';
-  pctEl.style.color=pct>=20?'#FFD0D0':'#A8F0D8';
+  pctEl.style.color=pct>=20?'#FFD0D0':'#FFD0D0';
   saveState();
 }
 
