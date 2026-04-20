@@ -9,44 +9,79 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
-function openResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'flex';
+function savePDF(){ window.print(); }
+
+function beanFmtNum(v, suffix=''){
+  if(v===undefined || v===null || v==='' || (typeof v==='number' && !isFinite(v))) return '-';
+  return String(v) + suffix;
 }
-function closeResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'none';
+function buildBeanCaptureData(){
+  const avgYield = document.getElementById('avgYield')?.value || '-';
+  const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
+  const contract = document.getElementById('contractYn')?.value || '-';
+  const actArea = document.getElementById('actArea')?.value ? document.getElementById('actArea').value + ' ㎡' : '-';
+  const deadArea = document.getElementById('deadArea')?.value ? document.getElementById('deadArea').value + ' ㎡' : '0 ㎡';
+  const uninsArea = document.getElementById('uninsArea')?.value ? document.getElementById('uninsArea').value + ' ㎡' : '0 ㎡';
+  const preEl = document.getElementById('preArea') || document.getElementById('harvArea') || document.getElementById('harv_area');
+  const preArea = preEl?.value ? preEl.value + ' ㎡' : '0 ㎡';
+
+  let totalLen=0,totalWid=0,totalWeight=0,totalMoist=0,count=0;
+  let detail = [];
+  (window.samples || []).forEach((s, idx)=>{
+    const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0, z=parseFloat(s.weight)||0, m=parseFloat(s.moist)||0;
+    if(l||w||z||m){
+      totalLen += l; totalWid += w; totalWeight += z; totalMoist += m; count++;
+      detail.push(`${idx+1}구간  길이 ${l||'-'} / 이랑폭 ${w||'-'} / 종실중량 ${z||'-'} / 함수비 ${m||'-'}`);
+    }
+  });
+  const avgMoist = count>0 ? (totalMoist / count).toFixed(1) + '%' : '-';
+
+  return {
+    pct: document.getElementById('result-pct')?.textContent || '-',
+    avgYield: avgYield ? avgYield + ' kg' : '-',
+    insArea,
+    contract,
+    actArea,
+    deadArea,
+    uninsArea,
+    preArea,
+    len: count>0 ? totalLen.toFixed(2) + ' m' : '-',
+    wid: count>0 ? totalWid.toFixed(2) + ' m' : '-',
+    weight: count>0 ? totalWeight.toLocaleString('ko-KR') + ' g' : '-',
+    moist: avgMoist,
+    detail: detail.length ? detail.join(' / ') : '-',
+    survey: document.getElementById('r-survey')?.textContent || '-',
+    unit: document.getElementById('r-unit')?.textContent || '-',
+    area: document.getElementById('r-area')?.textContent || '-',
+    uninsLoss: document.getElementById('r-unins')?.textContent || '-'
+  };
 }
-function confirmResetAll(){
-  closeResetModal();
-  resetAll();
-}
-function showDeleteLimitModal(){
-  const el = document.getElementById('delete-limit-overlay');
-  if(el) el.style.display = 'flex';
-}
-function closeDeleteLimitModal(){
-  const el = document.getElementById('delete-limit-overlay');
-  if(el) el.style.display = 'none';
-}
-function bindMobileFocusHandlers(){
-  const selectors = 'input.inp, select.inp, tbody td input';
-  document.querySelectorAll(selectors).forEach(el=>{
-    if(el.dataset.mobileFocusBound === '1') return;
-    el.dataset.mobileFocusBound = '1';
-    const addFocus = ()=> el.classList.add('mobile-focus');
-    const removeFocus = ()=> el.classList.remove('mobile-focus');
-    el.addEventListener('focus', addFocus, {passive:true});
-    el.addEventListener('blur', removeFocus, {passive:true});
-    el.addEventListener('touchstart', addFocus, {passive:true});
-    el.addEventListener('mousedown', addFocus, {passive:true});
-    el.addEventListener('input', ()=>{ if(document.activeElement === el) el.classList.add('mobile-focus'); }, {passive:true});
+function fillBeanCaptureTemplate(){
+  const d = buildBeanCaptureData();
+  const pairs = {
+    'cap-pct': d.pct,
+    'cap-avgYield': d.avgYield,
+    'cap-insArea': d.insArea,
+    'cap-contract': d.contract,
+    'cap-actArea': d.actArea,
+    'cap-deadArea': d.deadArea,
+    'cap-uninsArea': d.uninsArea,
+    'cap-preArea': d.preArea,
+    'cap-len': d.len,
+    'cap-wid': d.wid,
+    'cap-weight': d.weight,
+    'cap-moist': d.moist,
+    'cap-survey': d.survey,
+    'cap-unit': d.unit,
+    'cap-area': d.area,
+    'cap-uninsLoss': d.uninsLoss,
+    'cap-samples-detail': d.detail
+  };
+  Object.entries(pairs).forEach(([id,val])=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = val || '-';
   });
 }
-document.addEventListener('DOMContentLoaded', ()=>{
-  bindMobileFocusHandlers();
-  document.addEventListener('click', ()=>{ setTimeout(bindMobileFocusHandlers, 0); }, {passive:true});
-});
 
 </script>
 <style>
@@ -81,10 +116,7 @@ input.inp.filled:focus{background:#dceeff !important;color:#185FA5 !important;bo
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;text-align:center}
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
-.add-btn{width:100%;height:36px;border:1.5px dashed var(--blue2);background:#EBF4FF;border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;margin-top:6px}
-.del-sample-btn{width:100%;height:36px;border:1.5px solid var(--red);background:#FFF5F5;border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--red);cursor:pointer;margin-top:6px}
-.sample-btn-row{display:flex;gap:8px}
-.sample-btn-row .add-btn,.sample-btn-row .del-sample-btn{flex:1}
+.sample-btn-row{display:flex;gap:8px;margin-top:6px}.add-btn,.del-btn2{flex:1;height:36px;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer}.add-btn{border:1.5px dashed var(--blue2);background:#EBF4FF;color:var(--blue)}.del-btn2{border:1.5px solid var(--red);background:#FFF5F5;color:var(--red)}
 .tbl-wrap{overflow-x:hidden;width:100%;margin-bottom:8px}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 thead th{background:#f8f8f8;padding:6px 2px;text-align:center;font-weight:600;color:var(--sub);border-bottom:1.5px solid var(--border);line-height:1.4}
@@ -111,93 +143,6 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
 .save-modal{background:white;border-radius:var(--r);padding:24px 20px;text-align:center;width:260px}
 .save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
 .save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
-
-/* === design refresh === */
-.section{box-shadow:0 6px 18px rgba(0,0,0,0.04)}
-.sec-title{font-size:13px;color:#555;font-weight:700}
-.tbl-wrap{border:1px solid #e9e5dd;border-radius:14px;padding:10px 8px;background:#fcfbf8}
-table{font-size:13px}
-thead th{font-size:12px;color:#555;padding:6px 4px 10px}
-tfoot td{background:#f3efe8;font-weight:700}
-.info-strip{margin-top:12px;padding:12px 4px 0 4px;justify-content:space-between;gap:10px}
-.info-strip span{flex:1;min-width:0}
-.info-strip strong{font-size:15px}
-.sample-btn-row{margin-top:14px}
-.add-btn,.del-sample-btn{
-  height:42px;
-  border-radius:12px;
-  font-size:14px;
-  font-weight:800;
-  transition:all .15s ease;
-}
-.add-btn{
-  border:2px dashed #2f80ed;
-  background:#eef6ff;
-  color:#1659b7;
-}
-.del-sample-btn{
-  border:2px solid #df5a57;
-  background:#fff4f4;
-  color:#c8403d;
-}
-.add-btn:active,.del-sample-btn:active{transform:translateY(1px)}
-.result-box{
-  border-radius:18px;
-  box-shadow:0 10px 24px rgba(24,95,165,0.18);
-}
-.result-box.pending{
-  background:#8d8d8d;
-  box-shadow:none;
-}
-.save-btn{
-  border-radius:12px !important;
-  border:1.5px solid rgba(255,255,255,0.35);
-}
-.drow{
-  padding:7px 0;
-  font-size:13px;
-}
-#result-pct{
-  font-size:46px !important;
-}
-/* mobile focus support */
-input.inp.mobile-focus,
-select.inp.mobile-focus,
-tbody td input.mobile-focus,
-input.inp:focus,
-input.inp:focus-visible,
-input.inp:active,
-select.inp:focus,
-select.inp:focus-visible,
-select.inp:active,
-tbody td input:focus,
-tbody td input:focus-visible,
-tbody td input:active{
-  outline:none !important;
-  border-color:#185FA5 !important;
-  box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
-  background:#DCEEFF !important;
-  color:#185FA5 !important;
-}
-input.inp.filled.mobile-focus,
-select.inp.filled.mobile-focus,
-tbody td input.filled.mobile-focus,
-input.inp.filled:focus,
-input.inp.filled:focus-visible,
-input.inp.filled:active,
-select.inp.filled:focus,
-select.inp.filled:focus-visible,
-select.inp.filled:active,
-tbody td input.filled:focus,
-tbody td input.filled:focus-visible,
-tbody td input.filled:active{
-  outline:none !important;
-  border-color:#185FA5 !important;
-  box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
-  background:#DCEEFF !important;
-  color:#185FA5 !important;
-}
-
 </style>
 </head>
 <body>
@@ -221,7 +166,7 @@ tbody td input.filled:active{
   <div class="section">
     <div class="sec-head">
       <div class="sec-title">① 보험가입사항</div>
-      <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
+      <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
     </div>
     <div class="g3">
       <div class="field"><label>평년수확량 (kg)</label>
@@ -277,7 +222,7 @@ tbody td input.filled:active{
           </tfoot>
         </table>
       </div>
-      <div class="sample-btn-row"><button class="add-btn" onclick="addRow()">+ 표본구간 추가</button><button class="del-sample-btn" onclick="removeSample()">- 표본구간 삭제</button></div>
+      <div class="sample-btn-row"><button class="add-btn" onclick="addRow()">+ 표본구간 추가</button><button class="del-btn2" onclick="removeLastRow()">− 표본구간 삭제</button></div>
       <div class="info-strip">
         <span>m²당 유효중량: <strong id="s-unit">-</strong></span>
         <span>조사수확량: <strong id="s-survey">-</strong></span>
@@ -306,7 +251,7 @@ tbody td input.filled:active{
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <div><div style="font-size:12px;opacity:0.8;margin-bottom:4px">피해율</div>
         <div class="result-pct" id="result-pct">입력 대기중</div></div>
-      <button class="save-btn" onclick="saveImage()"><span style="font-size:20px">📷</span><span>갤러리 저장</span></button>
+      <div style="display:flex;gap:10px"><button class="save-btn" onclick="saveImage()"><span style="font-size:20px">📷</span><span>갤러리 저장</span></button><button class="save-btn" onclick="savePDF()" style="opacity:0.5"><span style="font-size:20px">📄</span><span>PDF 저장</span></button></div>
     </div>
     <div class="metrics">
       <div class="metric"><div class="ml">평년수확량</div><div class="mv" id="r-avg">-</div></div>
@@ -319,24 +264,52 @@ tbody td input.filled:active{
 </div>
 
 
-<div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
-    <div style="font-size:18px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">전체 초기화</div>
-    <div style="font-size:14px;line-height:1.65;color:#666;text-align:center;margin-bottom:20px">입력한 모든 값을 초기화할까요?<br>초기화 후에는 되돌릴 수 없습니다.</div>
-    <div style="display:flex;gap:10px">
-      <button onclick="closeResetModal()" style="flex:1;height:46px;border:1.5px solid #d9d9d9;border-radius:12px;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
-      <button onclick="confirmResetAll()" style="flex:1;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">초기화</button>
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:720px;background:#f5f4f0;padding:24px;z-index:-1">
+  <div style="background:#185FA5;color:#fff;border-radius:18px;padding:20px 22px;box-shadow:0 10px 24px rgba(24,95,165,0.18)">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:16px;font-weight:700;opacity:0.85;margin-bottom:6px">피해율</div>
+      <div id="cap-pct" style="font-size:44px;font-weight:800;line-height:1">-</div>
     </div>
-  </div>
-</div>
 
+    <div style="background:rgba(255,255,255,0.14);border-radius:14px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:14px;font-weight:800;margin-bottom:10px">1. 기본정보</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:13px">
+        <div>평년수확량<br><b id="cap-avgYield">-</b></div>
+        <div>가입면적<br><b id="cap-insArea">-</b></div>
+        <div>원장변경유무<br><b id="cap-contract">-</b></div>
+      </div>
+    </div>
 
+    <div style="background:rgba(255,255,255,0.14);border-radius:14px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:14px;font-weight:800;margin-bottom:10px">2. 면적조사</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+        <div>실제경작면적<br><b id="cap-actArea">-</b></div>
+        <div>고사면적<br><b id="cap-deadArea">-</b></div>
+        <div>타작물 및 미보상면적<br><b id="cap-uninsArea">-</b></div>
+        <div>기수확면적<br><b id="cap-preArea">-</b></div>
+      </div>
+    </div>
 
-<div id="delete-limit-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:350;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:18px;padding:22px 18px;width:100%;max-width:320px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
-    <div style="font-size:18px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">표본 삭제 불가</div>
-    <div style="font-size:14px;line-height:1.6;color:#666;text-align:center;margin-bottom:18px">적정표본구간 이하의 표본은<br>삭제할 수 없습니다.</div>
-    <button onclick="closeDeleteLimitModal()" style="width:100%;height:44px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
+    <div style="background:rgba(255,255,255,0.14);border-radius:14px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:14px;font-weight:800;margin-bottom:10px">3. 표본조사</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:13px;margin-bottom:10px">
+        <div>표본구간 길이<br><b id="cap-len">-</b></div>
+        <div>이랑폭<br><b id="cap-wid">-</b></div>
+        <div>종실중량<br><b id="cap-weight">-</b></div>
+        <div>함수비<br><b id="cap-moist">-</b></div>
+      </div>
+      <div style="font-size:12px;opacity:0.9;line-height:1.6" id="cap-samples-detail">-</div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.14);border-radius:14px;padding:14px 16px">
+      <div style="font-size:14px;font-weight:800;margin-bottom:10px">4. 결과</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+        <div>조사수확량<br><b id="cap-survey">-</b></div>
+        <div>m²당 유효중량<br><b id="cap-unit">-</b></div>
+        <div>조사대상면적<br><b id="cap-area">-</b></div>
+        <div>미보상감수량<br><b id="cap-uninsLoss">-</b></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -378,19 +351,6 @@ function getProper(area){
   if(area<=7499) return 6;
   if(area<=9999) return 7;
   return 8;
-}
-
-
-function removeSample(){
-  const {surveyArea} = calcCommon();
-  const proper = surveyArea>0 ? getProper(surveyArea) : 0;
-  if(samples.length<=proper){
-    showDeleteLimitModal();
-    return;
-  }
-  samples.pop();
-  renderSamples();
-  calc();
 }
 
 // ── 공통 보험가입사항 계산 ──────────────────────────
@@ -536,6 +496,19 @@ function addRow(){
   if(samples.length>=8){alert('최대 8구간까지 입력 가능해요');return;}
   samples.push({len:'',wid:'',weight:'',moist:''});
   renderSamples();
+  calc();
+}
+
+function removeLastRow(){
+  const {surveyArea}=calcCommon();
+  const proper = surveyArea>0 ? getProper(surveyArea) : 0;
+  if(samples.length<=proper){
+    alert('적정표본구간 이하의 표본은 삭제할 수 없습니다');
+    return;
+  }
+  samples.pop();
+  renderSamples();
+  calc();
 }
 
 function saveState(){
@@ -572,7 +545,7 @@ function loadState(){
 }
 
 function resetAll(){
-  
+  if(!confirm('모든 입력값을 초기화할까요?')) return;
   try{localStorage.removeItem('bean_state');}catch(e){}
   ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate',
    'fullWeight','fullMoisture','fullDeadArea','fullUninsArea','fullUninsRate',
@@ -591,16 +564,25 @@ function resetAll(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+
 async function saveImage(){
   try{
-    const canvas=await html2canvas(document.querySelector('.content'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:420});
-    const link=document.createElement('a');
-    const now=new Date();
-    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
-    link.download=`콩피해율_${stamp}.png`;link.href=canvas.toDataURL('image/png');link.click();
+    const isPending = document.getElementById('result-section').classList.contains('pending');
+    if(isPending){ alert('계산 결과가 없어요. 값을 입력해주세요.'); return; }
+
+    fillBeanCaptureTemplate();
+    const target = document.getElementById('capture-template');
+    const canvas = await html2canvas(target, {scale:2, backgroundColor:'#f5f4f0'});
+    const link = document.createElement('a');
+    link.download = 'bean_result.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
     document.getElementById('save-overlay').classList.add('show');
-  }catch(e){alert('저장 중 오류가 발생했어요.');}
+  }catch(e){
+    alert('이미지 저장 중 문제가 발생했어요.');
+  }
 }
+
 
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(r=>r.forEach(s=>s.unregister()));
@@ -611,44 +593,79 @@ setMode('sample');
 loadState();
 setTimeout(()=>{ if(mode==='sample') calc(); else calcFull(); }, 50);
 
-function openResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'flex';
+function savePDF(){ window.print(); }
+
+function beanFmtNum(v, suffix=''){
+  if(v===undefined || v===null || v==='' || (typeof v==='number' && !isFinite(v))) return '-';
+  return String(v) + suffix;
 }
-function closeResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'none';
+function buildBeanCaptureData(){
+  const avgYield = document.getElementById('avgYield')?.value || '-';
+  const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
+  const contract = document.getElementById('contractYn')?.value || '-';
+  const actArea = document.getElementById('actArea')?.value ? document.getElementById('actArea').value + ' ㎡' : '-';
+  const deadArea = document.getElementById('deadArea')?.value ? document.getElementById('deadArea').value + ' ㎡' : '0 ㎡';
+  const uninsArea = document.getElementById('uninsArea')?.value ? document.getElementById('uninsArea').value + ' ㎡' : '0 ㎡';
+  const preEl = document.getElementById('preArea') || document.getElementById('harvArea') || document.getElementById('harv_area');
+  const preArea = preEl?.value ? preEl.value + ' ㎡' : '0 ㎡';
+
+  let totalLen=0,totalWid=0,totalWeight=0,totalMoist=0,count=0;
+  let detail = [];
+  (window.samples || []).forEach((s, idx)=>{
+    const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0, z=parseFloat(s.weight)||0, m=parseFloat(s.moist)||0;
+    if(l||w||z||m){
+      totalLen += l; totalWid += w; totalWeight += z; totalMoist += m; count++;
+      detail.push(`${idx+1}구간  길이 ${l||'-'} / 이랑폭 ${w||'-'} / 종실중량 ${z||'-'} / 함수비 ${m||'-'}`);
+    }
+  });
+  const avgMoist = count>0 ? (totalMoist / count).toFixed(1) + '%' : '-';
+
+  return {
+    pct: document.getElementById('result-pct')?.textContent || '-',
+    avgYield: avgYield ? avgYield + ' kg' : '-',
+    insArea,
+    contract,
+    actArea,
+    deadArea,
+    uninsArea,
+    preArea,
+    len: count>0 ? totalLen.toFixed(2) + ' m' : '-',
+    wid: count>0 ? totalWid.toFixed(2) + ' m' : '-',
+    weight: count>0 ? totalWeight.toLocaleString('ko-KR') + ' g' : '-',
+    moist: avgMoist,
+    detail: detail.length ? detail.join(' / ') : '-',
+    survey: document.getElementById('r-survey')?.textContent || '-',
+    unit: document.getElementById('r-unit')?.textContent || '-',
+    area: document.getElementById('r-area')?.textContent || '-',
+    uninsLoss: document.getElementById('r-unins')?.textContent || '-'
+  };
 }
-function confirmResetAll(){
-  closeResetModal();
-  resetAll();
-}
-function showDeleteLimitModal(){
-  const el = document.getElementById('delete-limit-overlay');
-  if(el) el.style.display = 'flex';
-}
-function closeDeleteLimitModal(){
-  const el = document.getElementById('delete-limit-overlay');
-  if(el) el.style.display = 'none';
-}
-function bindMobileFocusHandlers(){
-  const selectors = 'input.inp, select.inp, tbody td input';
-  document.querySelectorAll(selectors).forEach(el=>{
-    if(el.dataset.mobileFocusBound === '1') return;
-    el.dataset.mobileFocusBound = '1';
-    const addFocus = ()=> el.classList.add('mobile-focus');
-    const removeFocus = ()=> el.classList.remove('mobile-focus');
-    el.addEventListener('focus', addFocus, {passive:true});
-    el.addEventListener('blur', removeFocus, {passive:true});
-    el.addEventListener('touchstart', addFocus, {passive:true});
-    el.addEventListener('mousedown', addFocus, {passive:true});
-    el.addEventListener('input', ()=>{ if(document.activeElement === el) el.classList.add('mobile-focus'); }, {passive:true});
+function fillBeanCaptureTemplate(){
+  const d = buildBeanCaptureData();
+  const pairs = {
+    'cap-pct': d.pct,
+    'cap-avgYield': d.avgYield,
+    'cap-insArea': d.insArea,
+    'cap-contract': d.contract,
+    'cap-actArea': d.actArea,
+    'cap-deadArea': d.deadArea,
+    'cap-uninsArea': d.uninsArea,
+    'cap-preArea': d.preArea,
+    'cap-len': d.len,
+    'cap-wid': d.wid,
+    'cap-weight': d.weight,
+    'cap-moist': d.moist,
+    'cap-survey': d.survey,
+    'cap-unit': d.unit,
+    'cap-area': d.area,
+    'cap-uninsLoss': d.uninsLoss,
+    'cap-samples-detail': d.detail
+  };
+  Object.entries(pairs).forEach(([id,val])=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = val || '-';
   });
 }
-document.addEventListener('DOMContentLoaded', ()=>{
-  bindMobileFocusHandlers();
-  document.addEventListener('click', ()=>{ setTimeout(bindMobileFocusHandlers, 0); }, {passive:true});
-});
 
 </script>
 </body>
