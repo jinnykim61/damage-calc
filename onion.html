@@ -371,19 +371,19 @@ function renderSamples(){
       <td class="no">${i+1}</td>
       <td><input type="number" value="${s.len}" step="0.01" inputmode="decimal"
         class="${s.len?'filled':''}"
-        oninput="samples[${i}].len=this.value;this.classList.toggle('filled',this.value!='');calcTotals()"
+        oninput="samples[${i}].len=this.value;this.classList.toggle('filled',this.value!='');debouncedCalcTotals()"
         onblur="samples[${i}].len=this.value;calcTotals()"></td>
       <td><input type="number" value="${s.wid}" step="0.01" inputmode="decimal"
         class="${s.wid?'filled':''}"
-        oninput="samples[${i}].wid=this.value;this.classList.toggle('filled',this.value!='');calcTotals()"
+        oninput="samples[${i}].wid=this.value;this.classList.toggle('filled',this.value!='');debouncedCalcTotals()"
         onblur="samples[${i}].wid=this.value;calcTotals()"></td>
       <td><input type="text" value="${s.norm?Number(s.norm).toLocaleString():''}" inputmode="decimal"
         class="${s.norm?'filled':''}"
-        oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'');calcTotals()"
+        oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'');debouncedCalcTotals()"
         onblur="samples[${i}].norm=this.value.replace(/,/g,'');calcTotals()"></td>
       <td><input type="text" value="${s.d80?Number(s.d80).toLocaleString():''}" inputmode="decimal"
         class="${s.d80?'filled':''}"
-        oninput="onCommaInput(this);samples[${i}].d80=this.value.replace(/,/g,'');calcTotals()"
+        oninput="onCommaInput(this);samples[${i}].d80=this.value.replace(/,/g,'');debouncedCalcTotals()"
         onblur="samples[${i}].d80=this.value.replace(/,/g,'');calcTotals()"></td>
 
     </tr>`).join('');
@@ -426,32 +426,27 @@ function updateSamplesAndCalc(){
 }
 
 // ── 표본 합계만 업데이트 ──────────────────────────
+let _calcTimer=null;
+function debouncedCalcTotals(){
+  clearTimeout(_calcTimer);
+  _calcTimer=setTimeout(calcTotals,300);
+}
+
 function calcTotals(){
   const crop=document.getElementById('crop').value;
   const cropCoeff={onion:1.0, garlic_s:0.72, garlic_n:0.7};
   const cc=cropCoeff[crop]||1.0;
 
-  // DOM에서 직접 읽기 (samples 배열 타이밍 문제 방지)
   let tN=0,t80=0,t50=0,tA=0,tEff=0,tL=0,tW=0;
-  const rows=document.querySelectorAll('#sample-body tr');
-  rows.forEach(row=>{
-    const inputs=row.querySelectorAll('input');
-    if(!inputs.length) return;
-    const l=parseFloat(inputs[0].value)||0;
-    const w=parseFloat(inputs[1].value)||0;
-    const n=parseFloat((inputs[2].value||'').replace(/,/g,''))||0;
-    const d8=parseFloat((inputs[3]?.value||'').replace(/,/g,''))||0;
-    const d5=0;
-    tL+=l; tW+=w; tN+=n; t80+=d8;
+  for(const s of samples){
+    const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0;
+    const n=parseFloat((s.norm||'').replace(/,/g,''))||0;
+    const d8=parseFloat((s.d80||'').replace(/,/g,''))||0;
+    const d5=parseFloat((s.d50||'').replace(/,/g,''))||0;
+    tL+=l; tW+=w; tN+=n; t80+=d8; t50+=d5;
     tA+=l*w;
     tEff+=(n + d8*0.2 + d5)*cc;
-    // samples 배열도 동기화
-    const idx=parseInt(row.querySelector('td.no')?.textContent||'0')-1;
-    if(idx>=0 && idx<samples.length){
-      samples[idx].len=String(l||''); samples[idx].wid=String(w||'');
-      samples[idx].norm=String(n||''); samples[idx].d80=String(d8||'');
-    }
-  });
+  }
   document.getElementById('t-len').textContent=tL.toFixed(2)+'m';
   document.getElementById('t-wid').textContent=tW.toFixed(2)+'m';
   document.getElementById('t-norm').textContent=tN.toLocaleString();
