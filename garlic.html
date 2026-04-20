@@ -10,7 +10,35 @@
 <!-- v1776611953 -->
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+function bindMobileFocusHandlers(){
+  const selectors = 'input.inp, select.inp, tbody td input';
+  document.querySelectorAll(selectors).forEach(el=>{
+    if(el.dataset.mobileFocusBound === '1') return;
+    el.dataset.mobileFocusBound = '1';
+
+    const addFocus = ()=> el.classList.add('mobile-focus');
+    const removeFocus = ()=> el.classList.remove('mobile-focus');
+
+    el.addEventListener('focus', addFocus, {passive:true});
+    el.addEventListener('blur', removeFocus, {passive:true});
+    el.addEventListener('touchstart', addFocus, {passive:true});
+    el.addEventListener('mousedown', addFocus, {passive:true});
+
+    el.addEventListener('input', ()=>{
+      if(document.activeElement === el) el.classList.add('mobile-focus');
+    }, {passive:true});
+  });
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  bindMobileFocusHandlers();
+  document.addEventListener('click', ()=>{
+    setTimeout(bindMobileFocusHandlers, 0);
+  }, {passive:true});
+});
+
+</script>
 <style>
 :root{
   --blue:#185FA5;--blue2:#378ADD;
@@ -181,6 +209,46 @@ input.inp:focus{
   border-color:var(--blue) !important;
   box-shadow:0 0 0 3px rgba(55,138,221,0.2) !important;
   background:#dceeff !important;
+  color:#185FA5 !important;
+}
+
+
+/* mobile focus support */
+input.inp.mobile-focus,
+select.inp.mobile-focus,
+tbody td input.mobile-focus,
+input.inp:focus,
+input.inp:focus-visible,
+input.inp:active,
+select.inp:focus,
+select.inp:focus-visible,
+select.inp:active,
+tbody td input:focus,
+tbody td input:focus-visible,
+tbody td input:active{
+  outline:none !important;
+  border-color:#185FA5 !important;
+  box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
+  background:#DCEEFF !important;
+  color:#185FA5 !important;
+}
+
+input.inp.filled.mobile-focus,
+select.inp.filled.mobile-focus,
+tbody td input.filled.mobile-focus,
+input.inp.filled:focus,
+input.inp.filled:focus-visible,
+input.inp.filled:active,
+select.inp.filled:focus,
+select.inp.filled:focus-visible,
+select.inp.filled:active,
+tbody td input.filled:focus,
+tbody td input.filled:focus-visible,
+tbody td input.filled:active{
+  outline:none !important;
+  border-color:#185FA5 !important;
+  box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
+  background:#DCEEFF !important;
   color:#185FA5 !important;
 }
 
@@ -500,7 +568,7 @@ function renderSamples(){
         <button onclick="delSample(${i})" style="width:24px;height:36px;border:none;background:transparent;color:#e24b4a;font-size:18px;cursor:pointer;border-radius:4px;line-height:1">×</button>
       </td>
     </tr>`).join('');
-  setTimeout(updateGarlicCols, 0);
+  setTimeout(()=>{ updateGarlicCols(); bindMobileFocusHandlers(); }, 0);
 }
 
 function addSample(){samples.push({len:'',wid:'',norm:'',d80:'',d50:''});renderSamples();}
@@ -1097,6 +1165,34 @@ setTimeout(()=>{
     updateSamplesAndCalc();
   }
 }, 50);
+
+function bindMobileFocusHandlers(){
+  const selectors = 'input.inp, select.inp, tbody td input';
+  document.querySelectorAll(selectors).forEach(el=>{
+    if(el.dataset.mobileFocusBound === '1') return;
+    el.dataset.mobileFocusBound = '1';
+
+    const addFocus = ()=> el.classList.add('mobile-focus');
+    const removeFocus = ()=> el.classList.remove('mobile-focus');
+
+    el.addEventListener('focus', addFocus, {passive:true});
+    el.addEventListener('blur', removeFocus, {passive:true});
+    el.addEventListener('touchstart', addFocus, {passive:true});
+    el.addEventListener('mousedown', addFocus, {passive:true});
+
+    el.addEventListener('input', ()=>{
+      if(document.activeElement === el) el.classList.add('mobile-focus');
+    }, {passive:true});
+  });
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  bindMobileFocusHandlers();
+  document.addEventListener('click', ()=>{
+    setTimeout(bindMobileFocusHandlers, 0);
+  }, {passive:true});
+});
+
 </script>
 </body>
 </html>
