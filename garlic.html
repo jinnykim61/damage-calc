@@ -946,8 +946,9 @@ function fillGarlicCaptureTemplate(){
   document.getElementById('cap-harv-area').textContent = document.getElementById('harv_area').value ? document.getElementById('harv_area').value+' ㎡' : '0 ㎡';
 
   // 3-1 조사일자 및 비대추정
-  document.getElementById('cap-survey-date').textContent = document.getElementById('survey_date').value || '-';
-  document.getElementById('cap-harvest-date').textContent = document.getElementById('harvest_date').value || '-';
+  const fmtShort = v => { if(!v) return '-'; const p=v.split('-'); return p.length===3?`${p[0].slice(2)}-${p[1]}-${p[2]}`:v; };
+  document.getElementById('cap-survey-date').textContent = fmtShort(document.getElementById('survey_date').value);
+  document.getElementById('cap-harvest-date').textContent = fmtShort(document.getElementById('harvest_date').value);
   const remainRaw = document.getElementById('remain_info').value || '-';
   // 잔여일수 / 비대지수 분리 (예: "30일 / 24.0%")
   const remainParts = remainRaw.split('/');
