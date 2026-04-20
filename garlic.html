@@ -495,6 +495,17 @@ tbody td input.filled:active{
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본조사</div>
+        <!-- 3-1 조사일자/비대추정 -->
+        <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px">3-1. 조사일자 및 비대추정</div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:12px">
+          <div class="capture-box-dark"><div class="capture-label-dark">조사일시</div><div class="capture-value-dark" id="cap-survey-date">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">수확적기</div><div class="capture-value-dark" id="cap-harvest-date">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">잔여일수</div><div class="capture-value-dark" id="cap-remain-days">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">비대지수</div><div class="capture-value-dark" id="cap-grow-idx">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">열공수</div><div class="capture-value-dark" id="cap-crack">-</div></div>
+        </div>
+        <!-- 3-2 표본구간 -->
+        <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px">3-2. 표본구간</div>
         <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr id="cap-sample-thead">
             <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">No</th>
@@ -933,6 +944,16 @@ function fillGarlicCaptureTemplate(){
   document.getElementById('cap-dead-area').textContent = document.getElementById('dead_area').value ? document.getElementById('dead_area').value+' ㎡' : '0 ㎡';
   document.getElementById('cap-other-area').textContent = document.getElementById('other_area').value ? document.getElementById('other_area').value+' ㎡' : '0 ㎡';
   document.getElementById('cap-harv-area').textContent = document.getElementById('harv_area').value ? document.getElementById('harv_area').value+' ㎡' : '0 ㎡';
+
+  // 3-1 조사일자 및 비대추정
+  document.getElementById('cap-survey-date').textContent = document.getElementById('survey_date').value || '-';
+  document.getElementById('cap-harvest-date').textContent = document.getElementById('harvest_date').value || '-';
+  const remainRaw = document.getElementById('remain_info').value || '-';
+  // 잔여일수 / 비대지수 분리 (예: "30일 / 24.0%")
+  const remainParts = remainRaw.split('/');
+  document.getElementById('cap-remain-days').textContent = remainParts[0]?.trim() || '-';
+  document.getElementById('cap-grow-idx').textContent = remainParts[1]?.trim() || '-';
+  document.getElementById('cap-crack').textContent = document.getElementById('crack_count')?.value || '-';
 
   document.getElementById('cap-pct').textContent = document.getElementById('result-pct').textContent || '-';
   document.getElementById('cap-surv').textContent = document.getElementById('r-surv').textContent || '-';
