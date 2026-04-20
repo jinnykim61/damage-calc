@@ -22,6 +22,7 @@ function confirmResetAll(){
   resetAll();
 }
 function savePDF(){ window.print(); }
+
 function removeSample(){
   const {surveyArea} = calcCommon();
   const proper = surveyArea>0 ? getProper(surveyArea) : 0;
@@ -33,6 +34,7 @@ function removeSample(){
   renderSamples();
   calc();
 }
+
 function fillBeanCaptureTemplate(){
   const avgYield = document.getElementById('avgYield')?.value ? document.getElementById('avgYield').value + ' kg' : '-';
   const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
@@ -42,6 +44,18 @@ function fillBeanCaptureTemplate(){
   const uninsArea = document.getElementById('uninsArea')?.value ? document.getElementById('uninsArea').value + ' ㎡' : '0 ㎡';
   const preEl = document.getElementById('preArea') || document.getElementById('harvArea') || document.getElementById('harv_area');
   const preArea = preEl?.value ? preEl.value + ' ㎡' : '0 ㎡';
+
+  const screenSampleArea = document.getElementById('s-area')?.textContent || '-';
+  const screenSampleUnit = document.getElementById('s-unit')?.textContent || '-';
+  const screenSurveyYield = document.getElementById('r-survey')?.textContent || '-';
+
+  const ssa = document.getElementById('screen-sample-area'); if(ssa) ssa.textContent = screenSampleArea;
+  const ssu = document.getElementById('screen-sample-unit'); if(ssu) ssu.textContent = screenSampleUnit;
+  const ssy = document.getElementById('screen-survey-yield'); if(ssy) ssy.textContent = screenSurveyYield;
+
+  document.getElementById('cap-sample-area').textContent = screenSampleArea;
+  document.getElementById('cap-sample-unit').textContent = screenSampleUnit;
+  document.getElementById('cap-survey-yield').textContent = screenSurveyYield;
 
   document.getElementById('cap-pct').textContent = document.getElementById('result-pct')?.textContent || '-';
   document.getElementById('cap-avgYield').textContent = avgYield;
@@ -58,39 +72,38 @@ function fillBeanCaptureTemplate(){
 
   const tbody = document.getElementById('cap-sample-table');
   if(tbody){
-    let rows = [];
+    let html = '';
     const domRows = document.querySelectorAll('#sample-body tr');
     if(domRows.length){
       domRows.forEach((tr, idx)=>{
-        const inputs = tr.querySelectorAll('input');
-        const vals = Array.from(inputs).map(inp => inp.value || '-');
+        const vals = Array.from(tr.querySelectorAll('input')).map(inp => inp.value || '-');
         if(vals.some(v => v !== '-')){
-          rows.push(`
+          html += `
           <tr>
             <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
             <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[0] || '-'}</td>
             <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[1] || '-'}</td>
             <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[2] || '-'}</td>
-            <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[3] || '-'}</td>
-          </tr>`);
+            <td style="padding:8px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[3] || '-'}</td>
+          </tr>`;
         }
       });
-    }
-    if(!rows.length && Array.isArray(window.samples)){
-      rows = window.samples.map((s, idx)=>`
+    } else if(Array.isArray(window.samples)){
+      window.samples.forEach((s, idx)=>{
+        html += `
         <tr>
           <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
           <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.len || '-'}</td>
           <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.wid || '-'}</td>
           <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.weight || '-'}</td>
-          <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.moist || '-'}</td>
-        </tr>`).join('');
-    } else {
-      rows = rows.join('');
+          <td style="padding:8px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.moist || '-'}</td>
+        </tr>`;
+      });
     }
-    tbody.innerHTML = rows || '<tr><td colspan="5" style="padding:10px;border:1px solid #d1d5db;text-align:center">-</td></tr>';
+    tbody.innerHTML = html || '<tr><td colspan="5" style="padding:10px;text-align:center">-</td></tr>';
   }
 }
+
 function bindBeanMobileFocus(){
   const selectors = 'input.inp, tbody td input';
   document.querySelectorAll(selectors).forEach(el=>{
@@ -167,7 +180,7 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
 .save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
 .save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
 
-/* bean v5 capture styles */
+/* bean final screen/export */
 .del-sample-btn{
   width:100%;
   height:36px;
@@ -214,7 +227,7 @@ tbody td input.filled:active{
   text-align:center;
 }
 .capture-label{
-  font-size:9px;
+  font-size:10px;
   color:#6b7280;
   margin-bottom:4px;
   word-break:keep-all;
@@ -334,9 +347,25 @@ tbody td input.filled:active{
   
 <div class="result-box pending" id="result-section">
   <div style="text-align:center;padding:10px 0 14px">
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px">
+      <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:12px 6px;text-align:center">
+        <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">표본면적</div>
+        <div style="font-size:13px;font-weight:700" id="screen-sample-area">-</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:12px 6px;text-align:center">
+        <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">㎡당 표본중량</div>
+        <div style="font-size:13px;font-weight:700" id="screen-sample-unit">-</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:12px 6px;text-align:center">
+        <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">조사수확량</div>
+        <div style="font-size:13px;font-weight:700" id="screen-survey-yield">-</div>
+      </div>
+    </div>
+
     <div style="font-size:18px;font-weight:700;opacity:0.85;margin-bottom:6px">피해율</div>
     <div id="result-pct" style="font-size:38px;font-weight:800;line-height:1;letter-spacing:-0.02em;margin-bottom:16px">입력 대기중</div>
-    <div style="display:flex;justify-content:center;gap:10px;margin-bottom:16px">
+
+    <div style="display:flex;justify-content:center;gap:10px">
       <button class="save-btn" onclick="saveImage()" style="width:130px;height:36px;justify-content:center;flex-direction:row;gap:5px;font-size:13px;font-weight:700;padding:0">
         <span style="font-size:14px">📷</span><span>갤러리 저장</span>
       </button>
@@ -344,18 +373,12 @@ tbody td input.filled:active{
         <span style="font-size:14px">📄</span><span>PDF 저장</span>
       </button>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-      <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 8px;text-align:center">
-        <div style="font-size:10px;opacity:0.75;margin-bottom:4px">평년수확량</div>
-        <div style="font-size:14px;font-weight:700" id="r-avg">-</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 8px;text-align:center">
-        <div style="font-size:10px;opacity:0.75;margin-bottom:4px">조사수확량</div>
-        <div style="font-size:14px;font-weight:700" id="r-survey">-</div>
-      </div>
-    </div>
   </div>
 </div>
+
+    <div class="drow"><span>m²당 유효중량</span><span id="r-unit">-</span></div>
+    <div class="drow"><span>조사대상면적</span><span id="r-area">-</span></div>
+    <div class="drow"><span>미보상감수량</span><span id="r-unins">-</span></div>
   </div>
 </div>
 
@@ -374,9 +397,14 @@ tbody td input.filled:active{
 
 
 <div id="bean-hidden-results" style="display:none">
+  <span id="r-avg">-</span>
+  <span id="r-survey">-</span>
   <span id="r-unit">-</span>
   <span id="r-area">-</span>
   <span id="r-unins">-</span>
+  <span id="cap-sample-area-hidden">-</span>
+  <span id="cap-sample-unit-hidden">-</span>
+  <span id="cap-survey-yield-hidden">-</span>
 </div>
 
 
@@ -389,6 +417,20 @@ tbody td input.filled:active{
     </div>
 
     <div style="background:#205f9e;border-radius:22px;padding:18px 16px;color:#fff;box-shadow:0 14px 28px rgba(24,95,165,0.22);margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px">
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 6px;text-align:center">
+          <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">표본면적</div>
+          <div id="cap-sample-area" style="font-size:12px;font-weight:700">-</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 6px;text-align:center">
+          <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">㎡당 표본중량</div>
+          <div id="cap-sample-unit" style="font-size:12px;font-weight:700">-</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 6px;text-align:center">
+          <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">조사수확량</div>
+          <div id="cap-survey-yield" style="font-size:12px;font-weight:700">-</div>
+        </div>
+      </div>
       <div style="font-size:13px;font-weight:700;opacity:0.82;text-align:center;margin-bottom:6px">피해율</div>
       <div id="cap-pct" style="font-size:46px;font-weight:900;line-height:1;text-align:center">-</div>
     </div>
@@ -396,7 +438,7 @@ tbody td input.filled:active{
     <div style="display:flex;flex-direction:column;gap:12px">
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
           <div class="capture-box"><div class="capture-label">평년수확량</div><div class="capture-value" id="cap-avgYield">-</div></div>
           <div class="capture-box"><div class="capture-label">가입면적</div><div class="capture-value" id="cap-insArea">-</div></div>
           <div class="capture-box"><div class="capture-label">원장변경유무</div><div class="capture-value" id="cap-contract">-</div></div>
@@ -719,6 +761,7 @@ function confirmResetAll(){
   resetAll();
 }
 function savePDF(){ window.print(); }
+
 function removeSample(){
   const {surveyArea} = calcCommon();
   const proper = surveyArea>0 ? getProper(surveyArea) : 0;
@@ -730,6 +773,7 @@ function removeSample(){
   renderSamples();
   calc();
 }
+
 function fillBeanCaptureTemplate(){
   const avgYield = document.getElementById('avgYield')?.value ? document.getElementById('avgYield').value + ' kg' : '-';
   const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
@@ -739,6 +783,18 @@ function fillBeanCaptureTemplate(){
   const uninsArea = document.getElementById('uninsArea')?.value ? document.getElementById('uninsArea').value + ' ㎡' : '0 ㎡';
   const preEl = document.getElementById('preArea') || document.getElementById('harvArea') || document.getElementById('harv_area');
   const preArea = preEl?.value ? preEl.value + ' ㎡' : '0 ㎡';
+
+  const screenSampleArea = document.getElementById('s-area')?.textContent || '-';
+  const screenSampleUnit = document.getElementById('s-unit')?.textContent || '-';
+  const screenSurveyYield = document.getElementById('r-survey')?.textContent || '-';
+
+  const ssa = document.getElementById('screen-sample-area'); if(ssa) ssa.textContent = screenSampleArea;
+  const ssu = document.getElementById('screen-sample-unit'); if(ssu) ssu.textContent = screenSampleUnit;
+  const ssy = document.getElementById('screen-survey-yield'); if(ssy) ssy.textContent = screenSurveyYield;
+
+  document.getElementById('cap-sample-area').textContent = screenSampleArea;
+  document.getElementById('cap-sample-unit').textContent = screenSampleUnit;
+  document.getElementById('cap-survey-yield').textContent = screenSurveyYield;
 
   document.getElementById('cap-pct').textContent = document.getElementById('result-pct')?.textContent || '-';
   document.getElementById('cap-avgYield').textContent = avgYield;
@@ -755,39 +811,38 @@ function fillBeanCaptureTemplate(){
 
   const tbody = document.getElementById('cap-sample-table');
   if(tbody){
-    let rows = [];
+    let html = '';
     const domRows = document.querySelectorAll('#sample-body tr');
     if(domRows.length){
       domRows.forEach((tr, idx)=>{
-        const inputs = tr.querySelectorAll('input');
-        const vals = Array.from(inputs).map(inp => inp.value || '-');
+        const vals = Array.from(tr.querySelectorAll('input')).map(inp => inp.value || '-');
         if(vals.some(v => v !== '-')){
-          rows.push(`
+          html += `
           <tr>
             <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
             <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[0] || '-'}</td>
             <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[1] || '-'}</td>
             <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[2] || '-'}</td>
-            <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[3] || '-'}</td>
-          </tr>`);
+            <td style="padding:8px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[3] || '-'}</td>
+          </tr>`;
         }
       });
-    }
-    if(!rows.length && Array.isArray(window.samples)){
-      rows = window.samples.map((s, idx)=>`
+    } else if(Array.isArray(window.samples)){
+      window.samples.forEach((s, idx)=>{
+        html += `
         <tr>
           <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
           <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.len || '-'}</td>
           <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.wid || '-'}</td>
           <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.weight || '-'}</td>
-          <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.moist || '-'}</td>
-        </tr>`).join('');
-    } else {
-      rows = rows.join('');
+          <td style="padding:8px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.moist || '-'}</td>
+        </tr>`;
+      });
     }
-    tbody.innerHTML = rows || '<tr><td colspan="5" style="padding:10px;border:1px solid #d1d5db;text-align:center">-</td></tr>';
+    tbody.innerHTML = html || '<tr><td colspan="5" style="padding:10px;text-align:center">-</td></tr>';
   }
 }
+
 function bindBeanMobileFocus(){
   const selectors = 'input.inp, tbody td input';
   document.querySelectorAll(selectors).forEach(el=>{
