@@ -10,7 +10,8 @@
 <!-- v1776611953 -->
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
 function bindMobileFocusHandlers(){
   const selectors = 'input.inp, select.inp, tbody td input';
   document.querySelectorAll(selectors).forEach(el=>{
@@ -151,8 +152,14 @@ tfoot td.v{color:var(--text)}
 .result-pct{font-size:44px;font-weight:700;line-height:1;text-align:center}
 .result-pct.danger{color:#FFD0D0}
 .result-pct.safe{color:#A8F0D8}
-.save-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;border-radius:var(--rs);padding:10px 14px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap}
+.save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;width:130px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-direction:row;gap:5px;padding:0;white-space:nowrap}
 .save-btn:active{background:rgba(255,255,255,0.35)}
+.capture-box{background:#f8fafc;border:1px solid #dbe3ea;border-radius:14px;overflow:hidden;text-align:center}
+.capture-box-dark{background:#f8fafc;border:1px solid #2f4c6e;border-radius:14px;overflow:hidden;text-align:center}
+.capture-label{font-size:12px;font-weight:400;color:#6b7280;padding:6px 4px 5px;line-height:1.3}
+.capture-label-dark{font-size:12px;font-weight:600;color:#fff;background:#2f4c6e;padding:6px 4px 5px;line-height:1.3}
+.capture-value{font-size:12px;font-weight:800;color:#111827;padding:5px 4px 6px;line-height:1.3;background:#fff}
+.capture-value-dark{font-size:12px;font-weight:800;color:#111827;padding:5px 4px 6px;line-height:1.3;background:#fff}
 .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .metric{background:rgba(255,255,255,0.15);border-radius:var(--rs);padding:10px 8px;text-align:center}
 .metric .ml{font-size:10px;opacity:0.75;margin-bottom:4px}
@@ -441,37 +448,73 @@ tbody td input.filled:active{
     </div>
   </div>
 
-  <!-- 결과 — 벼와 동일한 형태 -->
+  <!-- 결과 -->
   <div class="result-box pending" id="result-section">
     <div style="text-align:center;padding:10px 0 14px">
       <div style="font-size:18px;font-weight:700;opacity:0.85;margin-bottom:6px">피해율</div>
-      <div id="result-pct" style="font-size:38px;font-weight:800;line-height:1;letter-spacing:-0.02em;margin-bottom:16px">입력 대기중</div>
-      <div style="display:flex;justify-content:center;gap:10px;margin-bottom:16px">
-        <button class="save-btn" onclick="saveImage()" style="width:130px;height:36px;justify-content:center;flex-direction:row;gap:5px;font-size:13px;font-weight:700;padding:0">
-          <span style="font-size:14px">📷</span><span>갤러리 저장</span>
-        </button>
-        <button class="save-btn" onclick="window.print()" style="width:130px;height:36px;justify-content:center;flex-direction:row;gap:5px;font-size:13px;font-weight:700;padding:0;opacity:0.5">
-          <span style="font-size:14px">📄</span><span>PDF 저장</span>
-        </button>
+      <div id="result-pct" style="font-size:40px;font-weight:700;line-height:1;margin-bottom:16px">입력 대기중</div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-bottom:4px">
+        <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
+        <button class="save-btn" style="opacity:0.45;cursor:not-allowed" disabled><span style="font-size:14px">📄</span><span>PDF 저장</span></button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 8px;text-align:center">
-          <div style="font-size:10px;opacity:0.75;margin-bottom:4px">조사수확량</div>
-          <div style="font-size:14px;font-weight:700" id="r-surv">-</div>
-        </div>
-        <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 8px;text-align:center">
-          <div style="font-size:10px;opacity:0.75;margin-bottom:4px">비대추정수확량</div>
-          <div style="font-size:14px;font-weight:700" id="r-est">-</div>
-        </div>
-      </div>
-      <div class="drow"><span>조사대상면적</span><span id="r-area">-</span></div>
-      <div class="drow"><span>㎡당 평년수확량</span><span id="r-avg-unit">-</span></div>
-      <div class="drow"><span>유효중량계수</span><span id="r-coeff">-</span></div>
-      <div class="drow"><span>미보상감수량</span><span id="r-unins">-</span></div>
-      <div class="drow"><span>감수량</span><span id="r-loss">-</span></div>
     </div>
   </div>
 
+</div>
+
+<!-- 갤러리 저장용 캡처 템플릿 -->
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
+  <div style="min-height:932px;background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
+    <div style="height:26px"></div>
+    <div style="text-align:center;color:#fff;margin-bottom:14px"><div style="font-size:15px;font-weight:700">마늘 피해율 계산결과</div></div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+          <div class="capture-box-dark"><div class="capture-label-dark">품종</div><div class="capture-value-dark" id="cap-crop">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">평년수확량</div><div class="capture-value-dark" id="cap-avg-yield">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">원장변경유무</div><div class="capture-value-dark" id="cap-contract">-</div></div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 면적조사</div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
+          <div class="capture-box-dark"><div class="capture-label-dark">실제경작면적</div><div class="capture-value-dark" id="cap-act-area">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">고사면적</div><div class="capture-value-dark" id="cap-dead-area">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">미보상면적</div><div class="capture-value-dark" id="cap-other-area">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">기수확면적</div><div class="capture-value-dark" id="cap-harv-area">-</div></div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본조사</div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr id="cap-sample-thead">
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">No</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">길이</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">이랑폭</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">정상(g)</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">80%형</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">벌마늘</th>
+          </tr></thead>
+          <tbody id="cap-sample-table"></tbody>
+        </table>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">4. 결과</div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
+          <div class="capture-box-dark"><div class="capture-label-dark">피해율</div><div class="capture-value-dark" id="cap-pct" style="color:#185FA5">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">조사수확량</div><div class="capture-value-dark" id="cap-surv">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">감수량</div><div class="capture-value-dark" id="cap-loss">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">미보상감수량</div><div class="capture-value-dark" id="cap-unins">-</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <div id="garlic-guide-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:center;justify-content:center;padding:20px">
@@ -867,265 +910,67 @@ function resetAll(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ── 갤러리 저장 ───────────────────────────────────
+// ── 갤러리 저장 (html2canvas 방식) ─────────────────
+function fillGarlicCaptureTemplate(){
+  const cropEl = document.getElementById('crop');
+  const cropTxt = cropEl.options[cropEl.selectedIndex].text;
+  const contractV = document.getElementById('contract_yn_disp').value || '-';
+  const contractColor = contractV.includes('변경') ? '#e24b4a' : '#1D9E75';
+
+  document.getElementById('cap-crop').textContent = cropTxt;
+  document.getElementById('cap-avg-yield').textContent = document.getElementById('avg_yield').value ? document.getElementById('avg_yield').value+' kg' : '-';
+  const capContract = document.getElementById('cap-contract');
+  capContract.textContent = contractV;
+  capContract.style.color = contractColor;
+  capContract.style.fontWeight = '700';
+
+  document.getElementById('cap-act-area').textContent = document.getElementById('act_area').value ? document.getElementById('act_area').value+' ㎡' : '-';
+  document.getElementById('cap-dead-area').textContent = document.getElementById('dead_area').value ? document.getElementById('dead_area').value+' ㎡' : '0 ㎡';
+  document.getElementById('cap-other-area').textContent = document.getElementById('other_area').value ? document.getElementById('other_area').value+' ㎡' : '0 ㎡';
+  document.getElementById('cap-harv-area').textContent = document.getElementById('harv_area').value ? document.getElementById('harv_area').value+' ㎡' : '0 ㎡';
+
+  document.getElementById('cap-pct').textContent = document.getElementById('result-pct').textContent || '-';
+  document.getElementById('cap-surv').textContent = document.getElementById('r-surv').textContent || '-';
+  document.getElementById('cap-loss').textContent = document.getElementById('r-loss').textContent || '-';
+  document.getElementById('cap-unins').textContent = document.getElementById('r-unins').textContent || '-';
+
+  const crop = document.getElementById('crop').value;
+  const isGarlic = crop==='garlic_s'||crop==='garlic_n';
+  const tbody = document.getElementById('cap-sample-table');
+  let html='';
+  samples.forEach((s,idx)=>{
+    const vals=[s.len||'-', s.wid||'-', s.norm||'-', s.d80||'-', isGarlic?(s.d50||'-'):''];
+    const hasVal = [s.len,s.wid,s.norm,s.d80].some(v=>v);
+    if(hasVal){
+      html+=`<tr>
+        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc;font-size:12px">${idx+1}</td>
+        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${vals[0]}</td>
+        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${vals[1]}</td>
+        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${vals[2]}</td>
+        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${vals[3]}</td>
+        ${isGarlic?`<td style="padding:5px 3px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${vals[4]}</td>`:''}
+      </tr>`;
+    }
+  });
+  tbody.innerHTML = html || '<tr><td colspan="6" style="padding:10px;text-align:center;font-size:12px">-</td></tr>';
+}
+
 async function saveImage(){
   try{
     const isPending = document.getElementById('result-section').classList.contains('pending');
     if(isPending){ alert('계산 결과가 없어요. 값을 입력해주세요.'); return; }
-
-    // 값 읽기
-    const pct      = document.getElementById('result-pct').textContent;
-    const rSurv    = document.getElementById('r-surv').textContent;
-    const rEst     = document.getElementById('r-est').textContent;
-    const rUnins   = document.getElementById('r-unins').textContent;
-    const rLoss    = document.getElementById('r-loss').textContent;
-    const rArea    = document.getElementById('r-area').textContent;
-    const rCoeff   = document.getElementById('r-coeff').textContent;
-
-    const crop     = document.getElementById('crop').value;
-    const cropEl   = document.getElementById('crop');
-    const cropTxt  = cropEl.options[cropEl.selectedIndex].text;
-    const avgYield = document.getElementById('avg_yield').value;
-    const insArea  = document.getElementById('ins_area').value;
-    const actArea  = document.getElementById('act_area').value;
-    const deadArea = document.getElementById('dead_area').value||'0';
-    const otherArea= document.getElementById('other_area').value||'0';
-    const harvArea = document.getElementById('harv_area').value||'0';
-    const survAreaV= document.getElementById('survey_area_disp').value;
-    const contractV= document.getElementById('contract_yn_disp').value;
-    const contractColor= contractV.includes('변경')?'#e24b4a':'#1D9E75';
-    const surveyDate= document.getElementById('survey_date').value;
-    const harvestDate= document.getElementById('harvest_date').value;
-    const remainInfo= document.getElementById('remain_info').value;
-    const crackV  = document.getElementById('crack_count')?.value||'';
-    const uninsRate= document.getElementById('unins_rate').value||'0';
-
-    // 표본 합계
-    let tL=0,tW=0,tN=0,t80=0,t50=0;
-    for(const s of samples){
-      tL+=parseFloat(s.len)||0; tW+=parseFloat(s.wid)||0;
-      tN+=parseFloat(s.norm)||0; t80+=parseFloat(s.d80)||0; t50+=parseFloat(s.d50)||0;
-    }
-    const sArea = document.getElementById('s-area').textContent;
-    const sUnit = document.getElementById('s-unit').textContent;
-
-    // ── Canvas 설정 ──
-    const W=680, P=22;
-    const blue='#185FA5', green='#1D9E75', red='#e24b4a';
-    const bgPage='#F2F1EE', bgCard='#FFFFFF', bgFilled='#e8faf3', bgAuto='#F3F1EA', bgDisabled='#E8E8E8';
-    const borderC='#D4D2CB', filledC=green, filledTxt='#0d5c35', inpC='#8AB8E0';
-    const txtDark='#1a1a1a', txtSub='#555', txtHint='#aaa';
-    const LH=22, VH=20, CELL_H=LH+VH, g=6;
-
-    function drawCell(ctx,x,y,w,label,val,opts){
-      const {filled,auto,disabled,color,bold}=opts||{};
-      const bg=disabled?bgDisabled:(filled?bgFilled:(auto?bgAuto:bgCard));
-      const bc=disabled?borderC:(filled?filledC:(auto?'#C8C6C0':inpC));
-      const tc=disabled?txtHint:(color||(filled?filledTxt:(auto?txtSub:txtDark)));
-      const lw=disabled?0.4:(filled?1.0:(auto?0.6:1.3));
-      ctx.beginPath(); ctx.roundRect(x,y+LH,w,VH,4);
-      ctx.fillStyle=bg; ctx.fill();
-      ctx.strokeStyle=bc; ctx.lineWidth=lw; ctx.stroke();
-      ctx.fillStyle='#777'; ctx.font='900 9px -apple-system,sans-serif';
-      ctx.textAlign='center'; ctx.fillText(label,x+w/2,y+LH-4);
-      if(val&&!disabled){
-        ctx.fillStyle=tc; ctx.font=`700 10px -apple-system,sans-serif`;
-        ctx.textAlign='center'; ctx.fillText(val,x+w/2,y+LH+VH/2+4);
-      }
-    }
-
-    function drawRowFit(ctx,x,y,cols){
-      // 내용에 맞는 너비로, 좌측 정렬 (우측 여백 있어도 OK)
-      let cx=x;
-      cols.forEach(col=>{
-        const w=col.w||(col.minW||40);
-        drawCell(ctx,cx,y,w,col.label,col.value,col);
-        cx+=w+g;
-      });
-    }
-
-    function secTitle(ctx,x,y,label){
-      ctx.fillStyle=blue; ctx.font='600 14px -apple-system,sans-serif';
-      ctx.textAlign='left'; ctx.fillText(label,x,y+13);
-    }
-    function card(ctx,y,h){
-      const iw=W-P*2;
-      ctx.beginPath(); ctx.roundRect(P-3,y-3,iw+6,h+6,8);
-      ctx.fillStyle=bgCard; ctx.fill();
-      ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.stroke();
-    }
-
-    const secLH=18, rowH=CELL_H, pad=10, secGap=8;
-    const iw=W-P*2;
-
-    // 표본구간 테이블 행 수
-    const sampleRows=samples.length;
-    const tableH = 24 + sampleRows*24 + 20; // 헤더+행+합계
-
-    const detailN=5;
-    let totalH=60+12;
-    totalH += secLH+rowH+pad+secGap;        // ① 기본
-    totalH += secLH+rowH+rowH+pad+secGap;   // ② 면적 (2줄)
-    totalH += secLH+rowH+pad+secGap;        // ③ 조사일자
-    totalH += secLH+tableH+pad+secGap;      // ④ 표본
-    totalH += secLH+10+34+8+detailN*22+pad+secGap; // ⑤ 결과
-
-    const canvas=document.createElement('canvas');
-    canvas.width=W; canvas.height=totalH;
-    const ctx=canvas.getContext('2d');
-
-    if(!ctx.roundRect){
-      CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
-        const rv=Array.isArray(r)?r:[r,r,r,r];
-        this.moveTo(x+rv[0],y); this.lineTo(x+w-rv[1],y); this.quadraticCurveTo(x+w,y,x+w,y+rv[1]);
-        this.lineTo(x+w,y+h-rv[2]); this.quadraticCurveTo(x+w,y+h,x+w-rv[2],y+h);
-        this.lineTo(x+rv[3],y+h); this.quadraticCurveTo(x,y+h,x,y+rv[3]);
-        this.lineTo(x,y+rv[0]); this.quadraticCurveTo(x,y,x+rv[0],y);
-        this.closePath();
-      };
-    }
-
-    ctx.fillStyle=bgPage; ctx.fillRect(0,0,W,totalH);
-    let cy=0;
-
-    // 헤더
-    ctx.fillStyle=blue; ctx.fillRect(0,0,W,60);
-    ctx.fillStyle='white'; ctx.textAlign='center';
-    ctx.font='bold 22px -apple-system,sans-serif'; ctx.fillText('마늘 피해율 계산기',W/2,26);
-    ctx.font='13px -apple-system,sans-serif'; ctx.fillStyle='rgba(255,255,255,0.75)';
-    ctx.fillText('농업재해보험 손해평가사 · Cool-Running',W/2,48);
-    cy=72;
-
-    // ① 기본사항
-    card(ctx,cy,secLH+rowH+pad);
-    secTitle(ctx,P+2,cy,'① 기본사항');
-    cy+=secLH;
-    drawRowFit(ctx,P,cy,[
-      {label:'평년수확량(kg)', value:avgYield,  filled:!!avgYield,  w:100},
-      {label:'품종',           value:cropTxt,   filled:true,        w:80},
-      {label:'계약변경',       value:contractV, auto:true, color:contractColor, w:70},
-      {label:'조사일',         value:surveyDate.replace(/-/g,'.'), auto:true, w:84}
-    ]);
-    cy+=rowH+pad+secGap;
-
-    // ② 면적 조사
-    card(ctx,cy,secLH+rowH+rowH+pad);
-    secTitle(ctx,P+2,cy,'② 면적 조사 (㎡)');
-    cy+=secLH;
-    drawRowFit(ctx,P,cy,[
-      {label:'실경작면적',   value:actArea,   filled:!!actArea,                    w:88},
-      {label:'고사면적',     value:deadArea,  filled:deadArea!=='0'&&!!deadArea,   w:66},
-      {label:'타작물미보상', value:otherArea, filled:otherArea!=='0'&&!!otherArea, w:80},
-      {label:'기수확',       value:harvArea,  filled:harvArea!=='0'&&!!harvArea,   w:60},
-      {label:'조사대상면적', value:survAreaV, auto:true,                           w:88}
-    ]);
-    cy+=rowH+g;
-    drawRowFit(ctx,P,cy,[
-      {label:'수확예정일',       value:harvestDate.replace(/-/g,'.'), filled:!!harvestDate, w:84},
-      {label:'잔여일수/비대지수',value:remainInfo, auto:true,                               w:100},
-      {label:'열공수(개)',        value:crackV,    filled:!!crackV,                        w:56},
-      {label:'미보상비율(%)',    value:uninsRate,  filled:!!uninsRate,                      w:62}
-    ]);
-    cy+=rowH+pad+secGap;
-
-    // ③ 표본구간 조사
-    const h3=secLH+tableH+pad;
-    card(ctx,cy,h3);
-    secTitle(ctx,P+2,cy,'③ 표본구간 조사');
-    cy+=secLH+4;
-
-    // 테이블 헤더
-    const isGarlic=crop==='garlic_s'||crop==='garlic_n';
-    const tCols=isGarlic
-      ?['No','이랑길이(m)','이랑폭(m)','정상(g)','80%형(g)','벌마늘(g)']
-      :['No','이랑길이(m)','이랑폭(m)','정상(g)','80%형(g)'];
-    const tcn=tCols.length;
-    const tableW=Math.round(iw*0.63); const tNoW=26, tRestW=(tableW-tNoW-g*(tcn-1))/(tcn-1);
-
-    // 헤더행
-    ctx.fillStyle='#F0EEE8'; ctx.fillRect(P,cy,tableW,20);
-    ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.strokeRect(P,cy,tableW,20);
-    tCols.forEach((h,i)=>{
-      const x=i===0?P:P+tNoW+(i-1)*(tRestW+g)+g;
-      const w=i===0?tNoW:tRestW;
-      ctx.fillStyle=txtSub; ctx.font='700 9px -apple-system,sans-serif';
-      ctx.textAlign='center'; ctx.fillText(h,x+w/2,cy+13);
-    });
-    cy+=20;
-
-    // 데이터행
-    samples.forEach((s,idx)=>{
-      const rowBg=idx%2===0?bgCard:'#F8F7F4';
-      ctx.fillStyle=rowBg; ctx.fillRect(P,cy,iw,22);
-      ctx.strokeStyle='#EAE8E2'; ctx.lineWidth=0.4; ctx.strokeRect(P,cy,iw,22);
-      const vals=[String(idx+1),s.len||'',s.wid||'',s.norm?Number(s.norm).toLocaleString():'',
-                  s.d80?Number(s.d80).toLocaleString():'',
-                  ...(isGarlic?[s.d50?Number(s.d50).toLocaleString():'']:[])];
-      vals.forEach((v,i)=>{
-        const x=i===0?P:P+tNoW+(i-1)*(tRestW+g)+g;
-        const w=i===0?tNoW:tRestW;
-        ctx.fillStyle=v&&i>0?filledTxt:txtSub;
-        ctx.font=`${v&&i>0?'700':'500'} 10px -apple-system,sans-serif`;
-        ctx.textAlign='center'; ctx.fillText(v,x+w/2,cy+14);
-      });
-      cy+=22;
-    });
-
-    // 합계행
-    ctx.fillStyle='#EEF2F7'; ctx.fillRect(P,cy,tableW,20);
-    ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.strokeRect(P,cy,tableW,20);
-    const sumVals=['합계',tL.toFixed(2),tW.toFixed(2),tN.toLocaleString(),
-                   t80>0?t80.toLocaleString():'-',
-                   ...(isGarlic?[t50>0?t50.toLocaleString():'-']:[])];
-    sumVals.forEach((v,i)=>{
-      const x=i===0?P:P+tNoW+(i-1)*(tRestW+g)+g;
-      const w=i===0?tNoW:tRestW;
-      ctx.fillStyle=blue; ctx.font='700 9px -apple-system,sans-serif';
-      ctx.textAlign='center'; ctx.fillText(v,x+w/2,cy+13);
-    });
-    cy+=20+pad+secGap;
-
-    // ④ 결과
-    const h4=secLH+10+34+8+detailN*22+pad;
-    card(ctx,cy,h4);
-    secTitle(ctx,P+2,cy,'④ 결과');
-    cy+=secLH+6;
-
-    const pctColor=parseFloat(pct)>=20?'#C0392B':'#1D9E75';
-    ctx.fillStyle=blue; ctx.font='bold 20px -apple-system,sans-serif';
-    ctx.textAlign='left'; ctx.fillText('피해율',P+4,cy+22);
-    ctx.fillStyle=pctColor; ctx.font='bold 34px -apple-system,sans-serif';
-    ctx.fillText(pct,P+4+62,cy+28);
-    cy+=34+8;
-
-    ctx.strokeStyle='#EEE'; ctx.lineWidth=0.7;
-    ctx.beginPath(); ctx.moveTo(P+2,cy); ctx.lineTo(P+iw-2,cy); ctx.stroke();
-    cy+=6;
-
-    const details=[
-      {label:'조사수확량',     val:rSurv},
-      {label:'비대추정수확량', val:rEst},
-      {label:'미보상감수량',   val:rUnins},
-      {label:'감수량',         val:rLoss},
-      {label:'㎡당 평년수확량',val:document.getElementById('r-avg-unit').textContent}
-    ];
-    details.forEach(({label,val})=>{
-      ctx.fillStyle='#888'; ctx.font='600 12px -apple-system,sans-serif';
-      ctx.textAlign='left'; ctx.fillText(label,P+4,cy+14);
-      ctx.fillStyle=txtDark; ctx.font='bold 12px -apple-system,sans-serif';
-      ctx.fillText(val,P+4+140,cy+14);
-      cy+=22;
-    });
-
-    const now2=new Date();
-    const stamp=`${now2.getFullYear()}${String(now2.getMonth()+1).padStart(2,'0')}${String(now2.getDate()).padStart(2,'0')}_${String(now2.getHours()).padStart(2,'0')}${String(now2.getMinutes()).padStart(2,'0')}`;
-    const link=document.createElement('a');
+    fillGarlicCaptureTemplate();
+    const canvas = await html2canvas(document.getElementById('capture-template'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:430});
+    const link = document.createElement('a');
+    const now = new Date();
+    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
     link.download=`마늘피해율_${stamp}.png`;
     link.href=canvas.toDataURL('image/png');
     link.click();
     document.getElementById('save-overlay').classList.add('show');
-  }catch(e){ alert('저장 중 오류: '+e); }
+  }catch(e){ alert('저장 중 오류가 발생했어요.'); }
 }
+
 
 // ── localStorage 저장/불러오기 ────────────────────
 function saveState(){
