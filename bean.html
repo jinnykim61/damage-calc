@@ -79,9 +79,12 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
 .del-limit-modal .title{font-size:18px;font-weight:800;color:#333;margin-bottom:10px}
 .del-limit-modal .desc{font-size:14px;line-height:1.6;color:#666;margin-bottom:18px}
 .del-limit-modal .btn-ok{width:100%;height:44px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
-.capture-box{background:#f8fafc;border:1px solid #dbe3ea;border-radius:14px;padding:10px 8px;text-align:center}
-.capture-label{font-size:12px;font-weight:400;color:#6b7280;margin-bottom:5px;line-height:1.3}
-.capture-value{font-size:12px;font-weight:800;color:#111827;line-height:1.3}
+.capture-box{background:#f8fafc;border:1px solid #dbe3ea;border-radius:14px;overflow:hidden;text-align:center}
+.capture-box-dark{background:#f8fafc;border:1px solid #2f4c6e;border-radius:14px;overflow:hidden;text-align:center}
+.capture-label{font-size:12px;font-weight:400;color:#6b7280;padding:6px 4px 5px;line-height:1.3}
+.capture-label-dark{font-size:12px;font-weight:600;color:#fff;background:#2f4c6e;padding:6px 4px 5px;line-height:1.3}
+.capture-value{font-size:12px;font-weight:800;color:#111827;padding:5px 4px 6px;line-height:1.3;background:#fff}
+.capture-value-dark{font-size:12px;font-weight:800;color:#111827;padding:5px 4px 6px;line-height:1.3;background:#fff}
 #reset-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:310;align-items:center;justify-content:center;padding:20px}
 #reset-overlay.show{display:flex!important}
 .reset-modal{background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18);text-align:center}
@@ -215,19 +218,19 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
         <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
-          <div class="capture-box" style="background:#2f4c6e;border-color:#2f4c6e"><div class="capture-label" style="color:rgba(255,255,255,0.75)">평년수확량</div><div class="capture-value" style="color:#fff" id="cap-avgYield">-</div></div>
-          <div class="capture-box" style="background:#2f4c6e;border-color:#2f4c6e"><div class="capture-label" style="color:rgba(255,255,255,0.75)">가입면적</div><div class="capture-value" style="color:#fff" id="cap-insArea">-</div></div>
-          <div class="capture-box" style="background:#2f4c6e;border-color:#2f4c6e"><div class="capture-label" style="color:rgba(255,255,255,0.75)">원장변경유무</div><div class="capture-value" id="cap-contract" style="color:#fff">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">평년수확량</div><div class="capture-value-dark" id="cap-avgYield">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">가입면적</div><div class="capture-value-dark" id="cap-insArea">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">원장변경유무</div><div class="capture-value-dark" id="cap-contract">-</div></div>
         </div>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 면적조사</div>
         <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
-          <div class="capture-box" style="background:#2f4c6e;border-color:#2f4c6e"><div class="capture-label" style="color:rgba(255,255,255,0.75)">실제경작면적</div><div class="capture-value" style="color:#fff" id="cap-actArea">-</div></div>
-          <div class="capture-box" style="background:#2f4c6e;border-color:#2f4c6e"><div class="capture-label" style="color:rgba(255,255,255,0.75)">고사면적</div><div class="capture-value" style="color:#fff" id="cap-deadArea">-</div></div>
-          <div class="capture-box" style="background:#2f4c6e;border-color:#2f4c6e"><div class="capture-label" style="color:rgba(255,255,255,0.75)">미보상면적</div><div class="capture-value" style="color:#fff" id="cap-uninsArea">-</div></div>
-          <div class="capture-box" style="background:#2f4c6e;border-color:#2f4c6e"><div class="capture-label" style="color:rgba(255,255,255,0.75)">기수확면적</div><div class="capture-value" style="color:#fff" id="cap-preArea">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">실제경작면적</div><div class="capture-value-dark" id="cap-actArea">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">고사면적</div><div class="capture-value-dark" id="cap-deadArea">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">미보상면적</div><div class="capture-value-dark" id="cap-uninsArea">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">기수확면적</div><div class="capture-value-dark" id="cap-preArea">-</div></div>
         </div>
       </div>
 
@@ -248,10 +251,10 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">4. 결과</div>
         <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
-          <div class="capture-box" style="background:#2f4c6e;border-color:#2f4c6e"><div class="capture-label" style="color:rgba(255,255,255,0.75)">피해율</div><div class="capture-value" id="cap-pct-inline" style="color:#fff">-</div></div>
-          <div class="capture-box" style="background:#2f4c6e;border-color:#2f4c6e"><div class="capture-label" style="color:rgba(255,255,255,0.75)">조사수확량</div><div class="capture-value" id="cap-result-survey" style="color:#fff">-</div></div>
-          <div class="capture-box"><div class="capture-label">감수량</div><div class="capture-value" id="cap-loss">-</div></div>
-          <div class="capture-box"><div class="capture-label">미보상감수량</div><div class="capture-value" id="cap-uninsLoss">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">피해율</div><div class="capture-value-dark" id="cap-pct-inline" style="color:#185FA5">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">조사수확량</div><div class="capture-value-dark" id="cap-result-survey">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">감수량</div><div class="capture-value-dark" id="cap-loss">-</div></div>
+          <div class="capture-box-dark"><div class="capture-label-dark">미보상감수량</div><div class="capture-value-dark" id="cap-uninsLoss">-</div></div>
         </div>
       </div>
     </div>
