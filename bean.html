@@ -268,12 +268,17 @@ tbody td input.filled:active{
 
     </div>
   
+    <div class="sample-summary-item">
+        <span class="sample-summary-label">㎡당 표본중량:</span>
+        <span class="sample-summary-value" id="screen-sample-unit">-</span>
+      </div>
+    
     <div class="sample-summary-row" id="sample-summary-area">
-      <div class="sample-summary-item">
+      <div class="sample-summary-item" style="justify-content:flex-start">
         <span class="sample-summary-label">표본면적:</span>
         <span class="sample-summary-value" id="screen-sample-area">-</span>
       </div>
-      <div class="sample-summary-item">
+      <div class="sample-summary-item" style="justify-content:flex-end">
         <span class="sample-summary-label">㎡당 표본중량:</span>
         <span class="sample-summary-value" id="screen-sample-unit">-</span>
       </div>
@@ -281,6 +286,7 @@ tbody td input.filled:active{
 
   <!-- 결과 -->
   
+
 <div class="result-box pending" id="result-section">
   <div style="text-align:center;padding:18px 0 16px">
     <div style="font-size:18px;font-weight:700;opacity:0.85;margin-bottom:8px">피해율</div>
@@ -295,6 +301,7 @@ tbody td input.filled:active{
     </div>
   </div>
 </div>
+
 
     <div class="drow"><span>m²당 유효중량</span><span id="r-unit">-</span></div>
     <div class="drow"><span>조사대상면적</span><span id="r-area">-</span></div>
@@ -322,6 +329,65 @@ tbody td input.filled:active{
   <span id="r-unit">-</span>
   <span id="r-area">-</span>
   <span id="r-unins">-</span>
+</div>
+
+
+
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
+  <div style="min-height:932px;background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
+    <div style="height:26px"></div>
+    <div style="text-align:center;color:#fff;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700">콩 피해율 계산결과</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+          <div class="capture-box"><div class="capture-label">평년수확량</div><div class="capture-value" id="cap-avgYield">-</div></div>
+          <div class="capture-box"><div class="capture-label">가입면적</div><div class="capture-value" id="cap-insArea">-</div></div>
+          <div class="capture-box"><div class="capture-label">원장변경유무</div><div class="capture-value" id="cap-contract">-</div></div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 면적조사</div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
+          <div class="capture-box"><div class="capture-label">실제경작면적</div><div class="capture-value" id="cap-actArea">-</div></div>
+          <div class="capture-box"><div class="capture-label">고사면적</div><div class="capture-value" id="cap-deadArea">-</div></div>
+          <div class="capture-box"><div class="capture-label">미보상면적</div><div class="capture-value" id="cap-uninsArea">-</div></div>
+          <div class="capture-box"><div class="capture-label">기수확면적</div><div class="capture-value" id="cap-preArea">-</div></div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본조사</div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid #d1d5db;border-radius:14px;overflow:hidden">
+          <thead>
+            <tr>
+              <th style="padding:8px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;border-top-left-radius:14px">No</th>
+              <th style="padding:8px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db">길이</th>
+              <th style="padding:8px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db">이랑폭</th>
+              <th style="padding:8px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db">종실중량</th>
+              <th style="padding:8px;background:#2f4c6e;color:#fff;border-bottom:1px solid #d1d5db;border-top-right-radius:14px">함수비</th>
+            </tr>
+          </thead>
+          <tbody id="cap-sample-table"></tbody>
+        </table>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">4. 결과</div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px">
+          <div class="capture-box"><div class="capture-label">피해율</div><div class="capture-value" id="cap-pct-inline">-</div></div>
+          <div class="capture-box"><div class="capture-label">조사수확량</div><div class="capture-value" id="cap-result-survey">-</div></div>
+          <div class="capture-box"><div class="capture-label">㎡당 표본중량</div><div class="capture-value" id="cap-result-sample-unit">-</div></div>
+          <div class="capture-box"><div class="capture-label">조사면적</div><div class="capture-value" id="cap-area">-</div></div>
+          <div class="capture-box"><div class="capture-label">미보상감수량</div><div class="capture-value" id="cap-uninsLoss">-</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 
@@ -564,13 +630,20 @@ function resetAll(){
 
 async function saveImage(){
   try{
-    const canvas=await html2canvas(document.querySelector('.content'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:420});
-    const link=document.createElement('a');
-    const now=new Date();
-    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
-    link.download=`콩피해율_${stamp}.png`;link.href=canvas.toDataURL('image/png');link.click();
+    syncBeanSummary();
+    const isPending = document.getElementById('result-section').classList.contains('pending');
+    if(isPending){ alert('계산 결과가 없어요. 값을 입력해주세요.'); return; }
+    fillBeanCaptureTemplate();
+    const target = document.getElementById('capture-template');
+    const canvas = await html2canvas(target, {scale:2, backgroundColor:'#f3f4f6'});
+    const link = document.createElement('a');
+    link.download = 'bean_result.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
     document.getElementById('save-overlay').classList.add('show');
-  }catch(e){alert('저장 중 오류가 발생했어요.');}
+  }catch(e){
+    alert('이미지 저장 중 문제가 발생했어요.');
+  }
 }
 
 if('serviceWorker' in navigator){
