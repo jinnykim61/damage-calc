@@ -68,7 +68,7 @@ thead th{font-size:11px;font-weight:600;color:var(--sub);text-align:center;paddi
 tbody td{padding:3px 2px;vertical-align:middle}
 tbody td.no{text-align:center;color:var(--hint);font-size:11px;width:20px}
 tbody td input{height:36px;border:1.5px solid var(--binp);border-radius:6px;padding:0 2px;font-size:13px;background:white;color:var(--text);text-align:center;width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s}
-tbody td input:focus{outline:none;border-color:var(--blue)}
+tbody td input:focus{outline:none !important;border-color:#185FA5 !important;box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;background:#dceeff !important;color:#185FA5 !important}
 tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 tfoot td{padding:7px 2px;font-size:12px;font-weight:600;text-align:center;color:var(--sub);border-top:1px solid var(--border);background:var(--auto)}
 tfoot td.v{color:var(--text)}
@@ -371,19 +371,19 @@ function renderSamples(){
       <td class="no">${i+1}</td>
       <td><input type="number" value="${s.len}" step="0.01" inputmode="decimal"
         class="${s.len?'filled':''}"
-        oninput="this.classList.toggle('filled',this.value!='')"
+        oninput="this.classList.toggle('filled',this.value!='');samples[${i}].len=this.value;calcTotals()"
         onblur="samples[${i}].len=this.value;calcTotals()"></td>
       <td><input type="number" value="${s.wid}" step="0.01" inputmode="decimal"
         class="${s.wid?'filled':''}"
-        oninput="this.classList.toggle('filled',this.value!='')"
+        oninput="this.classList.toggle('filled',this.value!='');samples[${i}].wid=this.value;calcTotals()"
         onblur="samples[${i}].wid=this.value;calcTotals()"></td>
       <td><input type="text" value="${s.norm?Number(s.norm).toLocaleString():''}" inputmode="decimal"
         class="${s.norm?'filled':''}"
-        oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'')"
+        oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'');calcTotals()"
         onblur="samples[${i}].norm=this.value.replace(/,/g,'');calcTotals()"></td>
       <td><input type="text" value="${s.d80?Number(s.d80).toLocaleString():''}" inputmode="decimal"
         class="${s.d80?'filled':''}"
-        oninput="onCommaInput(this);samples[${i}].d80=this.value.replace(/,/g,'')"
+        oninput="onCommaInput(this);samples[${i}].d80=this.value.replace(/,/g,'');calcTotals()"
         onblur="samples[${i}].d80=this.value.replace(/,/g,'');calcTotals()"></td>
 
     </tr>`).join('');
