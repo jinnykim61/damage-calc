@@ -437,7 +437,7 @@ tbody td input.filled:active{
       </div>
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding:0 12px;flex:1;min-width:0">
-        <span id="result-pct" style="font-size:32px;font-weight:700;color:white;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</span>
+        <span id="result-pct" style="font-size:26px;font-weight:700;color:#FFD0D0;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</span>
       </div>
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding-left:12px;flex-shrink:0">
@@ -878,7 +878,7 @@ function calc(){
 
   resultBox.className='result-box';
   pctEl.textContent=pct.toFixed(2)+'%';
-  pctEl.style.color='white';
+  pctEl.style.color='#FFD0D0';
   saveState();
 }
 
