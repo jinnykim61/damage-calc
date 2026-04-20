@@ -1016,7 +1016,6 @@ async function saveImage(){
     link.download=`마늘피해율_${stamp}.png`;
     link.href=canvas.toDataURL('image/png');
     link.click();
-    document.getElementById('save-done-overlay').style.display='flex';
   }catch(e){ alert('저장 중 오류가 발생했어요.'); }
 }
 
