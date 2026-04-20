@@ -949,7 +949,7 @@ function fillGarlicCaptureTemplate(){
   const cropEl = document.getElementById('crop');
   const cropTxt = cropEl.options[cropEl.selectedIndex].text;
   const contractV = document.getElementById('contract_yn_disp').value || '-';
-  const contractColor = contractV.includes('변경') ? '#e24b4a' : '#1D9E75';
+  const contractColor = contractV.includes('변경') ? '#e24b4a' : '#111827';
 
   document.getElementById('cap-crop').textContent = cropTxt;
   document.getElementById('cap-avg-yield').textContent = document.getElementById('avg_yield').value ? document.getElementById('avg_yield').value+' kg' : '-';
