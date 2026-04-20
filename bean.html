@@ -13,12 +13,19 @@ function openResetModal(){ const el=document.getElementById('reset-overlay'); if
 function closeResetModal(){ const el=document.getElementById('reset-overlay'); if(el) el.style.display='none'; }
 function confirmResetAll(){ closeResetModal(); resetAll(); }
 function savePDF(){ window.print(); }
+
 function removeSample(){
   const {surveyArea} = calcCommon();
   const proper = surveyArea>0 ? getProper(surveyArea) : 0;
-  if(samples.length<=proper){ alert('적정표본구간 이하의 표본은 삭제할 수 없습니다'); return; }
-  samples.pop(); renderSamples(); calc();
+  if(samples.length<=proper){
+    alert('적정표본구간 이하의 표본은 삭제할 수 없습니다');
+    return;
+  }
+  samples.pop();
+  renderSamples();
+  calc();
 }
+
 function syncBeanSummary(){
   const areaEl = document.getElementById('screen-sample-area');
   const unitEl = document.getElementById('screen-sample-unit');
@@ -27,6 +34,7 @@ function syncBeanSummary(){
   if(areaEl) areaEl.textContent = srcArea ? (srcArea.textContent || srcArea.value || '-') : '-';
   if(unitEl) unitEl.textContent = srcUnit ? (srcUnit.textContent || srcUnit.value || '-') : '-';
 }
+
 function fillBeanCaptureTemplate(){
   const avgYield = document.getElementById('avgYield')?.value ? document.getElementById('avgYield').value + ' kg' : '-';
   const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
@@ -38,6 +46,7 @@ function fillBeanCaptureTemplate(){
   const preArea = preEl?.value ? preEl.value + ' ㎡' : '0 ㎡';
   const sampleUnit = (document.getElementById('s-unit')?.textContent || document.getElementById('s-unit')?.value || '-');
   const surveyYield = document.getElementById('r-survey')?.textContent || '-';
+  const pct = document.getElementById('result-pct')?.textContent || '-';
 
   document.getElementById('cap-avgYield').textContent = avgYield;
   document.getElementById('cap-insArea').textContent = insArea;
@@ -46,7 +55,8 @@ function fillBeanCaptureTemplate(){
   document.getElementById('cap-deadArea').textContent = deadArea;
   document.getElementById('cap-uninsArea').textContent = uninsArea;
   document.getElementById('cap-preArea').textContent = preArea;
-  document.getElementById('cap-pct-inline').textContent = document.getElementById('result-pct')?.textContent || '-';
+
+  document.getElementById('cap-pct-inline').textContent = pct;
   document.getElementById('cap-result-survey').textContent = surveyYield;
   document.getElementById('cap-result-sample-unit').textContent = sampleUnit;
   document.getElementById('cap-area').textContent = document.getElementById('r-area')?.textContent || '-';
@@ -136,7 +146,7 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
 .save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
 .save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
 
-/* bean final fix */
+/* bean layout final user sketch */
 .del-sample-btn{
   width:100%;
   height:36px;
@@ -151,6 +161,7 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
 }
 .sample-btn-row{display:flex;gap:8px;margin-top:6px}
 .sample-btn-row .add-btn,.sample-btn-row .del-sample-btn{flex:1}
+
 .sample-summary-row{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -165,6 +176,7 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
   gap:6px;
   min-width:0;
 }
+.sample-summary-item.right{justify-content:flex-end}
 .sample-summary-label{
   font-size:12px;
   color:var(--sub);
@@ -178,6 +190,7 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
   overflow:hidden;
   text-overflow:ellipsis;
 }
+
 .capture-box{
   background:#f8fafc;
   border:1px solid #dbe3ea;
@@ -312,11 +325,11 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
 
 
     <div class="sample-summary-row" id="sample-summary-area">
-      <div class="sample-summary-item" style="justify-content:flex-start">
+      <div class="sample-summary-item">
         <span class="sample-summary-label">표본면적:</span>
         <span class="sample-summary-value" id="screen-sample-area">-</span>
       </div>
-      <div class="sample-summary-item" style="justify-content:flex-end">
+      <div class="sample-summary-item right">
         <span class="sample-summary-label">㎡당 표본중량:</span>
         <span class="sample-summary-value" id="screen-sample-unit">-</span>
       </div>
@@ -347,6 +360,14 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
       <button onclick="confirmResetAll()" style="flex:1;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">초기화</button>
     </div>
   </div>
+</div>
+
+
+
+<div id="bean-hidden-results" style="display:none">
+  <span id="r-survey">-</span>
+  <span id="r-area">-</span>
+  <span id="r-unins">-</span>
 </div>
 
 
@@ -677,12 +698,19 @@ function openResetModal(){ const el=document.getElementById('reset-overlay'); if
 function closeResetModal(){ const el=document.getElementById('reset-overlay'); if(el) el.style.display='none'; }
 function confirmResetAll(){ closeResetModal(); resetAll(); }
 function savePDF(){ window.print(); }
+
 function removeSample(){
   const {surveyArea} = calcCommon();
   const proper = surveyArea>0 ? getProper(surveyArea) : 0;
-  if(samples.length<=proper){ alert('적정표본구간 이하의 표본은 삭제할 수 없습니다'); return; }
-  samples.pop(); renderSamples(); calc();
+  if(samples.length<=proper){
+    alert('적정표본구간 이하의 표본은 삭제할 수 없습니다');
+    return;
+  }
+  samples.pop();
+  renderSamples();
+  calc();
 }
+
 function syncBeanSummary(){
   const areaEl = document.getElementById('screen-sample-area');
   const unitEl = document.getElementById('screen-sample-unit');
@@ -691,6 +719,7 @@ function syncBeanSummary(){
   if(areaEl) areaEl.textContent = srcArea ? (srcArea.textContent || srcArea.value || '-') : '-';
   if(unitEl) unitEl.textContent = srcUnit ? (srcUnit.textContent || srcUnit.value || '-') : '-';
 }
+
 function fillBeanCaptureTemplate(){
   const avgYield = document.getElementById('avgYield')?.value ? document.getElementById('avgYield').value + ' kg' : '-';
   const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
@@ -702,6 +731,7 @@ function fillBeanCaptureTemplate(){
   const preArea = preEl?.value ? preEl.value + ' ㎡' : '0 ㎡';
   const sampleUnit = (document.getElementById('s-unit')?.textContent || document.getElementById('s-unit')?.value || '-');
   const surveyYield = document.getElementById('r-survey')?.textContent || '-';
+  const pct = document.getElementById('result-pct')?.textContent || '-';
 
   document.getElementById('cap-avgYield').textContent = avgYield;
   document.getElementById('cap-insArea').textContent = insArea;
@@ -710,7 +740,8 @@ function fillBeanCaptureTemplate(){
   document.getElementById('cap-deadArea').textContent = deadArea;
   document.getElementById('cap-uninsArea').textContent = uninsArea;
   document.getElementById('cap-preArea').textContent = preArea;
-  document.getElementById('cap-pct-inline').textContent = document.getElementById('result-pct')?.textContent || '-';
+
+  document.getElementById('cap-pct-inline').textContent = pct;
   document.getElementById('cap-result-survey').textContent = surveyYield;
   document.getElementById('cap-result-sample-unit').textContent = sampleUnit;
   document.getElementById('cap-area').textContent = document.getElementById('r-area')?.textContent || '-';
