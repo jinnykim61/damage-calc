@@ -462,7 +462,7 @@ tbody td input.filled:active{
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
-        <table style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+        <table class="fit-table" style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">품종</th>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">평년수확량</th>
@@ -478,7 +478,7 @@ tbody td input.filled:active{
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 면적조사</div>
-        <table style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+        <table class="fit-table" style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">실제경작면적</th>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">고사면적</th>
@@ -531,7 +531,7 @@ tbody td input.filled:active{
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">4. 결과</div>
-        <table style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+        <table class="fit-table" style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">피해율</th>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">조사수확량</th>
@@ -592,9 +592,28 @@ tbody td input.filled:active{
 
 <div id="save-overlay">
   <div class="save-modal">
-    <div style="font-size:36px;margin-bottom:10px">📷</div>
-    <p>확인을 누르면 이미지가 저장돼요!</p>
-    <button class="btn-ok">확인</button>
+    <div style="font-size:32px;margin-bottom:10px">🖼️</div>
+    <p>이미지를 저장하시겠어요?</p>
+    <div style="display:flex;gap:8px">
+      <button id="save-cancel-btn" style="flex:1;height:42px;border:1.5px solid #d9d9d9;border-radius:var(--rs);background:#f7f7f7;color:#555;font-size:14px;font-weight:600;cursor:pointer">취소</button>
+      <button id="save-ok-btn" style="flex:1;height:42px;border:none;border-radius:var(--rs);background:var(--blue);color:white;font-size:14px;font-weight:600;cursor:pointer">확인</button>
+    </div>
+  </div>
+</div>
+
+<div id="save-done-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center">
+  <div class="save-modal">
+    <div style="font-size:36px;margin-bottom:10px">✅</div>
+    <p>이미지를 저장했어요!</p>
+    <button class="btn-ok" onclick="document.getElementById('save-done-overlay').style.display='none'">확인</button>
+  </div>
+</div>
+
+<div id="save-cancel-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center">
+  <div class="save-modal">
+    <div style="font-size:36px;margin-bottom:10px">❌</div>
+    <p>이미지 저장이 취소됐어요.</p>
+    <button class="btn-ok" onclick="document.getElementById('save-cancel-overlay').style.display='none'">확인</button>
   </div>
 </div>
 
@@ -1005,19 +1024,33 @@ async function saveImage(){
     const isPending = document.getElementById('result-section').classList.contains('pending');
     if(isPending){ alert('계산 결과가 없어요. 값을 입력해주세요.'); return; }
     fillGarlicCaptureTemplate();
+
+    // 1·2·4번 테이블 너비를 내용 크기에 맞게 강제 지정
+    const fitTables = document.querySelectorAll('#capture-template table.fit-table');
+    fitTables.forEach(t=>{
+      t.style.width = 'auto';
+      t.style.tableLayout = 'auto';
+    });
+
     const canvas = await html2canvas(document.getElementById('capture-template'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:430});
     const now = new Date();
     const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
     const dataUrl = canvas.toDataURL('image/png');
-    // 팝업 먼저 표시, 확인 버튼에 다운로드 연결
+
     const overlay = document.getElementById('save-overlay');
-    const okBtn = overlay.querySelector('.btn-ok');
+    const okBtn = document.getElementById('save-ok-btn');
+    const cancelBtn = document.getElementById('save-cancel-btn');
     okBtn.onclick = ()=>{
       overlay.classList.remove('show');
+      document.getElementById('save-done-overlay').classList.add('show');
       const link = document.createElement('a');
       link.download=`마늘피해율_${stamp}.png`;
       link.href=dataUrl;
       link.click();
+    };
+    cancelBtn.onclick = ()=>{
+      overlay.classList.remove('show');
+      document.getElementById('save-cancel-overlay').classList.add('show');
     };
     overlay.classList.add('show');
   }catch(e){ alert('저장 중 오류가 발생했어요.'); }
