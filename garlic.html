@@ -462,22 +462,36 @@ tbody td input.filled:active{
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
-        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
-          <div class="capture-box-dark"><div class="capture-label-dark">품종</div><div class="capture-value-dark" id="cap-crop">-</div></div>
-          <div class="capture-box-dark"><div class="capture-label-dark">평년수확량</div><div class="capture-value-dark" id="cap-avg-yield">-</div></div>
-          <div class="capture-box-dark"><div class="capture-label-dark">원장변경유무</div><div class="capture-value-dark" id="cap-contract">-</div></div>
-          <div></div>
-        </div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">품종</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">평년수확량</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">원장변경유무</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-crop">-</td>
+            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-avg-yield">-</td>
+            <td style="padding:7px 4px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-contract">-</td>
+          </tr></tbody>
+        </table>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 면적조사</div>
-        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
-          <div class="capture-box-dark"><div class="capture-label-dark">실제경작면적</div><div class="capture-value-dark" id="cap-act-area">-</div></div>
-          <div class="capture-box-dark"><div class="capture-label-dark">고사면적</div><div class="capture-value-dark" id="cap-dead-area">-</div></div>
-          <div class="capture-box-dark"><div class="capture-label-dark">미보상면적</div><div class="capture-value-dark" id="cap-other-area">-</div></div>
-          <div class="capture-box-dark"><div class="capture-label-dark">기수확면적</div><div class="capture-value-dark" id="cap-harv-area">-</div></div>
-        </div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">실제경작면적</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">고사면적</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">미보상면적</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">기수확면적</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-act-area">-</td>
+            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-dead-area">-</td>
+            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-other-area">-</td>
+            <td style="padding:7px 4px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-harv-area">-</td>
+          </tr></tbody>
+        </table>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
@@ -517,12 +531,20 @@ tbody td input.filled:active{
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">4. 결과</div>
-        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
-          <div class="capture-box-dark"><div class="capture-label-dark">피해율</div><div class="capture-value-dark" id="cap-pct" style="color:#185FA5">-</div></div>
-          <div class="capture-box-dark"><div class="capture-label-dark">조사수확량</div><div class="capture-value-dark" id="cap-surv">-</div></div>
-          <div class="capture-box-dark"><div class="capture-label-dark">감수량</div><div class="capture-value-dark" id="cap-loss">-</div></div>
-          <div class="capture-box-dark"><div class="capture-label-dark">미보상감수량</div><div class="capture-value-dark" id="cap-unins">-</div></div>
-        </div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">피해율</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">조사수확량</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">감수량</th>
+            <th style="padding:7px 4px;background:#2f4c6e;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">미보상감수량</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-pct">-</td>
+            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-surv">-</td>
+            <td style="padding:7px 4px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-loss">-</td>
+            <td style="padding:7px 4px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-unins">-</td>
+          </tr></tbody>
+        </table>
       </div>
 
     </div>
