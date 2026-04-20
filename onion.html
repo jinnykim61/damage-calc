@@ -194,20 +194,25 @@ tfoot td.v{color:var(--text)}
     <div class="g2">
       <div class="field">
         <label>조사일자</label>
-        <input type="date" id="survey_date" class="inp" oninput="markFilled(this);calc()">
+        <input type="date" id="survey_date" class="inp" onchange="markFilled(this);calc()">
       </div>
       <div class="field">
         <label>수확예정일</label>
-        <input type="date" id="harvest_date" class="inp" oninput="markFilled(this);calc()">
+        <input type="date" id="harvest_date" class="inp" onchange="markFilled(this);calc()">
       </div>
     </div>
-    <div class="g2">
+    <div style="display:grid;grid-template-columns:2fr 0.75fr 0.75fr;gap:6px;margin-bottom:8px">
       <div class="field">
-        <label>잔여일수 / 비대추정지수</label>
+        <label>잔여일수/비대지수</label>
         <input type="text" id="remain_info" class="auto" readonly>
       </div>
       <div class="field">
-        <label>미보상비율</label>
+        <label>열공수 (개)</label>
+        <input type="number" id="crack_count" class="inp" inputmode="decimal"
+          oninput="markFilled(this)" onblur="calc()">
+      </div>
+      <div class="field">
+        <label>미보상 (%)</label>
         <input type="number" id="unins_rate" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="calc()">
       </div>
@@ -228,7 +233,6 @@ tfoot td.v{color:var(--text)}
           <col id="col-wid">
           <col id="col-norm">
           <col id="col-d80">
-          <col id="col-d50">
         </colgroup>
         <thead>
           <tr>
@@ -237,7 +241,6 @@ tfoot td.v{color:var(--text)}
             <th>이랑폭&#10;(m)</th>
             <th>정상&#10;(g)</th>
             <th id="th-d80">80%형&#10;(g)</th>
-            <th id="th-d50">벌마늘&#10;(g)</th>
           </tr>
         </thead>
         <tbody id="sample-body"></tbody>
@@ -248,7 +251,6 @@ tfoot td.v{color:var(--text)}
             <td class="v" id="t-wid">-</td>
             <td class="v" id="t-norm">-</td>
             <td class="v" id="t-d80">-</td>
-            <td class="v" id="t-d50">-</td>
           </tr>
         </tfoot>
       </table>
@@ -394,11 +396,7 @@ function renderSamples(){
         class="${s.d80?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].d80=this.value.replace(/,/g,'')"
         onblur="samples[${i}].d80=this.value.replace(/,/g,'');calcTotals()"></td>
-      <td class="col-d50"><input type="text" value="${s.d50?Number(s.d50).toLocaleString():''}" inputmode="decimal"
-        class="${s.d50?'filled':''}"
-        oninput="onCommaInput(this);samples[${i}].d50=this.value.replace(/,/g,'')"
-        onblur="samples[${i}].d50=this.value.replace(/,/g,'');calcTotals()"></td>
-    </tr>`).join('');
+      </tr>`).join('');
   setTimeout(updateGarlicCols, 0);
 }
 
@@ -423,24 +421,9 @@ function onCropChange(){
 }
 
 function updateGarlicCols(){
-  const crop = document.getElementById('crop').value;
-  const isGarlic = crop==='garlic_s'||crop==='garlic_n';
-
-  // 헤더/바디 벌마늘 칸 표시/숨김
-  const th50 = document.getElementById('th-d50');
-  if(th50) th50.style.display = isGarlic ? '' : 'none';
-  document.querySelectorAll('.col-d50').forEach(el=>{
-    el.style.display = isGarlic ? '' : 'none';
-  });
-
-  // colgroup 너비 조정
-  const colD50 = document.getElementById('col-d50');
+  // 양파: 벌마늘 칸 없음, 균등 분배
   const colD80 = document.getElementById('col-d80');
-  if(colD50) colD50.style.width = isGarlic ? '20%' : '0%';
-  if(colD80) colD80.style.width = isGarlic ? '19%' : '25%';
-  // 마지막 빈칸 제거
-  const lastCol = document.querySelector('colgroup col:last-child');
-  if(lastCol) lastCol.style.width = '0%';
+  if(colD80) colD80.style.width = '23%';
 }
 
 function updateSamplesAndCalc(){
@@ -596,7 +579,7 @@ function calc(){
 function resetAll(){
   if(!confirm('모든 입력값을 초기화할까요?')) return;
   try{ localStorage.removeItem('onion_state'); }catch(e){}
-  ['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','harvest_date'].forEach(id=>{
+  ['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','crack_count','harvest_date'].forEach(id=>{
     const el=document.getElementById(id);
     el.value=''; el.classList.remove('filled');
   });
@@ -640,6 +623,7 @@ async function saveImage(){
     const harvestDate= document.getElementById('harvest_date').value;
     const remainInfo= document.getElementById('remain_info').value;
     const uninsRate= document.getElementById('unins_rate').value||'0';
+    const crackV= document.getElementById('crack_count')?.value||'';
 
     let tL=0,tW=0,tN=0,t80=0;
     for(const s of samples){
@@ -753,8 +737,9 @@ async function saveImage(){
     cy+=rowH+g;
     drawRow(ctx,P,cy,[
       {label:'수확예정일',       value:harvestDate.replace(/-/g,'.'), filled:!!harvestDate, w:84},
-      {label:'잔여일수/비대지수',value:remainInfo, auto:true,                               w:110},
-      {label:'미보상비율(%)',    value:uninsRate,  filled:!!uninsRate,                      w:70}
+      {label:'잔여일수/비대지수',value:remainInfo, auto:true,                               w:100},
+      {label:'열공수(개)',        value:crackV,     filled:!!crackV,                         w:52},
+      {label:'미보상비율(%)',    value:uninsRate,  filled:!!uninsRate,                      w:62}
     ]);
     cy+=rowH+pad+secGap;
 
@@ -857,6 +842,7 @@ function saveState(){
     other_area: document.getElementById('other_area').value,
     harv_area: document.getElementById('harv_area').value,
     unins_rate: document.getElementById('unins_rate').value,
+    crack_count: document.getElementById('crack_count')?.value||'',
     survey_date: document.getElementById('survey_date').value,
     harvest_date: document.getElementById('harvest_date').value,
     samples: samples
@@ -878,7 +864,7 @@ function loadState(){
     }
 
     // 나머지 필드 복원 + filled
-    const fields=['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','survey_date','harvest_date'];
+    const fields=['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','crack_count','survey_date','harvest_date'];
     fields.forEach(id=>{
       if(s[id]!==undefined && s[id]!==''){
         const el=document.getElementById(id);
