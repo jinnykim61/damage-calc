@@ -242,6 +242,7 @@ tfoot td.v{color:var(--text)}
           <col id="col-norm">
           <col id="col-d80">
           <col id="col-d50">
+          <col style="width:28px">
         </colgroup>
         <thead>
           <tr>
@@ -251,6 +252,7 @@ tfoot td.v{color:var(--text)}
             <th>정상&#10;(g)</th>
             <th id="th-d80">80%형&#10;(g)</th>
             <th id="th-d50">벌마늘&#10;(g)</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="sample-body"></tbody>
@@ -262,6 +264,7 @@ tfoot td.v{color:var(--text)}
             <td class="v" id="t-norm">-</td>
             <td class="v" id="t-d80">-</td>
             <td class="v" id="t-d50">-</td>
+            <td></td>
           </tr>
         </tfoot>
       </table>
@@ -411,6 +414,9 @@ function renderSamples(){
         class="${s.d50?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].d50=this.value.replace(/,/g,'')"
         onblur="samples[${i}].d50=this.value.replace(/,/g,'');calcTotals()"></td>
+      <td style="width:28px;text-align:center">
+        <button onclick="delSample(${i})" style="width:24px;height:36px;border:none;background:transparent;color:#e24b4a;font-size:18px;cursor:pointer;border-radius:4px;line-height:1">×</button>
+      </td>
     </tr>`).join('');
   setTimeout(updateGarlicCols, 0);
 }

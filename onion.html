@@ -238,6 +238,7 @@ tfoot td.v{color:var(--text)}
           <col id="col-wid">
           <col id="col-norm">
           <col id="col-d80">
+          <col style="width:28px">
         </colgroup>
         <thead>
           <tr>
@@ -246,6 +247,7 @@ tfoot td.v{color:var(--text)}
             <th>이랑폭&#10;(m)</th>
             <th>정상&#10;(g)</th>
             <th id="th-d80">80%형&#10;(g)</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="sample-body"></tbody>
@@ -256,6 +258,7 @@ tfoot td.v{color:var(--text)}
             <td class="v" id="t-wid">-</td>
             <td class="v" id="t-norm">-</td>
             <td class="v" id="t-d80">-</td>
+            <td></td>
           </tr>
         </tfoot>
       </table>
@@ -434,17 +437,17 @@ function debouncedCalcTotals(){
 
 function calcTotals(){
   const crop=document.getElementById('crop').value;
+  // 품목별 유효중량 계수: 양파=1.0, 마늘난지형=0.72, 마늘한지형=0.7
   const cropCoeff={onion:1.0, garlic_s:0.72, garlic_n:0.7};
   const cc=cropCoeff[crop]||1.0;
 
   let tN=0,t80=0,t50=0,tA=0,tEff=0,tL=0,tW=0;
   for(const s of samples){
     const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0;
-    const n=parseFloat((s.norm||'').replace(/,/g,''))||0;
-    const d8=parseFloat((s.d80||'').replace(/,/g,''))||0;
-    const d5=parseFloat((s.d50||'').replace(/,/g,''))||0;
+    const n=parseFloat(s.norm)||0,d8=parseFloat(s.d80)||0,d5=parseFloat(s.d50)||0;
     tL+=l; tW+=w; tN+=n; t80+=d8; t50+=d5;
     tA+=l*w;
+    // 유효중량 = (정상 + 80%형×0.2 + 50%형) × 품목계수
     tEff+=(n + d8*0.2 + d5)*cc;
   }
   document.getElementById('t-len').textContent=tL.toFixed(2)+'m';
