@@ -37,6 +37,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center}
 input.inp:focus{outline:none !important;border-color:#185FA5 !important;box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;background:#dceeff !important;color:#185FA5 !important}
+input.inp.mobile-focus{outline:none !important;border-color:#185FA5 !important;box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;background:#dceeff !important;color:#185FA5 !important}
 input.inp.filled:focus{background:#dceeff !important;color:#185FA5 !important;border-color:#185FA5 !important}
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;text-align:center}
@@ -330,6 +331,25 @@ function closeResetModal(){document.getElementById('reset-overlay').classList.re
 function confirmResetAll(){closeResetModal(); resetAll();}
 function savePDF(){window.print();}
 
+function bindMobileFocusHandlers(){
+  const selectors = 'input.inp, tbody td input';
+  document.querySelectorAll(selectors).forEach(el=>{
+    if(el.dataset.mobileFocusBound === '1') return;
+    el.dataset.mobileFocusBound = '1';
+    el.addEventListener('focus', ()=> el.classList.add('mobile-focus'), {passive:true});
+    el.addEventListener('blur',  ()=> el.classList.remove('mobile-focus'), {passive:true});
+    el.addEventListener('touchend', (e)=>{
+      if(e.cancelable) e.preventDefault();
+      el.focus();
+      el.classList.add('mobile-focus');
+    }, {passive:false});
+  });
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  bindMobileFocusHandlers();
+  document.addEventListener('click', ()=>{ setTimeout(bindMobileFocusHandlers, 0); }, {passive:true});
+});
+
 function removeSample(){
   const {surveyArea} = calcCommon();
   const proper = surveyArea>0 ? getProper(surveyArea) : 0;
@@ -358,8 +378,10 @@ function setMode(m){
   document.getElementById('sec-full').style.display = m==='full' ? '' : 'none';
   // 탭 전환 시 결과 초기화 (이전 탭 값 잔류 방지)
   document.getElementById('result-section').className='result-box pending';
-  document.getElementById('result-pct').textContent='입력 대기중';
+  document.getElementById('result-pct').textContent='- -';
   document.getElementById('result-pct').style.color='white';
+  // 조사수확량 초기화 (표본조사 값이 전수조사 탭에 남지 않도록)
+  document.getElementById('commonSurvey').value='';
 }
 
 function getProper(area){
