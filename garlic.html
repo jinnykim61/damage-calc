@@ -145,8 +145,8 @@ tfoot td.v{color:var(--text)}
 .info-strip strong{color:var(--text)}
 
 /* 결과 — 항상 표시, 값 없으면 대기 상태 */
-.result-box{background:var(--blue);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;color:white}
-.result-box.pending{background:#888;opacity:0.5}
+.result-box{background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);border-radius:18px;padding:0 16px;margin-bottom:10px;color:white;border:1.5px solid rgba(255,255,255,0.25);box-shadow:0 8px 28px rgba(24,95,165,0.5),inset 0 1px 0 rgba(255,255,255,0.2)}
+.result-box.pending{background:linear-gradient(135deg,#888 0%,#aaa 100%);border:1.5px solid rgba(255,255,255,0.15);box-shadow:none}
 .result-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .result-label{font-size:13px;opacity:0.8;margin-bottom:4px;text-align:center}
 .result-pct{font-size:44px;font-weight:700;line-height:1;text-align:center}
@@ -213,25 +213,6 @@ tfoot td{background:#f3efe8;font-weight:700}
   color:#c8403d;
 }
 .add-btn:active,.del-sample-btn:active{transform:translateY(1px)}
-.result-box{
-  border-radius:18px;
-  box-shadow:0 10px 24px rgba(24,95,165,0.18);
-}
-.result-box.pending{
-  background:#8d8d8d;
-  box-shadow:none;
-}
-.save-btn{
-  border-radius:12px !important;
-  border:1.5px solid rgba(255,255,255,0.35);
-}
-.drow{
-  padding:7px 0;
-  font-size:13px;
-}
-#result-pct{
-  font-size:46px !important;
-}
 
 
 tbody td input.filled:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15);background:#dceeff;color:#185FA5}
@@ -450,12 +431,18 @@ tbody td input.filled:active{
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 4px">
-      <div style="display:flex;align-items:baseline;gap:10px">
-        <span style="font-size:13px;opacity:0.7;letter-spacing:0.04em;white-space:nowrap">피해율</span>
-        <span id="result-pct" style="font-size:32px;font-weight:700;line-height:1;color:#FFD0D0;white-space:nowrap">- -</span>
+    <div style="display:flex;align-items:center;padding:14px 0">
+      <div style="padding-right:16px;flex-shrink:0">
+        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">피해율</span>
       </div>
-      <button class="save-btn" onclick="saveImage()" style="flex-shrink:0"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
+      <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
+      <div style="padding:0 16px;flex:1">
+        <span id="result-pct" style="font-size:32px;font-weight:700;color:white;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</span>
+      </div>
+      <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
+      <div style="padding-left:16px;flex-shrink:0">
+        <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
+      </div>
     </div>
   </div>
 </div>
@@ -891,7 +878,7 @@ function calc(){
 
   resultBox.className='result-box';
   pctEl.textContent=pct.toFixed(2)+'%';
-  pctEl.style.color=pct>=20?'#FFD0D0':'#FFD0D0';
+  pctEl.style.color='white';
   saveState();
 }
 
