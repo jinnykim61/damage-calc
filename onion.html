@@ -159,7 +159,7 @@ tfoot td.v{color:var(--text)}
 /* === design refresh === */
 .section{box-shadow:0 6px 18px rgba(0,0,0,0.04)}
 .sec-title{font-size:13px;color:#555;font-weight:700}
-.tbl-wrap{border:1px solid #e9e5dd;border-radius:14px;padding:10px 8px;background:#fcfbf8}
+.tbl-wrap{border:1px solid #e9e5dd;border-radius:14px;padding:10px 4px;background:#fcfbf8}
 table{font-size:13px}
 thead th{font-size:12px;color:#555;padding:6px 4px 10px}
 tfoot td{background:#f3efe8;font-weight:700}
@@ -364,11 +364,10 @@ tbody td input.filled:active{
       <table style="width:100%;table-layout:fixed">
         <colgroup>
           <col style="width:8%">
-          <col id="col-len">
-          <col id="col-wid">
-          <col id="col-norm">
-          <col id="col-d80">
-          <col style="width:28px">
+          <col id="col-len" style="width:23%">
+          <col id="col-wid" style="width:23%">
+          <col id="col-norm" style="width:23%">
+          <col id="col-d80" style="width:23%">
         </colgroup>
         <thead>
           <tr>
@@ -377,7 +376,7 @@ tbody td input.filled:active{
             <th>이랑폭&#10;(m)</th>
             <th>정상&#10;(g)</th>
             <th id="th-d80">80%형&#10;(g)</th>
-            <th></th>
+            
           </tr>
         </thead>
         <tbody id="sample-body"></tbody>
@@ -388,7 +387,7 @@ tbody td input.filled:active{
             <td class="v" id="t-wid">-</td>
             <td class="v" id="t-norm">-</td>
             <td class="v" id="t-d80">-</td>
-            <td></td>
+            
           </tr>
         </tfoot>
       </table>
