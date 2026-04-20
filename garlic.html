@@ -18,17 +18,14 @@ function bindMobileFocusHandlers(){
     if(el.dataset.mobileFocusBound === '1') return;
     el.dataset.mobileFocusBound = '1';
 
-    const addFocus = ()=> el.classList.add('mobile-focus');
-    const removeFocus = ()=> el.classList.remove('mobile-focus');
+    el.addEventListener('focus', ()=> el.classList.add('mobile-focus'), {passive:true});
+    el.addEventListener('blur',  ()=> el.classList.remove('mobile-focus'), {passive:true});
 
-    el.addEventListener('focus', addFocus, {passive:true});
-    el.addEventListener('blur', removeFocus, {passive:true});
-    el.addEventListener('touchstart', addFocus, {passive:true});
-    el.addEventListener('mousedown', addFocus, {passive:true});
-
-    el.addEventListener('input', ()=>{
-      if(document.activeElement === el) el.classList.add('mobile-focus');
-    }, {passive:true});
+    el.addEventListener('touchend', (e)=>{
+      if(e.cancelable) e.preventDefault();
+      el.focus();
+      el.classList.add('mobile-focus');
+    }, {passive:false});
   });
 }
 
@@ -979,16 +976,17 @@ function fillGarlicCaptureTemplate(){
   const tbody = document.getElementById('cap-sample-table');
   let html='';
   samples.forEach((s,idx)=>{
+    const fmtNum = v => (v && v !== '-' && !isNaN(Number(v))) ? Number(v).toLocaleString() : (v||'-');
     const vals=[s.len||'-', s.wid||'-', s.norm||'-', s.d80||'-', isGarlic?(s.d50||'-'):''];
     const hasVal = [s.len,s.wid,s.norm,s.d80].some(v=>v);
     if(hasVal){
       html+=`<tr>
         <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc;font-size:12px">${idx+1}</td>
-        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${vals[0]}</td>
-        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${vals[1]}</td>
-        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${vals[2]?Number(vals[2]).toLocaleString():'-'}</td>
-        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${vals[3]?Number(vals[3]).toLocaleString():'-'}</td>
-        ${isGarlic?`<td style="padding:5px 3px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${vals[4]?Number(vals[4]).toLocaleString():'-'}</td>`:''}
+        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${fmtNum(vals[0])}</td>
+        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${fmtNum(vals[1])}</td>
+        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${fmtNum(vals[2])}</td>
+        <td style="padding:5px 3px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${fmtNum(vals[3])}</td>
+        ${isGarlic?`<td style="padding:5px 3px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${fmtNum(vals[4])}</td>`:''}
       </tr>`;
     }
   });
@@ -1111,17 +1109,14 @@ function bindMobileFocusHandlers(){
     if(el.dataset.mobileFocusBound === '1') return;
     el.dataset.mobileFocusBound = '1';
 
-    const addFocus = ()=> el.classList.add('mobile-focus');
-    const removeFocus = ()=> el.classList.remove('mobile-focus');
+    el.addEventListener('focus', ()=> el.classList.add('mobile-focus'), {passive:true});
+    el.addEventListener('blur',  ()=> el.classList.remove('mobile-focus'), {passive:true});
 
-    el.addEventListener('focus', addFocus, {passive:true});
-    el.addEventListener('blur', removeFocus, {passive:true});
-    el.addEventListener('touchstart', addFocus, {passive:true});
-    el.addEventListener('mousedown', addFocus, {passive:true});
-
-    el.addEventListener('input', ()=>{
-      if(document.activeElement === el) el.classList.add('mobile-focus');
-    }, {passive:true});
+    el.addEventListener('touchend', (e)=>{
+      if(e.cancelable) e.preventDefault();
+      el.focus();
+      el.classList.add('mobile-focus');
+    }, {passive:false});
   });
 }
 
