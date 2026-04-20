@@ -301,7 +301,7 @@ tbody td input.filled:active{
         <input type="text" id="survey_area_disp" class="auto" readonly>
       </div>
       <div class="field">
-        <label>면적오차</label>
+        <label>조사수확량 (kg)</label>
         <input type="text" id="area_err_disp" class="auto" readonly>
       </div>
       <div class="field">
@@ -381,7 +381,7 @@ tbody td input.filled:active{
     <div class="sample-btn-row" id="sample-btn-row" style="display:none"><button class="add-btn" id="add-btn" onclick="addSample()">+ 표본구간 추가</button><button class="del-sample-btn" id="del-btn" onclick="removeSample()">- 표본구간 삭제</button></div>
     <div style="display:flex;flex-direction:row;align-items:center;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:nowrap;overflow:hidden">
       <span style="font-size:12px;color:var(--sub);white-space:nowrap">표본면적: <strong id="s-area" style="font-size:13px;font-weight:800;color:var(--text)">-</strong></span>
-      <span style="font-size:12px;color:var(--sub);white-space:nowrap">㎡당 조사수확량: <strong id="s-unit" style="font-size:13px;font-weight:800;color:var(--text)">-</strong></span>
+      <span style="font-size:12px;color:var(--sub);white-space:nowrap">㎡당 표본중량: <strong id="s-unit" style="font-size:13px;font-weight:800;color:var(--text)">-</strong></span>
     </div>
   </div>
 
@@ -710,7 +710,7 @@ function calc(){
   const areaErrNum=insArea>0?(actArea-insArea)/insArea:0;
   const areaErr=insArea>0?(areaErrNum*100).toFixed(2):'-';
   document.getElementById('survey_area_disp').value=surveyArea>0?surveyArea.toLocaleString()+' ㎡':'';
-  document.getElementById('area_err_disp').value=areaErr!=='-'?areaErr+'%':'';
+  document.getElementById('area_err_disp').value='';
 
   // 계약변경여부 표시
   const contractEl = document.getElementById('contract_yn_disp');
@@ -790,6 +790,7 @@ function calc(){
   document.getElementById('r-avg-unit').textContent=actArea>0?(effAvg/actArea).toFixed(4)+' kg/㎡':'-';
   document.getElementById('r-coeff').textContent={onion:'1.00(양파)',garlic_s:'0.72(난지형)',garlic_n:'0.70(한지형)'}[crop];
   document.getElementById('r-surv').textContent=survYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
+  document.getElementById('area_err_disp').value=survYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
   document.getElementById('r-est').textContent=estYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
   document.getElementById('r-unins').textContent=uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
   document.getElementById('r-loss').textContent=netLoss.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
@@ -962,7 +963,7 @@ function restoreAndRecalc(){
     const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
     const areaErr=insArea>0?((actArea-insArea)/insArea*100).toFixed(2):'-';
     document.getElementById('survey_area_disp').value=surveyArea>0?surveyArea.toLocaleString()+' ㎡':'';
-    document.getElementById('area_err_disp').value=areaErr!=='-'?areaErr+'%':'';
+    document.getElementById('area_err_disp').value='';
 
     if(samples.length>0){
       renderSamples();
