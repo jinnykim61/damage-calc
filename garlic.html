@@ -33,10 +33,35 @@ function bindMobileFocusHandlers(){
 
 document.addEventListener('DOMContentLoaded', ()=>{
   bindMobileFocusHandlers();
+  bindSampleNextNavigation();
   document.addEventListener('click', ()=>{
     setTimeout(bindMobileFocusHandlers, 0);
   }, {passive:true});
 });
+
+
+function bindSampleNextNavigation(){
+  const inputs = Array.from(document.querySelectorAll('#sample-body input'));
+  inputs.forEach((el, idx) => {
+    if (el.dataset.nextBound === '1') return;
+    el.dataset.nextBound = '1';
+    el.setAttribute('enterkeyhint', 'next');
+    el.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const currentInputs = Array.from(document.querySelectorAll('#sample-body input')).filter(x => x.offsetParent !== null && !x.disabled && x.type !== 'hidden');
+      const currentIndex = currentInputs.indexOf(el);
+      if (currentIndex === -1) return;
+      const next = currentInputs[currentIndex + 1];
+      if (next) {
+        next.focus();
+        next.select?.();
+      } else {
+        el.blur();
+      }
+    });
+  });
+}
 
 </script>
 <style>
@@ -581,7 +606,7 @@ function renderSamples(){
         <button onclick="delSample(${i})" style="width:24px;height:36px;border:none;background:transparent;color:#e24b4a;font-size:18px;cursor:pointer;border-radius:4px;line-height:1">×</button>
       </td>
     </tr>`).join('');
-  setTimeout(()=>{ updateGarlicCols(); bindMobileFocusHandlers(); }, 0);
+  setTimeout(()=>{ updateGarlicCols(); bindMobileFocusHandlers(); bindSampleNextNavigation(); }, 0);
 }
 
 function addSample(){samples.push({len:'',wid:'',norm:'',d80:'',d50:''});renderSamples();}
@@ -1216,6 +1241,30 @@ document.addEventListener('DOMContentLoaded', ()=>{
     setTimeout(bindMobileFocusHandlers, 0);
   }, {passive:true});
 });
+
+
+function bindSampleNextNavigation(){
+  const inputs = Array.from(document.querySelectorAll('#sample-body input'));
+  inputs.forEach((el, idx) => {
+    if (el.dataset.nextBound === '1') return;
+    el.dataset.nextBound = '1';
+    el.setAttribute('enterkeyhint', 'next');
+    el.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const currentInputs = Array.from(document.querySelectorAll('#sample-body input')).filter(x => x.offsetParent !== null && !x.disabled && x.type !== 'hidden');
+      const currentIndex = currentInputs.indexOf(el);
+      if (currentIndex === -1) return;
+      const next = currentInputs[currentIndex + 1];
+      if (next) {
+        next.focus();
+        next.select?.();
+      } else {
+        el.blur();
+      }
+    });
+  });
+}
 
 </script>
 </body>
