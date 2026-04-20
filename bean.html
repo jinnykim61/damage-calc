@@ -9,20 +9,10 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
-function openResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'flex';
-}
-function closeResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'none';
-}
-function confirmResetAll(){
-  closeResetModal();
-  resetAll();
-}
+function openResetModal(){ const el=document.getElementById('reset-overlay'); if(el) el.style.display='flex'; }
+function closeResetModal(){ const el=document.getElementById('reset-overlay'); if(el) el.style.display='none'; }
+function confirmResetAll(){ closeResetModal(); resetAll(); }
 function savePDF(){ window.print(); }
-
 function removeSample(){
   const {surveyArea} = calcCommon();
   const proper = surveyArea>0 ? getProper(surveyArea) : 0;
@@ -34,91 +24,21 @@ function removeSample(){
   renderSamples();
   calc();
 }
-
-function fillBeanCaptureTemplate(){
-  const avgYield = document.getElementById('avgYield')?.value ? document.getElementById('avgYield').value + ' kg' : '-';
-  const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
-  const contract = document.getElementById('contractYn')?.value || '-';
-  const actArea = document.getElementById('actArea')?.value ? document.getElementById('actArea').value + ' ㎡' : '-';
-  const deadArea = document.getElementById('deadArea')?.value ? document.getElementById('deadArea').value + ' ㎡' : '0 ㎡';
-  const uninsArea = document.getElementById('uninsArea')?.value ? document.getElementById('uninsArea').value + ' ㎡' : '0 ㎡';
-  const preEl = document.getElementById('preArea') || document.getElementById('harvArea') || document.getElementById('harv_area');
-  const preArea = preEl?.value ? preEl.value + ' ㎡' : '0 ㎡';
-
-  const screenSampleArea = document.getElementById('s-area')?.textContent || '-';
-  const screenSampleUnit = document.getElementById('s-unit')?.textContent || '-';
-  const screenSurveyYield = document.getElementById('r-survey')?.textContent || '-';
-
-  const ssa = document.getElementById('screen-sample-area'); if(ssa) ssa.textContent = screenSampleArea;
-  const ssu = document.getElementById('screen-sample-unit'); if(ssu) ssu.textContent = screenSampleUnit;
-  const ssy = document.getElementById('screen-survey-yield'); if(ssy) ssy.textContent = screenSurveyYield;
-
-  document.getElementById('cap-sample-area').textContent = screenSampleArea;
-  document.getElementById('cap-sample-unit').textContent = screenSampleUnit;
-  document.getElementById('cap-survey-yield').textContent = screenSurveyYield;
-
-  document.getElementById('cap-pct').textContent = document.getElementById('result-pct')?.textContent || '-';
-  document.getElementById('cap-avgYield').textContent = avgYield;
-  document.getElementById('cap-insArea').textContent = insArea;
-  document.getElementById('cap-contract').textContent = contract;
-  document.getElementById('cap-actArea').textContent = actArea;
-  document.getElementById('cap-deadArea').textContent = deadArea;
-  document.getElementById('cap-uninsArea').textContent = uninsArea;
-  document.getElementById('cap-preArea').textContent = preArea;
-  document.getElementById('cap-result-survey').textContent = document.getElementById('r-survey')?.textContent || '-';
-  document.getElementById('cap-result-unit').textContent = document.getElementById('r-unit')?.textContent || '-';
-  document.getElementById('cap-area').textContent = document.getElementById('r-area')?.textContent || '-';
-  document.getElementById('cap-uninsLoss').textContent = document.getElementById('r-unins')?.textContent || '-';
-
-  const tbody = document.getElementById('cap-sample-table');
-  if(tbody){
-    let html = '';
-    const domRows = document.querySelectorAll('#sample-body tr');
-    if(domRows.length){
-      domRows.forEach((tr, idx)=>{
-        const vals = Array.from(tr.querySelectorAll('input')).map(inp => inp.value || '-');
-        if(vals.some(v => v !== '-')){
-          html += `
-          <tr>
-            <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
-            <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[0] || '-'}</td>
-            <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[1] || '-'}</td>
-            <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[2] || '-'}</td>
-            <td style="padding:8px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[3] || '-'}</td>
-          </tr>`;
-        }
-      });
-    } else if(Array.isArray(window.samples)){
-      window.samples.forEach((s, idx)=>{
-        html += `
-        <tr>
-          <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
-          <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.len || '-'}</td>
-          <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.wid || '-'}</td>
-          <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.weight || '-'}</td>
-          <td style="padding:8px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.moist || '-'}</td>
-        </tr>`;
-      });
-    }
-    tbody.innerHTML = html || '<tr><td colspan="5" style="padding:10px;text-align:center">-</td></tr>';
+function syncBeanTopSummary(){
+  const areaEl = document.getElementById('screen-sample-area');
+  const unitEl = document.getElementById('screen-sample-unit');
+  if(areaEl){
+    const src = document.getElementById('s-area');
+    areaEl.textContent = src ? (src.textContent || src.value || '-') : '-';
+  }
+  if(unitEl){
+    const src = document.getElementById('s-unit');
+    unitEl.textContent = src ? (src.textContent || src.value || '-') : '-';
   }
 }
 
-function bindBeanMobileFocus(){
-  const selectors = 'input.inp, tbody td input';
-  document.querySelectorAll(selectors).forEach(el=>{
-    if(el.dataset.beanFocusBound==='1') return;
-    el.dataset.beanFocusBound='1';
-    const addFocus = ()=> el.classList.add('mobile-focus');
-    const removeFocus = ()=> el.classList.remove('mobile-focus');
-    el.addEventListener('focus', addFocus, {passive:true});
-    el.addEventListener('blur', removeFocus, {passive:true});
-    el.addEventListener('touchstart', addFocus, {passive:true});
-    el.addEventListener('mousedown', addFocus, {passive:true});
-  });
-}
-document.addEventListener('DOMContentLoaded', ()=>{ bindBeanMobileFocus(); });
 
+setInterval(syncBeanTopSummary, 300);
 </script>
 <style>
 :root{--blue:#185FA5;--blue2:#378ADD;--auto:#F3F1EA;--border:#D8D6CE;--binp:#378ADD;--text:#1a1a1a;--sub:#666;--hint:#aaa;--bg:#F5F4F0;--card:#fff;--red:#e24b4a;--green:#1D9E75;--r:12px;--rs:8px}
@@ -180,7 +100,7 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
 .save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
 .save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
 
-/* bean final screen/export */
+/* bean sample footer final */
 .del-sample-btn{
   width:100%;
   height:36px;
@@ -195,6 +115,33 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
 }
 .sample-btn-row{display:flex;gap:8px;margin-top:6px}
 .sample-btn-row .add-btn,.sample-btn-row .del-sample-btn{flex:1}
+.sample-summary-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-top:10px;
+  padding-top:12px;
+  border-top:1px solid #d8d6ce;
+}
+.sample-summary-item{
+  display:flex;
+  align-items:baseline;
+  gap:6px;
+  min-width:0;
+}
+.sample-summary-label{
+  font-size:12px;
+  color:var(--sub);
+  white-space:nowrap;
+}
+.sample-summary-value{
+  font-size:13px;
+  font-weight:800;
+  color:var(--text);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 input.inp:focus,
 input.inp:focus-visible,
 input.inp:active,
@@ -218,27 +165,6 @@ tbody td input.filled:active{
   box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;
   background:#dceeff !important;
   color:#185FA5 !important;
-}
-.capture-box{
-  background:#f8fafc;
-  border:1px solid #dbe3ea;
-  border-radius:14px;
-  padding:10px 8px;
-  text-align:center;
-}
-.capture-label{
-  font-size:10px;
-  color:#6b7280;
-  margin-bottom:4px;
-  word-break:keep-all;
-  line-height:1.2;
-  letter-spacing:-0.02em;
-}
-.capture-value{
-  font-size:12px;
-  font-weight:800;
-  color:#111827;
-  line-height:1.2;
 }
 </style>
 </head>
@@ -341,30 +267,24 @@ tbody td input.filled:active{
       </div>
 
     </div>
-  </div>
+  
+    <div class="sample-summary-row" id="sample-summary-area">
+      <div class="sample-summary-item">
+        <span class="sample-summary-label">표본면적:</span>
+        <span class="sample-summary-value" id="screen-sample-area">-</span>
+      </div>
+      <div class="sample-summary-item">
+        <span class="sample-summary-label">㎡당 표본중량:</span>
+        <span class="sample-summary-value" id="screen-sample-unit">-</span>
+      </div>
+    </div>
 
   <!-- 결과 -->
   
 <div class="result-box pending" id="result-section">
-  <div style="text-align:center;padding:10px 0 14px">
-    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px">
-      <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:12px 6px;text-align:center">
-        <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">표본면적</div>
-        <div style="font-size:13px;font-weight:700" id="screen-sample-area">-</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:12px 6px;text-align:center">
-        <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">㎡당 표본중량</div>
-        <div style="font-size:13px;font-weight:700" id="screen-sample-unit">-</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:12px 6px;text-align:center">
-        <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">조사수확량</div>
-        <div style="font-size:13px;font-weight:700" id="screen-survey-yield">-</div>
-      </div>
-    </div>
-
-    <div style="font-size:18px;font-weight:700;opacity:0.85;margin-bottom:6px">피해율</div>
-    <div id="result-pct" style="font-size:38px;font-weight:800;line-height:1;letter-spacing:-0.02em;margin-bottom:16px">입력 대기중</div>
-
+  <div style="text-align:center;padding:18px 0 16px">
+    <div style="font-size:18px;font-weight:700;opacity:0.85;margin-bottom:8px">피해율</div>
+    <div id="result-pct" style="font-size:38px;font-weight:800;line-height:1;letter-spacing:-0.02em;margin-bottom:18px">입력 대기중</div>
     <div style="display:flex;justify-content:center;gap:10px">
       <button class="save-btn" onclick="saveImage()" style="width:130px;height:36px;justify-content:center;flex-direction:row;gap:5px;font-size:13px;font-weight:700;padding:0">
         <span style="font-size:14px">📷</span><span>갤러리 저장</span>
@@ -402,86 +322,6 @@ tbody td input.filled:active{
   <span id="r-unit">-</span>
   <span id="r-area">-</span>
   <span id="r-unins">-</span>
-  <span id="cap-sample-area-hidden">-</span>
-  <span id="cap-sample-unit-hidden">-</span>
-  <span id="cap-survey-yield-hidden">-</span>
-</div>
-
-
-
-<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
-  <div style="min-height:932px;background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 16%,#f3f4f6 16%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
-    <div style="height:32px"></div>
-    <div style="text-align:center;color:#fff;margin-bottom:12px">
-      <div style="font-size:15px;font-weight:700">콩 피해율 계산결과</div>
-    </div>
-
-    <div style="background:#205f9e;border-radius:22px;padding:18px 16px;color:#fff;box-shadow:0 14px 28px rgba(24,95,165,0.22);margin-bottom:14px">
-      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px">
-        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 6px;text-align:center">
-          <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">표본면적</div>
-          <div id="cap-sample-area" style="font-size:12px;font-weight:700">-</div>
-        </div>
-        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 6px;text-align:center">
-          <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">㎡당 표본중량</div>
-          <div id="cap-sample-unit" style="font-size:12px;font-weight:700">-</div>
-        </div>
-        <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 6px;text-align:center">
-          <div style="font-size:10px;opacity:0.78;margin-bottom:4px;line-height:1.2">조사수확량</div>
-          <div id="cap-survey-yield" style="font-size:12px;font-weight:700">-</div>
-        </div>
-      </div>
-      <div style="font-size:13px;font-weight:700;opacity:0.82;text-align:center;margin-bottom:6px">피해율</div>
-      <div id="cap-pct" style="font-size:46px;font-weight:900;line-height:1;text-align:center">-</div>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
-        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
-          <div class="capture-box"><div class="capture-label">평년수확량</div><div class="capture-value" id="cap-avgYield">-</div></div>
-          <div class="capture-box"><div class="capture-label">가입면적</div><div class="capture-value" id="cap-insArea">-</div></div>
-          <div class="capture-box"><div class="capture-label">원장변경유무</div><div class="capture-value" id="cap-contract">-</div></div>
-        </div>
-      </div>
-
-      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 면적조사</div>
-        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
-          <div class="capture-box"><div class="capture-label">실제경작면적</div><div class="capture-value" id="cap-actArea">-</div></div>
-          <div class="capture-box"><div class="capture-label">고사면적</div><div class="capture-value" id="cap-deadArea">-</div></div>
-          <div class="capture-box"><div class="capture-label">미보상면적</div><div class="capture-value" id="cap-uninsArea">-</div></div>
-          <div class="capture-box"><div class="capture-label">기수확면적</div><div class="capture-value" id="cap-preArea">-</div></div>
-        </div>
-      </div>
-
-      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본조사</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:13px;border:1px solid #d1d5db;border-radius:14px;overflow:hidden">
-          <thead>
-            <tr>
-              <th style="padding:8px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;border-top-left-radius:14px">No</th>
-              <th style="padding:8px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db">길이</th>
-              <th style="padding:8px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db">이랑폭</th>
-              <th style="padding:8px;background:#2f4c6e;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db">종실중량</th>
-              <th style="padding:8px;background:#2f4c6e;color:#fff;border-bottom:1px solid #d1d5db;border-top-right-radius:14px">함수비</th>
-            </tr>
-          </thead>
-          <tbody id="cap-sample-table"></tbody>
-        </table>
-      </div>
-
-      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">4. 결과</div>
-        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">
-          <div class="capture-box"><div class="capture-label">조사수확량</div><div class="capture-value" id="cap-result-survey">-</div></div>
-          <div class="capture-box"><div class="capture-label">㎡당 유효중량</div><div class="capture-value" id="cap-result-unit">-</div></div>
-          <div class="capture-box"><div class="capture-label">조사면적</div><div class="capture-value" id="cap-area">-</div></div>
-          <div class="capture-box"><div class="capture-label">미보상감수량</div><div class="capture-value" id="cap-uninsLoss">-</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 
@@ -724,19 +564,13 @@ function resetAll(){
 
 async function saveImage(){
   try{
-    const isPending = document.getElementById('result-section').classList.contains('pending');
-    if(isPending){ alert('계산 결과가 없어요. 값을 입력해주세요.'); return; }
-    fillBeanCaptureTemplate();
-    const target = document.getElementById('capture-template');
-    const canvas = await html2canvas(target, {scale:2, backgroundColor:'#f3f4f6'});
-    const link = document.createElement('a');
-    link.download = 'bean_result.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    const canvas=await html2canvas(document.querySelector('.content'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:420});
+    const link=document.createElement('a');
+    const now=new Date();
+    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+    link.download=`콩피해율_${stamp}.png`;link.href=canvas.toDataURL('image/png');link.click();
     document.getElementById('save-overlay').classList.add('show');
-  }catch(e){
-    alert('이미지 저장 중 문제가 발생했어요.');
-  }
+  }catch(e){alert('저장 중 오류가 발생했어요.');}
 }
 
 if('serviceWorker' in navigator){
@@ -748,20 +582,10 @@ setMode('sample');
 loadState();
 setTimeout(()=>{ if(mode==='sample') calc(); else calcFull(); }, 50);
 
-function openResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'flex';
-}
-function closeResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'none';
-}
-function confirmResetAll(){
-  closeResetModal();
-  resetAll();
-}
+function openResetModal(){ const el=document.getElementById('reset-overlay'); if(el) el.style.display='flex'; }
+function closeResetModal(){ const el=document.getElementById('reset-overlay'); if(el) el.style.display='none'; }
+function confirmResetAll(){ closeResetModal(); resetAll(); }
 function savePDF(){ window.print(); }
-
 function removeSample(){
   const {surveyArea} = calcCommon();
   const proper = surveyArea>0 ? getProper(surveyArea) : 0;
@@ -773,91 +597,21 @@ function removeSample(){
   renderSamples();
   calc();
 }
-
-function fillBeanCaptureTemplate(){
-  const avgYield = document.getElementById('avgYield')?.value ? document.getElementById('avgYield').value + ' kg' : '-';
-  const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
-  const contract = document.getElementById('contractYn')?.value || '-';
-  const actArea = document.getElementById('actArea')?.value ? document.getElementById('actArea').value + ' ㎡' : '-';
-  const deadArea = document.getElementById('deadArea')?.value ? document.getElementById('deadArea').value + ' ㎡' : '0 ㎡';
-  const uninsArea = document.getElementById('uninsArea')?.value ? document.getElementById('uninsArea').value + ' ㎡' : '0 ㎡';
-  const preEl = document.getElementById('preArea') || document.getElementById('harvArea') || document.getElementById('harv_area');
-  const preArea = preEl?.value ? preEl.value + ' ㎡' : '0 ㎡';
-
-  const screenSampleArea = document.getElementById('s-area')?.textContent || '-';
-  const screenSampleUnit = document.getElementById('s-unit')?.textContent || '-';
-  const screenSurveyYield = document.getElementById('r-survey')?.textContent || '-';
-
-  const ssa = document.getElementById('screen-sample-area'); if(ssa) ssa.textContent = screenSampleArea;
-  const ssu = document.getElementById('screen-sample-unit'); if(ssu) ssu.textContent = screenSampleUnit;
-  const ssy = document.getElementById('screen-survey-yield'); if(ssy) ssy.textContent = screenSurveyYield;
-
-  document.getElementById('cap-sample-area').textContent = screenSampleArea;
-  document.getElementById('cap-sample-unit').textContent = screenSampleUnit;
-  document.getElementById('cap-survey-yield').textContent = screenSurveyYield;
-
-  document.getElementById('cap-pct').textContent = document.getElementById('result-pct')?.textContent || '-';
-  document.getElementById('cap-avgYield').textContent = avgYield;
-  document.getElementById('cap-insArea').textContent = insArea;
-  document.getElementById('cap-contract').textContent = contract;
-  document.getElementById('cap-actArea').textContent = actArea;
-  document.getElementById('cap-deadArea').textContent = deadArea;
-  document.getElementById('cap-uninsArea').textContent = uninsArea;
-  document.getElementById('cap-preArea').textContent = preArea;
-  document.getElementById('cap-result-survey').textContent = document.getElementById('r-survey')?.textContent || '-';
-  document.getElementById('cap-result-unit').textContent = document.getElementById('r-unit')?.textContent || '-';
-  document.getElementById('cap-area').textContent = document.getElementById('r-area')?.textContent || '-';
-  document.getElementById('cap-uninsLoss').textContent = document.getElementById('r-unins')?.textContent || '-';
-
-  const tbody = document.getElementById('cap-sample-table');
-  if(tbody){
-    let html = '';
-    const domRows = document.querySelectorAll('#sample-body tr');
-    if(domRows.length){
-      domRows.forEach((tr, idx)=>{
-        const vals = Array.from(tr.querySelectorAll('input')).map(inp => inp.value || '-');
-        if(vals.some(v => v !== '-')){
-          html += `
-          <tr>
-            <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
-            <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[0] || '-'}</td>
-            <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[1] || '-'}</td>
-            <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[2] || '-'}</td>
-            <td style="padding:8px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${vals[3] || '-'}</td>
-          </tr>`;
-        }
-      });
-    } else if(Array.isArray(window.samples)){
-      window.samples.forEach((s, idx)=>{
-        html += `
-        <tr>
-          <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc">${idx+1}</td>
-          <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.len || '-'}</td>
-          <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.wid || '-'}</td>
-          <td style="padding:8px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.weight || '-'}</td>
-          <td style="padding:8px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700">${s.moist || '-'}</td>
-        </tr>`;
-      });
-    }
-    tbody.innerHTML = html || '<tr><td colspan="5" style="padding:10px;text-align:center">-</td></tr>';
+function syncBeanTopSummary(){
+  const areaEl = document.getElementById('screen-sample-area');
+  const unitEl = document.getElementById('screen-sample-unit');
+  if(areaEl){
+    const src = document.getElementById('s-area');
+    areaEl.textContent = src ? (src.textContent || src.value || '-') : '-';
+  }
+  if(unitEl){
+    const src = document.getElementById('s-unit');
+    unitEl.textContent = src ? (src.textContent || src.value || '-') : '-';
   }
 }
 
-function bindBeanMobileFocus(){
-  const selectors = 'input.inp, tbody td input';
-  document.querySelectorAll(selectors).forEach(el=>{
-    if(el.dataset.beanFocusBound==='1') return;
-    el.dataset.beanFocusBound='1';
-    const addFocus = ()=> el.classList.add('mobile-focus');
-    const removeFocus = ()=> el.classList.remove('mobile-focus');
-    el.addEventListener('focus', addFocus, {passive:true});
-    el.addEventListener('blur', removeFocus, {passive:true});
-    el.addEventListener('touchstart', addFocus, {passive:true});
-    el.addEventListener('mousedown', addFocus, {passive:true});
-  });
-}
-document.addEventListener('DOMContentLoaded', ()=>{ bindBeanMobileFocus(); });
 
+setInterval(syncBeanTopSummary, 300);
 </script>
 </body>
 </html>
