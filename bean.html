@@ -11,12 +11,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
 function savePDF(){ window.print(); }
 
-function beanFmtNum(v, suffix=''){
-  if(v===undefined || v===null || v==='' || (typeof v==='number' && !isFinite(v))) return '-';
-  return String(v) + suffix;
-}
 function buildBeanCaptureData(){
-  const avgYield = document.getElementById('avgYield')?.value || '-';
+  const avgYield = document.getElementById('avgYield')?.value ? document.getElementById('avgYield').value + ' kg' : '-';
   const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
   const contract = document.getElementById('contractYn')?.value || '-';
   const actArea = document.getElementById('actArea')?.value ? document.getElementById('actArea').value + ' ㎡' : '-';
@@ -31,25 +27,19 @@ function buildBeanCaptureData(){
     const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0, z=parseFloat(s.weight)||0, m=parseFloat(s.moist)||0;
     if(l||w||z||m){
       totalLen += l; totalWid += w; totalWeight += z; totalMoist += m; count++;
-      detail.push(`${idx+1}구간  길이 ${l||'-'} / 이랑폭 ${w||'-'} / 종실중량 ${z||'-'} / 함수비 ${m||'-'}`);
+      detail.push(`${idx+1}구간: 길이 ${l||'-'} / 이랑폭 ${w||'-'} / 종실중량 ${z||'-'} / 함수비 ${m||'-'}%`);
     }
   });
   const avgMoist = count>0 ? (totalMoist / count).toFixed(1) + '%' : '-';
 
   return {
     pct: document.getElementById('result-pct')?.textContent || '-',
-    avgYield: avgYield ? avgYield + ' kg' : '-',
-    insArea,
-    contract,
-    actArea,
-    deadArea,
-    uninsArea,
-    preArea,
+    avgYield, insArea, contract, actArea, deadArea, uninsArea, preArea,
     len: count>0 ? totalLen.toFixed(2) + ' m' : '-',
     wid: count>0 ? totalWid.toFixed(2) + ' m' : '-',
     weight: count>0 ? totalWeight.toLocaleString('ko-KR') + ' g' : '-',
     moist: avgMoist,
-    detail: detail.length ? detail.join(' / ') : '-',
+    detail: detail.length ? detail.join('  |  ') : '-',
     survey: document.getElementById('r-survey')?.textContent || '-',
     unit: document.getElementById('r-unit')?.textContent || '-',
     area: document.getElementById('r-area')?.textContent || '-',
@@ -71,17 +61,33 @@ function fillBeanCaptureTemplate(){
     'cap-wid': d.wid,
     'cap-weight': d.weight,
     'cap-moist': d.moist,
+    'cap-samples-detail': d.detail,
     'cap-survey': d.survey,
     'cap-unit': d.unit,
+    'cap-result-survey': d.survey,
+    'cap-result-unit': d.unit,
     'cap-area': d.area,
-    'cap-uninsLoss': d.uninsLoss,
-    'cap-samples-detail': d.detail
+    'cap-uninsLoss': d.uninsLoss
   };
   Object.entries(pairs).forEach(([id,val])=>{
     const el = document.getElementById(id);
     if(el) el.textContent = val || '-';
   });
 }
+function bindBeanMobileFocus(){
+  const selectors = 'input.inp, tbody td input';
+  document.querySelectorAll(selectors).forEach(el=>{
+    if(el.dataset.beanFocusBound==='1') return;
+    el.dataset.beanFocusBound='1';
+    const addFocus = ()=> el.classList.add('mobile-focus');
+    const removeFocus = ()=> el.classList.remove('mobile-focus');
+    el.addEventListener('focus', addFocus, {passive:true});
+    el.addEventListener('blur', removeFocus, {passive:true});
+    el.addEventListener('touchstart', addFocus, {passive:true});
+    el.addEventListener('mousedown', addFocus, {passive:true});
+  });
+}
+document.addEventListener('DOMContentLoaded', ()=>{ bindBeanMobileFocus(); });
 
 </script>
 <style>
@@ -116,7 +122,7 @@ input.inp.filled:focus{background:#dceeff !important;color:#185FA5 !important;bo
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;text-align:center}
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
-.sample-btn-row{display:flex;gap:8px;margin-top:6px}.add-btn,.del-btn2{flex:1;height:36px;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer}.add-btn{border:1.5px dashed var(--blue2);background:#EBF4FF;color:var(--blue)}.del-btn2{border:1.5px solid var(--red);background:#FFF5F5;color:var(--red)}
+.add-btn{width:100%;height:36px;border:1.5px dashed var(--blue2);background:#EBF4FF;border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;margin-top:6px}
 .tbl-wrap{overflow-x:hidden;width:100%;margin-bottom:8px}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 thead th{background:#f8f8f8;padding:6px 2px;text-align:center;font-weight:600;color:var(--sub);border-bottom:1.5px solid var(--border);line-height:1.4}
@@ -143,6 +149,32 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
 .save-modal{background:white;border-radius:var(--r);padding:24px 20px;text-align:center;width:260px}
 .save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
 .save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
+
+/* bean mobile focus fix */
+input.inp:focus,
+input.inp:focus-visible,
+input.inp:active,
+tbody td input:focus,
+tbody td input:focus-visible,
+tbody td input:active{
+  outline:none !important;
+  border-color:#185FA5 !important;
+  box-shadow:0 0 0 3px rgba(24,95,165,0.20) !important;
+  background:#dceeff !important;
+  color:#185FA5 !important;
+}
+input.inp.filled:focus,
+input.inp.filled:focus-visible,
+input.inp.filled:active,
+tbody td input.filled:focus,
+tbody td input.filled:focus-visible,
+tbody td input.filled:active{
+  outline:none !important;
+  border-color:#185FA5 !important;
+  box-shadow:0 0 0 3px rgba(24,95,165,0.20) !important;
+  background:#dceeff !important;
+  color:#185FA5 !important;
+}
 </style>
 </head>
 <body>
@@ -222,7 +254,7 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
           </tfoot>
         </table>
       </div>
-      <div class="sample-btn-row"><button class="add-btn" onclick="addRow()">+ 표본구간 추가</button><button class="del-btn2" onclick="removeLastRow()">− 표본구간 삭제</button></div>
+      <button class="add-btn" onclick="addRow()">+ 표본구간 추가</button>
       <div class="info-strip">
         <span>m²당 유효중량: <strong id="s-unit">-</strong></span>
         <span>조사수확량: <strong id="s-survey">-</strong></span>
@@ -247,21 +279,36 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
   </div>
 
   <!-- 결과 -->
-  <div class="result-box pending" id="result-section">
-    <div style="text-align:center;margin-bottom:12px">
-      <div style="font-size:12px;opacity:0.8;margin-bottom:4px">피해율</div>
-      <div class="result-pct" id="result-pct">입력 대기중</div>
-    </div>
+  
+<div class="result-box pending" id="result-section">
+  <div style="text-align:center;padding:10px 0 14px">
+    <div style="font-size:18px;font-weight:700;opacity:0.85;margin-bottom:6px">피해율</div>
+    <div id="result-pct" style="font-size:38px;font-weight:800;line-height:1;letter-spacing:-0.02em;margin-bottom:16px">입력 대기중</div>
     <div style="display:flex;justify-content:center;gap:10px;margin-bottom:16px">
       <button class="save-btn" onclick="saveImage()" style="width:130px;height:36px;justify-content:center;flex-direction:row;gap:5px;font-size:13px;font-weight:700;padding:0">
-        <span>📷</span><span>갤러리 저장</span>
+        <span style="font-size:14px">📷</span><span>갤러리 저장</span>
       </button>
-      <button class="save-btn" onclick="savePDF()" style="width:130px;height:36px;justify-content:center;flex-direction:row;gap:5px;font-size:13px;font-weight:700;padding:0">
-        <span>📄</span><span>PDF 저장</span>
+      <button class="save-btn" onclick="savePDF()" style="width:130px;height:36px;justify-content:center;flex-direction:row;gap:5px;font-size:13px;font-weight:700;padding:0;opacity:0.5">
+        <span style="font-size:14px">📄</span><span>PDF 저장</span>
       </button>
     </div>
-        <div class="result-pct" id="result-pct">입력 대기중</div></div>
-      <div style="display:flex;gap:10px"><button class="save-btn" onclick="saveImage()"><span style="font-size:20px">📷</span><span>갤러리 저장</span></button><button class="save-btn" onclick="savePDF()" style="opacity:0.5"><span style="font-size:20px">📄</span><span>PDF 저장</span></button></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 8px;text-align:center">
+        <div style="font-size:10px;opacity:0.75;margin-bottom:4px">평년수확량</div>
+        <div style="font-size:14px;font-weight:700" id="r-avg">-</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:12px 8px;text-align:center">
+        <div style="font-size:10px;opacity:0.75;margin-bottom:4px">조사수확량</div>
+        <div style="font-size:14px;font-weight:700" id="r-survey">-</div>
+      </div>
+    </div>
+    <div class="drow"><span>m²당 유효중량</span><span id="r-unit">-</span></div>
+    <div class="drow"><span>조사대상면적</span><span id="r-area">-</span></div>
+    <div class="drow"><span>미보상감수량</span><span id="r-unins">-</span></div>
+  </div>
+</div>
+
+      <button class="save-btn" onclick="saveImage()"><span style="font-size:20px">📷</span><span>갤러리 저장</span></button>
     </div>
     <div class="metrics">
       <div class="metric"><div class="ml">평년수확량</div><div class="mv" id="r-avg">-</div></div>
@@ -274,96 +321,80 @@ tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35
 </div>
 
 
-
-<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;height:932px;background:#f5f4f0">
-  <div style="height:100%;background:linear-gradient(180deg,#185FA5 0%,#2F80ED 25%,#f5f4f0 25%)">
-
-    <div style="padding:20px 16px;color:white;text-align:center">
-      <div style="font-size:14px;font-weight:700">콩 피해율 계산결과</div>
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f5f4f0;padding:0;z-index:-1">
+  <div style="min-height:932px;background:linear-gradient(180deg,#185FA5 0%,#2F80ED 23%,#F5F4F0 23%,#F5F4F0 100%);padding:18px 16px 24px;box-sizing:border-box">
+    <div style="height:28px"></div>
+    <div style="text-align:center;color:#fff;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:800">콩 피해율 계산결과</div>
+      <div style="font-size:11px;opacity:0.8;margin-top:4px">현장 확인용 저장화면</div>
     </div>
 
-    <div style="padding:0 16px">
-      <div style="background:#185FA5;border-radius:20px;padding:20px;color:white;text-align:center;margin-bottom:14px">
-        <div style="font-size:13px;margin-bottom:6px">피해율</div>
-        <div id="cap-pct" style="font-size:44px;font-weight:800">-</div>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:10px">
-
-        <div style="background:white;border-radius:16px;padding:14px">
-          <div style="font-weight:800;margin-bottom:8px">1. 기본정보</div>
-          <div style="font-size:13px">평년수확량 <b id="cap-avgYield">-</b></div>
-          <div style="font-size:13px">가입면적 <b id="cap-insArea">-</b></div>
-          <div style="font-size:13px">원장변경유무 <b id="cap-contract">-</b></div>
+    <div style="background:#185FA5;border-radius:24px;padding:18px 16px;color:#fff;box-shadow:0 14px 28px rgba(24,95,165,0.24);margin-bottom:14px">
+      <div style="font-size:14px;font-weight:700;opacity:0.85;text-align:center;margin-bottom:6px">피해율</div>
+      <div id="cap-pct" style="font-size:46px;font-weight:900;line-height:1;text-align:center;margin-bottom:14px">-</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:rgba(255,255,255,0.14);border-radius:12px;padding:10px 8px;text-align:center">
+          <div style="font-size:11px;opacity:0.8;margin-bottom:4px">조사수확량</div>
+          <div id="cap-survey" style="font-size:15px;font-weight:800">-</div>
         </div>
-
-        <div style="background:white;border-radius:16px;padding:14px">
-          <div style="font-weight:800;margin-bottom:8px">2. 면적조사</div>
-          <div style="font-size:13px">실제경작면적 <b id="cap-actArea">-</b></div>
-          <div style="font-size:13px">고사면적 <b id="cap-deadArea">-</b></div>
-          <div style="font-size:13px">미보상면적 <b id="cap-uninsArea">-</b></div>
-          <div style="font-size:13px">기수확면적 <b id="cap-preArea">-</b></div>
+        <div style="background:rgba(255,255,255,0.14);border-radius:12px;padding:10px 8px;text-align:center">
+          <div style="font-size:11px;opacity:0.8;margin-bottom:4px">m²당 유효중량</div>
+          <div id="cap-unit" style="font-size:15px;font-weight:800">-</div>
         </div>
-
-        <div style="background:white;border-radius:16px;padding:14px">
-          <div style="font-weight:800;margin-bottom:8px">3. 표본조사</div>
-          <div style="font-size:13px">길이 <b id="cap-len">-</b></div>
-          <div style="font-size:13px">이랑폭 <b id="cap-wid">-</b></div>
-          <div style="font-size:13px">종실중량 <b id="cap-weight">-</b></div>
-          <div style="font-size:13px">함수비 <b id="cap-moist">-</b></div>
-        </div>
-
-        <div style="background:white;border-radius:16px;padding:14px">
-          <div style="font-weight:800;margin-bottom:8px">4. 결과</div>
-          <div style="font-size:13px">조사수확량 <b id="cap-survey">-</b></div>
-          <div style="font-size:13px">유효중량 <b id="cap-unit">-</b></div>
-          <div style="font-size:13px">조사면적 <b id="cap-area">-</b></div>
-          <div style="font-size:13px">미보상감수량 <b id="cap-uninsLoss">-</b></div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</div>
-
-
-    <div style="background:rgba(255,255,255,0.14);border-radius:14px;padding:14px 16px;margin-bottom:12px">
-      <div style="font-size:14px;font-weight:800;margin-bottom:10px">1. 기본정보</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:13px">
-        <div>평년수확량<br><b id="cap-avgYield">-</b></div>
-        <div>가입면적<br><b id="cap-insArea">-</b></div>
-        <div>원장변경유무<br><b id="cap-contract">-</b></div>
       </div>
     </div>
 
-    <div style="background:rgba(255,255,255,0.14);border-radius:14px;padding:14px 16px;margin-bottom:12px">
-      <div style="font-size:14px;font-weight:800;margin-bottom:10px">2. 면적조사</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
-        <div>실제경작면적<br><b id="cap-actArea">-</b></div>
-        <div>고사면적<br><b id="cap-deadArea">-</b></div>
-        <div>타작물 및 미보상면적<br><b id="cap-uninsArea">-</b></div>
-        <div>기수확면적<br><b id="cap-preArea">-</b></div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.06)">
+        <div style="font-size:15px;font-weight:900;color:#222;margin-bottom:10px">1. 기본정보</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <tr><td style="padding:8px 0;color:#666;width:36%">평년수확량</td><td id="cap-avgYield" style="padding:8px 0;font-weight:800;color:#111">-</td></tr>
+          <tr><td style="padding:8px 0;color:#666">가입면적</td><td id="cap-insArea" style="padding:8px 0;font-weight:800;color:#111">-</td></tr>
+          <tr><td style="padding:8px 0;color:#666">원장변경유무</td><td id="cap-contract" style="padding:8px 0;font-weight:800;color:#111">-</td></tr>
+        </table>
       </div>
-    </div>
 
-    <div style="background:rgba(255,255,255,0.14);border-radius:14px;padding:14px 16px;margin-bottom:12px">
-      <div style="font-size:14px;font-weight:800;margin-bottom:10px">3. 표본조사</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:13px;margin-bottom:10px">
-        <div>표본구간 길이<br><b id="cap-len">-</b></div>
-        <div>이랑폭<br><b id="cap-wid">-</b></div>
-        <div>종실중량<br><b id="cap-weight">-</b></div>
-        <div>함수비<br><b id="cap-moist">-</b></div>
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.06)">
+        <div style="font-size:15px;font-weight:900;color:#222;margin-bottom:10px">2. 면적조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <tr><td style="padding:8px 0;color:#666;width:50%">실제경작면적</td><td id="cap-actArea" style="padding:8px 0;font-weight:800;color:#111">-</td></tr>
+          <tr><td style="padding:8px 0;color:#666">고사면적</td><td id="cap-deadArea" style="padding:8px 0;font-weight:800;color:#111">-</td></tr>
+          <tr><td style="padding:8px 0;color:#666">타작물 및 미보상면적</td><td id="cap-uninsArea" style="padding:8px 0;font-weight:800;color:#111">-</td></tr>
+          <tr><td style="padding:8px 0;color:#666">기수확면적</td><td id="cap-preArea" style="padding:8px 0;font-weight:800;color:#111">-</td></tr>
+        </table>
       </div>
-      <div style="font-size:12px;opacity:0.9;line-height:1.6" id="cap-samples-detail">-</div>
-    </div>
 
-    <div style="background:rgba(255,255,255,0.14);border-radius:14px;padding:14px 16px">
-      <div style="font-size:14px;font-weight:800;margin-bottom:10px">4. 결과</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
-        <div>조사수확량<br><b id="cap-survey">-</b></div>
-        <div>m²당 유효중량<br><b id="cap-unit">-</b></div>
-        <div>조사대상면적<br><b id="cap-area">-</b></div>
-        <div>미보상감수량<br><b id="cap-uninsLoss">-</b></div>
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.06)">
+        <div style="font-size:15px;font-weight:900;color:#222;margin-bottom:10px">3. 표본조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px 6px;background:#f4f6f8;border-radius:8px 0 0 8px">길이</th>
+              <th style="text-align:left;padding:8px 6px;background:#f4f6f8">이랑폭</th>
+              <th style="text-align:left;padding:8px 6px;background:#f4f6f8">종실중량</th>
+              <th style="text-align:left;padding:8px 6px;background:#f4f6f8;border-radius:0 8px 8px 0">함수비</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="cap-len" style="padding:10px 6px;font-weight:800;color:#111;border-bottom:1px solid #eee">-</td>
+              <td id="cap-wid" style="padding:10px 6px;font-weight:800;color:#111;border-bottom:1px solid #eee">-</td>
+              <td id="cap-weight" style="padding:10px 6px;font-weight:800;color:#111;border-bottom:1px solid #eee">-</td>
+              <td id="cap-moist" style="padding:10px 6px;font-weight:800;color:#111;border-bottom:1px solid #eee">-</td>
+            </tr>
+          </tbody>
+        </table>
+        <div id="cap-samples-detail" style="font-size:11px;color:#666;line-height:1.45">-</div>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.06)">
+        <div style="font-size:15px;font-weight:900;color:#222;margin-bottom:10px">4. 결과</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <tr><td style="padding:8px 0;color:#666;width:40%">조사수확량</td><td id="cap-result-survey" style="padding:8px 0;font-weight:800;color:#111">-</td></tr>
+          <tr><td style="padding:8px 0;color:#666">m²당 유효중량</td><td id="cap-result-unit" style="padding:8px 0;font-weight:800;color:#111">-</td></tr>
+          <tr><td style="padding:8px 0;color:#666">조사대상면적</td><td id="cap-area" style="padding:8px 0;font-weight:800;color:#111">-</td></tr>
+          <tr><td style="padding:8px 0;color:#666">미보상감수량</td><td id="cap-uninsLoss" style="padding:8px 0;font-weight:800;color:#111">-</td></tr>
+        </table>
       </div>
     </div>
   </div>
@@ -552,19 +583,6 @@ function addRow(){
   if(samples.length>=8){alert('최대 8구간까지 입력 가능해요');return;}
   samples.push({len:'',wid:'',weight:'',moist:''});
   renderSamples();
-  calc();
-}
-
-function removeLastRow(){
-  const {surveyArea}=calcCommon();
-  const proper = surveyArea>0 ? getProper(surveyArea) : 0;
-  if(samples.length<=proper){
-    alert('적정표본구간 이하의 표본은 삭제할 수 없습니다');
-    return;
-  }
-  samples.pop();
-  renderSamples();
-  calc();
 }
 
 function saveState(){
@@ -620,12 +638,10 @@ function resetAll(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-
 async function saveImage(){
   try{
     const isPending = document.getElementById('result-section').classList.contains('pending');
     if(isPending){ alert('계산 결과가 없어요. 값을 입력해주세요.'); return; }
-
     fillBeanCaptureTemplate();
     const target = document.getElementById('capture-template');
     const canvas = await html2canvas(target, {scale:2, backgroundColor:'#f5f4f0'});
@@ -639,7 +655,6 @@ async function saveImage(){
   }
 }
 
-
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(r=>r.forEach(s=>s.unregister()));
   caches.keys().then(k=>Promise.all(k.map(c=>caches.delete(c))));
@@ -651,12 +666,8 @@ setTimeout(()=>{ if(mode==='sample') calc(); else calcFull(); }, 50);
 
 function savePDF(){ window.print(); }
 
-function beanFmtNum(v, suffix=''){
-  if(v===undefined || v===null || v==='' || (typeof v==='number' && !isFinite(v))) return '-';
-  return String(v) + suffix;
-}
 function buildBeanCaptureData(){
-  const avgYield = document.getElementById('avgYield')?.value || '-';
+  const avgYield = document.getElementById('avgYield')?.value ? document.getElementById('avgYield').value + ' kg' : '-';
   const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
   const contract = document.getElementById('contractYn')?.value || '-';
   const actArea = document.getElementById('actArea')?.value ? document.getElementById('actArea').value + ' ㎡' : '-';
@@ -671,25 +682,19 @@ function buildBeanCaptureData(){
     const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0, z=parseFloat(s.weight)||0, m=parseFloat(s.moist)||0;
     if(l||w||z||m){
       totalLen += l; totalWid += w; totalWeight += z; totalMoist += m; count++;
-      detail.push(`${idx+1}구간  길이 ${l||'-'} / 이랑폭 ${w||'-'} / 종실중량 ${z||'-'} / 함수비 ${m||'-'}`);
+      detail.push(`${idx+1}구간: 길이 ${l||'-'} / 이랑폭 ${w||'-'} / 종실중량 ${z||'-'} / 함수비 ${m||'-'}%`);
     }
   });
   const avgMoist = count>0 ? (totalMoist / count).toFixed(1) + '%' : '-';
 
   return {
     pct: document.getElementById('result-pct')?.textContent || '-',
-    avgYield: avgYield ? avgYield + ' kg' : '-',
-    insArea,
-    contract,
-    actArea,
-    deadArea,
-    uninsArea,
-    preArea,
+    avgYield, insArea, contract, actArea, deadArea, uninsArea, preArea,
     len: count>0 ? totalLen.toFixed(2) + ' m' : '-',
     wid: count>0 ? totalWid.toFixed(2) + ' m' : '-',
     weight: count>0 ? totalWeight.toLocaleString('ko-KR') + ' g' : '-',
     moist: avgMoist,
-    detail: detail.length ? detail.join(' / ') : '-',
+    detail: detail.length ? detail.join('  |  ') : '-',
     survey: document.getElementById('r-survey')?.textContent || '-',
     unit: document.getElementById('r-unit')?.textContent || '-',
     area: document.getElementById('r-area')?.textContent || '-',
@@ -711,17 +716,33 @@ function fillBeanCaptureTemplate(){
     'cap-wid': d.wid,
     'cap-weight': d.weight,
     'cap-moist': d.moist,
+    'cap-samples-detail': d.detail,
     'cap-survey': d.survey,
     'cap-unit': d.unit,
+    'cap-result-survey': d.survey,
+    'cap-result-unit': d.unit,
     'cap-area': d.area,
-    'cap-uninsLoss': d.uninsLoss,
-    'cap-samples-detail': d.detail
+    'cap-uninsLoss': d.uninsLoss
   };
   Object.entries(pairs).forEach(([id,val])=>{
     const el = document.getElementById(id);
     if(el) el.textContent = val || '-';
   });
 }
+function bindBeanMobileFocus(){
+  const selectors = 'input.inp, tbody td input';
+  document.querySelectorAll(selectors).forEach(el=>{
+    if(el.dataset.beanFocusBound==='1') return;
+    el.dataset.beanFocusBound='1';
+    const addFocus = ()=> el.classList.add('mobile-focus');
+    const removeFocus = ()=> el.classList.remove('mobile-focus');
+    el.addEventListener('focus', addFocus, {passive:true});
+    el.addEventListener('blur', removeFocus, {passive:true});
+    el.addEventListener('touchstart', addFocus, {passive:true});
+    el.addEventListener('mousedown', addFocus, {passive:true});
+  });
+}
+document.addEventListener('DOMContentLoaded', ()=>{ bindBeanMobileFocus(); });
 
 </script>
 </body>
