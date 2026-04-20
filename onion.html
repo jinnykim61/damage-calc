@@ -143,34 +143,34 @@ tfoot td.v{color:var(--text)}
       <div class="field">
         <label>평년수확량 (kg)</label>
         <input type="text" id="avg_yield" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="calc()">
+          oninput="onCommaInput(this)" onchange="calc()" onblur="calc()">
       </div>
       <div class="field">
         <label>가입면적 (㎡)</label>
         <input type="text" id="ins_area" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="calc()">
+          oninput="onCommaInput(this)" onchange="calc()" onblur="calc()">
       </div>
       <div class="field">
         <label>실제경작면적 (㎡)</label>
         <input type="text" id="act_area" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()">
+          oninput="onCommaInput(this)" onchange="updateSamplesAndCalc()" onblur="updateSamplesAndCalc()">
       </div>
     </div>
     <div class="g3">
       <div class="field">
         <label>고사면적 (㎡)</label>
         <input type="number" id="dead_area" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
+          oninput="markFilled(this)" onchange="updateSamplesAndCalc()" onblur="updateSamplesAndCalc()">
       </div>
       <div class="field">
         <label>타작물/미보상 (㎡)</label>
         <input type="number" id="other_area" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
+          oninput="markFilled(this)" onchange="updateSamplesAndCalc()" onblur="updateSamplesAndCalc()">
       </div>
       <div class="field">
         <label>기수확면적 (㎡)</label>
         <input type="number" id="harv_area" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
+          oninput="markFilled(this)" onchange="updateSamplesAndCalc()" onblur="updateSamplesAndCalc()">
       </div>
     </div>
     <div class="g3">
@@ -209,12 +209,12 @@ tfoot td.v{color:var(--text)}
       <div class="field">
         <label>열공수 (개)</label>
         <input type="number" id="crack_count" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()">
+          oninput="markFilled(this)" onchange="calc()" onblur="calc()">
       </div>
       <div class="field">
         <label>미보상 (%)</label>
         <input type="number" id="unins_rate" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()">
+          oninput="markFilled(this)" onchange="calc()" onblur="calc()">
       </div>
     </div>
   </div>
