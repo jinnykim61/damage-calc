@@ -1079,7 +1079,7 @@ if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
 
 
 updateGarlicCols();
-setTimeout(()=>{
+function restoreAndRecalc(){
   if(loaded){
     const actArea=toNum(document.getElementById('act_area'))||toNum(document.getElementById('ins_area'));
     const insArea=toNum(document.getElementById('ins_area'));
@@ -1094,13 +1094,27 @@ setTimeout(()=>{
     if(samples.length>0){
       renderSamples();
       calcTotals();
+      setTimeout(()=>{ calcTotals(); calc(); }, 80);
+      setTimeout(()=>{ calc(); }, 180);
     } else {
       updateSamplesAndCalc();
+      setTimeout(()=>{ calc(); }, 120);
     }
   } else {
     updateSamplesAndCalc();
+    setTimeout(()=>{ calc(); }, 120);
   }
-}, 50);
+}
+
+setTimeout(restoreAndRecalc, 50);
+
+window.addEventListener('load', ()=>{
+  if(loaded) setTimeout(()=>{ calc(); }, 120);
+});
+
+window.addEventListener('pageshow', ()=>{
+  if(loaded) setTimeout(()=>{ calc(); }, 120);
+});
 
 function openResetModal(){
   const el = document.getElementById('reset-overlay');
