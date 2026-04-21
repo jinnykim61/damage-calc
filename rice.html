@@ -389,17 +389,19 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
       <!-- 3. 표본면적조사 및 미보상비율 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본면적조사 및 미보상비율</div>
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본면적조사 및 함수율·미보상비율</div>
         <table class="fit-table" style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
-            <th style="padding:7px 16px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑길이</th>
-            <th style="padding:7px 16px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑폭</th>
-            <th style="padding:7px 16px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상비율</th>
+            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑길이</th>
+            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑폭</th>
+            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">함수율</th>
+            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상비율</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 16px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowLen">-</td>
-            <td style="padding:7px 16px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowWid">-</td>
-            <td style="padding:7px 16px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-uninsRate">-</td>
+            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowLen">-</td>
+            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowWid">-</td>
+            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-moisture3">-</td>
+            <td style="padding:7px 14px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-uninsRate">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -410,7 +412,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div style="display:flex;gap:4px;align-items:stretch">
           <!-- 좌측: 1~4행 / 5~8행 -->
           <div style="flex:1;display:flex;flex-direction:column;gap:3px">
-            <table style="width:100%;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
+            <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
               <thead><tr>
                 <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">1</th>
                 <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">2</th>
@@ -419,7 +421,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
               </tr></thead>
               <tbody><tr id="cap-row1234"></tr></tbody>
             </table>
-            <table style="width:100%;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
+            <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
               <thead><tr>
                 <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">5</th>
                 <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">6</th>
@@ -430,11 +432,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
             </table>
           </div>
           <!-- 우측: 합계/함수율 세로 -->
-          <table style="border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden;flex-shrink:0">
-            <thead><tr><th style="padding:3px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center;white-space:nowrap">합계</th></tr></thead>
-            <tbody><tr><td style="padding:4px 8px;text-align:center;background:#fff3cd;font-weight:700;font-size:11px;white-space:nowrap" id="cap-total">-</td></tr></tbody>
-            <thead><tr><th style="padding:3px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;border-top:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center;white-space:nowrap">함수율</th></tr></thead>
-            <tbody><tr><td style="padding:4px 8px;text-align:center;background:#e8faf3;font-weight:700;font-size:11px;white-space:nowrap" id="cap-moisture">-</td></tr></tbody>
+          <table style="border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden;flex-shrink:0;width:56px">
+            <thead><tr><th style="padding:3px 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">합계</th></tr></thead>
+            <tbody><tr><td style="padding:4px 2px;text-align:center;background:#fff3cd;font-weight:700;font-size:10px;word-break:break-all" id="cap-total">-</td></tr></tbody>
+            <thead><tr><th style="padding:3px 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;border-top:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">함수율</th></tr></thead>
+            <tbody><tr><td style="padding:4px 2px;text-align:center;background:#e8faf3;font-weight:700;font-size:10px;" id="cap-moisture">-</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -735,10 +737,9 @@ function saveState(){
 }
 
 function clearOldCache(){
-  // 함수율 단위 변경으로 인한 캐시 초기화
   try{
     const v = localStorage.getItem('rice_ver');
-    if(v !== '2'){ localStorage.removeItem('rice_state'); localStorage.setItem('rice_ver','2'); }
+    if(v !== '3'){ localStorage.setItem('rice_ver','3'); }
   }catch(e){}
 }
 
@@ -869,6 +870,8 @@ function fillRiceCaptureTemplate(){
 
   document.getElementById('cap-rowLen').textContent = document.getElementById('rowLen')?.value ? document.getElementById('rowLen').value+' m' : '-';
   document.getElementById('cap-rowWid').textContent = document.getElementById('rowWid')?.value ? document.getElementById('rowWid').value+' m' : '-';
+  const capM3 = document.getElementById('cap-moisture3');
+  if(capM3) capM3.textContent = moisture ? moisture+'%' : '-';
   document.getElementById('cap-uninsRate').textContent = uninsRate ? uninsRate+'%' : '-';
 
   // 4. 표본구간별 수확량 - 1~8
@@ -880,8 +883,7 @@ function fillRiceCaptureTemplate(){
     const bg = v ? '#e8faf3' : '#fff';
     const color = v ? '#0d5c35' : '#bbb';
     const border = (i%4 < 3) ? 'border-right:1px solid #d1d5db;' : '';
-    // 비활성도 흰색 빈칸으로 표시 (active 여부 관계없이 항상 렌더링)
-    return `<td style="padding:5px 1px;${border}text-align:center;background:${bg};font-weight:700;font-size:11px;white-space:nowrap;color:${color};height:28px">${active ? (v ? v : '') : ''}</td>`;
+    return `<td style="padding:4px 1px;${border}text-align:center;background:${bg};font-weight:700;font-size:10px;word-break:break-all;color:${color}">${active ? (v ? v : '') : ''}</td>`;
   };
   document.getElementById('cap-row1234').innerHTML = td8(0)+td8(1)+td8(2)+td8(3);
   document.getElementById('cap-row5678').innerHTML = td8(4)+td8(5)+td8(6)+td8(7);
@@ -908,7 +910,6 @@ if('serviceWorker' in navigator){
 }
 
 clearOldCache();
-window.addEventListener('beforeunload', saveState);
 loadState();
 setMode('sample');
 lastProper = -1;
@@ -931,26 +932,27 @@ lastProper = -1;
 // calc 실행 (표본구간 렌더링 포함)
 setTimeout(function(){
   calc();
-  // 저장된 표본값 복원
-  try{
-    const raw = localStorage.getItem('rice_state');
-    if(!raw) return;
-    const s = JSON.parse(raw);
-    if(s.spVals && s.spVals.some(function(v){return v;})){
-      setTimeout(function(){
-        s.spVals.forEach(function(v,i){
-          const el = document.getElementById('sp'+i);
-          if(el && v){
-            el.value = v;
-            el.style.background='#e8faf3';
-            el.style.borderColor='#1D9E75';
-            el.style.color='#0d5c35';
-          }
-        });
-        calc();
-      }, 100);
-    }
-  }catch(e){}
+  // 저장된 표본값 복원 - calc 후 렌더링 완료 시점에 실행
+  setTimeout(function(){
+    try{
+      const raw = localStorage.getItem('rice_state');
+      if(!raw) return;
+      const s = JSON.parse(raw);
+      if(!s.spVals || !s.spVals.some(function(v){return v;})) return;
+      let restored = false;
+      s.spVals.forEach(function(v,i){
+        const el = document.getElementById('sp'+i);
+        if(el && v){
+          el.value = v;
+          el.style.background='#e8faf3';
+          el.style.borderColor='#1D9E75';
+          el.style.color='#0d5c35';
+          restored = true;
+        }
+      });
+      if(restored) calc();
+    }catch(e){}
+  }, 200);
 }, 80);
 </script>
 </body>
