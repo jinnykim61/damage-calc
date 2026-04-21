@@ -178,7 +178,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       </div>
       <div class="field">
         <label>조사일자</label>
-        <input type="date" id="surveyDate" class="inp" onchange="markFilled(this);debouncedCalc()">
+        <input type="date" id="surveyDate" class="inp" onchange="markFilled(this)">
       </div>
     </div>
   </div>
@@ -225,8 +225,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
     <!-- 3. 표본구간 -->
     <div class="section">
-      <div class="sec-title">③ 표본면적조사</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">
+      <div class="sec-title">③ 표본면적조사 및 함수율·미보상비율</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
         <div class="field">
           <label>이랑길이 (m)</label>
           <input type="number" id="rowLen" class="inp" inputmode="decimal" step="0.01"
@@ -237,6 +237,18 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           <input type="number" id="rowWid" class="inp filled" inputmode="decimal" step="0.01" value="0.3"
             oninput="markFilled(this);debouncedCalc()" onblur="calc()" data-default="0.3">
         </div>
+        <div class="field">
+          <label>함수율 (%)</label>
+          <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
+            oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+        </div>
+        <div class="field">
+          <label>미보상비율 (%)</label>
+          <input type="number" id="uninsRate" class="inp" inputmode="decimal"
+            placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px">
         <div class="field">
           <label>표본구간면적</label>
           <input type="text" id="sampleArea" class="auto" readonly>
@@ -255,20 +267,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div style="font-size:11px;color:var(--hint)" id="sample-inputted"></div>
       </div>
       <div id="sample-inputs"></div>
-      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px;align-items:start">
+      <!-- 합계 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">
         <div class="field">
-          <label>합계<span style="font-size:10px;color:var(--hint)">g</span></label>
-          <input type="text" id="sampleTotal" class="auto" readonly style="font-weight:700">
-        </div>
-        <div class="field">
-          <label>함수율 (%)</label>
-          <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
-            oninput="markFilled(this);debouncedCalc()" onblur="calc()">
-        </div>
-        <div class="field">
-          <label>미보상비율 (%)</label>
-          <input type="number" id="uninsRate" class="inp" inputmode="decimal"
-            placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+          <label>합계<sup style="font-size:9px;color:var(--hint);margin-top:1px">g</sup></label>
+          <input type="text" id="sampleTotal" class="auto" readonly>
         </div>
       </div>
     </div>
@@ -386,19 +389,21 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         </table>
       </div>
 
-      <!-- 3. 표본면적조사 -->
+      <!-- 3. 표본면적조사 및 미보상비율 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본면적조사</div>
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본면적조사 및 함수율·미보상비율</div>
         <table class="fit-table" style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑길이</th>
             <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑폭</th>
-            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">표본구간면적</th>
+            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">함수율</th>
+            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상비율</th>
           </tr></thead>
           <tbody><tr>
             <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowLen">-</td>
             <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowWid">-</td>
-            <td style="padding:7px 14px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-sampleArea3">-</td>
+            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-moisture3">-</td>
+            <td style="padding:7px 14px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-uninsRate">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -406,42 +411,39 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <!-- 4. 표본구간별 수확량 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:8px">4. 표본구간별 수확량 <span style="font-size:11px;font-weight:500;color:#888">g</span></div>
-        <div style="display:flex;gap:8px;align-items:stretch">
-          <div style="flex:4;display:flex;flex-direction:column;gap:3px">
-            <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
-              <thead><tr>
-                <th style="padding:4px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">1</th>
-                <th style="padding:4px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">2</th>
-                <th style="padding:4px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">3</th>
-                <th style="padding:4px 0;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">4</th>
-              </tr></thead>
-              <tbody><tr id="cap-row1234"></tr></tbody>
-            </table>
-            <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
-              <thead><tr>
-                <th style="padding:4px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">5</th>
-                <th style="padding:4px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">6</th>
-                <th style="padding:4px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">7</th>
-                <th style="padding:4px 0;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">8</th>
-              </tr></thead>
-              <tbody><tr id="cap-row5678"></tr></tbody>
-            </table>
-          </div>
-          <div style="flex:3;display:grid;grid-template-columns:repeat(3,1fr);gap:3px">
-            <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
-              <thead><tr><th style="padding:4px 2px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">합계</th></tr></thead>
-              <tbody><tr><td style="height:56px;padding:6px 2px;text-align:center;vertical-align:middle;background:#e8faf3;color:#0d5c35;font-weight:700;font-size:10px;word-break:break-all" id="cap-total">-</td></tr></tbody>
-            </table>
-            <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
-              <thead><tr><th style="padding:4px 2px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">함수율</th></tr></thead>
-              <tbody><tr><td style="height:56px;padding:6px 2px;text-align:center;vertical-align:middle;background:#e8faf3;color:#0d5c35;font-weight:700;font-size:10px;word-break:break-all" id="cap-moisture4">-</td></tr></tbody>
-            </table>
-            <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
-              <thead><tr><th style="padding:4px 2px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">미보상비율</th></tr></thead>
-              <tbody><tr><td style="height:56px;padding:6px 2px;text-align:center;vertical-align:middle;background:#e8faf3;color:#0d5c35;font-weight:700;font-size:10px;word-break:break-all" id="cap-uninsRate4">-</td></tr></tbody>
-            </table>
-          </div>
-        </div>
+        <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <colgroup>
+            <col style="width:13%">
+            <col style="width:13%">
+            <col style="width:13%">
+            <col style="width:13%">
+            <col style="width:16%">
+            <col style="width:16%">
+            <col style="width:16%">
+          </colgroup>
+          <tbody>
+            <tr>
+              <th style="padding:6px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">1</th>
+              <th style="padding:6px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">2</th>
+              <th style="padding:6px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">3</th>
+              <th style="padding:6px 0;background:#4a7aad;color:#fff;border-right:2px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">4</th>
+              <th rowspan="2" style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">합계</th>
+              <th rowspan="2" style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">함수율</th>
+              <th rowspan="2" style="padding:6px 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">미보상비율</th>
+            </tr>
+            <tr id="cap-row1234"></tr>
+            <tr>
+              <th style="padding:6px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">5</th>
+              <th style="padding:6px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">6</th>
+              <th style="padding:6px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">7</th>
+              <th style="padding:6px 0;background:#4a7aad;color:#fff;border-right:2px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">8</th>
+              <td rowspan="2" id="cap-total" style="padding:6px 3px;text-align:center;background:#e3f0ea;color:#1d6b4a;font-weight:700;font-size:12px;word-break:break-all;border-right:1px solid #d1d5db"></td>
+              <td rowspan="2" id="cap-moisture4" style="padding:6px 3px;text-align:center;background:#e3f0ea;color:#1d6b4a;font-weight:700;font-size:12px;word-break:break-all;border-right:1px solid #d1d5db"></td>
+              <td rowspan="2" id="cap-uninsRate4" style="padding:6px 3px;text-align:center;background:#e3f0ea;color:#1d6b4a;font-weight:700;font-size:12px;word-break:break-all"></td>
+            </tr>
+            <tr id="cap-row5678"></tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- 5. 결과 -->
@@ -866,19 +868,16 @@ function fillRiceCaptureTemplate(){
   const rawDate = document.getElementById('surveyDate')?.value || '';
   document.getElementById('cap-surveyDate').textContent = rawDate ? rawDate.replace(/-/g,'.') : '-';
 
-  // 3. 표본면적조사
+  // 3. 표본면적조사 및 미보상비율
   const proper = parseInt(document.getElementById('properSampleDisp').value)||0;
   const moisture = document.getElementById('moisture')?.value||'';
   const uninsRate = document.getElementById('uninsRate')?.value||'0';
 
   document.getElementById('cap-rowLen').textContent = document.getElementById('rowLen')?.value ? document.getElementById('rowLen').value+' m' : '-';
   document.getElementById('cap-rowWid').textContent = document.getElementById('rowWid')?.value ? document.getElementById('rowWid').value+' m' : '-';
-  const capSampleArea3 = document.getElementById('cap-sampleArea3');
-  if(capSampleArea3) capSampleArea3.textContent = document.getElementById('sampleArea')?.value || '-';
-  const capM4 = document.getElementById('cap-moisture4');
-  if(capM4) capM4.textContent = moisture ? moisture+'%' : '-';
-  const capU4 = document.getElementById('cap-uninsRate4');
-  if(capU4) capU4.textContent = uninsRate ? uninsRate+'%' : '-';
+  const capM3 = document.getElementById('cap-moisture3');
+  if(capM3) capM3.textContent = moisture ? moisture+'%' : '-';
+  document.getElementById('cap-uninsRate').textContent = uninsRate ? uninsRate+'%' : '-';
 
   // 4. 표본구간별 수확량 - 1~8
 
@@ -886,10 +885,9 @@ function fillRiceCaptureTemplate(){
     const el = document.getElementById('sp'+i);
     const v = el ? (el.value||'') : '';
     const active = i < proper;
-    const bg = v ? '#e8faf3' : '#fff';
-    const color = v ? '#0d5c35' : '#bbb';
-    const border = (i%4 < 3) ? 'border-right:1px solid #d1d5db;' : '';
-    return `<td style="padding:4px 1px;${border}text-align:center;background:${bg};font-weight:700;font-size:10px;word-break:break-all;color:${color}">${active ? (v ? v : '') : ''}</td>`;
+    const isLastLeftCol = (i % 4) === 3;
+    const border = isLastLeftCol ? 'border-right:2px solid #d1d5db;' : 'border-right:1px solid #d1d5db;';
+    return `<td style="padding:8px 2px;${border}text-align:center;background:#fff;font-weight:700;font-size:12px;word-break:break-all;color:${active && v ? '#222' : '#bbb'};border-bottom:1px solid #d1d5db;min-height:42px">${active ? (v ? v : '') : ''}</td>`;
   };
   document.getElementById('cap-row1234').innerHTML = td8(0)+td8(1)+td8(2)+td8(3);
   document.getElementById('cap-row5678').innerHTML = td8(4)+td8(5)+td8(6)+td8(7);
@@ -900,6 +898,10 @@ function fillRiceCaptureTemplate(){
     if(el&&el.value) realTotal+=parseFloat(el.value)||0;
   }
   document.getElementById('cap-total').textContent = realTotal ? realTotal.toLocaleString()+' g' : '-';
+  const capM4 = document.getElementById('cap-moisture4');
+  if(capM4) capM4.textContent = moisture ? moisture+'%' : '-';
+  const capU4 = document.getElementById('cap-uninsRate4');
+  if(capU4) capU4.textContent = uninsRate ? uninsRate+'%' : '0%';
 
   // 5. 결과
   document.getElementById('cap-pct').textContent = document.getElementById('result-pct').textContent || '-';
