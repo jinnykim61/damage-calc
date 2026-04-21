@@ -132,17 +132,17 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     <div style="font-size:11px;color:#666;margin-top:2px">농업재해보험 손해평가사 전용 · Cool-Running</div>
   </div>
 
-  <!-- 보험가입사항 -->
+  <!-- 1. 기본정보 -->
   <div class="section">
     <div class="sec-head">
-      <div class="sec-title">① 보험가입사항</div>
+      <div class="sec-title">① 기본정보</div>
       <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
     </div>
-    <!-- 품종 + 병충해 -->
-    <div class="g2">
+    <div class="g3" style="margin-bottom:8px">
       <div class="field">
         <label>품종</label>
         <select id="variety" class="inp filled" onchange="markFilled(this);calc()">
+          <option value="">-- 선택 --</option>
           <option value="mebyeo">메벼</option>
           <option value="chalbyeo">찰벼</option>
           <option value="bunjil">분질미</option>
@@ -161,9 +161,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           </label>
         </div>
       </div>
+      <div class="field">
+        <label>계약변경</label>
+        <input type="text" id="contractYn" class="auto" readonly>
+      </div>
     </div>
-    <!-- 평년수확량 / 가입면적 / 계약변경 / 표본구간수 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 0.75fr 0.75fr;gap:6px;margin-bottom:8px">
+    <div class="g3">
       <div class="field">
         <label>평년수확량 <span style="font-size:10px;color:var(--hint)">(kg)</span></label>
         <input type="text" id="avgYield" class="inp" inputmode="decimal"
@@ -175,36 +178,30 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
       </div>
       <div class="field">
-        <label>계약변경</label>
-        <input type="text" id="contractYn" class="auto" readonly>
-      </div>
-      <div class="field">
-        <label>표본구간</label>
-        <input type="text" id="properSampleDisp" class="auto" readonly>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-      <div class="field">
         <label>조사일자</label>
-        <input type="date" id="surveyDate" class="inp" oninput="markFilled(this)">
+        <input type="date" id="surveyDate" class="inp" onchange="markFilled(this)">
       </div>
     </div>
-    <!-- 면적 라인 -->
-    <div style="display:grid;grid-template-columns:1.1fr 1fr 1.1fr 0.8fr;gap:6px;margin-bottom:8px">
+  </div>
+
+  <!-- 2. 면적정보 -->
+  <div class="section">
+    <div class="sec-title">② 면적정보</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
       <div class="field">
-        <label>실경작면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
+        <label>실제경작 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="text" id="actArea" class="inp" inputmode="decimal"
           oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
       </div>
       <div class="field">
-        <label>고사면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
+        <label>고사 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="number" id="deadArea" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
       </div>
       <div class="field">
         <label>타작물미보상 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
-        <input type="number" id="uninsArea" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+        <input type="text" id="uninsArea" class="inp" inputmode="decimal"
+          placeholder="0" oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
       </div>
       <div class="field">
         <label>기수확 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
@@ -212,31 +209,25 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
       </div>
     </div>
-    <!-- 조사대상 / 기준함수율 / 미보상비율 -->
-    <div class="g3">
+    <div class="g2">
       <div class="field">
         <label>조사대상면적</label>
         <input type="text" id="surveyArea" class="auto" readonly>
       </div>
       <div class="field">
-        <label>기준함수율</label>
-        <input type="text" id="stdMoisture" class="auto" readonly>
-      </div>
-      <div class="field">
-        <label>미보상비율 (%)</label>
-        <input type="number" id="uninsRate" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+        <label>적정표본구간수</label>
+        <input type="text" id="properSample" class="auto" readonly>
       </div>
     </div>
   </div>
 
   <!-- 표본조사 -->
   <div id="sec-sample">
+
+    <!-- 3. 표본구간 -->
     <div class="section">
-      <div class="sec-head">
-        <div class="sec-title">② 표본구간 설정</div>
-      </div>
-      <div class="g3">
+      <div class="sec-title">③ 표본구간</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
         <div class="field">
           <label>이랑길이 (m)</label>
           <input type="number" id="rowLen" class="inp" inputmode="decimal" step="0.01"
@@ -248,26 +239,35 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
             oninput="markFilled(this);debouncedCalc()" onblur="calc()" data-default="0.3">
         </div>
         <div class="field">
-          <label>표본구간면적</label>
-          <input type="text" id="sampleArea" class="auto" readonly>
-        </div>
-      </div>
-      <div class="g2">
-        <div class="field">
-          <label>적정 표본구간수</label>
-          <input type="text" id="properSample" class="auto" readonly>
-        </div>
-        <div class="field">
           <label>함수율 (%)</label>
           <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
             oninput="markFilled(this);debouncedCalc()" onblur="calc()">
         </div>
+        <div class="field">
+          <label>미보상비율 (%)</label>
+          <input type="number" id="uninsRate" class="inp" inputmode="decimal"
+            placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+        </div>
       </div>
+      <div class="g2">
+        <div class="field">
+          <label>표본구간면적</label>
+          <input type="text" id="sampleArea" class="auto" readonly>
+        </div>
+        <div class="field">
+          <label>표본구간m²당 유효중량</label>
+          <input type="text" id="effWeight" class="auto" readonly>
+        </div>
+      </div>
+      <!-- 숨겨진 호환 필드 -->
+      <input type="hidden" id="properSampleDisp">
+      <input type="hidden" id="stdMoisture">
     </div>
 
+    <!-- 4. 표본구간별 수확량 -->
     <div class="section">
       <div class="sec-head">
-        <div class="sec-title">③ 표본구간별 수확량 <span style="font-size:11px;color:var(--hint)">(g)</span></div>
+        <div class="sec-title">④ 표본구간별 수확량 <span style="font-size:11px;color:var(--hint)">(g)</span></div>
         <div style="font-size:11px;color:var(--hint)" id="sample-inputted"></div>
       </div>
       <div id="sample-inputs"></div>
@@ -276,10 +276,6 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           <label>표본수확량 합계</label>
           <input type="text" id="sampleTotal" class="auto" readonly>
         </div>
-        <div class="field">
-          <label>표본구간m²당 유효중량</label>
-          <input type="text" id="effWeight" class="auto" readonly>
-        </div>
       </div>
     </div>
   </div>
@@ -287,7 +283,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
   <!-- 전수조사 -->
   <div id="sec-full" style="display:none">
     <div class="section">
-      <div class="sec-title">② 전수조사 수확량</div>
+      <div class="sec-title">③ 전수조사 수확량</div>
       <div class="g3">
         <div class="field">
           <label>총수확량 (kg)</label>
@@ -299,6 +295,13 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.1"
             oninput="markFilled(this);debouncedCalc()" onblur="calc()">
         </div>
+        <div class="field">
+          <label>미보상비율 (%)</label>
+          <input type="number" id="uninsRate" class="inp" inputmode="decimal"
+            placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+        </div>
+      </div>
+      <div class="g2">
         <div class="field">
           <label>조사수확량 (kg)</label>
           <input type="text" id="fullSurvey" class="auto" readonly>
@@ -802,6 +805,12 @@ function resetAll(){
   // 이랑폭 기본값 복원
   const rwEl=document.getElementById('rowWid');
   if(rwEl){rwEl.value='0.3';rwEl.classList.add('filled');}
+  // 조사일 오늘 날짜로 리셋
+  const sd=document.getElementById('surveyDate');
+  if(sd){const t=new Date();sd.value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;sd.classList.add('filled');}
+  // 품종 초기화
+  const v=document.getElementById('variety');
+  if(v){v.value='';v.classList.remove('filled');}
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -917,6 +926,23 @@ if('serviceWorker' in navigator){
 loadState();
 setMode('sample');
 lastProper=-1;
+
+// 조사일 기본값: 오늘 날짜 (저장된 값 없을 때만)
+(function(){
+  const sd = document.getElementById('surveyDate');
+  if(sd && !sd.value){
+    const today = new Date();
+    const yy = today.getFullYear();
+    const mm = String(today.getMonth()+1).padStart(2,'0');
+    const dd = String(today.getDate()).padStart(2,'0');
+    sd.value = `${yy}-${mm}-${dd}`;
+    sd.classList.add('filled');
+  }
+  // 품종이 빈값이면 선택 안된 상태 유지
+  const v = document.getElementById('variety');
+  if(v && !v.value) v.classList.remove('filled');
+})();
+
 setTimeout(calc, 50);
 </script>
 </body>
