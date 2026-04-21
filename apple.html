@@ -232,17 +232,18 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
       </div>
     </div>
 
+    <!-- 평년착과수 입력 -->
+    <div style="padding:10px 14px;background:var(--card);border-top:0.5px solid var(--border)">
+      <div class="field">
+        <label>평년착과수</label>
+        <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="평년착과수를 입력하세요"
+          oninput="onCommaInput(this);onInput()">
+      </div>
+    </div>
+
     <!-- 접기/펼치기 헤더 -->
     <div class="collapse-head" onclick="toggleBasicInfo()">
-      <div style="display:flex;align-items:center;gap:10px;flex:1">
-        <span class="collapse-lbl">① 기본정보 상세</span>
-        <div class="field" style="flex:1;max-width:140px" onclick="event.stopPropagation()">
-          <label class="sm">평년착과수</label>
-          <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
-            style="height:32px;font-size:13px"
-            oninput="onCommaInput(this);onInput()">
-        </div>
-      </div>
+      <span class="collapse-lbl">① 기본정보 상세</span>
       <div class="collapse-toggle">
         <span id="info-toggle-lbl">상세보기</span>
         <span class="collapse-icon" id="info-toggle-icon">▼</span>
@@ -252,26 +253,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     <!-- 접히는 상세 내용 -->
     <div class="collapse-body" id="basic-info-body">
       <div style="padding:12px 14px 14px">
-        <!-- 1열: 가입주수 / 실제결과주수 / 조사대상주수 / 계약변경여부 -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
-          <div class="field">
-            <label class="sm">가입주수</label>
-            <input type="text" id="total_trees" class="auto" readonly>
-          </div>
-          <div class="field">
-            <label class="sm">실제결과주수</label>
-            <input type="text" id="total_actual" class="auto" readonly>
-          </div>
-          <div class="field">
-            <label class="sm">조사대상주수</label>
-            <input type="text" id="total_survey_disp" class="auto" readonly>
-          </div>
-          <div class="field">
-            <label class="sm">계약변경여부</label>
-            <input type="text" id="contract_yn" class="auto" readonly>
-          </div>
-        </div>
-        <!-- 2열: 고사주수 / 수확불능주수 / 미보상고사 / 미보상미고사 -->
+        <!-- 1열: 고사주수 / 수확불능주수 / 미보상고사 / 미보상미고사 -->
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
           <div class="field">
             <label>고사주수</label>
@@ -290,16 +272,8 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
             <input type="text" id="total_uninsAlive" class="auto" readonly>
           </div>
         </div>
-        <!-- 3열: 표본주수 / 적정표본주수 / 표본착과수합 / 1주당착과수 / 착과수 -->
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
-          <div class="field">
-            <label class="sm">표본주수</label>
-            <input type="text" id="total_sampleN" class="auto" readonly>
-          </div>
-          <div class="field">
-            <label class="sm">적정표본주수</label>
-            <input type="text" id="proper_sample" class="auto" readonly>
-          </div>
+        <!-- 2열: 표본착과수합 / 1주당착과수 / 착과수 / 계약변경여부 -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
           <div class="field">
             <label class="sm">표본착과수합</label>
             <input type="text" id="total_sampleSum" class="auto" readonly>
@@ -312,12 +286,23 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
             <label class="sm">착과수</label>
             <input type="text" id="total_afterFruit" class="auto ok" readonly>
           </div>
+          <div class="field">
+            <label class="sm">계약변경여부</label>
+            <input type="text" id="contract_yn" class="auto" readonly>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 품종별 조사 -->
+  <!-- hidden: JS 계산용 (요약바로 이동된 항목) -->
+  <div style="display:none">
+    <input type="text" id="total_trees">
+    <input type="text" id="total_actual">
+    <input type="text" id="total_survey_disp">
+    <input type="text" id="total_sampleN">
+    <input type="text" id="proper_sample">
+  </div>
   <div class="section">
     <div class="sec-head">
       <div class="sec-title">② 품종별 조사 <span id="variety-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
