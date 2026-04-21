@@ -530,9 +530,14 @@ function renderVarieties(totalSurvey, totalProper) {
     const surveyTarget = surveyTargets[vi];
     const properN = properNs[vi];
 
-    // 샘플 배열 조정
+    // 샘플 배열 조정 — properN 기준으로 늘리거나, 줄 때는 빈 칸만 제거
     if (properN > v.samples.length) {
       while (v.samples.length < properN) v.samples.push('');
+    } else if (properN < v.samples.length) {
+      // 뒤에서부터 빈 칸 제거해서 properN에 맞춤
+      while (v.samples.length > properN && v.samples[v.samples.length-1] === '') {
+        v.samples.pop();
+      }
     }
 
     const inputtedSamples = v.samples.filter(s => s !== '' && !isNaN(parseFloat(s))).length;
@@ -546,13 +551,16 @@ function renderVarieties(totalSurvey, totalProper) {
     for(let si=0; si<_total; si++){
       const s = v.samples[si] || '';
       const filled = s!=='' && !isNaN(parseFloat(s));
+      const isLast = si === _total - 1;
       samplesHtml += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
         <span style="font-size:10px;font-weight:700;color:var(--hint)">${si+1}</span>
         <input type="number" value="${s}" inputmode="decimal" placeholder=""
+          enterkeyhint="${isLast?'done':'next'}"
           style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
           oninput="varieties[${vi}].samples[${si}]=this.value;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';calcVariety(${vi})"
-          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
-          onblur="varieties[${vi}].samples[${si}]=this.value;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';saveState()">
+          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
+          onblur="varieties[${vi}].samples[${si}]=this.value;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';saveState()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;calcVariety(${vi});this.blur();`:`const inputs=document.querySelectorAll('#ss-${vi} input');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
       </div>`;
     }
     samplesHtml += '</div>';
@@ -562,7 +570,7 @@ function renderVarieties(totalSurvey, totalProper) {
       return `<div class="field">
         <label>${label}</label>
         <input type="number" class="inp${filled?' filled':''}" value="${val||''}" inputmode="decimal"
-          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
+          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
           onblur="varieties[${vi}].${field}=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'${field}',this.value);saveState()"
           oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].${field}=+this.value||0">
       </div>`;
@@ -578,13 +586,13 @@ function renderVarieties(totalSurvey, totalProper) {
         <div class="variety-num" style="flex-shrink:0">${vi+1}</div>
         <input type="text" class="inp${v.name?' filled':''}" value="${v.name||''}" placeholder="${defaultName}"
           style="flex:1.5;height:40px;font-size:13px" enterkeyhint="next"
-          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
+          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
           onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
           oninput="varieties[${vi}].name=this.value;saveState()"
           onkeydown="if(event.key==='Enter'){event.preventDefault();document.querySelector('#vc-${vi} input[placeholder=수령]')?.focus()}">
         <input type="number" class="inp${v.age>0?' filled':''}" value="${v.age||''}" inputmode="decimal" placeholder="수령"
           style="flex:0.8;height:40px;font-size:13px" enterkeyhint="next"
-          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
+          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
           onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
           oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].age=+this.value||0;saveState()"
           onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('vi-reg-${vi}')?.focus()}">
@@ -598,16 +606,16 @@ function renderVarieties(totalSurvey, totalProper) {
           <label>가입주수</label>
           <input type="number" id="vi-reg-${vi}" class="inp${v.reg>0?' filled':''}" value="${v.reg||''}" inputmode="decimal"
             enterkeyhint="next"
-            onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
+            onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
             onblur="varieties[${vi}].reg=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'reg',this.value);saveState()"
             oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].reg=+this.value||0"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].reg=+this.value||0;document.getElementById('vi-actual-${vi}')?.focus()}">
+            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].reg=+this.value||0;quickUpdate(${vi},'reg',this.value);setTimeout(()=>document.getElementById('vi-actual-${vi}')?.focus(),50)}">
         </div>
         <div class="field">
           <label>실제결과주수</label>
           <input type="number" id="vi-actual-${vi}" class="inp${v.actual>0?' filled':''}" value="${v.actual||''}" inputmode="decimal"
             enterkeyhint="done"
-            onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
+            onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
             onblur="varieties[${vi}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'actual',this.value);saveState()"
             oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].actual=+this.value||0"
             onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].actual=+this.value||0;quickUpdate(${vi},'actual',this.value);this.blur();autoOpenSamples(${vi})}">
@@ -750,7 +758,7 @@ function addSampleRow(vi) {
 }
 
 function resetVariety(vi) {
-  varieties[vi] = {name:varieties[vi].name, age:varieties[vi].age, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false};
+  varieties[vi] = {name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false};
   onInput();
   saveState();
 }
