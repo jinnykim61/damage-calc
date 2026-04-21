@@ -98,7 +98,21 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   background:#DCEEFF !important;color:#185FA5 !important;
 }
 
-/* 품종 카드 */
+/* 기본정보 요약바 */
+.info-summary{background:var(--blue);padding:10px 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;border-radius:var(--r) var(--r) 0 0}
+.sum-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sum-lbl{font-size:9px;color:rgba(255,255,255,0.7);font-weight:500;text-align:center}
+.sum-val{font-size:16px;font-weight:700;color:#fff;line-height:1}
+.sum-val.warn{color:#FFE082}
+.sum-unit{font-size:9px;color:rgba(255,255,255,0.6);margin-left:1px}
+/* 접기/펼치기 */
+.collapse-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;cursor:pointer;border-top:0.5px solid var(--border);background:var(--card)}
+.collapse-lbl{font-size:11px;color:var(--sub);font-weight:600}
+.collapse-toggle{font-size:11px;color:var(--blue);font-weight:600;display:flex;align-items:center;gap:4px}
+.collapse-icon{font-size:10px;color:var(--hint);transition:transform 0.2s;display:inline-block}
+.collapse-icon.open{transform:rotate(180deg)}
+.collapse-body{overflow:hidden;transition:max-height 0.25s ease;max-height:0}
+.collapse-body.open{max-height:600px}
 .variety-card{background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:10px;border:0.5px solid var(--border);overflow:hidden}
 .variety-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .variety-num{width:24px;height:24px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
@@ -121,7 +135,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 .sample-row input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 .sample-row input.filled:focus{box-shadow:0 0 0 3px rgba(29,158,117,0.15)}
 
-.add-variety-btn{width:100%;height:38px;border:1.5px dashed var(--blue2);background:#EBF4FF;border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;margin-top:4px}
+.add-variety-btn{width:100%;height:38px;border:1.5px dashed var(--blue2);background:#EBF4FF;border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--blue);cursor:pointer}
 .add-variety-btn:active{background:var(--auto)}
 
 /* 계산 버튼 */
@@ -196,79 +210,124 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div class="crop-tab" onclick="setCrop('sweetpersimmon',2)">🟠 단감</div>
   <div class="crop-tab" onclick="setCrop('persimmon',3)">🟤 떫은감</div>
 </div>
+<div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
+  <button onclick="openResetModal()" style="height:28px;padding:0 14px;background:#FFF5F5;border:1.5px solid var(--red);border-radius:var(--rs);font-size:12px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
+</div>
 
 <div class="content">
 
   <!-- 기본 정보 -->
-  <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">① 기본정보</div>
-      <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
-    </div>
-    <!-- 1열: 평년착과수(입력) / 가입주수 / 실제결과주수 / 조사대상주수 / 계약변경여부 -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px">
-      <div class="field">
-        <label class="sm">평년착과수</label>
-        <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
-          oninput="onCommaInput(this);onInput()">
+  <div class="section" style="padding:0;overflow:hidden">
+    <!-- 항상 보이는 요약 바 -->
+    <div class="info-summary">
+      <div class="sum-item">
+        <div class="sum-lbl">가입주수</div>
+        <div style="display:flex;align-items:baseline;gap:1px">
+          <span class="sum-val" id="sv-reg">-</span>
+          <span class="sum-unit">주</span>
+        </div>
       </div>
-      <div class="field">
-        <label class="sm">가입주수</label>
-        <input type="text" id="total_trees" class="auto" readonly>
+      <div class="sum-item">
+        <div class="sum-lbl">조사대상</div>
+        <div style="display:flex;align-items:baseline;gap:1px">
+          <span class="sum-val" id="sv-survey">-</span>
+          <span class="sum-unit">주</span>
+        </div>
       </div>
-      <div class="field">
-        <label class="sm">실제결과주수</label>
-        <input type="text" id="total_actual" class="auto" readonly>
+      <div class="sum-item">
+        <div class="sum-lbl">표본주수</div>
+        <div style="display:flex;align-items:baseline;gap:1px">
+          <span class="sum-val" id="sv-sample">-</span>
+          <span class="sum-unit">주</span>
+        </div>
       </div>
-      <div class="field">
-        <label class="sm">조사대상주수</label>
-        <input type="text" id="total_survey_disp" class="auto" readonly>
-      </div>
-      <div class="field">
-        <label class="sm">계약변경여부</label>
-        <input type="text" id="contract_yn" class="auto" readonly>
-      </div>
-    </div>
-    <!-- 2열: 고사주수 / 수확불능주수 / 미보상고사 / 미보상미고사 -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
-      <div class="field">
-        <label>고사주수</label>
-        <input type="text" id="total_dead" class="auto" readonly>
-      </div>
-      <div class="field">
-        <label>수확불능주수</label>
-        <input type="text" id="total_unable" class="auto" readonly>
-      </div>
-      <div class="field">
-        <label>미보상고사</label>
-        <input type="text" id="total_uninsDead" class="auto" readonly>
-      </div>
-      <div class="field">
-        <label>미보상미고사</label>
-        <input type="text" id="total_uninsAlive" class="auto" readonly>
+      <div class="sum-item">
+        <div class="sum-lbl">적정표본</div>
+        <div style="display:flex;align-items:baseline;gap:1px">
+          <span class="sum-val" id="sv-proper">-</span>
+          <span class="sum-unit">주</span>
+        </div>
       </div>
     </div>
-    <!-- 3열: 표본주수 / 적정표본주수 / 표본착과수합계 / 1주당착과수 / 착과수 -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
-      <div class="field">
-        <label class="sm">표본주수</label>
-        <input type="text" id="total_sampleN" class="auto" readonly>
+
+    <!-- 접기/펼치기 헤더 -->
+    <div class="collapse-head" onclick="toggleBasicInfo()">
+      <span class="collapse-lbl">① 기본정보 상세</span>
+      <div class="collapse-toggle">
+        <span id="info-toggle-lbl">상세보기</span>
+        <span class="collapse-icon" id="info-toggle-icon">▼</span>
       </div>
-      <div class="field">
-        <label class="sm">적정표본주수</label>
-        <input type="text" id="proper_sample" class="auto" readonly>
-      </div>
-      <div class="field">
-        <label class="sm">표본착과수합</label>
-        <input type="text" id="total_sampleSum" class="auto" readonly>
-      </div>
-      <div class="field">
-        <label class="sm">1주당착과수</label>
-        <input type="text" id="total_perTree" class="auto" readonly>
-      </div>
-      <div class="field">
-        <label class="sm">착과수</label>
-        <input type="text" id="total_afterFruit" class="auto ok" readonly>
+    </div>
+
+    <!-- 접히는 상세 내용 -->
+    <div class="collapse-body" id="basic-info-body">
+      <div style="padding:12px 14px 14px">
+        <!-- 1열: 평년착과수 / 가입주수 / 실제결과주수 / 조사대상주수 / 계약변경여부 -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px">
+          <div class="field">
+            <label class="sm">평년착과수</label>
+            <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
+              oninput="onCommaInput(this);onInput()">
+          </div>
+          <div class="field">
+            <label class="sm">가입주수</label>
+            <input type="text" id="total_trees" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label class="sm">실제결과주수</label>
+            <input type="text" id="total_actual" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label class="sm">조사대상주수</label>
+            <input type="text" id="total_survey_disp" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label class="sm">계약변경여부</label>
+            <input type="text" id="contract_yn" class="auto" readonly>
+          </div>
+        </div>
+        <!-- 2열: 고사주수 / 수확불능주수 / 미보상고사 / 미보상미고사 -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
+          <div class="field">
+            <label>고사주수</label>
+            <input type="text" id="total_dead" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label>수확불능주수</label>
+            <input type="text" id="total_unable" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label>미보상고사</label>
+            <input type="text" id="total_uninsDead" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label>미보상미고사</label>
+            <input type="text" id="total_uninsAlive" class="auto" readonly>
+          </div>
+        </div>
+        <!-- 3열: 표본주수 / 적정표본주수 / 표본착과수합 / 1주당착과수 / 착과수 -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+          <div class="field">
+            <label class="sm">표본주수</label>
+            <input type="text" id="total_sampleN" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label class="sm">적정표본주수</label>
+            <input type="text" id="proper_sample" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label class="sm">표본착과수합</label>
+            <input type="text" id="total_sampleSum" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label class="sm">1주당착과수</label>
+            <input type="text" id="total_perTree" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label class="sm">착과수</label>
+            <input type="text" id="total_afterFruit" class="auto ok" readonly>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -349,6 +408,33 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 <div id="toast-msg" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(30,30,30,0.88);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:400;white-space:nowrap;pointer-events:none"></div>
 
 <script>
+function toggleBasicInfo(){
+  const body = document.getElementById('basic-info-body');
+  const icon = document.getElementById('info-toggle-icon');
+  const lbl = document.getElementById('info-toggle-lbl');
+  const isOpen = body.classList.toggle('open');
+  icon.classList.toggle('open', isOpen);
+  lbl.textContent = isOpen ? '접기' : '상세보기';
+}
+
+function updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample){
+  const set = (id, val, unit) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.textContent = val > 0 ? val.toLocaleString() : '-';
+  };
+  const sEl = document.getElementById('sv-reg');
+  const svEl = document.getElementById('sv-survey');
+  const snEl = document.getElementById('sv-sample');
+  const spEl = document.getElementById('sv-proper');
+  if(sEl) sEl.textContent = totalReg > 0 ? totalReg.toLocaleString() : '-';
+  if(svEl) svEl.textContent = totalSurvey > 0 ? totalSurvey.toLocaleString() : '-';
+  if(snEl){
+    snEl.textContent = totalSampleN > 0 ? totalSampleN : '-';
+    snEl.className = 'sum-val' + (totalSampleN > 0 && properSample > 0 && totalSampleN < properSample ? ' warn' : '');
+  }
+  if(spEl) spEl.textContent = properSample > 0 ? properSample : '-';
+}
 function showToast(msg, duration=2200){
   const t=document.getElementById('toast-msg');
   t.textContent=msg; t.style.display='block';
@@ -379,8 +465,7 @@ let currentCrop = 'apple';
 
 // ── 품종 데이터 ──────────────────────────────────
 let varieties = [
-  {name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false},
-  {name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false}
+  {name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false},
 ];
 
 // ── 조사대상주 계산 ─────────────────────────────
@@ -490,30 +575,32 @@ function renderVarieties(totalSurvey, totalProper) {
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <div class="variety-num" style="flex-shrink:0">${vi+1}</div>
         <input type="text" class="inp${v.name?' filled':''}" value="${v.name||''}" placeholder="${defaultName}"
-          style="flex:1.5;height:38px;font-size:13px"
+          style="flex:1.5;height:40px;font-size:13px"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
           onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
           oninput="varieties[${vi}].name=this.value;saveState()">
         <input type="number" class="inp${v.age>0?' filled':''}" value="${v.age||''}" inputmode="decimal" placeholder="수령"
-          style="flex:0.8;height:38px;font-size:13px"
+          style="flex:0.8;height:40px;font-size:13px"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
           onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
           oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].age=+this.value||0;saveState()">
         <button onclick="resetVariety(${vi})"
-          style="flex-shrink:0;height:38px;padding:0 10px;background:transparent;border:1.5px solid var(--border);border-radius:8px;font-size:11px;color:var(--sub);cursor:pointer">초기화</button>
+          style="flex-shrink:0;width:64px;height:40px;padding:0;background:#FFF5F5;border:1.5px solid var(--red);border-radius:8px;font-size:12px;font-weight:600;color:var(--red);cursor:pointer">초기화</button>
       </div>
 
-      <!-- 2열: 가입/실결/조사대상 -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px">
+      <!-- 2열: 가입/실결/조사대상 + 나무조사 버튼 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:end;margin-bottom:6px">
         ${inp('reg', v.reg, '가입주수')}
         ${inp('actual', v.actual, '실제결과주수')}
         <div class="field">
           <label>조사대상주수</label>
           <input type="text" class="auto" id="vi-survey-${vi}" value="${surveyTarget>0?surveyTarget.toLocaleString()+'주':''}" readonly>
         </div>
+        <button onclick="toggleTreeInspect(${vi})" id="tree-btn-${vi}"
+          style="width:64px;height:40px;padding:0;border:1.5px solid ${v.treeOpen?'#0F6E56':'#1D9E75'};border-radius:8px;font-size:12px;font-weight:600;color:${v.treeOpen?'#fff':'#1D9E75'};background:${v.treeOpen?'#1D9E75':'#F0FAF6'};cursor:pointer;white-space:nowrap;flex-shrink:0">나무조사</button>
       </div>
-      <!-- 3열: 고사/수확불능/미보상고사/미보상미고사 -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">
+      <!-- 3열: 고사/수확불능/미보상고사/미보상미고사 (접기/펼치기) -->
+      <div id="tree-row-${vi}" style="display:${v.treeOpen?'grid':'none'};grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;padding:10px;background:#F5F4F0;border-radius:8px;border:0.5px solid var(--border)">
         ${inp('dead', v.dead, '고사주수')}
         ${inp('unable', v.unable, '수확불능')}
         ${inp('uninsDead', v.uninsDead, '미보상고사')}
@@ -561,6 +648,20 @@ function calcVariety(vi) {
   saveState();
 }
 
+function toggleTreeInspect(vi) {
+  varieties[vi].treeOpen = !varieties[vi].treeOpen;
+  const row = document.getElementById(`tree-row-${vi}`);
+  const btn = document.getElementById(`tree-btn-${vi}`);
+  const isOpen = varieties[vi].treeOpen;
+  if(row) row.style.display = isOpen ? 'grid' : 'none';
+  if(btn) {
+    btn.style.borderColor = isOpen ? '#0F6E56' : '#1D9E75';
+    btn.style.color = isOpen ? '#fff' : '#1D9E75';
+    btn.style.background = isOpen ? '#1D9E75' : '#F0FAF6';
+  }
+  saveState();
+}
+
 function toggleSamples(vi) {
   varieties[vi].open = !varieties[vi].open;
   const ss = document.getElementById(`ss-${vi}`);
@@ -584,14 +685,14 @@ function addSampleRow(vi) {
 }
 
 function resetVariety(vi) {
-  varieties[vi] = {name:varieties[vi].name, age:varieties[vi].age, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false};
+  varieties[vi] = {name:varieties[vi].name, age:varieties[vi].age, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false};
   onInput();
   saveState();
 }
 
 function addVariety() {
   if (varieties.length >= 10) { showToast('품종은 최대 10개까지 입력 가능해요'); return; }
-  varieties.push({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:true});
+  varieties.push({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:true, treeOpen:false});
   onInput();
   saveState();
 }
@@ -655,6 +756,7 @@ function onInput() {
   document.getElementById('total_actual').value = totalActual > 0 ? totalActual.toLocaleString()+'주' : '';
   document.getElementById('total_survey_disp').value = totalSurvey > 0 ? totalSurvey.toLocaleString()+'주' : '';
   document.getElementById('proper_sample').value = properSample > 0 ? properSample+'주' : '';
+  updateSummaryBar(totalReg, totalSurvey, 0, properSample);
 
   // 2열: 고사/수확불능/미보상고사/미보상미고사 합계
   const totalDead = varieties.reduce((s,v) => s+(v.dead||0), 0);
@@ -672,6 +774,7 @@ function onInput() {
   const totalSampleSum = varieties.reduce((s,v) => s + v.samples.reduce((ss,x)=>ss+(parseFloat(x)||0),0), 0);
   const totalPerTree = totalSampleN > 0 ? totalSampleSum / totalSampleN : 0;
   const totalAfterFruit = totalPerTree > 0 && totalSurvey > 0 ? Math.round(totalPerTree * totalSurvey) : 0;
+  updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample);
   const snEl = document.getElementById('total_sampleN');
   const ssEl = document.getElementById('total_sampleSum');
   const spEl = document.getElementById('total_perTree');
@@ -837,8 +940,7 @@ function resetAll() {
   try{ localStorage.removeItem('apple_multi_state'); }catch(e){}
   document.getElementById('avg_fruit').value = '';
   varieties = [
-    {name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false},
-    {name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false}
+    {name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false},
   ];
   document.getElementById('result-section').classList.remove('show');
   onInput();
