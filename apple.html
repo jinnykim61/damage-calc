@@ -620,18 +620,22 @@ function renderVarieties(totalSurvey, totalProper) {
             ${inputtedSamples>0?`(${inputtedSamples}/${properN}주 입력됨)`:''}
           </span>
         </div>
-        <div style="font-size:12px;font-weight:600;color:var(--sub);white-space:nowrap">
-          적정표본주 <span style="font-size:14px;color:var(--blue)" id="vi-proper-num-${vi}">${properN}</span>
-          &nbsp;·&nbsp;
-          표본주간격 <span style="font-size:14px;color:var(--green)" id="vi-interval-${vi}">${properN>0?Math.round(surveyTarget/properN):0}</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="font-size:12px;font-weight:600;color:var(--sub);white-space:nowrap">
+            적정표본주 <span style="font-size:14px;color:var(--blue)" id="vi-proper-num-${vi}">${properN}</span>
+            &nbsp;·&nbsp;
+            표본주간격 <span style="font-size:14px;color:var(--green)" id="vi-interval-${vi}">${properN>0?Math.round(surveyTarget/properN):0}</span>
+          </div>
+          <button onclick="event.stopPropagation();confirmSampleDel(${vi})"
+            style="width:26px;height:26px;border:1.5px solid var(--border);border-radius:6px;background:transparent;font-size:15px;color:var(--sub);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">－</button>
+          <button onclick="event.stopPropagation();confirmSampleAdd(${vi})"
+            style="width:26px;height:26px;border:1.5px solid var(--binp);border-radius:6px;background:transparent;font-size:15px;color:var(--blue);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">＋</button>
         </div>
       </div>
       <div class="sample-section ${v.open?'open':''}" id="ss-${vi}">
         ${samplesHtml}
       </div>` : `
       <div id="ss-${vi}" style="display:none"></div>`}
-      <button style="margin-top:6px;width:100%;height:34px;border:1px dashed var(--border);background:transparent;border-radius:6px;font-size:12px;color:var(--sub);cursor:pointer"
-        onclick="addSampleRow(${vi})">+ 표본주 추가</button>
     </div>`;
   }).join('');
 }
@@ -685,6 +689,26 @@ function trimSamples(vi) {
     varieties[vi].samples.pop();
   }
   saveState();
+}
+
+function confirmSampleAdd(vi) {
+  const v = varieties[vi];
+  const name = v.name || `품종${vi+1}`;
+  if(confirm(`${name} 표본주 1개를 추가할까요?`)) {
+    addSampleRow(vi);
+  }
+}
+
+function confirmSampleDel(vi) {
+  const v = varieties[vi];
+  const name = v.name || `품종${vi+1}`;
+  const total = v.samples.length;
+  if(total === 0) { showToast('삭제할 표본주가 없어요'); return; }
+  if(confirm(`${name} 마지막 표본주(${total}번)를 삭제할까요?`)) {
+    varieties[vi].samples.pop();
+    onInput();
+    saveState();
+  }
 }
 
 function addSampleRow(vi) {
