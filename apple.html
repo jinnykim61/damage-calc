@@ -487,8 +487,12 @@ function quickUpdate(vi, field, val){
 
   const sEl = document.getElementById(`vi-survey-${vi}`);
   const pEl = document.getElementById(`vi-proper-${vi}`);
+  const pnEl = document.getElementById(`vi-proper-num-${vi}`);
+  const ivEl = document.getElementById(`vi-interval-${vi}`);
   if(sEl) sEl.value = surveyTarget > 0 ? surveyTarget.toLocaleString()+'주' : '';
   if(pEl) pEl.value = properN > 0 ? properN+'주' : '';
+  if(pnEl) pnEl.textContent = properN > 0 ? properN : 0;
+  if(ivEl) ivEl.textContent = (surveyTarget>0&&properN>0) ? Math.round(surveyTarget/properN) : 0;
   // 기본정보 합계도 업데이트
   onInput();
 }
@@ -597,7 +601,7 @@ function renderVarieties(totalSurvey, totalProper) {
           <input type="text" class="auto" id="vi-survey-${vi}" value="${surveyTarget>0?surveyTarget.toLocaleString()+'주':''}" readonly>
         </div>
         <button onclick="toggleTreeInspect(${vi})" id="tree-btn-${vi}"
-          style="width:64px;height:40px;padding:0;border:1.5px solid ${v.treeOpen?'#0F6E56':'#1D9E75'};border-radius:8px;font-size:12px;font-weight:600;color:${v.treeOpen?'#fff':'#1D9E75'};background:${v.treeOpen?'#1D9E75':'#F0FAF6'};cursor:pointer;white-space:nowrap;flex-shrink:0">나무조사</button>
+            style="width:64px;height:40px;padding:0;border:1.5px solid ${v.treeOpen?'#0F6E56':'#1D9E75'};border-radius:8px;font-size:12px;font-weight:600;color:${v.treeOpen?'#fff':'#1D9E75'};background:${v.treeOpen?'#1D9E75':'#F0FAF6'};cursor:pointer;white-space:nowrap;flex-shrink:0">나무조사</button>
       </div>
       <!-- 3열: 고사/수확불능/미보상고사/미보상미고사 (접기/펼치기) -->
       <div id="tree-row-${vi}" style="display:${v.treeOpen?'grid':'none'};grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;padding:10px;background:#F5F4F0;border-radius:8px;border:0.5px solid var(--border)">
@@ -607,22 +611,29 @@ function renderVarieties(totalSurvey, totalProper) {
         ${inp('uninsAlive', v.uninsAlive, '미보상미고사')}
       </div>
 
-      <!-- 표본주 입력 토글 -->
+
+      <!-- 표본주 입력 토글 (조사대상주 있을 때만 표시) -->
+      ${surveyTarget > 0 ? `
       <div class="sample-toggle" onclick="toggleSamples(${vi})" style="display:flex;align-items:center;justify-content:space-between">
         <div style="display:flex;align-items:center;gap:6px">
           <span id="toggle-icon-${vi}">${v.open?'▼':'▶'}</span>
           <span>표본주 착과수</span>
           <span style="font-size:11px;color:var(--hint)" id="sample-status-${vi}">
-            ${inputtedSamples>0?`(${inputtedSamples}/${properN}주 입력됨)`:`(적정 ${properN}주)`}
+            ${inputtedSamples>0?`(${inputtedSamples}/${properN}주 입력됨)`:''}
           </span>
         </div>
-        <span style="font-size:11px;color:var(--blue);font-weight:600" id="vi-proper-disp-${vi}">${properN>0?'적정 '+properN+'주':''}</span>
+        <div style="font-size:12px;font-weight:600;color:var(--sub);white-space:nowrap">
+          적정표본주 <span style="font-size:14px;color:var(--blue)" id="vi-proper-num-${vi}">${properN}</span>
+          &nbsp;·&nbsp;
+          표본주간격 <span style="font-size:14px;color:var(--green)" id="vi-interval-${vi}">${properN>0?Math.round(surveyTarget/properN):0}</span>
+        </div>
       </div>
       <div class="sample-section ${v.open?'open':''}" id="ss-${vi}">
         ${samplesHtml}
         <button style="margin-top:8px;width:100%;height:32px;border:1px dashed var(--border);background:transparent;border-radius:6px;font-size:12px;color:var(--sub);cursor:pointer"
           onclick="addSampleRow(${vi})">+ 표본주 추가</button>
-      </div>
+      </div>` : `
+      <div id="ss-${vi}" style="display:none"></div>`}
     </div>`;
   }).join('');
 }
