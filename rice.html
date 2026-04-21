@@ -457,23 +457,6 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 <script>
 let mode = 'sample';
 
-function bindMobileFocusHandlers(){
-  const selectors = 'input.inp, select.inp, #sample-inputs input';
-  document.querySelectorAll(selectors).forEach(el=>{
-    if(el.dataset.mobileFocusBound==='1') return;
-    el.dataset.mobileFocusBound='1';
-    el.addEventListener('focus',()=>el.classList.add('mobile-focus'),{passive:true});
-    el.addEventListener('blur', ()=>el.classList.remove('mobile-focus'),{passive:true});
-    el.addEventListener('touchend',(e)=>{
-      if(e.cancelable) e.preventDefault();
-      el.focus();
-    },{passive:false});
-  });
-}
-document.addEventListener('DOMContentLoaded',()=>{
-  bindMobileFocusHandlers();
-});
-
 const STD_MOISTURE = {mebyeo: 0.15, chalbyeo: 0.13, bunjil: 0.14};
 
 // debounce: 입력후 300ms 후에 계산
@@ -518,9 +501,6 @@ function setMode(m){
   document.getElementById('tab-full').className = 'mode-tab' + (m==='full'?' on':'');
   document.getElementById('sec-sample').style.display = m==='sample' ? '' : 'none';
   document.getElementById('sec-full').style.display = m==='full' ? '' : 'none';
-  document.getElementById('result-section').className='result-box pending';
-  document.getElementById('result-pct').textContent='- -';
-  document.getElementById('result-pct').style.color='white';
   calc();
 }
 
@@ -535,16 +515,17 @@ function getProperSample(area){
 
 function renderSampleInputs(proper){
   const container = document.getElementById('sample-inputs');
-  let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px;width:100%;overflow:hidden">`;
+  // 4열 2행 가로 순서 (1,2,3,4 / 5,6,7,8)
+  let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;width:100%;overflow:hidden">`;
   for(let si=0; si<8; si++){
     const active = si < proper;
     const bc = active ? 'var(--binp)' : 'var(--border)';
     const bg = active ? 'white' : 'var(--auto)';
-    html += `<div style="display:flex;flex-direction:column;gap:1px;min-width:0">
-      <span style="font-size:10px;font-weight:700;color:${active?'var(--sub)':'var(--hint)'};text-align:center;display:block">${si+1}</span>
+    html += `<div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+      <span style="font-size:12px;font-weight:700;color:${active?'var(--sub)':'var(--hint)'};text-align:center">${si+1}</span>
       <input type="number" inputmode="decimal" placeholder="" id="sp${si}"
         ${active ? '' : 'disabled'}
-        style="width:100%;height:34px;border:1.5px solid ${bc};border-radius:6px;font-size:14px;font-weight:600;background:${bg};color:${active?'var(--text)':'var(--hint)'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
+        style="width:100%;height:40px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${active?'var(--text)':'var(--hint)'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
         oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';debouncedCalc()"
         onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
         onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';calc()">
@@ -552,7 +533,6 @@ function renderSampleInputs(proper){
   }
   html += '</div>';
   container.innerHTML = html;
-  setTimeout(bindMobileFocusHandlers, 0);
 }
 
 let lastProper = 0;
@@ -643,7 +623,7 @@ function calc(){
 
     if(!avgYield || !surveyArea || inputted === 0 || !moisture){
       resultBox.className = 'result-box pending';
-      pctEl.textContent = '- -';
+      pctEl.textContent = '- -'; pctEl.style.color='white';
       const pb=document.getElementById('pdf-btn'); if(pb){pb.style.opacity='0.5';pb.style.pointerEvents='none';}
       return;
     }
@@ -677,7 +657,7 @@ function calc(){
       const surveyYield = Math.floor(fullYield * (1-fullMoisture)/(1-stdMoisture));
       document.getElementById('fullSurvey').value = surveyYield.toLocaleString('ko-KR') + ' kg';
 
-      if(!avgYield){ resultBox.className='result-box pending'; pctEl.textContent='입력 대기중'; return; }
+      if(!avgYield){ resultBox.className='result-box pending'; pctEl.textContent='- -'; pctEl.style.color='white'; return; }
 
       // 미보상감수량 (병충해단독이어도 미보상 계산, 단 최고한도 70%)
       // 단위면적당 평년수확량 × (타작물+기수확) 가산
@@ -692,7 +672,7 @@ function calc(){
       showResult(resultBox, pctEl, effAvg, totalYieldF, '-', surveyArea, uninsLoss, pihaeyul, disease==='y');
     } else {
       resultBox.className = 'result-box pending';
-      pctEl.textContent = '- -';
+      pctEl.textContent = '- -'; pctEl.style.color='white';
     }
   }
 
@@ -714,7 +694,7 @@ function showResult(box, pctEl, avg, survey, eff, area, unins, pihaeyul, isDis){
 
 function saveState(){
   const ids = ['avgYield','insArea','actArea','deadArea','uninsArea','preArea',
-               'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture','remarks','surveyDate'];
+               'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture','surveyDate'];
   const state = {mode, disease: document.getElementById('dis-y')?.checked ? 'y' : 'n'};
   ids.forEach(id => { const el=document.getElementById(id); if(el) state[id]=el.value; });
   // 표본구간 중량값 저장
@@ -740,73 +720,64 @@ function loadState(){
     const raw = localStorage.getItem('rice_state');
     if(!raw) return;
     const s = JSON.parse(raw);
+    if(s.mode) {} // mode는 항상 sample로 시작
     if(s.disease === 'y'){
       const dy = document.getElementById('dis-y');
       if(dy){ dy.checked = true; onDiseaseChk(); }
     } else { onDiseaseChk(); }
-    // inp 클래스 필드만 값 복원 및 filled 적용
     Object.keys(s).forEach(id => {
       if(id==='mode'||id==='spVals'||id==='disease') return;
       const el = document.getElementById(id);
-      if(!el || s[id]==='') return;
-      el.value = s[id];
-      // inp 클래스인 경우만 filled 적용
-      if(el.classList.contains('inp')) el.classList.add('filled');
+      if(el && s[id]!==''){ el.value=s[id]; el.classList.toggle('filled', true); }
     });
-    // 조사일 명시적 복원
-    if(s.surveyDate){
-      const sd = document.getElementById('surveyDate');
-      if(sd){ sd.value = s.surveyDate; sd.classList.add('filled'); }
+    // 이랑폭 기본값 복원
+    const rowWidEl = document.getElementById('rowWid');
+    if(rowWidEl && !rowWidEl.value){ rowWidEl.value='0.3'; rowWidEl.classList.add('filled'); }
+    // 표본구간 중량 복원 (calc 후 렌더링된 뒤에 실행)
+    if(s.spVals && s.spVals.length>0){
+      setTimeout(()=>{
+        s.spVals.forEach((v,i)=>{
+          const el=document.getElementById('sp'+i);
+          if(el && v){ el.value=v;
+            el.style.background='#e8faf3';
+            el.style.borderColor='#1D9E75';
+            el.style.color='#0d5c35';
+          }
+        });
+        calc();
+      }, 200);
     }
   }catch(e){}
 }
 
 function resetAll(){
   try{ localStorage.removeItem('rice_state'); }catch(e){}
-
-  // 입력 필드 초기화
   ['avgYield','insArea','actArea','deadArea','uninsArea','preArea','uninsRate',
-   'rowLen','moisture','fullYield','fullMoisture'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el){ el.value=''; el.classList.remove('filled'); }
+   'rowLen','rowWid','moisture','fullYield','fullMoisture'].forEach(id=>{
+    const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
   });
-
-  // 품종 메벼 기본값
-  const vEl = document.getElementById('variety');
-  if(vEl){ vEl.value='mebyeo'; vEl.classList.add('filled'); }
-
-  // 병충해 부 기본값
+  // 품종 메벼
+  const vEl=document.getElementById('variety'); if(vEl){vEl.value='mebyeo';vEl.classList.add('filled');}
   const dn = document.getElementById('dis-n');
   if(dn){ dn.checked=true; onDiseaseChk(); }
 
-  // 이랑폭 기본값 0.3
-  const rwEl = document.getElementById('rowWid');
-  if(rwEl){ rwEl.value='0.3'; rwEl.classList.add('filled'); }
-
-  // 조사일 오늘 날짜
-  const sd = document.getElementById('surveyDate');
-  if(sd){
-    const t = new Date();
-    sd.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
-    sd.classList.add('filled');
-  }
-
-  // 자동계산 필드 초기화
-  ['surveyArea','properSample','sampleArea','contractYn'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  const psd=document.getElementById('properSampleDisp'); if(psd) psd.value='';
-
-  // 표본구간 초기화
   document.getElementById('sample-inputs').innerHTML='';
-  lastProper = -1;
-
-  // 결과 초기화
+  const psd=document.getElementById('properSampleDisp'); if(psd) psd.value='';
+  const ps=document.getElementById('properSample'); if(ps) ps.value='';
+  const sa=document.getElementById('surveyArea'); if(sa) sa.value='';
+  const ka=document.getElementById('sampleArea'); if(ka) ka.value='';
+  lastProper=-1;
   document.getElementById('result-section').className='result-box pending';
+  document.getElementById('result-pct').textContent='- -'; document.getElementById('result-pct').style.color='white';
+  // 이랑폭 기본값 복원
+  const rwEl=document.getElementById('rowWid');
+  if(rwEl){rwEl.value='0.3';rwEl.classList.add('filled');}
+  // 조사일 오늘날짜
+  const sdEl=document.getElementById('surveyDate');
+  if(sdEl){const t=new Date();sdEl.value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;sdEl.classList.add('filled');}
   document.getElementById('result-pct').textContent='- -';
   document.getElementById('result-pct').style.color='white';
-
-  saveState();
+  calc();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -818,131 +789,284 @@ async function saveImage(){
   try{
     const isPending = document.getElementById('result-section').classList.contains('pending');
     if(isPending){ alert('계산 결과가 없어요. 값을 입력해주세요.'); return; }
-    fillRiceCaptureTemplate();
-    const fitTables = document.querySelectorAll('#capture-template table.fit-table');
-    fitTables.forEach(t=>{ t.style.width='auto'; t.style.tableLayout='auto'; });
-    const canvas = await html2canvas(document.getElementById('capture-template'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:430});
-    const now = new Date();
-    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
-    const link = document.createElement('a');
+
+    const pct     = document.getElementById('result-pct').textContent;
+    const rAvg    = document.getElementById('r-avg').textContent;
+    const rSurvey = document.getElementById('r-survey').textContent;
+    const rUnins  = document.getElementById('r-unins').textContent;
+    const rEff    = document.getElementById('r-eff').textContent;
+    const isDis   = document.getElementById('dis-y')?.checked || false;
+
+    const variety = document.getElementById('variety');
+    const varietyTxt = variety ? variety.options[variety.selectedIndex].text : '';
+    const disY    = document.getElementById('dis-y')?.checked;
+    const avgYield= document.getElementById('avgYield').value;
+    const actArea = document.getElementById('actArea').value;
+    const deadArea= document.getElementById('deadArea').value||'0';
+    const uninsArea=document.getElementById('uninsArea').value||'0';
+    const preArea = document.getElementById('preArea').value||'0';
+    const surveyAreaV = document.getElementById('surveyArea').value;
+    const properSample= document.getElementById('properSample').value;
+    const uninsRate= document.getElementById('uninsRate').value||'0';
+    const contractV= document.getElementById('contractYn').value;
+    const contractColor= contractV==="유" ? "#e24b4a" : "#1D9E75";
+    const rowLen  = document.getElementById('rowLen')?.value||'';
+    const rowWid  = document.getElementById('rowWid')?.value||'';
+    const sampleAreaV = document.getElementById('sampleArea')?.value||'';
+    const moisture= document.getElementById('moisture')?.value||'';
+    const sampleTotal= document.getElementById('sampleTotal')?.value||'';
+
+    const today = new Date();
+    const todayStr = today.getFullYear()+'.'+(today.getMonth()+1).toString().padStart(2,'0')+'.'+today.getDate().toString().padStart(2,'0');
+
+    const activeCount = parseInt(properSample)||0;
+    const spVals=[];
+    for(let i=0;i<8;i++){
+      const el=document.getElementById('sp'+i);
+      spVals.push(el ? (el.value||'') : '');
+    }
+
+    const W=680, P=22;
+    const blue='#185FA5', green='#1D9E75', red='#e24b4a';
+    const bgPage='#F2F1EE', bgCard='#FFFFFF', bgFilled='#e8faf3', bgAuto='#F3F1EA', bgDisabled='#E8E8E8';
+    const borderC='#D4D2CB', filledC=green, filledTxt='#0d5c35', inpC='#8AB8E0';
+    const txtDark='#1a1a1a', txtSub='#555', txtHint='#aaa';
+
+    // 라벨과 박스 사이 간격 추가
+    const LH=22,  // 라벨 높이 (여유있게)
+          VH=20,  // 박스 높이
+          CELL_H=LH+VH;
+    const g=6;
+
+    // 컨텍스트에서 텍스트 너비 기반으로 칸 너비 계산
+    // 라벨 10px 기준 최소너비 + 양쪽 패딩
+    function calcW(ctx, label, val, minW){
+      ctx.font='700 10px -apple-system,sans-serif';
+      const lw = ctx.measureText(label).width;
+      ctx.font='700 12px -apple-system,sans-serif';
+      const vw = ctx.measureText(val||'000').width;
+      return Math.max(minW||30, Math.max(lw, vw) + 20);
+    }
+
+    function drawCell(ctx, x, y, w, label, val, opts){
+      const {filled,auto,disabled,color,bold,small}=opts||{};
+      const bg=disabled?bgDisabled:(filled?bgFilled:(auto?bgAuto:bgCard));
+      const bc=disabled?borderC:(filled?filledC:(auto?'#C8C6C0':inpC));
+      const tc=disabled?txtHint:(color||(filled?filledTxt:(auto?txtSub:txtDark)));
+      const lw=disabled?0.4:(filled?1.0:(auto?0.6:1.3));
+
+      // 박스
+      ctx.beginPath();
+      ctx.roundRect(x, y+LH, w, VH, 4);
+      ctx.fillStyle=bg; ctx.fill();
+      ctx.strokeStyle=bc; ctx.lineWidth=lw; ctx.stroke();
+
+      // 라벨 (박스 위, 충분한 간격)
+      ctx.fillStyle='#777';
+      ctx.font='900 9px -apple-system,sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(label, x+w/2, y+LH-4);
+
+      // 값
+      if(val && !disabled){
+        ctx.fillStyle=tc;
+        ctx.font='700 10px -apple-system,sans-serif';
+        ctx.textAlign='center';
+        ctx.fillText(val, x+w/2, y+LH+VH/2+4);
+      }
+    }
+
+    // 칸 너비를 내용에 맞게 자동 계산해서 배치 (우측 여백 신경X)
+    function drawRowAuto(ctx, x, y, cols){
+      // 임시 캔버스로 너비 계산
+      let cx=x;
+      cols.forEach(col=>{
+        const w = col.w || calcW(ctx, col.label, col.value, col.minW||36);
+        drawCell(ctx, cx, y, w, col.label, col.value, col);
+        cx += w+g;
+      });
+    }
+
+    function secTitle(ctx, x, y, label){
+      ctx.fillStyle=blue;
+      ctx.font='600 14px -apple-system,sans-serif';
+      ctx.textAlign='left';
+      ctx.fillText(label, x, y+13);
+    }
+
+    function card(ctx, y, h, iw){
+      ctx.beginPath();
+      ctx.roundRect(P-3, y-3, iw+6, h+6, 8);
+      ctx.fillStyle=bgCard; ctx.fill();
+      ctx.strokeStyle=borderC; ctx.lineWidth=0.5; ctx.stroke();
+    }
+
+    const secLH=18, rowH=CELL_H, pad=10, secGap=8;
+    const iw=W-P*2;
+    const detailN=4+(isDis?1:0);
+
+    let totalH=60+12;
+    totalH += secLH+rowH+pad+secGap;
+    totalH += secLH+rowH+pad+secGap;
+    if(mode==='sample'){
+      totalH += secLH+rowH+pad+secGap;
+      totalH += secLH+rowH+pad+secGap;
+    }
+    totalH += secLH+40+14+detailN*24+pad+secGap;
+
+    const canvas=document.createElement('canvas');
+    canvas.width=W; canvas.height=totalH;
+    const ctx=canvas.getContext('2d');
+
+    if(!ctx.roundRect){
+      CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+        const rv=Array.isArray(r)?r:[r,r,r,r];
+        this.moveTo(x+rv[0],y);
+        this.lineTo(x+w-rv[1],y); this.quadraticCurveTo(x+w,y,x+w,y+rv[1]);
+        this.lineTo(x+w,y+h-rv[2]); this.quadraticCurveTo(x+w,y+h,x+w-rv[2],y+h);
+        this.lineTo(x+rv[3],y+h); this.quadraticCurveTo(x,y+h,x,y+rv[3]);
+        this.lineTo(x,y+rv[0]); this.quadraticCurveTo(x,y,x+rv[0],y);
+        this.closePath();
+      };
+    }
+
+    ctx.fillStyle=bgPage; ctx.fillRect(0,0,W,totalH);
+
+    let cy=0;
+
+    // 헤더
+    ctx.fillStyle=blue; ctx.fillRect(0,0,W,60);
+    ctx.fillStyle='white'; ctx.textAlign='center';
+    ctx.font='bold 22px -apple-system,sans-serif';
+    ctx.fillText('벼 피해율 계산기', W/2, 26);
+    ctx.font='13px -apple-system,sans-serif'; ctx.fillStyle='rgba(255,255,255,0.75)';
+    ctx.fillText('농업재해보험 손해평가사 · Cool-Running', W/2, 48);
+    cy=72;
+
+    // ① 기본사항
+    card(ctx,cy,secLH+rowH+pad,iw);
+    secTitle(ctx,P+2,cy,'① 기본사항');
+    cy+=secLH;
+    drawRowAuto(ctx,P,cy,[
+      {label:'평년수확량(kg)', value:avgYield,         filled:!!avgYield,                    minW:80},
+      {label:'품종',           value:varietyTxt,       filled:true,                          minW:50},
+      {label:'병충해단독사고', value:disY?'여':'부',   filled:true, color:disY?red:green,    minW:52},
+      {label:'계약변경',       value:contractV,        auto:true, color:contractColor, bold:true, minW:44},
+      {label:'조사일',         value:todayStr,         auto:true, small:true,                minW:70}
+    ]);
+    cy+=rowH+pad+secGap;
+
+    // ② 면적조사
+    card(ctx,cy,secLH+rowH+pad,iw);
+    secTitle(ctx,P+2,cy,'② 면적 조사 (㎡)');
+    cy+=secLH;
+    drawRowAuto(ctx,P,cy,[
+      {label:'실경작면적',   value:actArea,      filled:!!actArea,                     minW:68},
+      {label:'고사면적',     value:deadArea,     filled:deadArea!=='0'&&!!deadArea,    minW:52},
+      {label:'타작물미보상', value:uninsArea,    filled:uninsArea!=='0'&&!!uninsArea,  minW:64},
+      {label:'기수확',       value:preArea,      filled:preArea!=='0'&&!!preArea,      minW:44},
+      {label:'조사대상면적', value:surveyAreaV,  auto:true,                            minW:68},
+      {label:'표본구간수',   value:properSample, auto:true,                            minW:52}
+    ]);
+    cy+=rowH+pad+secGap;
+
+    if(mode==='sample'){
+      // ③ 표본면적조사
+      card(ctx,cy,secLH+rowH+pad,iw);
+      secTitle(ctx,P+2,cy,'③ 표본면적 조사');
+      cy+=secLH;
+      drawRowAuto(ctx,P,cy,[
+        {label:'이랑길이(m)',  value:rowLen,      filled:!!rowLen,  minW:60},
+        {label:'이랑폭(m)',    value:rowWid,      filled:!!rowWid,  minW:56},
+        {label:'표본구간면적', value:sampleAreaV, auto:true,        minW:72}
+      ]);
+      cy+=rowH+pad+secGap;
+
+      // ④ 표본구간별 수확량
+      card(ctx,cy,secLH+rowH+pad,iw);
+      secTitle(ctx,P+2,cy,'④ 표본구간별 수확량 (g)');
+      cy+=secLH;
+      // 구간칸: 번호는 짧으므로 minW 작게
+      const cols4=[
+        ...Array.from({length:8},(_,i)=>({
+          label:String(i+1), value:spVals[i]||'',
+          filled:i<activeCount&&!!spVals[i],
+          disabled:i>=activeCount, minW:34
+        })),
+        {label:'합계',   value:sampleTotal,                              auto:true,  minW:48},
+        {label:'함수율', value:moisture?moisture+'%':'',  filled:!!moisture,         minW:44},
+        {label:'미보상', value:uninsRate?uninsRate+'%':'', filled:uninsRate!=='0'&&!!uninsRate, minW:44}
+      ];
+      drawRowAuto(ctx,P,cy,cols4);
+      cy+=rowH+pad+secGap;
+    }
+
+    // ⑤ 결과
+    const h5=secLH+40+14+detailN*24+pad;
+    card(ctx,cy,h5,iw);
+    secTitle(ctx,P+2,cy,'⑤ 결과');
+    cy+=secLH+6;
+
+    // 피해율: 좌측 정렬, "피해율" 크고 진하게 + 바로 옆 값
+    const pctColor=parseFloat(pct)>=20?'#C0392B':'#1D9E75';
+    ctx.fillStyle=blue;
+    ctx.font='600 14px -apple-system,sans-serif';
+    ctx.textAlign='left';
+    ctx.fillText('피해율', P+4, cy+22);
+    ctx.fillStyle=pctColor;
+    ctx.font='bold 34px -apple-system,sans-serif';
+    ctx.fillText(pct, P+4+62, cy+28);
+    cy+=40+8;
+
+    ctx.strokeStyle='#EEE'; ctx.lineWidth=0.7;
+    ctx.beginPath(); ctx.moveTo(P+2,cy); ctx.lineTo(P+iw-2,cy); ctx.stroke();
+    cy+=6;
+
+    const details=[
+      {label:'평년수확량',     val:rAvg},
+      {label:'조사수확량',     val:rSurvey},
+      {label:'유효중량(m²당)', val:rEff},
+      {label:'미보상감수량',   val:rUnins},
+      ...(isDis?[{label:'⚠ 병충해단독사고', val:'최고한도 70% 적용', warn:true}]:[])
+    ];
+    details.forEach(({label,val,warn})=>{
+      ctx.fillStyle=warn?red:'#888';
+      ctx.font='600 12px -apple-system,sans-serif';
+      ctx.textAlign='left'; ctx.fillText(label, P+4, cy+16);
+      ctx.fillStyle=warn?red:txtDark;
+      ctx.font='bold 12px -apple-system,sans-serif';
+      ctx.fillText(val, P+4+130, cy+16);
+      cy+=24;
+    });
+
+    const now2=new Date();
+    const stamp=`${now2.getFullYear()}${String(now2.getMonth()+1).padStart(2,'0')}${String(now2.getDate()).padStart(2,'0')}_${String(now2.getHours()).padStart(2,'0')}${String(now2.getMinutes()).padStart(2,'0')}`;
+    const link=document.createElement('a');
     link.download=`벼피해율_${stamp}.png`;
-    link.href = canvas.toDataURL('image/png');
+    link.href=canvas.toDataURL('image/png');
     link.click();
-  }catch(e){ alert('저장 중 오류가 발생했어요.'); }
+    document.getElementById('save-overlay').classList.add('show');
+  } catch(e){ alert('저장 중 오류: '+e); }
 }
-
-function fillRiceCaptureTemplate(){
-  const fmtArea = id => {
-    const v = document.getElementById(id)?.value || '';
-    const n = parseFloat(v.replace(/,/g,''));
-    return isNaN(n) ? (v||'-') : n.toLocaleString()+' ㎡';
-  };
-  const fmtKg = id => {
-    const v = document.getElementById(id)?.value || '';
-    const n = parseFloat(v.replace(/,/g,''));
-    return isNaN(n) || n===0 ? '-' : n.toLocaleString()+' kg';
-  };
-
-  const variety = document.getElementById('variety');
-  const varietyTxt = variety ? variety.options[variety.selectedIndex].text : '-';
-  const avgYieldV = document.getElementById('avgYield')?.value || '';
-  const avgYieldN = parseFloat(avgYieldV.replace(/,/g,''));
-  const disY = document.getElementById('dis-y')?.checked ? '예' : '아니오';
-  const contractV = document.getElementById('contractYn').value || '-';
-  const contractColor = contractV.includes('변경') ? '#e24b4a' : '#111827';
-  const rawDate = document.getElementById('surveyDate')?.value || '';
-  const surveyDate = rawDate ? rawDate.replace(/-/g,'.') : '-';
-
-  document.getElementById('cap-variety').textContent = varietyTxt;
-  document.getElementById('cap-avgYield').textContent = !isNaN(avgYieldN) && avgYieldN>0 ? avgYieldN.toLocaleString()+' kg' : '-';
-  const capContract = document.getElementById('cap-contract');
-  capContract.textContent = contractV;
-  capContract.style.color = contractColor;
-  // 병충해단독 (3번 표본면적조사로 이동)
-  const capDisease = document.getElementById('cap-disease');
-  if(capDisease) capDisease.textContent = document.getElementById('dis-y')?.checked ? '여' : '부';
-  // 조사일
-  const capDate = document.getElementById('cap-surveyDate');
-  if(capDate) capDate.textContent = surveyDate;
-
-  document.getElementById('cap-actArea').textContent = fmtArea('actArea');
-  document.getElementById('cap-deadArea').textContent = (()=>{ const v=document.getElementById('deadArea')?.value; return v ? Number(v).toLocaleString()+' ㎡' : '0 ㎡'; })();
-  document.getElementById('cap-uninsArea').textContent = (()=>{ const v=document.getElementById('uninsArea')?.value.replace(/,/g,''); return v&&Number(v)>0 ? Number(v).toLocaleString()+' ㎡' : '0 ㎡'; })();
-  document.getElementById('cap-preArea').textContent = (()=>{ const v=document.getElementById('preArea')?.value; return v&&Number(v)>0 ? Number(v).toLocaleString()+' ㎡' : '0 ㎡'; })();
-  document.getElementById('cap-surveyArea').textContent = document.getElementById('surveyArea').value || '-';
-  document.getElementById('cap-properSample').textContent = document.getElementById('properSampleDisp').value ? document.getElementById('properSampleDisp').value+'구간' : '-';
-
-  document.getElementById('cap-rowLen').textContent = document.getElementById('rowLen')?.value ? document.getElementById('rowLen').value+' m' : '-';
-  document.getElementById('cap-rowWid').textContent = document.getElementById('rowWid')?.value ? document.getElementById('rowWid').value+' m' : '-';
-  document.getElementById('cap-sampleArea').textContent = document.getElementById('sampleArea')?.value || '-';
-
-  // 원장변경 색상: 무=녹색, 유=빨간색
-  const capContract = document.getElementById('cap-contract');
-  if(capContract){
-    capContract.style.color = contractV === '유' ? '#e24b4a' : '#1D9E75';
-  }
-
-  // 표본구간별 수확량 - 1~8 한줄
-  const proper = parseInt(document.getElementById('properSampleDisp').value)||0;
-  const moisture = document.getElementById('moisture').value||'';
-  const uninsRate = document.getElementById('uninsRate').value||'0';
-  const td8 = (i) => {
-    const el = document.getElementById('sp'+i);
-    const v = el ? (el.value||'') : '';
-    const active = i < proper;
-    const bg = v ? '#e8faf3' : '#fff';
-    const color = v ? '#0d5c35' : '#bbb';
-    const border = i < 7 ? 'border-right:1px solid #d1d5db;' : '';
-    return `<td style="padding:7px 2px;${border}text-align:center;background:${bg};font-weight:700;font-size:11px;white-space:nowrap;min-width:30px;color:${color}">${active ? (v ? v : '-') : ''}</td>`;
-  };
-  document.getElementById('cap-row18').innerHTML = td8(0)+td8(1)+td8(2)+td8(3)+td8(4)+td8(5)+td8(6)+td8(7);
-
-  // 합계
-  let realTotal = 0;
-  for(let i=0;i<proper;i++){
-    const el=document.getElementById('sp'+i);
-    if(el&&el.value) realTotal+=parseFloat(el.value)||0;
-  }
-  document.getElementById('cap-total').textContent = realTotal ? realTotal.toLocaleString()+' g' : '-';
-  document.getElementById('cap-moisture').textContent = moisture ? moisture+'%' : '-';
-  document.getElementById('cap-uninsRate').textContent = uninsRate ? uninsRate+'%' : '-';
-
-  // 결과
-  document.getElementById('cap-pct').textContent = document.getElementById('result-pct').textContent || '-';
-  document.getElementById('cap-survey').textContent = document.getElementById('r-survey').textContent || '-';
-  document.getElementById('cap-loss').textContent = document.getElementById('r-loss').textContent || '-';
-  document.getElementById('cap-unins').textContent = document.getElementById('r-unins').textContent || '-';
-}
-
 
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(r=>r.forEach(s=>s.unregister()));
   caches.keys().then(k=>Promise.all(k.map(c=>caches.delete(c))));
 }
 
-// 버전 캐시 체크
 clearOldCache();
-
-// 페이지 나갈 때 저장
 window.addEventListener('beforeunload', saveState);
-
-// 상태 복원
 loadState();
 setMode('sample');
 lastProper = -1;
 
-// 기본값 적용 (저장값 없을 때만)
+// 기본값 설정 (저장값 없을 때만)
 (function(){
-  // 품종 기본값: 메벼
   const v = document.getElementById('variety');
   if(v && !v.value){ v.value='mebyeo'; v.classList.add('filled'); }
-  else if(v && v.value){ v.classList.add('filled'); }
-
-  // 이랑폭 기본값: 0.3
+  else if(v && v.value) v.classList.add('filled');
   const rw = document.getElementById('rowWid');
   if(rw && !rw.value){ rw.value='0.3'; rw.classList.add('filled'); }
-
-  // 조사일 기본값: 오늘
   const sd = document.getElementById('surveyDate');
   if(sd && !sd.value){
     const t = new Date();
@@ -951,17 +1075,17 @@ lastProper = -1;
   }
 })();
 
-// 표본 렌더링 포함 calc 실행
-setTimeout(()=>{
+// calc 실행 (표본구간 렌더링 포함)
+setTimeout(function(){
   calc();
   // 저장된 표본값 복원
   try{
     const raw = localStorage.getItem('rice_state');
     if(!raw) return;
     const s = JSON.parse(raw);
-    if(s.spVals && s.spVals.some(v=>v)){
-      setTimeout(()=>{
-        s.spVals.forEach((v,i)=>{
+    if(s.spVals && s.spVals.some(function(v){return v;})){
+      setTimeout(function(){
+        s.spVals.forEach(function(v,i){
           const el = document.getElementById('sp'+i);
           if(el && v){
             el.value = v;
