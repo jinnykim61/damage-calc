@@ -923,51 +923,53 @@ if('serviceWorker' in navigator){
   caches.keys().then(k=>Promise.all(k.map(c=>caches.delete(c))));
 }
 
-clearOldCache();
-loadState();
-setMode('sample');
-lastProper = -1;
+document.addEventListener('DOMContentLoaded', function(){
+  clearOldCache();
+  loadState();
+  setMode('sample');
+  lastProper = -1;
 
-// 기본값 설정 (저장값 없을 때만)
-(function(){
-  const v = document.getElementById('variety');
-  if(v && !v.value){ v.value='mebyeo'; v.classList.add('filled'); }
-  else if(v && v.value) v.classList.add('filled');
-  const rw = document.getElementById('rowWid');
-  if(rw && !rw.value){ rw.value='0.3'; rw.classList.add('filled'); }
-  const sd = document.getElementById('surveyDate');
-  if(sd && !sd.value){
-    const t = new Date();
-    sd.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
-    sd.classList.add('filled');
-  }
-})();
+  // 기본값 설정 (저장값 없을 때만)
+  (function(){
+    const v = document.getElementById('variety');
+    if(v && !v.value){ v.value='mebyeo'; v.classList.add('filled'); }
+    else if(v && v.value) v.classList.add('filled');
+    const rw = document.getElementById('rowWid');
+    if(rw && !rw.value){ rw.value='0.3'; rw.classList.add('filled'); }
+    const sd = document.getElementById('surveyDate');
+    if(sd && !sd.value){
+      const t = new Date();
+      sd.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+      sd.classList.add('filled');
+    }
+  })();
 
-// calc 실행 (표본구간 렌더링 포함)
-setTimeout(function(){
-  calc();
-  // 저장된 표본값 복원 - calc 후 렌더링 완료 시점에 실행
+  // calc 실행 (표본구간 렌더링 포함)
   setTimeout(function(){
-    try{
-      const raw = localStorage.getItem('rice_state');
-      if(!raw) return;
-      const s = JSON.parse(raw);
-      if(!s.spVals || !s.spVals.some(function(v){return v;})) return;
-      let restored = false;
-      s.spVals.forEach(function(v,i){
-        const el = document.getElementById('sp'+i);
-        if(el && v){
-          el.value = v;
-          el.style.background='#e8faf3';
-          el.style.borderColor='#1D9E75';
-          el.style.color='#0d5c35';
-          restored = true;
-        }
-      });
-      if(restored) calc();
-    }catch(e){}
-  }, 200);
-}, 80);
+    calc();
+    // 저장된 표본값 복원 - calc 후 렌더링 완료 시점에 실행
+    setTimeout(function(){
+      try{
+        const raw = localStorage.getItem('rice_state');
+        if(!raw) return;
+        const s = JSON.parse(raw);
+        if(!s.spVals || !s.spVals.some(function(v){return v;})) return;
+        let restored = false;
+        s.spVals.forEach(function(v,i){
+          const el = document.getElementById('sp'+i);
+          if(el && v){
+            el.value = v;
+            el.style.background='#e8faf3';
+            el.style.borderColor='#1D9E75';
+            el.style.color='#0d5c35';
+            restored = true;
+          }
+        });
+        if(restored) calc();
+      }catch(e){}
+    }, 50);
+  }, 0);
+});
 </script>
 </body>
 </html>
