@@ -589,7 +589,7 @@ function renderVarieties(totalSurvey, totalProper) {
           onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
           oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].age=+this.value||0;saveState()">
         <button onclick="resetVariety(${vi})"
-          style="flex-shrink:0;width:64px;height:40px;padding:0;background:#FFF5F5;border:1.5px solid var(--red);border-radius:8px;font-size:12px;font-weight:600;color:var(--red);cursor:pointer">초기화</button>
+          style="flex-shrink:0;width:64px;height:40px;padding:0;background:transparent;border:1.5px solid var(--red);border-radius:8px;font-size:12px;font-weight:600;color:var(--red);cursor:pointer">초기화</button>
       </div>
 
       <!-- 2열: 가입/실결/조사대상 + 나무조사 버튼 -->
@@ -601,7 +601,7 @@ function renderVarieties(totalSurvey, totalProper) {
           <input type="text" class="auto" id="vi-survey-${vi}" value="${surveyTarget>0?surveyTarget.toLocaleString()+'주':''}" readonly>
         </div>
         <button onclick="toggleTreeInspect(${vi})" id="tree-btn-${vi}"
-            style="width:64px;height:40px;padding:0;border:1.5px solid ${v.treeOpen?'#0F6E56':'#1D9E75'};border-radius:8px;font-size:12px;font-weight:600;color:${v.treeOpen?'#fff':'#1D9E75'};background:${v.treeOpen?'#1D9E75':'#F0FAF6'};cursor:pointer;white-space:nowrap;flex-shrink:0">나무조사</button>
+            style="width:64px;height:40px;padding:0;border:1.5px solid ${v.treeOpen?'#854F0B':'#E8860A'};border-radius:8px;font-size:12px;font-weight:600;color:${v.treeOpen?'#fff':'#E8860A'};background:${v.treeOpen?'#E8860A':'transparent'};cursor:pointer;white-space:nowrap;flex-shrink:0">나무조사</button>
       </div>
       <!-- 3열: 고사/수확불능/미보상고사/미보상미고사 (접기/펼치기) -->
       <div id="tree-row-${vi}" style="display:${v.treeOpen?'grid':'none'};grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;padding:10px;background:#F5F4F0;border-radius:8px;border:0.5px solid var(--border)">
@@ -630,9 +630,9 @@ function renderVarieties(totalSurvey, totalProper) {
       </div>
       <div class="sample-section ${v.open?'open':''}" id="ss-${vi}">
         ${samplesHtml}
-        <button style="margin-top:8px;width:100%;height:32px;border:1px dashed var(--border);background:transparent;border-radius:6px;font-size:12px;color:var(--sub);cursor:pointer"
-          onclick="addSampleRow(${vi})">+ 표본주 추가</button>
-      </div>` : `
+      </div>
+      <button style="margin-top:6px;width:100%;height:34px;border:1px dashed var(--border);background:transparent;border-radius:6px;font-size:12px;color:var(--sub);cursor:pointer"
+        onclick="addSampleRow(${vi})">+ 표본주 추가</button>` : `
       <div id="ss-${vi}" style="display:none"></div>`}
     </div>`;
   }).join('');
@@ -666,9 +666,9 @@ function toggleTreeInspect(vi) {
   const isOpen = varieties[vi].treeOpen;
   if(row) row.style.display = isOpen ? 'grid' : 'none';
   if(btn) {
-    btn.style.borderColor = isOpen ? '#0F6E56' : '#1D9E75';
-    btn.style.color = isOpen ? '#fff' : '#1D9E75';
-    btn.style.background = isOpen ? '#1D9E75' : '#F0FAF6';
+    btn.style.borderColor = isOpen ? '#854F0B' : '#E8860A';
+    btn.style.color = isOpen ? '#fff' : '#E8860A';
+    btn.style.background = isOpen ? '#E8860A' : 'transparent';
   }
   saveState();
 }
