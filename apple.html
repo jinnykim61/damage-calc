@@ -173,8 +173,8 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
       <div class="sec-title">① 기본정보</div>
       <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
     </div>
-    <!-- 1열: 평년착과수(입력) / 가입주수 / 실제결과주수 / 조사대상주수 -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
+    <!-- 1열: 평년착과수(입력) / 가입주수 / 실제결과주수 / 조사대상주수 / 계약변경여부 -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px">
       <div class="field">
         <label>평년착과수 <span style="font-size:9px;color:var(--hint)">개</span></label>
         <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
@@ -191,6 +191,10 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
       <div class="field">
         <label>조사대상주수</label>
         <input type="text" id="total_survey_disp" class="auto" readonly>
+      </div>
+      <div class="field">
+        <label>계약변경여부</label>
+        <input type="text" id="contract_yn" class="auto" readonly>
       </div>
     </div>
     <!-- 2열: 고사주수 / 수확불능주수 / 미보상고사 / 미보상미고사 -->
@@ -445,32 +449,29 @@ function renderVarieties(totalSurvey, totalProper) {
       </div>`;
     };
 
+    const defaultName = `품종${vi+1}`;
+    const displayName = v.name || defaultName;
+
     return `
     <div class="variety-card" id="vc-${vi}">
-      <!-- 1열: 품종 / 수령 / 초기화버튼 -->
+      <!-- 1열: 번호 / 품종명 / 수령 / 초기화버튼 -->
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <div class="variety-num" style="flex-shrink:0">${vi+1}</div>
-        <div class="field" style="flex:1.5;margin:0">
-          <label style="font-size:10px">품종</label>
-          <input type="text" class="inp${v.name&&v.name!='A'&&v.name!='B'?' filled':''}" value="${v.name||''}" placeholder="품종명"
-            style="height:38px;font-size:13px"
-            onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
-            onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
-            oninput="varieties[${vi}].name=this.value;saveState()">
-        </div>
-        <div class="field" style="flex:1;margin:0">
-          <label style="font-size:10px">수령</label>
-          <input type="number" class="inp${v.age>0?' filled':''}" value="${v.age||''}" inputmode="decimal" placeholder="년"
-            style="height:38px;font-size:13px"
-            onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
-            onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
-            oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].age=+this.value||0;saveState()">
-        </div>
+        <input type="text" class="inp${v.name?' filled':''}" value="${v.name||''}" placeholder="${defaultName}"
+          style="flex:1.5;height:38px;font-size:13px"
+          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
+          onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
+          oninput="varieties[${vi}].name=this.value;saveState()">
+        <input type="number" class="inp${v.age>0?' filled':''}" value="${v.age||''}" inputmode="decimal" placeholder="수령"
+          style="flex:0.8;height:38px;font-size:13px"
+          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
+          onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
+          oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].age=+this.value||0;saveState()">
         <button onclick="resetVariety(${vi})"
-          style="flex-shrink:0;height:38px;padding:0 10px;background:transparent;border:1.5px solid var(--border);border-radius:8px;font-size:11px;color:var(--sub);cursor:pointer;margin-top:13px">초기화</button>
+          style="flex-shrink:0;height:38px;padding:0 10px;background:transparent;border:1.5px solid var(--border);border-radius:8px;font-size:11px;color:var(--sub);cursor:pointer">초기화</button>
       </div>
 
-      <!-- 2열: 가입/실결/고사/수확불능/미보상고사/미보상미고사 -->
+      <!-- 2열: 가입/실결/조사대상 -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px">
         ${inp('reg', v.reg, '가입주수')}
         ${inp('actual', v.actual, '실제결과주수')}
@@ -479,6 +480,7 @@ function renderVarieties(totalSurvey, totalProper) {
           <input type="text" class="auto" id="vi-survey-${vi}" value="${surveyTarget>0?surveyTarget.toLocaleString()+'주':''}" readonly>
         </div>
       </div>
+      <!-- 3열: 고사/수확불능/미보상고사/미보상미고사 -->
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">
         ${inp('dead', v.dead, '고사주수')}
         ${inp('unable', v.unable, '수확불능')}
@@ -715,7 +717,7 @@ function doCalc() {
     totalSampleUsed += sampleCount;
 
     results.push({
-      name: v.name || '-',
+      name: v.name || `품종${varieties.indexOf(v)+1}`,
       surveyTarget,
       sampleCount,
       sampleSum,
