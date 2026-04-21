@@ -13,6 +13,24 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function bindMobileFocusHandlers(){
+  document.querySelectorAll('input.inp, select.inp, input.sg-inp').forEach(el=>{
+    if(el.dataset.mobileFocusBound==='1') return;
+    el.dataset.mobileFocusBound='1';
+    el.addEventListener('focus',()=>el.classList.add('mobile-focus'),{passive:true});
+    el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
+    el.addEventListener('touchend',(e)=>{
+      if(e.cancelable) e.preventDefault();
+      el.focus(); el.classList.add('mobile-focus');
+    },{passive:false});
+  });
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  bindMobileFocusHandlers();
+  document.addEventListener('click',()=>setTimeout(bindMobileFocusHandlers,0),{passive:true});
+});
+</script>
 <style>
 :root{
   --blue:#185FA5;--blue2:#378ADD;
@@ -36,12 +54,13 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .legend{display:flex;gap:12px;padding:8px 16px;background:var(--card);border-bottom:0.5px solid var(--border)}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
 .dot-inp{width:10px;height:10px;border-radius:2px;background:white;border:1.5px solid var(--binp)}
+.dot-filled{width:10px;height:10px;border-radius:2px;background:#e8faf3;border:1.5px solid var(--green)}
 .dot-auto{width:10px;height:10px;border-radius:2px;background:var(--auto);border:0.5px solid var(--border)}
 
 /* 품목 선택 탭 */
 .crop-tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);padding:0 12px;gap:4px}
-.crop-tab{flex:1;padding:10px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer}
-.crop-tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.crop-tab{flex:1;padding:10px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer;opacity:0.45;transition:opacity 0.15s}
+.crop-tab.on{color:var(--blue);border-bottom-color:var(--blue);opacity:1}
 
 /* 컨텐츠 */
 .content{padding:12px 12px 40px}
@@ -55,17 +74,29 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 .field label.sm{font-size:9px}
 
-input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none}
-input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);background:#dceeff;color:#185FA5;box-shadow:0 0 0 3px rgba(55,138,221,0.12)}
+input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center}
+input.inp::placeholder{color:var(--hint);text-align:center}
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
-input.inp.filled:focus{background:#dceeff;border-color:var(--blue);color:#185FA5}
-input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
-input.inp::placeholder{color:var(--hint)}
-input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
-input.inp.filled:focus{box-shadow:0 0 0 3px rgba(29,158,117,0.15)}
-input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none}
+select.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:center}
 input.auto.warn{background:#FFF3CD;color:#856404;border-color:#ffc107}
 input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
+/* mobile focus */
+input.inp.mobile-focus,select.inp.mobile-focus,input.sg-inp.mobile-focus,
+input.inp:focus,input.inp:focus-visible,input.inp:active,
+select.inp:focus,select.inp:focus-visible,select.inp:active,
+input.sg-inp:focus,input.sg-inp:focus-visible,input.sg-inp:active{
+  outline:none !important;border-color:#185FA5 !important;
+  box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
+  background:#DCEEFF !important;color:#185FA5 !important;
+}
+input.inp.filled.mobile-focus,select.inp.filled.mobile-focus,
+input.inp.filled:focus,input.inp.filled:focus-visible,input.inp.filled:active,
+select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active{
+  outline:none !important;border-color:#185FA5 !important;
+  box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
+  background:#DCEEFF !important;color:#185FA5 !important;
+}
 
 /* 품종 카드 */
 .variety-card{background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:10px;border:0.5px solid var(--border);overflow:hidden}
@@ -130,9 +161,8 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;overflow:hidden}
 .sg-cell{display:flex;flex-direction:row;align-items:center;gap:4px}
 .sg-no{font-size:13px;font-weight:700;color:var(--sub);min-width:18px;text-align:right;flex-shrink:0}
-.sg-inp{flex:1;height:40px;border:1.5px solid var(--binp);border-radius:6px;font-size:15px;font-weight:600;background:white;color:var(--text);text-align:center;-webkit-appearance:none;box-sizing:border-box;min-width:0}
+.sg-inp{flex:1;height:40px;border:1.5px solid var(--binp);border-radius:6px;font-size:15px;font-weight:600;background:white;color:var(--text);text-align:center;-webkit-appearance:none;box-sizing:border-box;min-width:0;transition:background 0.15s,border-color 0.15s}
 .sg-inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
-.sg-inp:focus{outline:none;border-color:var(--blue)}
 
 /* 팝업 */
 #save-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center}
@@ -148,13 +178,14 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
   <button class="back-btn" onclick="location.href='./index.html'">‹</button>
   <div class="header-icon">🍎</div>
   <div>
-    <h1>과수 다품종 착과수 계산기</h1>
-    <div class="header-sub">다품종 · 적과후 착과수 조사</div>
+    <h1>과수4종 착과수 계산기</h1>
+    <div class="header-sub">사과 · 배 · 단감 · 떫은감</div>
   </div>
 </div>
 
 <div class="legend">
   <div class="legend-item"><div class="dot-inp"></div>직접 입력</div>
+  <div class="legend-item"><div class="dot-filled"></div>입력 완료</div>
   <div class="legend-item"><div class="dot-auto"></div>자동 계산</div>
 </div>
 
