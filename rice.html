@@ -225,7 +225,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
     <!-- 3. 표본구간 -->
     <div class="section">
-      <div class="sec-title">③ 표본면적조사 및 ·</div>
+      <div class="sec-title">③ 표본면적조사 및 함수율·미보상비율</div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
         <div class="field">
           <label>이랑길이 (m)</label>
@@ -238,12 +238,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
             oninput="markFilled(this);debouncedCalc()" onblur="calc()" data-default="0.3">
         </div>
         <div class="field">
-          <label> (%)</label>
+          <label>함수율 (%)</label>
           <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
             oninput="markFilled(this);debouncedCalc()" onblur="calc()">
         </div>
         <div class="field">
-          <label> (%)</label>
+          <label>미보상비율 (%)</label>
           <input type="number" id="uninsRate" class="inp" inputmode="decimal"
             placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
         </div>
@@ -280,8 +280,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
               <th style="height:54px;padding:0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">3</th>
               <th style="height:54px;padding:0;background:#4a7aad;color:#fff;border-right:2px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">4</th>
               <th rowspan="2" style="height:108px;padding:0 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;vertical-align:middle">합계</th>
-              <th rowspan="2" style="height:108px;padding:0 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;vertical-align:middle"></th>
-              <th rowspan="2" style="height:108px;padding:0 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;vertical-align:middle">미보상<br>비율</th>
+              <th rowspan="2" style="height:108px;padding:0 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;vertical-align:middle">함수율</th>
+              <th rowspan="2" style="height:108px;padding:0 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;vertical-align:middle">미보상비율</th>
             </tr>
             <tr id="cap-row1234"></tr>
             <tr>
@@ -443,7 +443,7 @@ function calc(){
     ? Math.round(avgYield * (actArea / insArea) * 10) / 10
     : avgYield;
 
-  // 기준
+  // 기준함수율
   document.getElementById('stdMoisture').value = (stdMoisture*100).toFixed(0) + '%';
 
   // 조사대상면적
@@ -492,7 +492,7 @@ function calc(){
 
     const totalSampleArea = unitArea * proper;
 
-    // 유효중량 = ROUNDDOWN((표본수확량합/1000 × 0.93 × (1-)/(1-기준)) / 표본구간면적합, 2)
+    // 유효중량 = ROUNDDOWN((표본수확량합/1000 × 0.93 × (1-함수율)/(1-기준함수율)) / 표본구간면적합, 2)
     let effWeight = 0;
     if(totalSampleArea > 0 && moisture > 0 && sampleTotal > 0){
       effWeight = Math.floor(((sampleTotal/1000) * 0.93 * (1-moisture)/(1-stdMoisture)) / totalSampleArea * 100) / 100;
@@ -531,7 +531,7 @@ function calc(){
     const fullMoisture = (parseFloat(document.getElementById('fullMoisture').value)||0)/100;
 
     if(fullMoisture > 0 && fullYield > 0){
-      // 수확량 = 총수확량 × (1-)/(1-기준)
+      // 수확량 = 총수확량 × (1-함수율)/(1-기준함수율)
       const surveyYield = Math.floor(fullYield * (1-fullMoisture)/(1-stdMoisture));
       document.getElementById('fullSurvey').value = surveyYield.toLocaleString('ko-KR') + ' kg';
 
