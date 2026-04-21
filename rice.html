@@ -178,7 +178,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       </div>
       <div class="field">
         <label>조사일자</label>
-        <input type="date" id="surveyDate" class="inp" onchange="markFilled(this)">
+        <input type="date" id="surveyDate" class="inp" onchange="markFilled(this);debouncedCalc()">
       </div>
     </div>
   </div>
@@ -225,8 +225,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
     <!-- 3. 표본구간 -->
     <div class="section">
-      <div class="sec-title">③ 표본면적조사</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">
+      <div class="sec-title">③ 표본면적조사 및 함수율·미보상비율</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
         <div class="field">
           <label>이랑길이 (m)</label>
           <input type="number" id="rowLen" class="inp" inputmode="decimal" step="0.01"
@@ -237,6 +237,18 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           <input type="number" id="rowWid" class="inp filled" inputmode="decimal" step="0.01" value="0.3"
             oninput="markFilled(this);debouncedCalc()" onblur="calc()" data-default="0.3">
         </div>
+        <div class="field">
+          <label>함수율 (%)</label>
+          <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
+            oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+        </div>
+        <div class="field">
+          <label>미보상비율 (%)</label>
+          <input type="number" id="uninsRate" class="inp" inputmode="decimal"
+            placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px">
         <div class="field">
           <label>표본구간면적</label>
           <input type="text" id="sampleArea" class="auto" readonly>
@@ -255,7 +267,13 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div style="font-size:11px;color:var(--hint)" id="sample-inputted"></div>
       </div>
       <div id="sample-inputs"></div>
-      <input type="hidden" id="sampleTotal" readonly>
+      <!-- 합계 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">
+        <div class="field">
+          <label>합계<sup style="font-size:9px;color:var(--hint);margin-top:1px">g</sup></label>
+          <input type="text" id="sampleTotal" class="auto" readonly>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -371,17 +389,21 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         </table>
       </div>
 
-      <!-- 3. 표본면적조사 -->
+      <!-- 3. 표본면적조사 및 미보상비율 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본면적조사</div>
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본면적조사 및 함수율·미보상비율</div>
         <table class="fit-table" style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
-            <th style="padding:7px 18px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑길이</th>
-            <th style="padding:7px 18px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑폭</th>
+            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑길이</th>
+            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑폭</th>
+            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">함수율</th>
+            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상비율</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 18px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowLen">-</td>
-            <td style="padding:7px 18px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowWid">-</td>
+            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowLen">-</td>
+            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowWid">-</td>
+            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-moisture3">-</td>
+            <td style="padding:7px 14px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-uninsRate">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -389,9 +411,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <!-- 4. 표본구간별 수확량 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:8px">4. 표본구간별 수확량 <span style="font-size:11px;font-weight:500;color:#888">g</span></div>
-        <div style="display:flex;gap:0;align-items:stretch">
-          <!-- 좌측: 1~4행 / 5~8행 (flex:4 = 4칸 너비) -->
-          <div style="flex:4;display:flex;flex-direction:column;gap:3px;margin-right:3px">
+        <div style="display:flex;gap:8px;align-items:stretch">
+          <div style="flex:4;display:flex;flex-direction:column;gap:3px">
             <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
               <thead><tr>
                 <th style="padding:4px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">1</th>
@@ -411,19 +432,18 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
               <tbody><tr id="cap-row5678"></tr></tbody>
             </table>
           </div>
-          <!-- 우측: 합계 / 함수율 / 미보상비율 -->
-          <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+          <div style="flex:3;display:grid;grid-template-columns:repeat(3,1fr);gap:3px">
             <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
-              <thead><tr><th style="padding:4px 0;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">합계</th></tr></thead>
-              <tbody><tr><td style="padding:4px 1px;text-align:center;background:#fff3cd;font-weight:700;font-size:10px;word-break:break-all;min-height:24px" id="cap-total">-</td></tr></tbody>
+              <thead><tr><th style="padding:4px 2px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">합계</th></tr></thead>
+              <tbody><tr><td style="height:56px;padding:6px 2px;text-align:center;vertical-align:middle;background:#fff3cd;font-weight:700;font-size:10px;word-break:break-all" id="cap-total">-</td></tr></tbody>
             </table>
             <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
-              <thead><tr><th style="padding:4px 0;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">함수율</th></tr></thead>
-              <tbody><tr><td style="padding:4px 1px;text-align:center;background:#fff3cd;font-weight:700;font-size:10px;word-break:break-all;min-height:24px" id="cap-moisture3">-</td></tr></tbody>
+              <thead><tr><th style="padding:4px 2px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">함수율</th></tr></thead>
+              <tbody><tr><td style="height:56px;padding:6px 2px;text-align:center;vertical-align:middle;background:#fff3cd;font-weight:700;font-size:10px;word-break:break-all" id="cap-moisture4">-</td></tr></tbody>
             </table>
             <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
-              <thead><tr><th style="padding:4px 0;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">미보상비율</th></tr></thead>
-              <tbody><tr><td style="padding:4px 1px;text-align:center;background:#fff3cd;font-weight:700;font-size:10px;word-break:break-all;min-height:24px" id="cap-uninsRate">-</td></tr></tbody>
+              <thead><tr><th style="padding:4px 2px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">미보상</th></tr></thead>
+              <tbody><tr><td style="height:56px;padding:6px 2px;text-align:center;vertical-align:middle;background:#fff3cd;font-weight:700;font-size:10px;word-break:break-all" id="cap-uninsRate4">-</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -524,80 +544,23 @@ function getProperSample(area){
 
 function renderSampleInputs(proper){
   const container = document.getElementById('sample-inputs');
-  const headerCell = 'padding:8px 0;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center';
-  const headerCellLast = 'padding:8px 0;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center';
-  const valueCell = (idx, active) => {
-    const bc = active ? '#378ADD' : '#D8D6CE';
-    const bg = active ? 'white' : '#F3F1EA';
-    const color = active ? '#1a1a1a' : '#aaa';
-    return `<td style="padding:6px;border-right:${idx % 4 === 3 ? '0' : '1px solid #d1d5db'};background:#fffaf0;text-align:center">
-      <input type="number" inputmode="decimal" placeholder="" id="sp${idx}"
+  // 4열 2행 가로 순서 (1,2,3,4 / 5,6,7,8)
+  let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;width:100%;overflow:hidden">`;
+  for(let si=0; si<8; si++){
+    const active = si < proper;
+    const bc = active ? 'var(--binp)' : 'var(--border)';
+    const bg = active ? 'white' : 'var(--auto)';
+    html += `<div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+      <span style="font-size:12px;font-weight:700;color:${active?'var(--sub)':'var(--hint)'};text-align:center">${si+1}</span>
+      <input type="number" inputmode="decimal" placeholder="" id="sp${si}"
         ${active ? '' : 'disabled'}
-        style="width:100%;height:42px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${color};text-align:center;-webkit-appearance:none;box-sizing:border-box"
+        style="width:100%;height:40px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${active?'var(--text)':'var(--hint)'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
         oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';debouncedCalc()"
         onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
         onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';calc()">
-    </td>`;
-  };
-
-  let html = `
-    <div style="display:flex;gap:10px;align-items:stretch;overflow-x:auto;padding-bottom:2px">
-      <div style="flex:1.55;min-width:0">
-        <div style="font-size:11px;color:var(--sub);font-weight:600;margin:0 0 4px 4px">표본구간별 수확량</div>
-        <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;background:#fff">
-          <thead>
-            <tr>
-              <th style="${headerCell}">1</th>
-              <th style="${headerCell}">2</th>
-              <th style="${headerCell}">3</th>
-              <th style="${headerCellLast}">4</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>${valueCell(0, 0 < proper)}${valueCell(1, 1 < proper)}${valueCell(2, 2 < proper)}${valueCell(3, 3 < proper)}</tr>
-            <tr>
-              <th style="${headerCell}">5</th>
-              <th style="${headerCell}">6</th>
-              <th style="${headerCell}">7</th>
-              <th style="${headerCellLast}">8</th>
-            </tr>
-            <tr>${valueCell(4, 4 < proper)}${valueCell(5, 5 < proper)}${valueCell(6, 6 < proper)}${valueCell(7, 7 < proper)}</tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="flex:0.95;min-width:180px">
-        <div style="visibility:hidden;font-size:11px;margin:0 0 4px 4px">.</div>
-        <table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;background:#fff">
-          <thead>
-            <tr>
-              <th style="${headerCell}">합계</th>
-              <th style="${headerCell}">함수율</th>
-              <th style="${headerCellLast}">미보상</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="padding:6px;border-right:1px solid #d1d5db;background:#fff3cd;text-align:center;vertical-align:top">
-                <div style="font-size:11px;color:#666;font-weight:700;margin-bottom:6px">합계</div>
-                <div id="sampleTotalBox" style="min-height:42px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#7a5a00">-</div>
-              </td>
-              <td style="padding:6px;border-right:1px solid #d1d5db;background:#fff3cd;text-align:center;vertical-align:top">
-                <div style="font-size:11px;color:#666;font-weight:700;margin-bottom:6px">함수율</div>
-                <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
-                  style="height:42px;background:white"
-                  oninput="markFilled(this);debouncedCalc()" onblur="calc()">
-              </td>
-              <td style="padding:6px;background:#fff3cd;text-align:center;vertical-align:top">
-                <div style="font-size:11px;color:#666;font-weight:700;margin-bottom:6px">미보상</div>
-                <input type="number" id="uninsRate" class="inp" inputmode="decimal"
-                  style="height:42px;background:white"
-                  placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </div>`;
+  }
+  html += '</div>';
   container.innerHTML = html;
 }
 
@@ -677,8 +640,6 @@ function calc(){
     const inputtedDisp = document.getElementById('sample-inputted');
     if(inputtedDisp) inputtedDisp.textContent = inputted > 0 ? `${inputted}/${proper}구간 입력` : '';
     document.getElementById('sampleTotal').value = sampleTotal > 0 ? sampleTotal + ' g' : '';
-    const sampleTotalBox = document.getElementById('sampleTotalBox');
-    if(sampleTotalBox) sampleTotalBox.textContent = sampleTotal > 0 ? sampleTotal.toLocaleString('ko-KR') + ' g' : '-';
 
     const totalSampleArea = unitArea * proper;
 
@@ -920,6 +881,10 @@ function fillRiceCaptureTemplate(){
   const capM3 = document.getElementById('cap-moisture3');
   if(capM3) capM3.textContent = moisture ? moisture+'%' : '-';
   document.getElementById('cap-uninsRate').textContent = uninsRate ? uninsRate+'%' : '-';
+  const capM4 = document.getElementById('cap-moisture4');
+  if(capM4) capM4.textContent = moisture ? moisture+'%' : '-';
+  const capU4 = document.getElementById('cap-uninsRate4');
+  if(capU4) capU4.textContent = uninsRate ? uninsRate+'%' : '-';
 
   // 4. 표본구간별 수확량 - 1~8
 
