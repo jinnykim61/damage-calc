@@ -347,7 +347,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 
   <!-- 계산 버튼 -->
   <button class="calc-btn" id="calc-btn" onclick="doCalc()">
-    <span>🧮</span><span>착과율 계산하기</span>
+    <span>🧮</span><span>착과수 계산</span>
   </button>
 
   <!-- 결과 -->
@@ -633,9 +633,9 @@ function renderVarieties(totalSurvey, totalProper) {
           <input type="number" id="vi-reg-${vi}" class="inp${v.reg>0?' filled':''}" value="${v.reg||''}" inputmode="decimal"
             enterkeyhint="next"
             onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
-            onblur="varieties[${vi}].reg=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'reg',this.value);saveState()"
+            onblur="varieties[${vi}].reg=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';updateSummaryOnly();saveState()"
             oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].reg=+this.value||0"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].reg=+this.value||0;updateSummaryOnly();setTimeout(()=>document.getElementById('vi-actual-${vi}')?.focus(),0)}">
+            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].reg=+this.value||0;const next=document.getElementById('vi-actual-${vi}');if(next){this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';next.focus();}}">
         </div>
         <div class="field">
           <label>실제결과주수</label>
@@ -998,7 +998,7 @@ function doCalc() {
   btn.innerHTML = '<span>✅</span><span>계산 완료!</span>';
   setTimeout(() => {
     btn.classList.remove('done');
-    btn.innerHTML = '<span>🧮</span><span>착과율 계산하기</span>';
+    btn.innerHTML = '<span>✅</span><span>계산 완료!</span>';
   }, 2000);
   document.getElementById('result-section').scrollIntoView({behavior:'smooth', block:'start'});
 }
