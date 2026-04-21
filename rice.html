@@ -373,17 +373,13 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
             <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">실제경작면적</th>
             <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">고사면적</th>
             <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상면적</th>
-            <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">기수확면적</th>
-            <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">조사대상면적</th>
-            <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">표본구간수</th>
+            <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">기수확면적</th>
           </tr></thead>
           <tbody><tr>
             <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-actArea">-</td>
             <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-deadArea">-</td>
             <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-uninsArea">-</td>
-            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-preArea">-</td>
-            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-surveyArea">-</td>
-            <td style="padding:7px 12px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-properSample">-</td>
+            <td style="padding:7px 12px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-preArea">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -395,26 +391,68 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           <thead><tr>
             <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑길이</th>
             <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑폭</th>
-            <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">표본구간면적</th>
+            <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">표본구간면적</th>
+            <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">조사대상면적</th>
+            <th style="padding:7px 12px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">표본구간수</th>
           </tr></thead>
           <tbody><tr>
             <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowLen">-</td>
             <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowWid">-</td>
-            <td style="padding:7px 12px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-sampleArea">-</td>
+            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-sampleArea">-</td>
+            <td style="padding:7px 12px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-surveyArea">-</td>
+            <td style="padding:7px 12px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-properSample">-</td>
           </tr></tbody>
         </table>
       </div>
 
-      <!-- 4. 표본구간별 수확량 -->
+      <!-- 4. 표본구간별 수확량 - 1~4, 5~8 가로배치 + 합계/함수율/미보상 우측 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">4. 표본구간별 수확량</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
-          <thead><tr>
-            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">구간</th>
-            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">중량</th>
-          </tr></thead>
-          <tbody id="cap-sample-tbody"></tbody>
-        </table>
+        <div style="display:flex;gap:8px;align-items:flex-start">
+          <!-- 좌측: 1~8 구간 -->
+          <table style="flex:1;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+            <thead><tr>
+              <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">1</th>
+              <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">2</th>
+              <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">3</th>
+              <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">4</th>
+            </tr></thead>
+            <tbody>
+              <tr id="cap-row1234"></tr>
+              <tr><td colspan="4" style="padding:3px;height:3px"></td></tr>
+            </tbody>
+            <thead><tr>
+              <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">5</th>
+              <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">6</th>
+              <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">7</th>
+              <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">8</th>
+            </tr></thead>
+            <tbody>
+              <tr id="cap-row5678"></tr>
+            </tbody>
+          </table>
+          <!-- 우측: 합계/함수율/미보상 -->
+          <table style="border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+            <thead><tr>
+              <th style="padding:6px 10px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">합계</th>
+            </tr></thead>
+            <tbody>
+              <tr><td style="padding:6px 10px;text-align:center;background:#fff3cd;font-weight:700;font-size:12px;white-space:nowrap" id="cap-total">-</td></tr>
+            </tbody>
+            <thead><tr>
+              <th style="padding:6px 10px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;border-top:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">함수율</th>
+            </tr></thead>
+            <tbody>
+              <tr><td style="padding:6px 10px;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap" id="cap-moisture">-</td></tr>
+            </tbody>
+            <thead><tr>
+              <th style="padding:6px 10px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;border-top:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center;white-space:nowrap">미보상</th>
+            </tr></thead>
+            <tbody>
+              <tr><td style="padding:6px 10px;text-align:center;background:#e8faf3;font-weight:700;font-size:12px;white-space:nowrap" id="cap-uninsRate">-</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- 5. 결과 -->
@@ -804,66 +842,84 @@ async function saveImage(){
 }
 
 function fillRiceCaptureTemplate(){
+  const fmtArea = id => {
+    const v = document.getElementById(id)?.value || '';
+    const n = parseFloat(v.replace(/,/g,''));
+    return isNaN(n) ? (v||'-') : n.toLocaleString()+' ㎡';
+  };
+  const fmtKg = id => {
+    const v = document.getElementById(id)?.value || '';
+    const n = parseFloat(v.replace(/,/g,''));
+    return isNaN(n) || n===0 ? '-' : n.toLocaleString()+' kg';
+  };
+
   const variety = document.getElementById('variety');
   const varietyTxt = variety ? variety.options[variety.selectedIndex].text : '-';
-  const avgYield = document.getElementById('avgYield').value;
+  const avgYieldV = document.getElementById('avgYield')?.value || '';
+  const avgYieldN = parseFloat(avgYieldV.replace(/,/g,''));
   const disY = document.getElementById('dis-y')?.checked ? '예' : '아니오';
   const contractV = document.getElementById('contractYn').value || '-';
   const contractColor = contractV.includes('변경') ? '#e24b4a' : '#111827';
-  const surveyDate = document.getElementById('surveyDate')?.value || '-';
+  const rawDate = document.getElementById('surveyDate')?.value || '';
+  const surveyDate = rawDate ? rawDate.replace(/-/g,'.') : '-';
 
   document.getElementById('cap-variety').textContent = varietyTxt;
-  document.getElementById('cap-avgYield').textContent = avgYield ? Number(avgYield).toLocaleString()+' kg' : '-';
+  document.getElementById('cap-avgYield').textContent = !isNaN(avgYieldN) && avgYieldN>0 ? avgYieldN.toLocaleString()+' kg' : '-';
   document.getElementById('cap-disease').textContent = disY;
   const capContract = document.getElementById('cap-contract');
   capContract.textContent = contractV;
   capContract.style.color = contractColor;
   document.getElementById('cap-surveyDate').textContent = surveyDate;
 
-  document.getElementById('cap-actArea').textContent = document.getElementById('actArea').value ? Number(document.getElementById('actArea').value).toLocaleString()+' ㎡' : '-';
-  document.getElementById('cap-deadArea').textContent = document.getElementById('deadArea').value ? Number(document.getElementById('deadArea').value).toLocaleString()+' ㎡' : '0 ㎡';
-  document.getElementById('cap-uninsArea').textContent = document.getElementById('uninsArea').value ? Number(document.getElementById('uninsArea').value).toLocaleString()+' ㎡' : '0 ㎡';
-  document.getElementById('cap-preArea').textContent = document.getElementById('preArea').value ? Number(document.getElementById('preArea').value).toLocaleString()+' ㎡' : '0 ㎡';
+  document.getElementById('cap-actArea').textContent = fmtArea('actArea');
+  document.getElementById('cap-deadArea').textContent = (()=>{ const v=document.getElementById('deadArea')?.value; return v ? Number(v).toLocaleString()+' ㎡' : '0 ㎡'; })();
+  document.getElementById('cap-uninsArea').textContent = (()=>{ const v=document.getElementById('uninsArea')?.value.replace(/,/g,''); return v&&Number(v)>0 ? Number(v).toLocaleString()+' ㎡' : '0 ㎡'; })();
+  document.getElementById('cap-preArea').textContent = (()=>{ const v=document.getElementById('preArea')?.value; return v&&Number(v)>0 ? Number(v).toLocaleString()+' ㎡' : '0 ㎡'; })();
   document.getElementById('cap-surveyArea').textContent = document.getElementById('surveyArea').value || '-';
-  document.getElementById('cap-properSample').textContent = document.getElementById('properSampleDisp').value || '-';
+  document.getElementById('cap-properSample').textContent = document.getElementById('properSampleDisp').value ? document.getElementById('properSampleDisp').value+'구간' : '-';
 
-  document.getElementById('cap-rowLen').textContent = document.getElementById('rowLen').value ? document.getElementById('rowLen').value+' m' : '-';
-  document.getElementById('cap-rowWid').textContent = document.getElementById('rowWid').value ? document.getElementById('rowWid').value+' m' : '-';
-  document.getElementById('cap-sampleArea').textContent = document.getElementById('sampleArea').value || '-';
+  document.getElementById('cap-rowLen').textContent = document.getElementById('rowLen')?.value ? document.getElementById('rowLen').value+' m' : '-';
+  document.getElementById('cap-rowWid').textContent = document.getElementById('rowWid')?.value ? document.getElementById('rowWid').value+' m' : '-';
+  document.getElementById('cap-sampleArea').textContent = document.getElementById('sampleArea')?.value || '-';
 
-  // 표본구간별 수확량
+  // 표본구간별 수확량 - 1~4행, 5~8행
   const proper = parseInt(document.getElementById('properSampleDisp').value)||0;
-  const tbody = document.getElementById('cap-sample-tbody');
-  let html = '';
+  const moisture = document.getElementById('moisture').value||'';
+  const uninsRate = document.getElementById('uninsRate').value||'0';
   let total = 0;
-  for(let i=0; i<proper; i++){
+  const td = (i) => {
     const el = document.getElementById('sp'+i);
     const v = el ? (el.value||'') : '';
     if(v) total += parseFloat(v)||0;
-    html += `<tr>
-      <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc;font-size:12px">${i+1}</td>
-      <td style="padding:5px 4px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${v ? Number(v).toLocaleString()+' g' : '-'}</td>
-    </tr>`;
+    const active = i < proper;
+    const bg = active && v ? '#e8faf3' : (active ? '#fff' : '#f0f0f0');
+    return `<td style="padding:6px 4px;border-right:1px solid #d1d5db;text-align:center;background:${bg};font-weight:700;font-size:12px;white-space:nowrap">${active && v ? Number(v).toLocaleString()+' g' : (active ? '-' : '')}</td>`;
+  };
+  // 1~4행
+  document.getElementById('cap-row1234').innerHTML = td(0)+td(1)+td(2)+(()=>{
+    const el=document.getElementById('sp3'); const v=el?(el.value||''):''; if(v) total+=parseFloat(v)||0;
+    // total이 이미 더해졌으므로 td(3)은 별도 처리
+    const active=3<proper; const bg=active&&v?'#e8faf3':(active?'#fff':'#f0f0f0');
+    return `<td style="padding:6px 4px;text-align:center;background:${bg};font-weight:700;font-size:12px;white-space:nowrap">${active&&v?Number(v).toLocaleString()+' g':(active?'-':'')}</td>`;
+  })();
+  // 5~8행
+  document.getElementById('cap-row5678').innerHTML = td(4)+td(5)+td(6)+(()=>{
+    const el=document.getElementById('sp7'); const v=el?(el.value||''):''; if(v) total+=parseFloat(v)||0;
+    const active=7<proper; const bg=active&&v?'#e8faf3':(active?'#fff':'#f0f0f0');
+    return `<td style="padding:6px 4px;text-align:center;background:${bg};font-weight:700;font-size:12px;white-space:nowrap">${active&&v?Number(v).toLocaleString()+' g':(active?'-':'')}</td>`;
+  })();
+
+  // total은 td() 호출 시 누적되므로 재계산
+  let realTotal = 0;
+  for(let i=0;i<proper;i++){
+    const el=document.getElementById('sp'+i);
+    if(el&&el.value) realTotal+=parseFloat(el.value)||0;
   }
-  // 합계/함수율/미보상 행 추가
-  const moisture = document.getElementById('moisture').value||'';
-  const uninsRate = document.getElementById('uninsRate').value||'0';
-  html += `<tr>
-    <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc;font-size:12px;font-weight:700">합계</td>
-    <td style="padding:5px 4px;border-bottom:1px solid #d1d5db;text-align:center;background:#fff3cd;font-weight:700;font-size:12px">${total ? Number(total).toLocaleString()+' g' : '-'}</td>
-  </tr>
-  <tr>
-    <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;background:#f8fafc;font-size:12px;font-weight:700">함수율</td>
-    <td style="padding:5px 4px;border-bottom:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${moisture ? moisture+'%' : '-'}</td>
-  </tr>
-  <tr>
-    <td style="padding:5px 4px;border-right:1px solid #d1d5db;text-align:center;background:#f8fafc;font-size:12px;font-weight:700">미보상(%)</td>
-    <td style="padding:5px 4px;text-align:center;background:#e8faf3;font-weight:700;font-size:12px">${uninsRate ? uninsRate+'%' : '-'}</td>
-  </tr>`;
-  tbody.innerHTML = html || '<tr><td colspan="2" style="padding:10px;text-align:center;font-size:12px">-</td></tr>';
+  document.getElementById('cap-total').textContent = realTotal ? realTotal.toLocaleString()+' g' : '-';
+  document.getElementById('cap-moisture').textContent = moisture ? moisture+'%' : '-';
+  document.getElementById('cap-uninsRate').textContent = uninsRate ? uninsRate+'%' : '-';
 
   // 결과
-  const fmtNum = v => (v && v!=='-' && !isNaN(Number(v.replace(/[^0-9.]/g,'')))) ? v : '-';
   document.getElementById('cap-pct').textContent = document.getElementById('result-pct').textContent || '-';
   document.getElementById('cap-survey').textContent = document.getElementById('r-survey').textContent || '-';
   document.getElementById('cap-loss').textContent = document.getElementById('r-loss').textContent || '-';
