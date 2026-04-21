@@ -53,6 +53,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .field{display:flex;flex-direction:column;gap:3px}
 .field label{font-size:11px;color:var(--sub);font-weight:500}
+.field label.sm{font-size:9px}
 
 input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none}
 input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);background:#dceeff;color:#185FA5;box-shadow:0 0 0 3px rgba(55,138,221,0.12)}
@@ -176,24 +177,24 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
     <!-- 1열: 평년착과수(입력) / 가입주수 / 실제결과주수 / 조사대상주수 / 계약변경여부 -->
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px">
       <div class="field">
-        <label>평년착과수 <span style="font-size:9px;color:var(--hint)">개</span></label>
+        <label class="sm">평년착과수</label>
         <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
           oninput="onCommaInput(this);onInput()">
       </div>
       <div class="field">
-        <label>가입주수</label>
+        <label class="sm">가입주수</label>
         <input type="text" id="total_trees" class="auto" readonly>
       </div>
       <div class="field">
-        <label>실제결과주수</label>
+        <label class="sm">실제결과주수</label>
         <input type="text" id="total_actual" class="auto" readonly>
       </div>
       <div class="field">
-        <label>조사대상주수</label>
+        <label class="sm">조사대상주수</label>
         <input type="text" id="total_survey_disp" class="auto" readonly>
       </div>
       <div class="field">
-        <label>계약변경여부</label>
+        <label class="sm">계약변경여부</label>
         <input type="text" id="contract_yn" class="auto" readonly>
       </div>
     </div>
@@ -219,23 +220,23 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
     <!-- 3열: 표본주수 / 적정표본주수 / 표본착과수합계 / 1주당착과수 / 착과수 -->
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
       <div class="field">
-        <label>표본주수</label>
+        <label class="sm">표본주수</label>
         <input type="text" id="total_sampleN" class="auto" readonly>
       </div>
       <div class="field">
-        <label>적정표본주수</label>
+        <label class="sm">적정표본주수</label>
         <input type="text" id="proper_sample" class="auto" readonly>
       </div>
       <div class="field">
-        <label>표본착과수합</label>
+        <label class="sm">표본착과수합</label>
         <input type="text" id="total_sampleSum" class="auto" readonly>
       </div>
       <div class="field">
-        <label>1주당착과수</label>
+        <label class="sm">1주당착과수</label>
         <input type="text" id="total_perTree" class="auto" readonly>
       </div>
       <div class="field">
-        <label>착과수</label>
+        <label class="sm">착과수</label>
         <input type="text" id="total_afterFruit" class="auto ok" readonly>
       </div>
     </div>
