@@ -225,8 +225,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
     <!-- 3. 표본구간 -->
     <div class="section">
-      <div class="sec-title">③ 표본구간</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">
+      <div class="sec-title">③ 표본면적조사 및 미보상비율</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
         <div class="field">
           <label>이랑길이 (m)</label>
           <input type="number" id="rowLen" class="inp" inputmode="decimal" step="0.01"
@@ -236,6 +236,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           <label>이랑폭 (m)</label>
           <input type="number" id="rowWid" class="inp filled" inputmode="decimal" step="0.01" value="0.3"
             oninput="markFilled(this);debouncedCalc()" onblur="calc()" data-default="0.3">
+        </div>
+        <div class="field">
+          <label>미보상비율 (%)</label>
+          <input type="number" id="uninsRate" class="inp" inputmode="decimal"
+            placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
         </div>
         <div class="field">
           <label>표본구간면적</label>
@@ -255,8 +260,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div style="font-size:11px;color:var(--hint)" id="sample-inputted"></div>
       </div>
       <div id="sample-inputs"></div>
-      <!-- 합계 / 함수율 / 미보상비율 -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:4px">
+      <!-- 합계 / 함수율 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px">
         <div class="field">
           <label>합계<sup style="font-size:9px;color:var(--hint);margin-top:1px">g</sup></label>
           <input type="text" id="sampleTotal" class="auto" readonly>
@@ -265,11 +270,6 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           <label>함수율 (%)</label>
           <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
             oninput="markFilled(this);debouncedCalc()" onblur="calc()">
-        </div>
-        <div class="field">
-          <label>미보상비율 (%)</label>
-          <input type="number" id="uninsRate" class="inp" inputmode="decimal"
-            placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
         </div>
       </div>
     </div>
@@ -387,54 +387,54 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         </table>
       </div>
 
-      <!-- 3. 표본면적조사 - 이랑길이/이랑폭만 -->
+      <!-- 3. 표본면적조사 및 미보상비율 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본면적조사</div>
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본면적조사 및 미보상비율</div>
         <table class="fit-table" style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
-            <th style="padding:7px 20px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑길이</th>
-            <th style="padding:7px 20px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑폭</th>
+            <th style="padding:7px 16px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑길이</th>
+            <th style="padding:7px 16px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑폭</th>
+            <th style="padding:7px 16px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상비율</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 20px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowLen">-</td>
-            <td style="padding:7px 20px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowWid">-</td>
+            <td style="padding:7px 16px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowLen">-</td>
+            <td style="padding:7px 16px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowWid">-</td>
+            <td style="padding:7px 16px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-uninsRate">-</td>
           </tr></tbody>
         </table>
       </div>
 
-      <!-- 4. 표본구간별 수확량 - 1~4/5~8 두줄 + 우측 합계/함수율/미보상비율 -->
+      <!-- 4. 표본구간별 수확량 - 1~8 + 합계/함수율 한 행 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
         <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:8px">4. 표본구간별 수확량 <span style="font-size:11px;font-weight:500;color:#888">g</span></div>
-        <div style="display:flex;gap:6px;align-items:stretch">
+        <div style="display:flex;gap:4px;align-items:stretch">
           <!-- 좌측: 1~4행 / 5~8행 -->
-          <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-            <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:11px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden">
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+            <table style="width:100%;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
               <thead><tr>
-                <th style="padding:4px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">1</th>
-                <th style="padding:4px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">2</th>
-                <th style="padding:4px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">3</th>
-                <th style="padding:4px 1px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">4</th>
+                <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">1</th>
+                <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">2</th>
+                <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">3</th>
+                <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">4</th>
               </tr></thead>
               <tbody><tr id="cap-row1234"></tr></tbody>
             </table>
-            <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:11px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden">
+            <table style="width:100%;border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden">
               <thead><tr>
-                <th style="padding:4px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">5</th>
-                <th style="padding:4px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">6</th>
-                <th style="padding:4px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">7</th>
-                <th style="padding:4px 1px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">8</th>
+                <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">5</th>
+                <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">6</th>
+                <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">7</th>
+                <th style="padding:3px 1px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center">8</th>
               </tr></thead>
               <tbody><tr id="cap-row5678"></tr></tbody>
             </table>
           </div>
-          <!-- 우측: 합계/함수율/미보상비율 -->
-          <table style="border-collapse:separate;border-spacing:0;font-size:11px;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;flex-shrink:0">
-            <thead><tr><th style="padding:4px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center;white-space:nowrap">합계</th></tr></thead>
-            <tbody><tr><td style="padding:5px 8px;text-align:center;background:#fff3cd;font-weight:700;font-size:11px;white-space:nowrap;height:28px" id="cap-total">-</td></tr></tbody>
-            <thead><tr><th style="padding:4px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;border-top:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center;white-space:nowrap">함수율</th></tr></thead>
-            <tbody><tr><td style="padding:5px 8px;text-align:center;background:#e8faf3;font-weight:700;font-size:11px;white-space:nowrap;height:28px" id="cap-moisture">-</td></tr></tbody>
-            <thead><tr><th style="padding:4px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;border-top:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center;white-space:nowrap">미보상비율</th></tr></thead>
-            <tbody><tr><td style="padding:5px 8px;text-align:center;background:#e8faf3;font-weight:700;font-size:11px;white-space:nowrap;height:28px" id="cap-uninsRate">-</td></tr></tbody>
+          <!-- 우측: 합계/함수율 세로 -->
+          <table style="border-collapse:separate;border-spacing:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden;flex-shrink:0">
+            <thead><tr><th style="padding:3px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center;white-space:nowrap">합계</th></tr></thead>
+            <tbody><tr><td style="padding:4px 8px;text-align:center;background:#fff3cd;font-weight:700;font-size:11px;white-space:nowrap" id="cap-total">-</td></tr></tbody>
+            <thead><tr><th style="padding:3px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;border-top:1px solid #d1d5db;font-size:10px;font-weight:700;text-align:center;white-space:nowrap">함수율</th></tr></thead>
+            <tbody><tr><td style="padding:4px 8px;text-align:center;background:#e8faf3;font-weight:700;font-size:11px;white-space:nowrap" id="cap-moisture">-</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -716,13 +716,27 @@ function saveState(){
                'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture','surveyDate'];
   const state = {mode, disease: document.getElementById('dis-y')?.checked ? 'y' : 'n'};
   ids.forEach(id => { const el=document.getElementById(id); if(el) state[id]=el.value; });
-  // 표본구간 중량값 저장
+
+  // 표본구간 중량값 저장 - 렌더링된 칸이 있을 때만 저장
   const spVals = [];
+  let hasAny = false;
   for(let i=0;i<8;i++){
     const el=document.getElementById('sp'+i);
-    spVals.push(el ? el.value : '');
+    const v = el ? el.value : '';
+    spVals.push(v);
+    if(v) hasAny = true;
   }
-  state.spVals = spVals;
+  // 렌더링된 칸이 전혀 없으면 기존 저장값 유지
+  const sp0exists = !!document.getElementById('sp0');
+  if(sp0exists || hasAny){
+    state.spVals = spVals;
+  } else {
+    // sp 칸 없으면 기존 저장값에서 spVals 가져옴
+    try{
+      const prev = JSON.parse(localStorage.getItem('rice_state')||'{}');
+      if(prev.spVals) state.spVals = prev.spVals;
+    }catch(e){}
+  }
   try{ localStorage.setItem('rice_state', JSON.stringify(state)); }catch(e){}
 }
 
@@ -854,9 +868,10 @@ function fillRiceCaptureTemplate(){
   const rawDate = document.getElementById('surveyDate')?.value || '';
   document.getElementById('cap-surveyDate').textContent = rawDate ? rawDate.replace(/-/g,'.') : '-';
 
-  // 3. 표본면적조사
+  // 3. 표본면적조사 및 미보상비율
   document.getElementById('cap-rowLen').textContent = document.getElementById('rowLen')?.value ? document.getElementById('rowLen').value+' m' : '-';
   document.getElementById('cap-rowWid').textContent = document.getElementById('rowWid')?.value ? document.getElementById('rowWid').value+' m' : '-';
+  document.getElementById('cap-uninsRate').textContent = uninsRate ? uninsRate+'%' : '-';
 
   // 4. 표본구간별 수확량 - 1~8 한줄
   const proper = parseInt(document.getElementById('properSampleDisp').value)||0;
@@ -883,7 +898,6 @@ function fillRiceCaptureTemplate(){
   }
   document.getElementById('cap-total').textContent = realTotal ? realTotal.toLocaleString()+' g' : '-';
   document.getElementById('cap-moisture').textContent = moisture ? moisture+'%' : '-';
-  document.getElementById('cap-uninsRate').textContent = uninsRate ? uninsRate+'%' : '-';
 
   // 5. 결과
   document.getElementById('cap-pct').textContent = document.getElementById('result-pct').textContent || '-';
