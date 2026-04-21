@@ -142,8 +142,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="field">
         <label>품종</label>
         <select id="variety" class="inp filled" onchange="markFilled(this);calc()">
-          <option value="">-- 선택 --</option>
-          <option value="mebyeo">메벼</option>
+          <option value="mebyeo" selected>메벼</option>
           <option value="chalbyeo">찰벼</option>
           <option value="bunjil">분질미</option>
         </select>
@@ -763,34 +762,51 @@ function loadState(){
 }
 
 function resetAll(){
-  if(!confirm('모든 입력값을 초기화할까요?')) return;
   try{ localStorage.removeItem('rice_state'); }catch(e){}
+
+  // 입력 필드 초기화
   ['avgYield','insArea','actArea','deadArea','uninsArea','preArea','uninsRate',
-   'rowLen','rowWid','moisture','fullYield','fullMoisture','surveyDate'].forEach(id=>{
-    const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
+   'rowLen','moisture','fullYield','fullMoisture'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.value=''; el.classList.remove('filled'); }
   });
-  document.getElementById('variety').value='mebyeo';
-  const rmEl=document.getElementById('remarks'); if(rmEl){rmEl.value='';rmEl.classList.remove('filled');}
+
+  // 품종 메벼 기본값
+  const vEl = document.getElementById('variety');
+  if(vEl){ vEl.value='mebyeo'; vEl.classList.add('filled'); }
+
+  // 병충해 부 기본값
   const dn = document.getElementById('dis-n');
   if(dn){ dn.checked=true; onDiseaseChk(); }
 
-  document.getElementById('sample-inputs').innerHTML='';
+  // 이랑폭 기본값 0.3
+  const rwEl = document.getElementById('rowWid');
+  if(rwEl){ rwEl.value='0.3'; rwEl.classList.add('filled'); }
+
+  // 조사일 오늘 날짜
+  const sd = document.getElementById('surveyDate');
+  if(sd){
+    const t = new Date();
+    sd.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+    sd.classList.add('filled');
+  }
+
+  // 자동계산 필드 초기화
+  ['surveyArea','properSample','sampleArea','contractYn'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
   const psd=document.getElementById('properSampleDisp'); if(psd) psd.value='';
-  const ps=document.getElementById('properSample'); if(ps) ps.value='';
-  const sa=document.getElementById('surveyArea'); if(sa) sa.value='';
-  const ka=document.getElementById('sampleArea'); if(ka) ka.value='';
-  lastProper=-1;
+
+  // 표본구간 초기화
+  document.getElementById('sample-inputs').innerHTML='';
+  lastProper = -1;
+
+  // 결과 초기화
   document.getElementById('result-section').className='result-box pending';
   document.getElementById('result-pct').textContent='- -';
-  // 이랑폭 기본값 복원
-  const rwEl=document.getElementById('rowWid');
-  if(rwEl){rwEl.value='0.3';rwEl.classList.add('filled');}
-  // 조사일 오늘 날짜로 리셋
-  const sd=document.getElementById('surveyDate');
-  if(sd){const t=new Date();sd.value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;sd.classList.add('filled');}
-  // 품종 초기화
-  const v=document.getElementById('variety');
-  if(v){v.value='';v.classList.remove('filled');}
+  document.getElementById('result-pct').style.color='white';
+
+  saveState();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -915,24 +931,27 @@ loadState();
 setMode('sample');
 lastProper = -1;
 
-// 조사일 기본값: 오늘 날짜 (저장된 값 없을 때만)
+// 기본값 적용 (저장값 없을 때만)
 (function(){
-  const sd = document.getElementById('surveyDate');
-  if(sd && !sd.value){
-    const today = new Date();
-    sd.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-    sd.classList.add('filled');
-  }
-  // 이랑폭 기본값
+  // 품종 기본값: 메벼
+  const v = document.getElementById('variety');
+  if(v && !v.value){ v.value='mebyeo'; v.classList.add('filled'); }
+  else if(v && v.value){ v.classList.add('filled'); }
+
+  // 이랑폭 기본값: 0.3
   const rw = document.getElementById('rowWid');
   if(rw && !rw.value){ rw.value='0.3'; rw.classList.add('filled'); }
-  // 품종 filled 처리
-  const v = document.getElementById('variety');
-  if(v && v.value) v.classList.add('filled');
-  else if(v) v.classList.remove('filled');
+
+  // 조사일 기본값: 오늘
+  const sd = document.getElementById('surveyDate');
+  if(sd && !sd.value){
+    const t = new Date();
+    sd.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+    sd.classList.add('filled');
+  }
 })();
 
-// calc 실행 - 표본구간 렌더링 포함
+// 표본 렌더링 포함 calc 실행
 setTimeout(()=>{
   calc();
   // 저장된 표본값 복원
@@ -955,7 +974,7 @@ setTimeout(()=>{
       }, 100);
     }
   }catch(e){}
-}, 50);
+}, 80);
 </script>
 </body>
 </html>
