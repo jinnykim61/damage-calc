@@ -144,9 +144,11 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 .calc-btn.done{background:var(--green)}
 
 /* 결과 */
-.result-box{display:none;background:var(--blue);border-radius:var(--r);padding:0 16px;margin-bottom:10px;color:white;border:1.5px solid rgba(255,255,255,0.2)}
+.result-box{display:none;background:var(--blue);border-radius:var(--r);padding:0 16px;margin-bottom:6px;color:white;border:1.5px solid rgba(255,255,255,0.2)}
 .result-box.show{display:block}
 .result-box.pending{background:#888;border:1.5px solid rgba(255,255,255,0.15)}
+.result-detail-box{display:none;background:var(--card);border-radius:var(--r);margin-bottom:10px;border:0.5px solid var(--border);overflow:hidden}
+.result-detail-box.show{display:block}
 .save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 .save-btn:active{background:rgba(255,255,255,0.35)}
 
@@ -330,26 +332,37 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     <span>🧮</span><span>착과수 계산</span>
   </button>
 
-  <!-- 결과 -->
+  <!-- 결과 메인 박스 (마늘 스타일) -->
   <div class="result-box" id="result-section">
-    <div style="display:flex;align-items:center;padding:14px 0;gap:0">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:4px;text-align:center">평년착과수</div>
-        <div style="font-size:18px;font-weight:700;color:#fff;text-align:center" id="r-avg">-</div>
+    <div style="display:flex;align-items:center;padding:14px 0">
+      <div style="padding-right:12px;flex-shrink:0">
+        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">착과율</span>
       </div>
-      <div style="width:1px;background:rgba(255,255,255,0.25);align-self:stretch;margin:8px 0"></div>
-      <div style="flex:1.2;min-width:0">
-        <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:4px;text-align:center">적과후착과수</div>
-        <div style="font-size:22px;font-weight:700;color:#A8F0D8;text-align:center" id="r-total">-</div>
+      <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
+      <div style="padding:0 12px;flex:1;min-width:0">
+        <span id="result-rate" style="font-size:26px;font-weight:700;color:#FFD0D0;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</span>
       </div>
-      <div style="width:1px;background:rgba(255,255,255,0.25);align-self:stretch;margin:8px 0"></div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:4px;text-align:center">계약변경</div>
-        <div style="font-size:15px;font-weight:700;color:#fff;text-align:center" id="r-contract">-</div>
-      </div>
-      <div style="width:1px;background:rgba(255,255,255,0.25);align-self:stretch;margin:8px 0"></div>
+      <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding-left:12px;flex-shrink:0">
-        <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>저장</span></button>
+        <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 간이 결과 박스 -->
+  <div class="result-detail-box" id="result-detail-section">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
+      <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">평년착과수</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)" id="r-avg">-</div>
+      </div>
+      <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">적과후착과수</div>
+        <div style="font-size:15px;font-weight:700;color:var(--blue)" id="r-total">-</div>
+      </div>
+      <div style="padding:10px 8px;text-align:center">
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">계약변경여부</div>
+        <div style="font-size:13px;font-weight:700" id="r-contract">-</div>
       </div>
     </div>
   </div>
@@ -937,14 +950,22 @@ function doCalc() {
   const rate = avgFruit > 0 ? totalAfterFruit / avgFruit : 0;
   const needReview = varieties.some(v => v.reg>0 && v.actual>0 && Math.abs(v.actual-v.reg)/v.reg>0.05);
 
-  // 결과 표시
+  // 메인 결과 박스
+  const rateEl = document.getElementById('result-rate');
+  rateEl.textContent = (rate * 100).toFixed(2)+'%';
+  rateEl.style.color = rate >= 1 ? '#A8F0D8' : rate >= 0.8 ? '#FFE082' : '#FFD0D0';
+
+  // 간이 결과 박스
   document.getElementById('r-avg').textContent = avgFruit.toLocaleString()+'개';
   const rTotal = document.getElementById('r-total');
   rTotal.textContent = Math.round(totalAfterFruit).toLocaleString()+'개';
-  rTotal.style.color = rate >= 1 ? '#A8F0D8' : rate >= 0.8 ? '#FFE082' : '#FFD0D0';
+  rTotal.style.color = rate >= 1 ? '#1D9E75' : rate >= 0.8 ? '#E8860A' : '#e24b4a';
   const rContract = document.getElementById('r-contract');
   rContract.textContent = needReview ? '계약변경대상' : '이상무';
-  rContract.style.color = needReview ? '#FFD0D0' : '#A8F0D8';
+  rContract.style.color = needReview ? '#e24b4a' : '#1D9E75';
+
+  document.getElementById('result-section').classList.add('show');
+  document.getElementById('result-detail-section').classList.add('show');
 
   document.getElementById('result-section').classList.add('show');
 
@@ -999,6 +1020,7 @@ function resetAll() {
     {name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false},
   ];
   document.getElementById('result-section').classList.remove('show');
+  document.getElementById('result-detail-section').classList.remove('show');
   onInput();
   window.scrollTo({top:0, behavior:'smooth'});
 }
