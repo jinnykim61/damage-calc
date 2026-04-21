@@ -559,7 +559,7 @@ function resetVariety(vi) {
 }
 
 function addVariety() {
-  if (varieties.length >= 20) { showToast('품종은 최대 20개까지 입력 가능해요'); return; }
+  if (varieties.length >= 10) { showToast('품종은 최대 10개까지 입력 가능해요'); return; }
   varieties.push({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:true});
   onInput();
   saveState();
