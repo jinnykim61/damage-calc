@@ -629,7 +629,7 @@ function renderVarieties(totalSurvey, totalProper) {
             onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
             onblur="varieties[${vi}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'actual',this.value);saveState()"
             oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].actual=+this.value||0"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].actual=+this.value||0;quickUpdate(${vi},'actual',this.value);this.blur();autoOpenSamples(${vi})}">
+            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].actual=+this.value||0;this.blur();autoOpenSamples(${vi})}">
         </div>
         <div class="field">
           <label>조사대상주수</label>
@@ -713,17 +713,22 @@ function toggleTreeInspect(vi) {
 }
 
 function autoOpenSamples(vi) {
+  varieties[vi].actual = +document.getElementById(`vi-actual-${vi}`)?.value || varieties[vi].actual;
+  quickUpdate(vi, 'actual', varieties[vi].actual);
   setTimeout(() => {
-    const surveyTarget = getSurveyTarget(varieties[vi]);
-    if(surveyTarget <= 0) return;
-    varieties[vi].open = true;
-    const ss = document.getElementById(`ss-${vi}`);
-    const icon = document.getElementById(`toggle-icon-${vi}`);
-    if(ss) ss.classList.add('open');
-    if(icon) icon.textContent = '▼';
-    const firstInput = ss?.querySelector('input');
-    if(firstInput) firstInput.focus();
-  }, 100);
+    onInput();
+    setTimeout(() => {
+      const surveyTarget = getSurveyTarget(varieties[vi]);
+      if(surveyTarget <= 0) return;
+      varieties[vi].open = true;
+      const ss = document.getElementById(`ss-${vi}`);
+      const icon = document.getElementById(`toggle-icon-${vi}`);
+      if(ss) ss.classList.add('open');
+      if(icon) icon.textContent = '▼';
+      const firstInput = ss?.querySelector('input');
+      if(firstInput) firstInput.focus();
+    }, 50);
+  }, 0);
 }
 
 function toggleSamples(vi) {
