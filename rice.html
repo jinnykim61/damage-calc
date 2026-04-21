@@ -387,21 +387,21 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         </table>
       </div>
 
-      <!-- 3. 표본면적조사 및 미보상비율 -->
+      <!-- 3. 표본면적조사 -->
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본면적조사 및 함수율·미보상비율</div>
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 표본면적조사</div>
         <table class="fit-table" style="display:inline-table;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
           <thead><tr>
-            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑길이</th>
-            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑폭</th>
-            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">함수율</th>
-            <th style="padding:7px 14px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">미보상비율</th>
+            <th style="padding:7px 20px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑길이</th>
+            <th style="padding:7px 20px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">이랑폭</th>
+            <th style="padding:7px 20px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">&nbsp;</th>
+            <th style="padding:7px 20px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center;white-space:nowrap">&nbsp;</th>
           </tr></thead>
           <tbody><tr>
-            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowLen">-</td>
-            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowWid">-</td>
-            <td style="padding:7px 14px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-moisture3">-</td>
-            <td style="padding:7px 14px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-uninsRate">-</td>
+            <td style="padding:7px 20px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowLen">-</td>
+            <td style="padding:7px 20px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-rowWid">-</td>
+            <td style="padding:7px 20px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-moisture3">-</td>
+            <td style="padding:7px 20px;text-align:center;background:#fff;font-weight:700;font-size:12px;white-space:nowrap" id="cap-uninsRate">-</td>
           </tr></tbody>
         </table>
       </div>
@@ -438,7 +438,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
               <td style="padding:5px 1px;border:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:10px"></td>
               <td style="padding:5px 1px;border:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:10px"></td>
               <td style="padding:5px 1px;border:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:10px"></td>
-              <td style="padding:5px 1px;border:1px solid #d1d5db;text-align:center;background:#fff3cd;font-weight:700;font-size:10px" id="cap-total">-</td>
+              <td style="padding:5px 1px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;color:#0d5c35;font-weight:700;font-size:10px" id="cap-total">-</td>
             </tr>
           </tbody>
         </table>
@@ -896,7 +896,7 @@ function fillRiceCaptureTemplate(){
       if(el&&el.value) realTotal+=parseFloat(el.value)||0;
     }
     row18.innerHTML = td9(0)+td9(1)+td9(2)+td9(3)+td9(4)+td9(5)+td9(6)+td9(7)+
-      `<td style="padding:5px 1px;border:1px solid #d1d5db;text-align:center;background:#fff3cd;font-weight:700;font-size:10px" id="cap-total">${realTotal ? realTotal.toLocaleString()+' g' : '-'}</td>`;
+      `<td style="padding:5px 1px;border:1px solid #d1d5db;text-align:center;background:#e8faf3;color:#0d5c35;font-weight:700;font-size:10px" id="cap-total">${realTotal ? realTotal.toLocaleString() : '-'}</td>`;
   } else {
     // fallback: 별도 cap-row1234, cap-row5678
     let realTotal = 0;
