@@ -448,10 +448,18 @@ const SAMPLE_TABLE = [
 const CROP_NAMES = {apple:'사과', pear:'배', sweetpersimmon:'단감', persimmon:'떫은감'};
 let currentCrop = 'apple';
 
-// ── 품종 데이터 ──────────────────────────────────
-let varieties = [
-  {name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false},
-];
+const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false});
+
+// ── 작물별 독립 데이터 ────────────────────────────
+const allData = {
+  apple:          { avgFruit:'', varieties:[EMPTY_VARIETY()] },
+  pear:           { avgFruit:'', varieties:[EMPTY_VARIETY()] },
+  sweetpersimmon: { avgFruit:'', varieties:[EMPTY_VARIETY()] },
+  persimmon:      { avgFruit:'', varieties:[EMPTY_VARIETY()] },
+};
+
+// 현재 작물 데이터 참조
+let varieties = allData[currentCrop].varieties;
 
 // ── 조사대상주 계산 ─────────────────────────────
 function getSurveyTarget(v){
@@ -517,8 +525,17 @@ function getProperSample(total) {
 
 // ── 품목 전환 ─────────────────────────────────────
 function setCrop(crop, idx) {
+  // 현재 작물 avgFruit 저장
+  allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
   currentCrop = crop;
+  varieties = allData[currentCrop].varieties;
   document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===idx));
+  // 해당 작물 avgFruit 복원
+  const af = document.getElementById('avg_fruit');
+  af.value = allData[currentCrop].avgFruit;
+  af.classList.toggle('filled', !!af.value);
+  document.getElementById('result-section').classList.remove('show');
+  document.getElementById('result-detail-section').classList.remove('show');
   onInput();
 }
 
@@ -784,7 +801,7 @@ function resetVariety(vi) {
   overlay.style.display = 'flex';
   document.getElementById('variety-reset-confirm-btn').onclick = () => {
     overlay.style.display = 'none';
-    varieties[vi] = {name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false};
+    varieties[vi] = EMPTY_VARIETY();
     onInput();
     saveState();
   };
@@ -792,7 +809,7 @@ function resetVariety(vi) {
 
 function addVariety() {
   if (varieties.length >= 10) { showToast('품종은 최대 10개까지 입력 가능해요'); return; }
-  varieties.push({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:true, treeOpen:false});
+  varieties.push({...EMPTY_VARIETY(), open:true});
   onInput();
   saveState();
 }
@@ -997,12 +1014,12 @@ function doCalc() {
 // ── localStorage 저장/불러오기 ────────────────────
 function saveState(){
   try{
-    const state={
-      crop: currentCrop,
-      avgFruit: document.getElementById('avg_fruit').value,
-      varieties: varieties
-    };
-    localStorage.setItem('apple_multi_state', JSON.stringify(state));
+    allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
+    allData[currentCrop].varieties = varieties;
+    localStorage.setItem('apple_multi_state', JSON.stringify({
+      currentCrop,
+      allData
+    }));
   }catch(e){}
 }
 
@@ -1011,30 +1028,36 @@ function loadState(){
     const raw = localStorage.getItem('apple_multi_state');
     if(!raw) return false;
     const s = JSON.parse(raw);
-    if(s.crop) {
-      currentCrop = s.crop;
-      // 탭 UI 업데이트
-      const idx = {'apple':0,'pear':1,'sweetpersimmon':2,'persimmon':3}[s.crop]||0;
+    if(s.allData) {
+      for(const crop of Object.keys(allData)){
+        if(s.allData[crop]){
+          if(s.allData[crop].avgFruit !== undefined) allData[crop].avgFruit = s.allData[crop].avgFruit;
+          if(s.allData[crop].varieties?.length > 0) allData[crop].varieties = s.allData[crop].varieties;
+        }
+      }
+    }
+    if(s.currentCrop) {
+      currentCrop = s.currentCrop;
+      const idx = {'apple':0,'pear':1,'sweetpersimmon':2,'persimmon':3}[currentCrop]||0;
       document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===idx));
     }
-    if(s.avgFruit) {
-      const el = document.getElementById('avg_fruit');
-      el.value = s.avgFruit;
-      el.classList.add('filled');
-    }
-    if(s.varieties && s.varieties.length > 0) varieties = s.varieties;
+    varieties = allData[currentCrop].varieties;
+    const af = document.getElementById('avg_fruit');
+    af.value = allData[currentCrop].avgFruit || '';
+    if(af.value) af.classList.add('filled');
     return true;
   }catch(e){ return false; }
 }
 
 function resetAll() {
-  try{ localStorage.removeItem('apple_multi_state'); }catch(e){}
+  allData[currentCrop].avgFruit = '';
+  allData[currentCrop].varieties = [EMPTY_VARIETY()];
+  varieties = allData[currentCrop].varieties;
   document.getElementById('avg_fruit').value = '';
-  varieties = [
-    {name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false},
-  ];
+  document.getElementById('avg_fruit').classList.remove('filled');
   document.getElementById('result-section').classList.remove('show');
   document.getElementById('result-detail-section').classList.remove('show');
+  saveState();
   onInput();
   window.scrollTo({top:0, behavior:'smooth'});
 }
