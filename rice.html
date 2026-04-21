@@ -741,34 +741,23 @@ function loadState(){
     const raw = localStorage.getItem('rice_state');
     if(!raw) return;
     const s = JSON.parse(raw);
-    if(s.mode) {} // mode는 항상 sample로 시작
     if(s.disease === 'y'){
       const dy = document.getElementById('dis-y');
       if(dy){ dy.checked = true; onDiseaseChk(); }
     } else { onDiseaseChk(); }
+    // inp 클래스 필드만 값 복원 및 filled 적용
     Object.keys(s).forEach(id => {
-      if(id==='mode'||id==='spVals') return;
+      if(id==='mode'||id==='spVals'||id==='disease') return;
       const el = document.getElementById(id);
-      if(el && s[id]!==''){ el.value=s[id]; el.classList.toggle('filled', true); }
+      if(!el || s[id]==='') return;
+      el.value = s[id];
+      // inp 클래스인 경우만 filled 적용
+      if(el.classList.contains('inp')) el.classList.add('filled');
     });
-    // 조사일 명시적 복원 (date 타입)
-    if(s.surveyDate){ const sd=document.getElementById('surveyDate'); if(sd){sd.value=s.surveyDate; sd.classList.add('filled');} }
-    // 이랑폭 기본값 복원
-    const rowWidEl = document.getElementById('rowWid');
-    if(rowWidEl && !rowWidEl.value){ rowWidEl.value='0.3'; rowWidEl.classList.add('filled'); }
-    // 표본구간 중량 복원 (calc 후 렌더링된 뒤에 실행)
-    if(s.spVals && s.spVals.length>0){
-      setTimeout(()=>{
-        s.spVals.forEach((v,i)=>{
-          const el=document.getElementById('sp'+i);
-          if(el && v){ el.value=v;
-            el.style.background='#e8faf3';
-            el.style.borderColor='#1D9E75';
-            el.style.color='#0d5c35';
-          }
-        });
-        calc();
-      }, 200);
+    // 조사일 명시적 복원
+    if(s.surveyDate){
+      const sd = document.getElementById('surveyDate');
+      if(sd){ sd.value = s.surveyDate; sd.classList.add('filled'); }
     }
   }catch(e){}
 }
@@ -792,7 +781,7 @@ function resetAll(){
   const ka=document.getElementById('sampleArea'); if(ka) ka.value='';
   lastProper=-1;
   document.getElementById('result-section').className='result-box pending';
-  document.getElementById('result-pct').textContent='입력 대기중';
+  document.getElementById('result-pct').textContent='- -';
   // 이랑폭 기본값 복원
   const rwEl=document.getElementById('rowWid');
   if(rwEl){rwEl.value='0.3';rwEl.classList.add('filled');}
@@ -915,27 +904,58 @@ if('serviceWorker' in navigator){
   caches.keys().then(k=>Promise.all(k.map(c=>caches.delete(c))));
 }
 
+// 버전 캐시 체크
+clearOldCache();
+
+// 페이지 나갈 때 저장
+window.addEventListener('beforeunload', saveState);
+
+// 상태 복원
 loadState();
 setMode('sample');
-lastProper=-1;
+lastProper = -1;
 
 // 조사일 기본값: 오늘 날짜 (저장된 값 없을 때만)
 (function(){
   const sd = document.getElementById('surveyDate');
   if(sd && !sd.value){
     const today = new Date();
-    const yy = today.getFullYear();
-    const mm = String(today.getMonth()+1).padStart(2,'0');
-    const dd = String(today.getDate()).padStart(2,'0');
-    sd.value = `${yy}-${mm}-${dd}`;
+    sd.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
     sd.classList.add('filled');
   }
-  // 품종이 빈값이면 선택 안된 상태 유지
+  // 이랑폭 기본값
+  const rw = document.getElementById('rowWid');
+  if(rw && !rw.value){ rw.value='0.3'; rw.classList.add('filled'); }
+  // 품종 filled 처리
   const v = document.getElementById('variety');
-  if(v && !v.value) v.classList.remove('filled');
+  if(v && v.value) v.classList.add('filled');
+  else if(v) v.classList.remove('filled');
 })();
 
-setTimeout(calc, 50);
+// calc 실행 - 표본구간 렌더링 포함
+setTimeout(()=>{
+  calc();
+  // 저장된 표본값 복원
+  try{
+    const raw = localStorage.getItem('rice_state');
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    if(s.spVals && s.spVals.some(v=>v)){
+      setTimeout(()=>{
+        s.spVals.forEach((v,i)=>{
+          const el = document.getElementById('sp'+i);
+          if(el && v){
+            el.value = v;
+            el.style.background='#e8faf3';
+            el.style.borderColor='#1D9E75';
+            el.style.color='#0d5c35';
+          }
+        });
+        calc();
+      }, 100);
+    }
+  }catch(e){}
+}, 50);
 </script>
 </body>
 </html>
