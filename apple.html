@@ -137,6 +137,8 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 
 .add-variety-btn{width:100%;height:38px;border:1.5px dashed var(--blue2);background:#EBF4FF;border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--blue);cursor:pointer}
 .add-variety-btn:active{background:var(--auto)}
+.cnt-btn{height:52px;border:1.5px solid var(--border);border-radius:10px;background:#fff;font-size:20px;font-weight:700;color:var(--text);cursor:pointer}
+.cnt-btn:active{background:var(--blue);color:#fff;border-color:var(--blue)}
 
 /* 계산 버튼 */
 .calc-btn{width:100%;height:52px;background:var(--blue);color:white;border:none;border-radius:var(--r);font-size:17px;font-weight:700;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -391,6 +393,30 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   </div>
 </div>
 
+<!-- 품종 수 선택 팝업 -->
+<div id="count-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:375;align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;padding:24px 20px 32px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:17px;font-weight:800;color:#1a1a1a">품종이 몇 개인가요?</div>
+      <button onclick="document.getElementById('count-overlay').style.display='none'" style="width:32px;height:32px;border:none;background:#f0f0f0;border-radius:50%;font-size:18px;color:#666;cursor:pointer">✕</button>
+    </div>
+    <div style="font-size:12px;color:#888;margin-bottom:20px">평년착과수 <strong id="count-avg-disp" style="color:#185FA5"></strong></div>
+    <!-- 숫자 버튼 1~10 -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+      <button onclick="selectCount(1)"  class="cnt-btn">1</button>
+      <button onclick="selectCount(2)"  class="cnt-btn">2</button>
+      <button onclick="selectCount(3)"  class="cnt-btn">3</button>
+      <button onclick="selectCount(4)"  class="cnt-btn">4</button>
+      <button onclick="selectCount(5)"  class="cnt-btn">5</button>
+      <button onclick="selectCount(6)"  class="cnt-btn">6</button>
+      <button onclick="selectCount(7)"  class="cnt-btn">7</button>
+      <button onclick="selectCount(8)"  class="cnt-btn">8</button>
+      <button onclick="selectCount(9)"  class="cnt-btn">9</button>
+      <button onclick="selectCount(10)" class="cnt-btn">10</button>
+    </div>
+  </div>
+</div>
+
 <!-- 품종 주수 입력 팝업 -->
 <div id="setup-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:370;align-items:flex-end;justify-content:center">
   <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:85vh;display:flex;flex-direction:column">
@@ -428,16 +454,28 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 let setupRows = [];
 
 function openSetupPopup() {
-  // 기존 varieties 데이터로 초기화
-  setupRows = varieties.map(v => ({
-    name: v.name, age: v.age||'', reg: v.reg||'', actual: v.actual||''
-  }));
-  if(setupRows.length === 0) setupRows.push({name:'', age:'', reg:'', actual:''});
+  const avg = document.getElementById('avg_fruit').value;
+  document.getElementById('count-avg-disp').textContent = avg ? avg+'개' : '';
+  document.getElementById('count-overlay').style.display = 'flex';
+}
+
+function selectCount(n) {
+  document.getElementById('count-overlay').style.display = 'none';
+  // 기존 데이터 유지하면서 n개 행 생성
+  setupRows = [];
+  for(let i = 0; i < n; i++) {
+    const v = varieties[i];
+    setupRows.push({
+      name: v?.name || '',
+      age:  v?.age  || '',
+      reg:  v?.reg  || '',
+      actual: v?.actual || ''
+    });
+  }
   const avg = document.getElementById('avg_fruit').value;
   document.getElementById('setup-avg-disp').textContent = avg ? avg+'개' : '';
   renderSetupRows();
   document.getElementById('setup-overlay').style.display = 'flex';
-  // 첫 번째 품종명 칸에 포커스
   setTimeout(()=>{ document.querySelector('#setup-rows input')?.focus(); }, 100);
 }
 
@@ -708,10 +746,10 @@ function renderVarieties(totalSurvey, totalProper) {
         <input type="number" value="${s}" inputmode="decimal" placeholder=""
           enterkeyhint="${isLast?'done':'next'}"
           style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
-          oninput="varieties[${vi}].samples[${si}]=this.value;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';calcVariety(${vi})"
+          oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi})"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
-          onblur="varieties[${vi}].samples[${si}]=this.value;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';saveState()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;calcVariety(${vi});this.blur();`:`const inputs=document.querySelectorAll('#ss-${vi} input');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
+          onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;calcVariety(${vi});this.blur();moveToNextVariety(${vi});`:`const inputs=document.querySelectorAll('#ss-${vi} input');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
       </div>`;
     }
     samplesHtml += '</div>';
@@ -850,6 +888,35 @@ function toggleTreeInspect(vi) {
     btn.style.background = isOpen ? '#1D9E75' : 'transparent';
   }
   saveState();
+}
+
+function moveToNextVariety(vi) {
+  const nextVi = vi + 1;
+  if(nextVi >= varieties.length) {
+    // 마지막 품종 완료 → 착과수 계산 실행
+    setTimeout(()=>{
+      doCalc();
+      setTimeout(()=>{
+        document.getElementById('result-section')?.scrollIntoView({behavior:'smooth', block:'start'});
+      }, 200);
+    }, 100);
+    return;
+  }
+  const nextSurvey = getSurveyTarget(varieties[nextVi]);
+  if(nextSurvey <= 0) return;
+  varieties[nextVi].open = true;
+  setTimeout(()=>{
+    const ss = document.getElementById(`ss-${nextVi}`);
+    const icon = document.getElementById(`toggle-icon-${nextVi}`);
+    if(ss) ss.classList.add('open');
+    if(icon) icon.textContent = '▼';
+    const firstInput = ss?.querySelector('input');
+    if(firstInput){
+      firstInput.focus();
+      const rect = firstInput.getBoundingClientRect();
+      window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
+    }
+  }, 100);
 }
 
 function autoOpenSamples(vi) {
@@ -1052,10 +1119,24 @@ function doCalc() {
   if (!avgFruit) missing.push('평년착과수');
   const hasActual = varieties.some(v => v.actual > 0);
   if (!hasActual) missing.push('실제결과주수');
-  const hasSamples = varieties.some(v => v.samples.some(s => parseFloat(s) > 0));
+  const hasSamples = varieties.some(v => v.samples.some(s => s !== '' && !isNaN(parseFloat(s))));
   if (!hasSamples) missing.push('표본주 착과수');
   if (missing.length > 0) {
     showToast('입력 필요: ' + missing.join(', ')); return;
+  }
+
+  // 빈 칸 체크 — 착과수 0인 경우 0을 입력해야 함
+  const emptySlots = [];
+  for (const v of varieties) {
+    const st = getSurveyTarget(v);
+    if (st <= 0) continue;
+    const emptyCount = v.samples.filter(s => s === '').length;
+    if (emptyCount > 0) {
+      emptySlots.push(`${v.name || ('품종'+(varieties.indexOf(v)+1))} (${emptyCount}칸 미입력)`);
+    }
+  }
+  if (emptySlots.length > 0) {
+    showToast('착과수 0인 경우 0을 입력하세요: ' + emptySlots.join(', '), 3000); return;
   }
 
   // 표본주 부족 경고 - ceil 방식
