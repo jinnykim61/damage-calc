@@ -942,6 +942,24 @@ function renderVarieties(totalSurvey, totalProper) {
       <div id="ss-${vi}" style="display:none"></div>`}
     </div>`;
   }).join('');
+
+  // 대기 중인 포커스 처리
+  if(window._pendingFocusVi !== undefined){
+    const pVi = window._pendingFocusVi;
+    window._pendingFocusVi = undefined;
+    setTimeout(()=>{
+      const pSs = document.getElementById(`ss-${pVi}`);
+      if(pSs) pSs.classList.add('open');
+      const pInput = pSs?.querySelector('input[type=number]');
+      if(pInput){
+        pInput.focus();
+        setTimeout(()=>{
+          const rect = pInput.getBoundingClientRect();
+          window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
+        }, 50);
+      }
+    }, 0);
+  }
 }
 
 // ── 품종별 자동계산 업데이트 (표본입력 시) ────────
@@ -987,20 +1005,18 @@ function moveToNextVariety(vi) {
   }
   const nextSurvey = getSurveyTarget(varieties[nextVi]);
   if(nextSurvey <= 0) return;
+
+  // 다음 품종 샘플 배열 미리 채우기
+  const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
+  const totalProper = getProperSample(totalSurvey);
+  const properN = nextSurvey > 0 && totalSurvey > 0
+    ? Math.max(1, Math.ceil(totalProper * nextSurvey / totalSurvey)) : 0;
+  while(varieties[nextVi].samples.length < properN) varieties[nextVi].samples.push('');
   varieties[nextVi].open = true;
-  const ss = document.getElementById(`ss-${nextVi}`);
-  const icon = document.getElementById(`toggle-icon-${nextVi}`);
-  if(ss) ss.classList.add('open');
-  if(icon) icon.textContent = '▼';
-  // 반드시 ss 안의 number input만 찾기
-  const firstInput = ss?.querySelector('input[type=number]');
-  if(firstInput){
-    firstInput.focus();
-    setTimeout(()=>{
-      const rect = firstInput.getBoundingClientRect();
-      window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
-    }, 50);
-  }
+
+  // 전체 재렌더 후 포커스 — pendingFocusVi 플래그로 renderVarieties 완료 직후 처리
+  window._pendingFocusVi = nextVi;
+  onInput();
 }
 
 function autoOpenSamples(vi) {
