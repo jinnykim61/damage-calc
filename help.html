@@ -71,23 +71,68 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
   <!-- 과수4종 착과수 조사 안내 -->
   <div class="section">
     <div class="sec-title"><span>🍎</span> 과수4종 착과수 조사</div>
-    <div class="item">
-      <div class="item-title">① 주수 입력</div>
-      <div class="item-body">평년착과수 입력 후 이동 클릭 → 팝업에서 품종별 수령·가입주수·실결주수 입력 → 착과수 입력창으로 이동</div>
+
+    <!-- STEP 1 -->
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <div style="flex-shrink:0;width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">1</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">주수 입력</div>
+        <div style="font-size:12px;color:var(--sub);line-height:1.9">
+          평년착과수 입력 후 엔터<br>
+          → 품종 수 선택 팝업 표시<br>
+          → 품종·수령별 가입주수·실제결과주수 입력<br>
+          → <b style="color:var(--text)">완료 시 착과수 입력창으로 자동 이동</b>
+        </div>
+      </div>
     </div>
-    <div class="item">
-      <div class="item-title">② 나무조사</div>
-      <div class="item-body"><span class="badge-green">나무조사</span> 버튼 클릭 후 고사주·수확불능·미보상 값 입력</div>
+
+    <div style="height:1px;background:#f0f0f0;margin-bottom:14px"></div>
+
+    <!-- STEP 2 -->
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <div style="flex-shrink:0;width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">2</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">나무조사</div>
+        <div style="font-size:12px;color:var(--sub);line-height:1.9">
+          품종별 <span class="badge-green">나무조사</span> 버튼 클릭 후<br>
+          고사주수·수확불능·미보상 내역 입력<br>
+          → <b style="color:var(--text)">입력값은 즉시 실시간 반영됩니다</b>
+        </div>
+        <div style="background:#F5F4F0;border-radius:8px;padding:10px;margin-top:8px;font-size:12px;color:var(--sub);line-height:1.8">
+          <b style="color:var(--text)">예시</b><br>
+          고사주수 입력 → 조사대상주수 및 표본주수 자동 반영
+        </div>
+      </div>
     </div>
-    <div class="item">
-      <div class="item-title">③ 계약변경여부</div>
-      <div class="item-body">가입주수 대비 실결주수 <b>±5% 초과</b> 시 <span class="badge-red">계약변경 대상</span></div>
+
+    <div style="height:1px;background:#f0f0f0;margin-bottom:14px"></div>
+
+    <!-- STEP 3 -->
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <div style="flex-shrink:0;width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">3</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">착과율</div>
+        <div style="font-size:12px;color:var(--sub);line-height:1.9">
+          <b style="color:var(--text)">적과후착과수 ÷ 평년착과수</b> 로 산정됩니다.
+        </div>
+      </div>
     </div>
-    <div class="item">
-      <div class="item-title">④ 착과율</div>
-      <div class="item-body"><b>적과후착과수 ÷ 평년착과수</b> 로 산정됩니다.</div>
+
+    <div style="height:1px;background:#f0f0f0;margin-bottom:14px"></div>
+
+    <!-- STEP 4 -->
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <div style="flex-shrink:0;width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">4</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">착과수 계산 버튼</div>
+        <div style="font-size:12px;color:var(--sub);line-height:1.9">
+          모든 입력값은 자동계산됩니다.<br>
+          계산 버튼은 <b style="color:var(--text)">모든 입력이 완료된 후 최종값을 확정</b>하는 단계입니다.<br>
+          그래서 계산 버튼을 눌러도 착과율이 변동이 없을 수 있습니다.
+        </div>
+      </div>
     </div>
-    <div class="warning-box">🔴 착과수 0개인 나무는 반드시 <b>0 입력</b> — 빈 칸은 계산에서 제외됩니다</div>
+
   </div>
   <div class="section">
     <div class="sec-title"><span>🎨</span> 입력칸 색상 안내</div>
@@ -118,71 +163,6 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     </div>
   </div>
 
-  <!-- 마늘 입력 안내 -->
-  <div class="section">
-    <div class="sec-title"><span>🧄</span> 마늘 수확량 입력 안내</div>
-    <div class="item">
-      <div class="item-title"><span class="badge-red">벌마늘</span> 별도 입력칸을 제공하는 이유</div>
-      <div class="item-body">
-        현장에서 <b>벌마늘(속 빈 마늘)이 다수 발생한 경우</b>, 연도별·지역별 지침에 따라
-        벌마늘의 50%만 유효중량으로 인정하는 경우가 있습니다.<br><br>
-        그런 경우 벌마늘만 별도 측정 후 <b>50% 값을 벌마늘 항목에 입력</b>하시면 됩니다.
-      </div>
-    </div>
-    <div class="warning-box">
-      ※ 벌마늘도 정상중량으로 인정하는지 여부는 연도별 조사 시 구역장 지침을 반드시 확인하시고 조사하시기 바랍니다.
-    </div>
-  </div>
-
-  <!-- 마늘 지역별 품종 안내 -->
-  <div class="section">
-    <div class="sec-title"><span>📍</span> 마늘 지역별 품종 구분</div>
-    <div class="item">
-      <div class="item-title"><span class="badge-blue">한지형</span> 주요 품종 및 재배지역</div>
-      <div class="item-body">
-        <b>품종:</b> 의성종, 육쪽마늘, 단양종, 서산종 등<br>
-        <b>지역:</b> 경북(의성·영천·군위), 충남(서산·태안), 경남(창녕) 등 내륙 지역
-      </div>
-    </div>
-    <div class="item">
-      <div class="item-title"><span class="badge-green">난지형</span> 주요 품종 및 재배지역</div>
-      <div class="item-body">
-        <b>품종:</b> 대서, 남도, 자봉, 제주 등<br>
-        <b>지역:</b> 전남(고흥·무안·해남), 경남(남해·고성), 제주 등 해안·남부 지역<br>
-        <span style="color:var(--hint);font-size:12px">※ 대서는 현재 가장 많이 재배되는 난지형 품종입니다.</span>
-      </div>
-    </div>
-    <div class="warning-box">
-      ⚠️ <b>품종은 반드시 사전에 확인하고 조사에 임하세요.</b><br>
-      같은 지역이라도 계약자에 따라 한지형·난지형이 혼재할 수 있으며,
-      품종에 따라 기준수확량 및 환산계수가 달라져 피해율 산정에 직접 영향을 줍니다.
-      조사 전 계약 내용을 반드시 확인하시기 바랍니다.
-    </div>
-  </div>
-
-
-  <!-- 면적 오차 안내 -->
-  <div class="section">
-    <div class="sec-title"><span>📐</span> 면적 오차 처리 안내</div>
-    <div class="item">
-      <div class="item-title"><span class="badge-green">이상무</span> ±10% 이내</div>
-      <div class="item-body">가입면적 기준으로 피해율을 산정합니다.</div>
-    </div>
-    <div class="item">
-      <div class="item-title"><span class="badge-red">원장변경 대상</span> ±10% 초과 (논·밭작물)</div>
-      <div class="item-body">
-        <b>실경작면적 기준</b>으로 평년수확량을 재산정하여 피해율을 산정합니다.<br>
-        <b>변경 평년수확량 = 평년수확량 × (실경작면적 ÷ 가입면적)</b>
-      </div>
-    </div>
-    <div class="warning-box" style="margin-top:8px">
-      면적 외에 평년수확량에 영향을 주는 사항(계약 변경, 품종 변경 등)이 있는 경우,
-      평년수확량 차이로 인해 <b>농협 전산값과 피해율이 다를 수 있습니다.</b><br>
-      변경 내용 입력 완료 후 반드시 계약자에게 안내하시기 바랍니다.
-    </div>
-  </div>
-
-
   <!-- 면책 안내 -->
   <div class="section">
     <div class="sec-title"><span>⚠️</span> 면책 안내 (Disclaimer)</div>
@@ -208,9 +188,9 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
   <!-- 버전 정보 -->
   <div class="section">
     <div class="sec-title"><span>🔖</span> 버전 정보</div>
-    <div class="version-row"><span class="label">앱 이름</span><span class="value">손해평가 피해율계산기</span></div>
+    <div class="version-row"><span class="label">앱 이름</span><span class="value">과수4종 착과수 계산기</span></div>
     <div class="version-row"><span class="label">개발</span><span class="value">Cool-Running</span></div>
-    <div class="version-row"><span class="label">지원 품목</span><span class="value">마늘·양파 · 인삼 · 콩 · 벼 · 과수</span></div>
+    <div class="version-row"><span class="label">지원 품목</span><span class="value">사과 · 배 · 단감 · 떫은감</span></div>
     <div class="version-row"><span class="label">기준</span><span class="value">농업재해보험 손해평가 업무방법서</span></div>
   </div>
 
