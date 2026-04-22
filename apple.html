@@ -834,11 +834,12 @@ function renderVarieties(totalSurvey, totalProper) {
     const inp = (field, val, label) => {
       const filled = val > 0;
       const ph = (field==='reg'||field==='actual'||field==='dead'||field==='unable'||field==='uninsDead'||field==='uninsAlive') ? '0주' : '0';
+      const isTreeField = field==='dead'||field==='unable'||field==='uninsDead'||field==='uninsAlive';
       return `<div class="field">
         <label>${label}</label>
         <input type="number" class="inp${filled?' filled':''}" value="${val||''}" inputmode="decimal" placeholder="${ph}"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
-          onblur="varieties[${vi}].${field}=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'${field}',this.value);saveState()"
+          onblur="varieties[${vi}].${field}=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'${field}',this.value);saveState();${isTreeField?'onInput();':''}"
           oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].${field}=+this.value||0">
       </div>`;
     };
