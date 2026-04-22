@@ -927,10 +927,10 @@ function renderVarieties(totalSurvey, totalProper) {
       <div class="sample-section ${v.open?'open':''}" id="ss-${vi}">
         ${samplesHtml}
       </div>
-      <button id="next-btn-${vi}" onclick="moveToNextVariety(${vi})"
+      ${vi < varieties.length-1 ? `<button id="next-btn-${vi}" onclick="moveToNextVariety(${vi})"
         style="display:${v.open?'block':'none'};margin-top:10px;width:100%;height:46px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">
-        ${vi < varieties.length-1 ? '다음 품종 →' : '착과수 계산 →'}
-      </button>
+        다음 품종 →
+      </button>` : ''}
       ` : `<div id="ss-${vi}"></div>`}
     </div>`;
   }).join('');
