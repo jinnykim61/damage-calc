@@ -237,7 +237,9 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
       <div class="field" style="max-width:33%">
         <label>평년착과수</label>
         <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
-          oninput="onCommaInput(this);onInput()">
+          enterkeyhint="next"
+          oninput="onCommaInput(this);onInput()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();if(this.value)openSetupPopup()}">
       </div>
     </div>
 
@@ -389,10 +391,131 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   </div>
 </div>
 
+<!-- 품종 주수 입력 팝업 -->
+<div id="setup-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:370;align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:85vh;display:flex;flex-direction:column">
+    <!-- 팝업 헤더 -->
+    <div style="padding:18px 20px 12px;border-bottom:0.5px solid #E8E6DF;flex-shrink:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:17px;font-weight:800;color:#1a1a1a">품종별 주수 입력</div>
+        <button onclick="closeSetupPopup()" style="width:32px;height:32px;border:none;background:#f0f0f0;border-radius:50%;font-size:18px;color:#666;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+      </div>
+      <div style="font-size:12px;color:#888">평년착과수 <strong id="setup-avg-disp" style="color:#185FA5"></strong> · 모든 품종 입력 후 완료를 누르세요</div>
+    </div>
+    <!-- 컬럼 헤더 -->
+    <div style="display:grid;grid-template-columns:28px 1fr 72px 72px 72px;gap:5px;padding:8px 16px;background:#F5F4F0;font-size:10px;font-weight:600;color:#888;flex-shrink:0">
+      <div></div>
+      <div>품종명</div>
+      <div style="text-align:center">수령</div>
+      <div style="text-align:center">가입주수</div>
+      <div style="text-align:center">실결주수</div>
+    </div>
+    <!-- 품종 행 목록 -->
+    <div id="setup-rows" style="overflow-y:auto;flex:1;padding:8px 16px"></div>
+    <!-- 하단 버튼 -->
+    <div style="padding:12px 16px;border-top:0.5px solid #E8E6DF;flex-shrink:0;display:flex;gap:8px">
+      <button onclick="addSetupRow()" style="height:40px;padding:0 14px;border:1.5px dashed #378ADD;background:#EBF4FF;border-radius:10px;font-size:13px;font-weight:700;color:#185FA5;cursor:pointer">+ 품종 추가</button>
+      <button onclick="applySetupPopup()" style="flex:1;height:40px;border:none;background:#185FA5;border-radius:10px;font-size:15px;font-weight:700;color:#fff;cursor:pointer">완료 →</button>
+    </div>
+  </div>
+</div>
+
 
 <div id="toast-msg" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(30,30,30,0.88);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:400;white-space:nowrap;pointer-events:none"></div>
 
 <script>
+// ── 품종 주수 입력 팝업 ───────────────────────────
+let setupRows = [];
+
+function openSetupPopup() {
+  // 기존 varieties 데이터로 초기화
+  setupRows = varieties.map(v => ({
+    name: v.name, age: v.age||'', reg: v.reg||'', actual: v.actual||''
+  }));
+  if(setupRows.length === 0) setupRows.push({name:'', age:'', reg:'', actual:''});
+  const avg = document.getElementById('avg_fruit').value;
+  document.getElementById('setup-avg-disp').textContent = avg ? avg+'개' : '';
+  renderSetupRows();
+  document.getElementById('setup-overlay').style.display = 'flex';
+  // 첫 번째 품종명 칸에 포커스
+  setTimeout(()=>{ document.querySelector('#setup-rows input')?.focus(); }, 100);
+}
+
+function closeSetupPopup() {
+  document.getElementById('setup-overlay').style.display = 'none';
+}
+
+function renderSetupRows() {
+  const container = document.getElementById('setup-rows');
+  container.innerHTML = setupRows.map((r, i) => `
+    <div style="display:grid;grid-template-columns:28px 1fr 72px 72px 72px;gap:5px;align-items:center;margin-bottom:8px">
+      <div style="width:22px;height:22px;background:#185FA5;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${i+1}</div>
+      <input type="text" value="${r.name||''}" placeholder="품종${i+1}"
+        enterkeyhint="next"
+        style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 8px;font-size:13px;background:${r.name?'#e8faf3':'white'};color:${r.name?'#0d5c35':'#1a1a1a'};-webkit-appearance:none;box-sizing:border-box;width:100%"
+        oninput="setupRows[${i}].name=this.value;this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[1]?.focus()}">
+      <input type="number" value="${r.age||''}" placeholder="수령" inputmode="decimal"
+        enterkeyhint="next"
+        style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 4px;font-size:13px;text-align:center;background:${r.age?'#e8faf3':'white'};-webkit-appearance:none;box-sizing:border-box;width:100%"
+        oninput="setupRows[${i}].age=+this.value||'';this.style.background=this.value?'#e8faf3':'white'"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[2]?.focus()}">
+      <input type="number" value="${r.reg||''}" placeholder="0" inputmode="decimal"
+        enterkeyhint="next"
+        style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 4px;font-size:13px;text-align:center;background:${r.reg?'#e8faf3':'white'};-webkit-appearance:none;box-sizing:border-box;width:100%"
+        oninput="setupRows[${i}].reg=+this.value||0;this.style.background=this.value?'#e8faf3':'white'"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[3]?.focus()}">
+      <input type="number" value="${r.actual||''}" placeholder="0" inputmode="decimal"
+        enterkeyhint="${i===setupRows.length-1?'done':'next'}"
+        style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 4px;font-size:13px;text-align:center;background:${r.actual?'#e8faf3':'white'};-webkit-appearance:none;box-sizing:border-box;width:100%"
+        oninput="setupRows[${i}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white'"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();${i<setupRows.length-1?`document.querySelectorAll('#setup-rows > div')[${i+1}]?.querySelectorAll('input')[0]?.focus()`:'applySetupPopup()'}}">
+    </div>`).join('');
+}
+
+function addSetupRow() {
+  if(setupRows.length >= 10){ showToast('품종은 최대 10개까지 입력 가능해요'); return; }
+  setupRows.push({name:'', age:'', reg:'', actual:''});
+  renderSetupRows();
+  setTimeout(()=>{
+    const rows = document.querySelectorAll('#setup-rows > div');
+    rows[rows.length-1]?.querySelector('input')?.focus();
+  }, 50);
+}
+
+function applySetupPopup() {
+  // 유효한 행만 적용 (실결주수 있는 것)
+  const valid = setupRows.filter(r => r.actual > 0 || r.reg > 0);
+  if(valid.length === 0){ showToast('가입주수 또는 실결주수를 입력해 주세요'); return; }
+  // varieties에 반영 (기존 샘플 데이터 유지)
+  valid.forEach((r, i) => {
+    if(!varieties[i]) varieties.push(EMPTY_VARIETY());
+    varieties[i].name = r.name || '';
+    varieties[i].age = +r.age || 0;
+    varieties[i].reg = +r.reg || 0;
+    varieties[i].actual = +r.actual || 0;
+  });
+  // 초과 품종 제거
+  varieties.splice(valid.length);
+  closeSetupPopup();
+  onInput();
+  saveState();
+  // 품종1 착과수 입력칸으로 이동
+  setTimeout(()=>{
+    varieties[0].open = true;
+    const ss = document.getElementById('ss-0');
+    const icon = document.getElementById('toggle-icon-0');
+    if(ss) ss.classList.add('open');
+    if(icon) icon.textContent = '▼';
+    const firstInput = ss?.querySelector('input');
+    if(firstInput){
+      firstInput.focus();
+      const rect = firstInput.getBoundingClientRect();
+      window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
+    }
+  }, 150);
+}
+
 function toggleBasicInfo(){
   const body = document.getElementById('basic-info-body');
   const icon = document.getElementById('info-toggle-icon');
@@ -646,7 +769,7 @@ function renderVarieties(totalSurvey, totalProper) {
             onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
             onblur="varieties[${vi}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'actual',this.value);saveState()"
             oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].actual=+this.value||0"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].actual=+this.value||0;this.blur();autoOpenSamples(${vi})}">
+            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].actual=+this.value||0;this.blur();}">
         </div>
         <div class="field">
           <label>조사대상주수</label>
@@ -746,7 +869,7 @@ function autoOpenSamples(vi) {
       if(firstInput) {
         firstInput.focus();
         const rect = firstInput.getBoundingClientRect();
-        const scrollY = window.pageYOffset + rect.top - 160;
+        const scrollY = window.pageYOffset + rect.top - 260;
         window.scrollTo({top: scrollY, behavior:'smooth'});
       }
     }, 50);
