@@ -835,12 +835,21 @@ function renderVarieties(totalSurvey, totalProper) {
       const filled = val > 0;
       const ph = (field==='reg'||field==='actual'||field==='dead'||field==='unable'||field==='uninsDead'||field==='uninsAlive') ? '0주' : '0';
       const isTreeField = field==='dead'||field==='unable'||field==='uninsDead'||field==='uninsAlive';
+      const treeFields = ['dead','unable','uninsDead','uninsAlive'];
+      const treeIdx = treeFields.indexOf(field);
+      const nextTreeField = treeIdx >= 0 && treeIdx < treeFields.length-1 ? `document.querySelector('#tree-row-${vi} input:nth-child(${(treeIdx+1)*3+1})')?.focus()` : '';
+      const keydown = isTreeField
+        ? (treeIdx < treeFields.length-1
+            ? `onkeydown="if(event.key==='Enter'){event.preventDefault();const _treeInputs=document.querySelectorAll('#tree-row-${vi} input');const _ti=Array.from(_treeInputs).indexOf(this);if(_treeInputs[_ti+1])_treeInputs[_ti+1].focus();}"`
+            : `onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"`)
+        : '';
       return `<div class="field">
         <label>${label}</label>
         <input type="number" class="inp${filled?' filled':''}" value="${val||''}" inputmode="decimal" placeholder="${ph}"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
           onblur="varieties[${vi}].${field}=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'${field}',this.value);saveState();${isTreeField?'onInput();':''}"
-          oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].${field}=+this.value||0">
+          oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].${field}=+this.value||0"
+          ${keydown}>
       </div>`;
     };
 
@@ -913,9 +922,9 @@ function renderVarieties(totalSurvey, totalProper) {
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           <div style="font-size:12px;font-weight:600;color:var(--sub);white-space:nowrap">
-            표본주 <span style="font-size:14px;color:var(--blue)" id="vi-proper-num-${vi}">${properN}</span>
+            표본주 <span style="font-size:14px;color:#e24b4a;font-weight:800" id="vi-proper-num-${vi}">${properN}</span>
             &nbsp;·&nbsp;
-            간격 <span style="font-size:14px;color:var(--green)" id="vi-interval-${vi}">${properN>0?Math.round(surveyTarget/properN):0}</span>
+            간격 <span style="font-size:14px;color:#e24b4a;font-weight:800" id="vi-interval-${vi}">${properN>0?Math.round(surveyTarget/properN):0}</span>
           </div>
           <button onclick="event.stopPropagation();confirmSampleDel(${vi})"
             style="width:26px;height:26px;border:1.5px solid var(--border);border-radius:6px;background:transparent;font-size:15px;color:var(--sub);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">－</button>
@@ -1080,23 +1089,15 @@ function trimSamples(vi) {
 }
 
 function confirmSampleAdd(vi) {
-  const v = varieties[vi];
-  const name = v.name || `품종${vi+1}`;
-  if(confirm(`${name} 표본주 1개를 추가할까요?`)) {
-    addSampleRow(vi);
-  }
+  addSampleRow(vi);
 }
 
 function confirmSampleDel(vi) {
   const v = varieties[vi];
-  const name = v.name || `품종${vi+1}`;
-  const total = v.samples.length;
-  if(total === 0) { showToast('삭제할 표본주가 없어요'); return; }
-  if(confirm(`${name} 마지막 표본주(${total}번)를 삭제할까요?`)) {
-    varieties[vi].samples.pop();
-    onInput();
-    saveState();
-  }
+  if(v.samples.length === 0) { showToast('삭제할 표본주가 없어요'); return; }
+  varieties[vi].samples.pop();
+  onInput();
+  saveState();
 }
 
 function addSampleRow(vi) {
