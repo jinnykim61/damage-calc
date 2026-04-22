@@ -798,14 +798,12 @@ function renderVarieties(totalSurvey, totalProper) {
     const surveyTarget = surveyTargets[vi];
     const properN = properNs[vi];
 
-    // 샘플 배열 조정 — properN 기준으로 늘리거나, 줄 때는 빈 칸만 제거
+    // 샘플 배열 조정 — properN 기준으로 늘리거나 줄이기
     if (properN > v.samples.length) {
       while (v.samples.length < properN) v.samples.push('');
     } else if (properN < v.samples.length) {
-      // 뒤에서부터 빈 칸 제거해서 properN에 맞춤
-      while (v.samples.length > properN && v.samples[v.samples.length-1] === '') {
-        v.samples.pop();
-      }
+      // properN으로 강제 축소 (입력값 있어도 줄임)
+      v.samples.splice(properN);
     }
 
     const inputtedSamples = v.samples.filter(s => s !== '' && !isNaN(parseFloat(s))).length;
@@ -814,7 +812,7 @@ function renderVarieties(totalSurvey, totalProper) {
     const afterFruit = perTree > 0 && surveyTarget > 0 ? Math.round(perTree * surveyTarget) : 0;
 
     // 표본주 그리드 (4열) - properN 기준으로 칸 생성
-    const _total = Math.max(v.samples.length, properN);
+    const _total = properN;
     let samplesHtml = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px">`;
     for(let si=0; si<_total; si++){
       const s = v.samples[si] || '';
