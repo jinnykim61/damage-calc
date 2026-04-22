@@ -745,7 +745,8 @@ function autoOpenSamples(vi) {
       const firstInput = ss?.querySelector('input');
       if(firstInput) {
         firstInput.focus();
-        firstInput.scrollIntoView({behavior:'smooth', block:'center'});
+        firstInput.scrollIntoView({behavior:'smooth', block:'start'});
+        setTimeout(()=>window.scrollBy({top:-120, behavior:'smooth'}), 300);
       }
     }, 50);
   }, 0);
