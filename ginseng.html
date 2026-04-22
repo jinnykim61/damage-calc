@@ -313,7 +313,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
     <div class="g3">
       <div class="field">
-        <label>금차평년수확량 <span style="font-size:10px;color:var(--hint)">(자동)</span></label>
+        <label>금차평년수확량</label>
         <input type="text" id="stdTotalYield" class="auto" readonly>
       </div>
       <div class="field">
@@ -321,7 +321,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <input type="text" id="soilAdjYield" class="auto" readonly>
       </div>
       <div class="field">
-        <label>비례보상수확량 <span style="font-size:10px;color:var(--hint)">(자동)</span></label>
+        <label>비례보상수확량</label>
         <input type="text" id="propYield" class="auto" readonly>
       </div>
     </div>
@@ -606,17 +606,13 @@ function calc(){
   document.getElementById('harvestArea').value = harvestArea > 0 ? harvestArea.toFixed(2) + ' ㎡' : '';
   document.getElementById('farmArea').value    = farmArea > 0 ? farmArea.toFixed(2) + ' ㎡' : '';
 
-  // 금차평년수확량
-  const fullStdYield  = stdYield * calcArea;
-  const stdTotalYield = farmArea > 0 ? fullStdYield * (harvestArea / farmArea) : fullStdYield;
+  // 금차평년수확량 = 기준수확량 × 가입면적
+  const stdTotalYield = stdYield * insArea;
   document.getElementById('stdTotalYield').value = stdTotalYield > 0
     ? stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
 
   // 흙감량·공톤백 차감
   const surveyYieldRaw = Math.max(0, totalYield - soilLossKg - bagLoss);
-  // 흙감량 반영 후 (비례보상 전)
-  document.getElementById('soilAdjYield').value = totalYield > 0
-    ? surveyYieldRaw.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
 
   // 비례보상수확량
   const realArea = actArea > 0 ? actArea : insArea;
