@@ -461,14 +461,14 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   </div>
 </div>
 
-<!-- 표본주 추가 팝업 -->
+<!-- 표본주 추가/삭제 공용 팝업 -->
 <div id="sample-add-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
-    <div style="font-size:22px;text-align:center;margin-bottom:8px">➕</div>
-    <div style="font-size:17px;font-weight:800;color:#333;text-align:center;margin-bottom:8px">표본주 추가</div>
+    <div class="modal-icon" style="font-size:22px;text-align:center;margin-bottom:8px">➕</div>
+    <div class="modal-title" style="font-size:17px;font-weight:800;color:#333;text-align:center;margin-bottom:8px">표본주 추가</div>
     <div style="font-size:14px;line-height:1.65;color:#666;text-align:center;margin-bottom:20px" id="sample-add-desc">표본주 1개를 추가할까요?</div>
     <div style="display:flex;gap:10px">
-      <button onclick="document.getElementById('sample-add-overlay').style.display='none'" style="flex:1;height:46px;border:1.5px solid #d9d9d9;border-radius:12px;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
+      <button onclick="closeAddOverlay()" style="flex:1;height:46px;border:1.5px solid #d9d9d9;border-radius:12px;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
       <button id="sample-add-btn" style="flex:1;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">추가</button>
     </div>
   </div>
@@ -702,7 +702,7 @@ function updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample){
   if(sEl) sEl.textContent = totalReg > 0 ? totalReg.toLocaleString() : '-';
   if(svEl) svEl.textContent = totalSurvey > 0 ? totalSurvey.toLocaleString() : '-';
   if(snEl){
-    snEl.textContent = totalSampleN > 0 ? totalSampleN : '-';
+    snEl.textContent = totalSampleN >= 0 && (totalSurvey > 0) ? totalSampleN : '-';
     snEl.className = 'sum-val' + (totalSampleN > 0 && properSample > 0 && totalSampleN < properSample ? ' warn' : '');
   }
   if(spEl) spEl.textContent = properSample > 0 ? properSample : '-';
@@ -755,14 +755,6 @@ function getSurveyTarget(v){
 
 // ── 즉시 자동계산칸 업데이트 (리렌더 없이) ────────
 function quickUpdate(vi, field, val){
-  const prevSurveyTarget = getSurveyTarget(varieties[vi]);
-  const prevProperN = (() => {
-    const prevTotalSurvey = varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);
-    const prevTotalProper = getProperSample(prevTotalSurvey);
-    return prevSurveyTarget > 0 && prevTotalSurvey > 0
-      ? Math.max(1, Math.ceil(prevTotalProper * prevSurveyTarget / prevTotalSurvey)) : 0;
-  })();
-
   const tmp = {...varieties[vi], [field]: +val||0};
   const totalSurvey = varieties.reduce((s,vv,i) => {
     const sv = i===vi ? getSurveyTarget(tmp) : getSurveyTarget(vv);
@@ -772,12 +764,6 @@ function quickUpdate(vi, field, val){
   const surveyTarget = getSurveyTarget(tmp);
   const properN = surveyTarget > 0 && totalSurvey > 0
     ? Math.max(1, Math.ceil(totalProper * surveyTarget / totalSurvey)) : 0;
-
-  // 표본주수 감소 알림
-  if(prevProperN > 0 && properN < prevProperN) {
-    const name = varieties[vi].name || `품종${vi+1}`;
-    showSampleReduceAlert(name, prevProperN, properN);
-  }
 
   const sEl = document.getElementById(`vi-survey-${vi}`);
   const pEl = document.getElementById(`vi-proper-${vi}`);
@@ -1167,14 +1153,26 @@ function trimSamples(vi) {
   saveState();
 }
 
+function closeAddOverlay() {
+  document.getElementById('sample-add-overlay').style.display = 'none';
+  // 팝업 상태 추가 기본값으로 원복
+  document.querySelector('#sample-add-overlay .modal-icon').textContent = '➕';
+  document.querySelector('#sample-add-overlay .modal-title').textContent = '표본주 추가';
+  document.getElementById('sample-add-btn').textContent = '추가';
+  document.getElementById('sample-add-btn').style.background = '#185FA5';
+}
+
 function confirmSampleAdd(vi) {
   const name = varieties[vi].name || `품종${vi+1}`;
   const cur = varieties[vi].samples.length;
+  document.querySelector('#sample-add-overlay .modal-icon').textContent = '➕';
+  document.querySelector('#sample-add-overlay .modal-title').textContent = '표본주 추가';
+  document.getElementById('sample-add-btn').textContent = '추가';
+  document.getElementById('sample-add-btn').style.background = '#185FA5';
   document.getElementById('sample-add-desc').textContent = `${name} 표본주 1개를 추가할까요? (현재 ${cur}주 → ${cur+1}주)`;
-  const overlay = document.getElementById('sample-add-overlay');
-  overlay.style.display = 'flex';
+  document.getElementById('sample-add-overlay').style.display = 'flex';
   document.getElementById('sample-add-btn').onclick = () => {
-    overlay.style.display = 'none';
+    closeAddOverlay();
     addSampleRow(vi);
   };
 }
@@ -1183,24 +1181,32 @@ function confirmSampleDel(vi) {
   const v = varieties[vi];
   const name = v.name || `품종${vi+1}`;
   if(v.samples.length === 0) { showToast('삭제할 표본주가 없어요'); return; }
-  document.getElementById('sample-del-subtitle').textContent = `${name} · 삭제할 표본주 번호를 선택하세요`;
-  const list = document.getElementById('sample-del-list');
-  list.innerHTML = v.samples.map((s, si) => {
-    const filled = s !== '' && !isNaN(parseFloat(s));
-    const label = filled ? `${si+1}번<br><span style="font-size:10px;color:#1D9E75;font-weight:700">${parseFloat(s).toLocaleString()}</span>` : `${si+1}번<br><span style="font-size:10px;color:#aaa">미입력</span>`;
-    return `<button onclick="doSampleDel(${vi},${si})"
-      style="height:52px;border:1.5px solid ${filled?'#1D9E75':'var(--border)'};border-radius:10px;background:${filled?'#e8faf3':'#f9f9f9'};font-size:13px;font-weight:700;color:${filled?'#0d5c35':'#888'};cursor:pointer;line-height:1.4">
-      ${label}
-    </button>`;
-  }).join('');
-  document.getElementById('sample-del-overlay').style.display = 'flex';
-}
 
-function doSampleDel(vi, si) {
-  document.getElementById('sample-del-overlay').style.display = 'none';
-  varieties[vi].samples.splice(si, 1);
-  onInput();
-  saveState();
+  // 적정 표본주수 계산
+  const totalSurvey = varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);
+  const totalProper = getProperSample(totalSurvey);
+  const surveyTarget = getSurveyTarget(v);
+  const properN = surveyTarget > 0 && totalSurvey > 0
+    ? Math.max(1, Math.ceil(totalProper * surveyTarget / totalSurvey)) : 0;
+
+  if(v.samples.length <= properN) {
+    showToast(`적정 표본주(${properN}주) 이하라 삭제할 수 없어요`);
+    return;
+  }
+
+  const lastIdx = v.samples.length;
+  document.getElementById('sample-add-desc').textContent = `${name} ${lastIdx}번 표본주를 삭제할까요?`;
+  document.querySelector('#sample-add-overlay .modal-title').textContent = '표본주 삭제';
+  document.querySelector('#sample-add-overlay .modal-icon').textContent = '➖';
+  document.getElementById('sample-add-btn').textContent = '삭제';
+  document.getElementById('sample-add-btn').style.background = '#e24b4a';
+  document.getElementById('sample-add-overlay').style.display = 'flex';
+  document.getElementById('sample-add-btn').onclick = () => {
+    closeAddOverlay();
+    varieties[vi].samples.pop();
+    onInput();
+    saveState();
+  };
 }
 
 function addSampleRow(vi) {
@@ -1430,8 +1436,25 @@ function doCalc(manual = false) {
   // 스크롤 중 입력 방지
   document.querySelector('.content').classList.add('calc-done');
 
-  // 착과수 계산 완료 후 상세정보 나무조사 항목 0주 포함 표시
+  // 착과수 계산 완료 후 상세정보 전체 표시
   updateTreeSummary(true);
+
+  // 표본착과수합 / 1주당착과수 / 착과수 상세정보에 표시
+  const totalSampleSumCalc = results.reduce((s,r)=>s+r.sampleSum, 0);
+  const totalSampleCntCalc = results.reduce((s,r)=>s+r.sampleCount, 0);
+  const totalPerTreeCalc   = totalSampleCntCalc > 0 ? totalSampleSumCalc / totalSampleCntCalc : 0;
+  const ssEl2 = document.getElementById('total_sampleSum');
+  const spEl2 = document.getElementById('total_perTree');
+  const afEl2 = document.getElementById('total_afterFruit');
+  if(ssEl2) ssEl2.value = totalSampleSumCalc > 0 ? Math.round(totalSampleSumCalc).toLocaleString() : '0';
+  if(spEl2) spEl2.value = totalPerTreeCalc > 0 ? totalPerTreeCalc.toFixed(1) : '0';
+  if(afEl2){ afEl2.value = totalAfterFruit > 0 ? Math.round(totalAfterFruit).toLocaleString() : '0'; afEl2.className = 'auto ok'; }
+
+  // 상단 요약바 표본주수 업데이트
+  const _totalSurveyBar = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
+  const _properBar = getProperSample(_totalSurveyBar);
+  const _sampleNBar = varieties.reduce((s,v)=>s+v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x))).length,0);
+  updateSummaryBar(varieties.reduce((s,v)=>s+(v.reg||0),0), _totalSurveyBar, _sampleNBar, _properBar);
 
   document.getElementById('result-section').classList.add('show');
 
