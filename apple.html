@@ -434,14 +434,6 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   </div>
 </div>
 
-<div id="save-overlay" style="display:none;position:fixed;inset:0;z-index:500;align-items:center;justify-content:center;padding:20px">
-  <div class="save-modal">
-    <div style="font-size:36px;margin-bottom:10px">✅</div>
-    <p>결과가 갤러리에 저장됐어요!</p>
-    <button class="btn-ok" onclick="document.getElementById('save-overlay').style.display='none'">확인</button>
-  </div>
-</div>
-</div>
 
 
 <div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
@@ -1450,7 +1442,7 @@ async function saveImage() {
     link.download = `과수착과수_${stamp}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-    setTimeout(()=>showToast('갤러리에 저장됐어요 📷'), 500);
+    setTimeout(()=>showToast('갤러리에 저장됐어요 📷'), 300);
   } catch(e) {
     showToast('저장 중 오류가 발생했어요');
   }
@@ -1466,13 +1458,6 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', ()=>{
   const _loaded = loadState();
   onInput();
-  // calcDone 복원
-  if(allData[currentCrop].calcDone){
-    const btn = document.getElementById('calc-btn');
-    if(btn){ btn.classList.add('done'); btn.innerHTML='<span>✅</span><span>계산 완료!</span>'; }
-    document.getElementById('result-section').classList.add('show');
-    document.getElementById('result-detail-section').classList.add('show');
-  }
   document.body.style.visibility = 'visible';
 });
 </script>
