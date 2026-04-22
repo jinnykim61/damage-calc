@@ -12,8 +12,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 function bindMobileFocusHandlers(){
-  const selectors = 'input.inp, select#insYear, select#selfDed';
-  document.querySelectorAll(selectors).forEach(el=>{
+  // input만 터치 처리 — select는 브라우저 네이티브 드롭다운에 맡김
+  document.querySelectorAll('input.inp').forEach(el=>{
     if(el.dataset.mobileFocusBound==='1') return;
     el.dataset.mobileFocusBound='1';
     el.addEventListener('focus', ()=>el.classList.add('mobile-focus'), {passive:true});
