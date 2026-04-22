@@ -368,66 +368,78 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 </div>
 
 <!-- 갤러리 저장용 캡처 템플릿 -->
-<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
-  <div style="min-height:932px;background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
-    <div style="height:26px"></div>
-    <div style="text-align:center;color:#fff;margin-bottom:14px">
-      <div style="font-size:15px;font-weight:700" id="cap-title">과수4종 착과수 계산결과</div>
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:900px;background:#f3f4f6;padding:0;z-index:-1">
+  <div style="background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 8%,#f3f4f6 8%,#f3f4f6 100%);padding:0 20px 20px;box-sizing:border-box">
+    <div style="height:18px"></div>
+    <div style="text-align:center;color:#fff;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:800;letter-spacing:0.04em" id="cap-title">사과 적과후착과수 조사결과</div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;flex-direction:column;gap:10px">
 
-      <!-- 기본정보 -->
-      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
-          <thead><tr>
-            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">작물</th>
-            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">평년착과수</th>
-            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">가입주수</th>
-            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">조사대상</th>
-            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">계약변경</th>
-          </tr></thead>
-          <tbody><tr>
-            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-crop">-</td>
-            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-avg">-</td>
-            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-reg">-</td>
-            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-survey">-</td>
-            <td style="padding:7px 8px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-contract">-</td>
-          </tr></tbody>
+      <!-- 요약 헤더바 -->
+      <div style="background:#185FA5;border-radius:12px;padding:10px 16px;display:flex;gap:0;justify-content:space-around">
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">평년착과수</div>
+          <div style="font-size:16px;font-weight:800;color:#fff" id="cap-avg">-</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">가입주수</div>
+          <div style="font-size:16px;font-weight:800;color:#fff" id="cap-reg">-</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">조사대상</div>
+          <div style="font-size:16px;font-weight:800;color:#fff" id="cap-survey">-</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">착과율</div>
+          <div style="font-size:16px;font-weight:800;color:#FFE082" id="cap-rate">-</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">적과후착과수</div>
+          <div style="font-size:16px;font-weight:800;color:#A8F0D8" id="cap-total">-</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">계약변경</div>
+          <div style="font-size:14px;font-weight:800;color:#fff" id="cap-contract">-</div>
+        </div>
+      </div>
+
+      <!-- 나무조사 테이블 -->
+      <div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:11px;font-weight:800;color:#185FA5;margin-bottom:8px;letter-spacing:0.04em">■ 나무조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:9px">
+          <thead>
+            <tr style="background:#4a7aad;color:#fff">
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">품종</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">수령</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">가입<br>주수</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">실제결과<br>주수(A)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#5a6aad">고사<br>(B)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#5a6aad">수확불능<br>(B)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#6a7aad">미보상<br>고사(E)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#6a7aad">미보상<br>미고사(E)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">조사대상<br>주수(F)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">표본<br>주수</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">적정<br>표본</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">표본착과수<br>합계</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">1주당<br>착과수</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#1a6a4a;color:#fff">착과수</th>
+            </tr>
+          </thead>
+          <tbody id="cap-tree-tbody"></tbody>
+          <tfoot id="cap-tree-tfoot"></tfoot>
         </table>
       </div>
 
-      <!-- 품종별 결과 -->
-      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 품종별 조사결과</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:11px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
-          <thead><tr>
-            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">품종</th>
-            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">조사대상</th>
-            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">표본주</th>
-            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">표본합계</th>
-            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">1주당</th>
-            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">적과후</th>
-          </tr></thead>
-          <tbody id="cap-variety-tbody"></tbody>
-        </table>
-      </div>
-
-      <!-- 결과 -->
-      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
-        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 결과</div>
-        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
-          <thead><tr>
-            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">착과율</th>
-            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">평년착과수</th>
-            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">적과후착과수</th>
-          </tr></thead>
-          <tbody><tr>
-            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#EBF4FF;font-weight:900;font-size:16px;color:#185FA5" id="cap-rate">-</td>
-            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-avg2">-</td>
-            <td style="padding:7px 8px;text-align:center;background:#e8faf3;font-weight:700;font-size:14px;color:#0d5c35" id="cap-total">-</td>
-          </tr></tbody>
-        </table>
+      <!-- 적과후착과수 (표본주별) -->
+      <div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:11px;font-weight:800;color:#185FA5;margin-bottom:8px;letter-spacing:0.04em">■ 적과후착과수 (표본주별)</div>
+        <div id="cap-samples-wrap"></div>
       </div>
 
     </div>
@@ -1534,36 +1546,104 @@ async function saveImage() {
     const { results, totalAfterFruit, rate, needReview, avgFruit } = saved;
 
     const CROP_KO = {apple:'사과', pear:'배', sweetpersimmon:'단감', persimmon:'떫은감'};
-    const totalReg = varieties.reduce((s,v)=>s+(v.reg||0),0);
+    const cropName = CROP_KO[currentCrop]||'과수';
+    const totalReg    = varieties.reduce((s,v)=>s+(v.reg||0),0);
     const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
+    const totalProper = getProperSample(totalSurvey);
 
-    document.getElementById('cap-title').textContent = `${CROP_KO[currentCrop]||'과수'} 착과수 계산결과`;
-    document.getElementById('cap-crop').textContent = CROP_KO[currentCrop]||'-';
-    document.getElementById('cap-avg').textContent = avgFruit>0?avgFruit.toLocaleString()+'개':'-';
-    document.getElementById('cap-avg2').textContent = avgFruit>0?avgFruit.toLocaleString()+'개':'-';
-    document.getElementById('cap-reg').textContent = totalReg>0?totalReg.toLocaleString()+'주':'-';
-    document.getElementById('cap-survey').textContent = totalSurvey>0?totalSurvey.toLocaleString()+'주':'-';
-    document.getElementById('cap-contract').textContent = totalReg>0?(needReview?'계약변경':'이상무'):'-';
-    document.getElementById('cap-rate').textContent = avgFruit>0?(rate*100).toFixed(2)+'%':'-';
-    document.getElementById('cap-total').textContent = totalAfterFruit>0?Math.round(totalAfterFruit).toLocaleString()+'개':'-';
+    // ── 헤더바
+    document.getElementById('cap-title').textContent   = `${cropName} 적과후착과수 조사결과`;
+    document.getElementById('cap-avg').textContent     = avgFruit>0 ? avgFruit.toLocaleString()+'개' : '-';
+    document.getElementById('cap-reg').textContent     = totalReg>0 ? totalReg.toLocaleString()+'주' : '-';
+    document.getElementById('cap-survey').textContent  = totalSurvey>0 ? totalSurvey.toLocaleString()+'주' : '-';
+    document.getElementById('cap-rate').textContent    = avgFruit>0 ? (rate*100).toFixed(2)+'%' : '-';
+    document.getElementById('cap-total').textContent   = totalAfterFruit>0 ? Math.round(totalAfterFruit).toLocaleString()+'개' : '-';
+    const contractEl = document.getElementById('cap-contract');
+    contractEl.textContent  = needReview ? '계약변경' : '이상무';
+    contractEl.style.color  = needReview ? '#FFD0D0' : '#A8F0D8';
 
-    const rows = results.map(r => `<tr>
-      <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-weight:700;font-size:11px">${r.name}</td>
-      <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${r.surveyTarget}주</td>
-      <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${r.sampleCount}주</td>
-      <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${Math.round(r.sampleSum).toLocaleString()}</td>
-      <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${r.perTree.toFixed(1)}</td>
-      <td style="padding:5px 4px;border-bottom:1px solid #e5e7eb;text-align:center;background:#e8faf3;font-weight:700;font-size:11px;color:#0d5c35">${Math.round(r.afterFruit).toLocaleString()}</td>
-    </tr>`).join('');
-    document.getElementById('cap-variety-tbody').innerHTML = rows;
+    // ── 나무조사 테이블 rows
+    const td = (txt, bg='#fff', bold=false, color='#111') =>
+      `<td style="padding:4px 3px;border:1px solid #d1d5db;text-align:center;background:${bg};font-weight:${bold?700:400};color:${color};font-size:9px">${txt??''}</td>`;
+
+    let totalSampleN=0, totalSampleSum=0, totalAfterSum=0;
+    const treeRows = varieties.map((v,vi) => {
+      const st = getSurveyTarget(v);
+      if(st<=0 && !v.reg) return '';
+      const properN = st>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*st/totalSurvey)) : 0;
+      const validS  = v.samples.filter(s=>s!==''&&!isNaN(parseFloat(s)));
+      const sampleN = validS.length;
+      const sampleSum = validS.reduce((s,x)=>s+parseFloat(x),0);
+      const perTree   = sampleN>0 ? sampleSum/sampleN : 0;
+      const afterFruit= perTree>0&&st>0 ? Math.round(perTree*st) : 0;
+      totalSampleN   += sampleN;
+      totalSampleSum += sampleSum;
+      totalAfterSum  += afterFruit;
+      return `<tr style="background:${vi%2===0?'#fff':'#f8f9fa'}">
+        ${td(v.name||`품종${vi+1}`,vi%2===0?'#fff':'#f8f9fa',true)}
+        ${td(v.age||'-')}
+        ${td(v.reg>0?v.reg.toLocaleString():'-')}
+        ${td(v.actual>0?v.actual.toLocaleString():'-')}
+        ${td(v.dead||0)}
+        ${td(v.unable||0)}
+        ${td(v.uninsDead||0)}
+        ${td(v.uninsAlive||0)}
+        ${td(st>0?st.toLocaleString():'-','#EBF4FF',true,'#185FA5')}
+        ${td(sampleN>0?sampleN:'-')}
+        ${td(properN>0?properN:'-')}
+        ${td(sampleSum>0?Math.round(sampleSum).toLocaleString():'-')}
+        ${td(perTree>0?perTree.toFixed(1):'-')}
+        ${td(afterFruit>0?afterFruit.toLocaleString():'-','#e8faf3',true,'#0d5c35')}
+      </tr>`;
+    }).join('');
+
+    const totalPerTree = totalSampleN>0 ? totalSampleSum/totalSampleN : 0;
+    const tfootRow = `<tr style="background:#f0f4f8">
+      ${td('합 계','#e8edf2',true)}
+      ${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}
+      ${td(totalSurvey>0?totalSurvey.toLocaleString():'-','#dbeafe',true,'#185FA5')}
+      ${td(totalSampleN>0?totalSampleN:'-','#f0f4f8',true)}
+      ${td(totalProper>0?totalProper:'-')}
+      ${td(totalSampleSum>0?Math.round(totalSampleSum).toLocaleString():'-','#f0f4f8',true)}
+      ${td(totalPerTree>0?totalPerTree.toFixed(1):'-')}
+      ${td(totalAfterSum>0?totalAfterSum.toLocaleString():'-','#d1fae5',true,'#0d5c35')}
+    </tr>`;
+
+    document.getElementById('cap-tree-tbody').innerHTML = treeRows;
+    document.getElementById('cap-tree-tfoot').innerHTML = tfootRow;
+
+    // ── 적과후착과수 표본주별
+    const COLS = 10;
+    let samplesHtml = '';
+    varieties.forEach((v,vi) => {
+      const validS = v.samples.map((s,si)=>({si,val:parseFloat(s)||null})).filter(x=>x.val!==null);
+      if(validS.length===0) return;
+      const name = v.name || `품종${vi+1}`;
+      samplesHtml += `<div style="margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:#185FA5;margin-bottom:4px">${name}</div>
+        <table style="width:100%;border-collapse:collapse;font-size:9px">
+          <tr>`;
+      validS.forEach((x,i) => {
+        if(i>0 && i%COLS===0) samplesHtml += `</tr><tr>`;
+        samplesHtml += `<td style="border:1px solid #d1d5db;text-align:center;padding:3px 2px;min-width:48px">
+          <div style="font-size:8px;color:#999">${x.si+1}번</div>
+          <div style="font-weight:700;color:#0d5c35">${x.val.toLocaleString()}</div>
+        </td>`;
+      });
+      // 빈칸 채우기
+      const rem = validS.length % COLS;
+      if(rem>0) for(let i=0;i<COLS-rem;i++) samplesHtml+=`<td style="border:1px solid #e5e7eb;background:#f9f9f9"></td>`;
+      samplesHtml += `</tr></table></div>`;
+    });
+    document.getElementById('cap-samples-wrap').innerHTML = samplesHtml;
 
     const canvas = await html2canvas(document.getElementById('capture-template'), {
-      backgroundColor:'#f3f4f6', scale:2, useCORS:true, windowWidth:430
+      backgroundColor:'#f3f4f6', scale:2, useCORS:true, windowWidth:900
     });
     const link = document.createElement('a');
     const now = new Date();
     const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
-    link.download = `과수착과수_${stamp}.png`;
+    link.download = `${cropName}착과수_${stamp}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
   } catch(e) {
