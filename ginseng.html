@@ -118,6 +118,10 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 .save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
 .save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
 
+/* 결과 상세 박스 — 사과 스타일 */
+.result-detail-box{display:none;background:var(--card);border-radius:var(--r);margin-bottom:10px;border:0.5px solid var(--border);overflow:hidden}
+.result-detail-box.show{display:block}
+
 /* 캡처 템플릿 */
 #capture-template{position:fixed;left:-9999px;top:0;width:430px;background:#F5F4F0;padding:16px;font-family:-apple-system,'Noto Sans KR',sans-serif;font-size:14px}
 </style>
@@ -178,14 +182,18 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     <div class="g3">
       <div class="field">
         <label>가입연근</label>
-        <select id="insYear" class="inp" onchange="markFilled(this);onYearChange()">
-          <option value="">선택</option>
-          <option value="2">2년근</option>
-          <option value="3">3년근</option>
-          <option value="4">4년근</option>
-          <option value="5">5년근</option>
-          <option value="6">6년근</option>
-        </select>
+        <div style="position:relative;width:100%">
+          <select id="insYear" onchange="markFilled(this);onYearChange()"
+            style="height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 28px 0 10px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;appearance:none;transition:background 0.15s,border-color 0.15s;cursor:pointer">
+            <option value="">선택</option>
+            <option value="2">2년근</option>
+            <option value="3">3년근</option>
+            <option value="4">4년근</option>
+            <option value="5">5년근</option>
+            <option value="6">6년근</option>
+          </select>
+          <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--sub);pointer-events:none">▼</span>
+        </div>
       </div>
       <div class="field">
         <label>기준수확량 <span style="font-size:10px;color:var(--hint)">(kg/㎡)</span></label>
@@ -305,7 +313,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
     <div class="g3">
       <div class="field">
-        <label>금차평년수확량 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
+        <label>금차평년수확량 <span style="font-size:10px;color:var(--hint)">(자동)</span></label>
         <input type="text" id="stdTotalYield" class="auto" readonly>
       </div>
       <div class="field">
@@ -313,7 +321,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <input type="text" id="soilAdjYield" class="auto" readonly>
       </div>
       <div class="field">
-        <label>비례보상수확량 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
+        <label>비례보상수확량 <span style="font-size:10px;color:var(--hint)">(자동)</span></label>
         <input type="text" id="propYield" class="auto" readonly>
       </div>
     </div>
@@ -346,24 +354,21 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
   </div>
 
-  <!-- 결과 상세 (항상 표시) -->
-  <div id="result-detail" style="display:none;background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:0.5px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,0.04)">
-    <div class="sec-title">계산 결과 상세</div>
-    <div class="g2" style="margin-bottom:6px">
-      <div class="field"><label>단위면적당 조사수확량</label><input type="text" id="r-unit-disp" class="auto" readonly></div>
-      <div class="field"><label>미보상감수량 (kg)</label><input type="text" id="r-unins-disp" class="auto" readonly></div>
-    </div>
-    <div class="g2" style="margin-bottom:6px">
-      <div class="field"><label>금차평년수확량 (kg)</label><input type="text" id="r-std-disp" class="auto" readonly></div>
-      <div class="field"><label>조사수확량 (kg)</label><input type="text" id="r-survey-disp" class="auto" readonly></div>
-    </div>
-    <div class="g2" style="margin-bottom:6px">
-      <div class="field"><label>금차수확면적 (㎡)</label><input type="text" id="r-area-disp" class="auto" readonly></div>
-      <div class="field"><label>재배면적 (㎡)</label><input type="text" id="r-farm-disp" class="auto" readonly></div>
-    </div>
-    <div class="g2">
-      <div class="field"><label>지급보험금 (추정)</label><input type="text" id="r-pay-disp" class="auto" readonly></div>
-      <div class="field"><label>피해면적비율</label><input type="text" id="r-dmg-disp" class="auto" readonly></div>
+  <!-- 결과 상세 — 사과 스타일 3칸 카드 -->
+  <div class="result-detail-box" id="result-detail">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
+      <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">금차평년수확량</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)" id="r-std-disp">-</div>
+      </div>
+      <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">조사수확량</div>
+        <div style="font-size:15px;font-weight:700;color:var(--blue)" id="r-survey-disp">-</div>
+      </div>
+      <div style="padding:10px 8px;text-align:center">
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">지급보험금 (추정)</div>
+        <div style="font-size:13px;font-weight:700" id="r-pay-disp">-</div>
+      </div>
     </div>
   </div>
 
@@ -515,10 +520,18 @@ const STD_YIELD = {2:0.50, 3:0.64, 4:0.71, 5:0.73, 6:0.73};
 
 function onYearChange(){
   const yr = document.getElementById('insYear').value;
+  const sel = document.getElementById('insYear');
   const stdEl = document.getElementById('stdYield');
   if(yr && STD_YIELD[yr]){
     stdEl.value = STD_YIELD[yr];
     stdEl.classList.add('filled');
+    sel.style.background = '#e8faf3';
+    sel.style.borderColor = '#1D9E75';
+    sel.style.color = '#0d5c35';
+  } else {
+    sel.style.background = 'white';
+    sel.style.borderColor = '#378ADD';
+    sel.style.color = '#1a1a1a';
   }
   calc();
 }
@@ -635,7 +648,7 @@ function calc(){
     resultBox.className = 'result-box pending';
     pctEl.textContent = '입력 대기중';
     pctEl.style.color = 'rgba(255,255,255,0.5)';
-    detail.style.display = 'none';
+    document.getElementById('result-detail').classList.remove('show');
     return;
   }
 
@@ -651,17 +664,18 @@ function calc(){
   pctEl.textContent = (pihaeyul*100).toFixed(2) + '%';
   pctEl.style.color = pihaeyul >= selfDed ? '#FFD0D0' : '#A8F0D8';
 
-  // 결과 상세
-  detail.style.display = 'block';
-  document.getElementById('r-unit-disp').value   = unitYield.toFixed(4) + ' kg/㎡';
-  document.getElementById('r-unins-disp').value  = uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
-  document.getElementById('r-std-disp').value    = stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
-  document.getElementById('r-survey-disp').value = surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
-  document.getElementById('r-area-disp').value   = harvestArea.toFixed(2) + ' ㎡';
-  document.getElementById('r-farm-disp').value   = farmArea.toFixed(2) + ' ㎡';
-  document.getElementById('r-dmg-disp').value    = (dmgRatio*100).toFixed(2) + '%';
-  document.getElementById('r-pay-disp').value    = payAmt > 0
-    ? payAmt.toLocaleString('ko-KR',{maximumFractionDigits:0}) + ' 원' : '지급보험금 없음';
+  // 결과 상세 — 사과 스타일 3칸 카드
+  detail.classList.add('show');
+  document.getElementById('r-std-disp').textContent    = stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
+  document.getElementById('r-survey-disp').textContent = surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
+  const payDispEl = document.getElementById('r-pay-disp');
+  if(payAmt > 0){
+    payDispEl.textContent = payAmt.toLocaleString('ko-KR',{maximumFractionDigits:0}) + ' 원';
+    payDispEl.style.color = '#e24b4a';
+  } else {
+    payDispEl.textContent = '지급없음';
+    payDispEl.style.color = '#1D9E75';
+  }
 
   saveState();
 }
@@ -688,10 +702,10 @@ function resetAll(){
   ['harvestArea','farmArea','stdTotalYield','soilAdjYield','propYield','surveyYield','unitYield'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
-  ['r-unit-disp','r-unins-disp','r-std-disp','r-survey-disp','r-area-disp','r-farm-disp','r-dmg-disp','r-pay-disp'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('result-detail').style.display='none';
+  document.getElementById('result-detail').classList.remove('show');
+  document.getElementById('r-std-disp').textContent = '-';
+  document.getElementById('r-survey-disp').textContent = '-';
+  document.getElementById('r-pay-disp').textContent = '-';
   calcKanArea();
   document.getElementById('result-section').className='result-box pending';
   document.getElementById('result-pct').textContent='입력 대기중';
@@ -772,7 +786,16 @@ function loadState(){
     const s = JSON.parse(raw);
     Object.keys(s).forEach(id=>{
       const el = document.getElementById(id);
-      if(el && s[id] !== ''){ el.value = s[id]; el.classList.toggle('filled', true); }
+      if(el && s[id] !== ''){
+        el.value = s[id];
+        if(id === 'insYear'){
+          el.style.background = '#e8faf3';
+          el.style.borderColor = '#1D9E75';
+          el.style.color = '#0d5c35';
+        } else {
+          el.classList.toggle('filled', true);
+        }
+      }
     });
     return true;
   }catch(e){ return false; }
