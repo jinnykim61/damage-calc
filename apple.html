@@ -617,8 +617,10 @@ function applySetupPopup() {
     varieties[0].open = true;
     const ss = document.getElementById('ss-0');
     const icon = document.getElementById('toggle-icon-0');
+    const nextBtn = document.getElementById('next-btn-0');
     if(ss) ss.classList.add('open');
     if(icon) icon.textContent = '▼';
+    if(nextBtn) nextBtn.style.display = 'block';
     setTimeout(()=>{
       const firstInput = document.getElementById('ss-0')?.querySelector('input');
       if(firstInput){
@@ -837,16 +839,6 @@ function renderVarieties(totalSurvey, totalProper) {
     }
     samplesHtml += '</div>';
 
-    // 다음 품종 이동 버튼
-    const isLastVariety = vi === varieties.length - 1;
-    const nextLabel = isLastVariety ? '착과수 계산 →' : `다음 품종 →`;
-    const nextAction = isLastVariety ? `doCalc()` : `moveToNextVariety(${vi})`;
-    samplesHtml += `<button
-      onclick="${nextAction}"
-      style="margin-top:10px;width:100%;height:44px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">
-      ${nextLabel}
-    </button>`;
-
     const inp = (field, val, label) => {
       const filled = val > 0;
       const ph = (field==='reg'||field==='actual'||field==='dead'||field==='unable'||field==='uninsDead'||field==='uninsAlive') ? '0주' : '0';
@@ -942,6 +934,10 @@ function renderVarieties(totalSurvey, totalProper) {
         ${samplesHtml}
       </div>` : `
       <div id="ss-${vi}" style="display:none"></div>`}
+      <button id="next-btn-${vi}" onclick="moveToNextVariety(${vi})"
+        style="display:none;margin-top:10px;width:100%;height:46px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">
+        ${vi < varieties.length-1 ? '다음 품종 →' : '착과수 계산 →'}
+      </button>
     </div>`;
   }).join('');
 }
@@ -1022,6 +1018,10 @@ function renderSamplesOnly(vi) {
 }
 
 function moveToNextVariety(vi) {
+  // 현재 버튼 숨기기
+  const curBtn = document.getElementById(`next-btn-${vi}`);
+  if(curBtn) curBtn.style.display = 'none';
+
   const nextVi = vi + 1;
   if(nextVi >= varieties.length) {
     doCalc();
@@ -1031,11 +1031,12 @@ function moveToNextVariety(vi) {
   varieties[nextVi].open = true;
   const ss = document.getElementById(`ss-${nextVi}`);
   const icon = document.getElementById(`toggle-icon-${nextVi}`);
-  if(icon) icon.textContent = '▼';
+  const nextBtn = document.getElementById(`next-btn-${nextVi}`);
   renderSamplesOnly(nextVi);
   if(ss) ss.classList.add('open');
+  if(icon) icon.textContent = '▼';
+  if(nextBtn) nextBtn.style.display = 'block';
 
-  // 스크롤만 — 포커스는 사용자가 직접 탭
   setTimeout(()=>{
     if(ss){
       const rect = ss.getBoundingClientRect();
@@ -1072,8 +1073,10 @@ function toggleSamples(vi) {
   varieties[vi].open = !varieties[vi].open;
   const ss = document.getElementById(`ss-${vi}`);
   const icon = document.getElementById(`toggle-icon-${vi}`);
+  const btn = document.getElementById(`next-btn-${vi}`);
   ss.classList.toggle('open', varieties[vi].open);
   icon.textContent = varieties[vi].open ? '▼' : '▶';
+  if(btn) btn.style.display = varieties[vi].open ? 'block' : 'none';
 }
 
 function trimSamples(vi) {
