@@ -39,11 +39,16 @@ function bindMobileFocusHandlers(){
     el.dataset.mobileFocusBound = '1';
     el.addEventListener('focus', ()=> el.classList.add('mobile-focus'), {passive:true});
     el.addEventListener('blur',  ()=> el.classList.remove('mobile-focus'), {passive:true});
-    el.addEventListener('touchend', (e)=>{
-      if(e.cancelable) e.preventDefault();
-      el.focus();
-      el.classList.add('mobile-focus');
-    }, {passive:false});
+    // select(드롭다운)와 date input은 브라우저 기본 동작(피커 열기)을 막지 않는다
+    const isSelect = el.tagName === 'SELECT';
+    const isDate = el.type === 'date';
+    if(!isSelect && !isDate){
+      el.addEventListener('touchend', (e)=>{
+        if(e.cancelable) e.preventDefault();
+        el.focus();
+        el.classList.add('mobile-focus');
+      }, {passive:false});
+    }
   });
 }
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -1017,11 +1022,16 @@ function bindMobileFocusHandlers(){
     el.dataset.mobileFocusBound = '1';
     el.addEventListener('focus', ()=> el.classList.add('mobile-focus'), {passive:true});
     el.addEventListener('blur',  ()=> el.classList.remove('mobile-focus'), {passive:true});
-    el.addEventListener('touchend', (e)=>{
-      if(e.cancelable) e.preventDefault();
-      el.focus();
-      el.classList.add('mobile-focus');
-    }, {passive:false});
+    // select(드롭다운)와 date input은 브라우저 기본 동작(피커 열기)을 막지 않는다
+    const isSelect = el.tagName === 'SELECT';
+    const isDate = el.type === 'date';
+    if(!isSelect && !isDate){
+      el.addEventListener('touchend', (e)=>{
+        if(e.cancelable) e.preventDefault();
+        el.focus();
+        el.classList.add('mobile-focus');
+      }, {passive:false});
+    }
   });
 }
 document.addEventListener('DOMContentLoaded', ()=>{
