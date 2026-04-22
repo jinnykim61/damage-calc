@@ -66,8 +66,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .field{display:flex;flex-direction:column;gap:3px}
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 
-input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center}
-select.inp{text-align-last:center}
+input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center}
+select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:left;text-align-last:left;direction:ltr}
 input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
 input.inp::placeholder{color:var(--hint);text-align:center}
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
@@ -279,21 +279,21 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
   <div class="section">
     <div class="sec-head">
       <div class="sec-title">④ 수확량 조사</div>
-      <div style="font-size:11px;color:var(--hint)">총수확량·흙감량·공톤백: kg</div>
+      <div style="font-size:11px;color:var(--hint)">총수확량·공톤백: kg</div>
     </div>
     <div class="g4">
       <div class="field">
-        <label>총수확량</label>
+        <label>총수확량 (kg)</label>
         <input type="text" id="totalYield" class="inp" inputmode="decimal"
           oninput="onCommaInput(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>흙감량</label>
-        <input type="number" id="soilLoss" class="inp" inputmode="decimal" step="0.01"
+        <label>흙감량 <span style="font-size:10px;color:var(--hint)">(%)</span></label>
+        <input type="number" id="soilLossPct" class="inp" inputmode="decimal" step="0.1"
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
       <div class="field">
-        <label>공톤백</label>
+        <label>공톤백 (kg)</label>
         <input type="number" id="bagLoss" class="inp" inputmode="decimal" step="0.01"
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
@@ -303,10 +303,14 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           placeholder="0" oninput="markFilled(this)" onblur="calc()">
       </div>
     </div>
-    <div class="g2">
+    <div class="g3">
       <div class="field">
         <label>금차평년수확량 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
         <input type="text" id="stdTotalYield" class="auto" readonly>
+      </div>
+      <div class="field">
+        <label>흙감량 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
+        <input type="text" id="soilAdjYield" class="auto" readonly>
       </div>
       <div class="field">
         <label>비례보상수확량 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
@@ -327,26 +331,40 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
-    <div class="result-top">
-      <div>
-        <div class="result-label">피해율</div>
-        <div class="result-pct" id="result-pct">입력 대기중</div>
+    <div style="display:flex;align-items:center;padding:14px 0">
+      <div style="padding-right:12px;flex-shrink:0">
+        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">피해율</span>
       </div>
-      <button class="save-btn" onclick="saveImage()">
-        <span style="font-size:18px">📷</span>
-        <span>갤러리 저장</span>
-      </button>
+      <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
+      <div style="padding:0 12px;flex:1;min-width:0">
+        <span id="result-pct" style="font-size:26px;font-weight:700;color:#FFD0D0;letter-spacing:-0.02em;line-height:1;white-space:nowrap">입력 대기중</span>
+      </div>
+      <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
+      <div style="padding-left:12px;flex-shrink:0">
+        <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
+      </div>
     </div>
-    <div class="metrics">
-      <div class="metric"><div class="ml">단위면적당 조사수확량</div><div class="mv" id="r-unit">-</div></div>
-      <div class="metric"><div class="ml">미보상감수량</div><div class="mv" id="r-unins">-</div></div>
+  </div>
+
+  <!-- 결과 상세 (항상 표시) -->
+  <div id="result-detail" style="display:none;background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:0.5px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,0.04)">
+    <div class="sec-title">계산 결과 상세</div>
+    <div class="g2" style="margin-bottom:6px">
+      <div class="field"><label>단위면적당 조사수확량</label><input type="text" id="r-unit-disp" class="auto" readonly></div>
+      <div class="field"><label>미보상감수량 (kg)</label><input type="text" id="r-unins-disp" class="auto" readonly></div>
     </div>
-    <div class="drow"><span>금차평년수확량</span><span id="r-std">-</span></div>
-    <div class="drow"><span>조사수확량</span><span id="r-survey">-</span></div>
-    <div class="drow"><span>금차수확면적</span><span id="r-area">-</span></div>
-    <div class="drow"><span>재배면적</span><span id="r-farm">-</span></div>
-    <div class="drow"><span>피해면적비율</span><span id="r-dmg-ratio">-</span></div>
-    <div class="drow" id="drow-pay"><span>지급보험금 (추정)</span><span id="r-pay">-</span></div>
+    <div class="g2" style="margin-bottom:6px">
+      <div class="field"><label>금차평년수확량 (kg)</label><input type="text" id="r-std-disp" class="auto" readonly></div>
+      <div class="field"><label>조사수확량 (kg)</label><input type="text" id="r-survey-disp" class="auto" readonly></div>
+    </div>
+    <div class="g2" style="margin-bottom:6px">
+      <div class="field"><label>금차수확면적 (㎡)</label><input type="text" id="r-area-disp" class="auto" readonly></div>
+      <div class="field"><label>재배면적 (㎡)</label><input type="text" id="r-farm-disp" class="auto" readonly></div>
+    </div>
+    <div class="g2">
+      <div class="field"><label>지급보험금 (추정)</label><input type="text" id="r-pay-disp" class="auto" readonly></div>
+      <div class="field"><label>피해면적비율</label><input type="text" id="r-dmg-disp" class="auto" readonly></div>
+    </div>
   </div>
 
 </div><!-- /content -->
@@ -515,10 +533,10 @@ function calcKanArea(){
 }
 
 function calc(){
-  const insAmt = toNum(document.getElementById('insAmt'));
-  const insKan = parseFloat(document.getElementById('insKan').value)||0;
-  const stdYield = parseFloat(document.getElementById('stdYield').value)||0;
-  const selfDed = parseFloat(document.getElementById('selfDed').value)||0.2;
+  const insAmt    = toNum(document.getElementById('insAmt'));
+  const insKan    = parseFloat(document.getElementById('insKan').value)||0;
+  const stdYield  = parseFloat(document.getElementById('stdYield').value)||0;
+  const selfDed   = parseFloat(document.getElementById('selfDed').value)||0.2;
   const uninsRate = (parseFloat(document.getElementById('uninsRate').value)||0)/100;
 
   const pole   = parseFloat(document.getElementById('poleGap').value)||180;
@@ -527,16 +545,22 @@ function calc(){
   const kanArea = pole * (ridge + furrow) / 10000;
   document.getElementById('kanArea').value = parseFloat(kanArea.toFixed(4)) + ' ㎡';
 
-  const actKan      = parseFloat(document.getElementById('actKan').value)||0;
-  const harvestKan  = parseFloat(document.getElementById('harvestKan').value)||0;
-  const totalYield  = toNum(document.getElementById('totalYield'));
-  const soilLoss    = parseFloat(document.getElementById('soilLoss').value)||0;
-  const bagLoss     = parseFloat(document.getElementById('bagLoss').value)||0;
+  const actKan     = parseFloat(document.getElementById('actKan').value)||0;
+  const harvestKan = parseFloat(document.getElementById('harvestKan').value)||0;
+  const totalYield = toNum(document.getElementById('totalYield'));
 
+  // 흙감량: % 입력 → kg 자동 계산 (총수확량 × 흙감량%)
+  const soilLossPct = parseFloat(document.getElementById('soilLossPct').value)||0;
+  const soilLossKg  = totalYield * soilLossPct / 100;
+  // soilAdjYield 칸에 흙감량 kg 표시
+  document.getElementById('soilAdjYield').value = (totalYield > 0 && soilLossPct > 0)
+    ? soilLossKg.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
+
+  const bagLoss = parseFloat(document.getElementById('bagLoss').value)||0;
   const insArea = toNum(document.getElementById('insArea'));
   const actArea = toNum(document.getElementById('actArea'));
 
-  // 면적오차 (가입면적 기준)
+  // 면적오차
   const areaErr = insArea > 0 && actArea > 0 ? (actArea - insArea) / insArea : 0;
   const calcArea = (insArea > 0 && actArea > 0 && Math.abs(areaErr) <= 0.1) ? insArea : (actArea || insArea);
 
@@ -548,29 +572,20 @@ function calc(){
     kanErrEl.style.color = Math.abs(kanErrVal) > 10 ? '#e24b4a' : '';
     kanErrEl.style.fontWeight = Math.abs(kanErrVal) > 10 ? '700' : '';
   } else {
-    kanErrEl.value = '-';
-    kanErrEl.style.color = '';
+    kanErrEl.value = '-'; kanErrEl.style.color = '';
   }
 
   // 비례보상 대상여부
   const propTargetEl = document.getElementById('propTarget');
   if(insArea > 0 && actArea > 0){
     if(areaErr > 0.1){
-      propTargetEl.value = '비례보상 대상';
-      propTargetEl.style.color = '#e24b4a';
-      propTargetEl.style.fontWeight = '700';
+      propTargetEl.value='비례보상 대상'; propTargetEl.style.color='#e24b4a'; propTargetEl.style.fontWeight='700';
     } else if(areaErr < -0.1){
-      propTargetEl.value = '원장변경 대상';
-      propTargetEl.style.color = '#e24b4a';
-      propTargetEl.style.fontWeight = '700';
+      propTargetEl.value='원장변경 대상'; propTargetEl.style.color='#e24b4a'; propTargetEl.style.fontWeight='700';
     } else {
-      propTargetEl.value = '이상무';
-      propTargetEl.style.color = '';
-      propTargetEl.style.fontWeight = '';
+      propTargetEl.value='이상무'; propTargetEl.style.color=''; propTargetEl.style.fontWeight='';
     }
-  } else {
-    propTargetEl.value = '';
-  }
+  } else { propTargetEl.value=''; }
 
   // 면적 계산
   const harvestArea = harvestKan * kanArea;
@@ -578,15 +593,19 @@ function calc(){
   document.getElementById('harvestArea').value = harvestArea > 0 ? harvestArea.toFixed(2) + ' ㎡' : '';
   document.getElementById('farmArea').value    = farmArea > 0 ? farmArea.toFixed(2) + ' ㎡' : '';
 
-  // 금차평년수확량 = 기준수확량 × 계산면적 × (금차수확면적 / 재배면적)
-  const fullStdYield = stdYield * calcArea;
+  // 금차평년수확량
+  const fullStdYield  = stdYield * calcArea;
   const stdTotalYield = farmArea > 0 ? fullStdYield * (harvestArea / farmArea) : fullStdYield;
-  document.getElementById('stdTotalYield').value = stdTotalYield > 0 ? stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
+  document.getElementById('stdTotalYield').value = stdTotalYield > 0
+    ? stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
 
-  // 조사수확량(raw) = 총수확량 - 흙감량 - 공톤백
-  const surveyYieldRaw = Math.max(0, totalYield - soilLoss - bagLoss);
+  // 흙감량·공톤백 차감
+  const surveyYieldRaw = Math.max(0, totalYield - soilLossKg - bagLoss);
+  // 흙감량 반영 후 (비례보상 전)
+  document.getElementById('soilAdjYield').value = totalYield > 0
+    ? surveyYieldRaw.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
 
-  // 비례보상수확량 = 조사수확량 × (증가면적 / 실경작면적) — 10% 초과시만
+  // 비례보상수확량
   const realArea = actArea > 0 ? actArea : insArea;
   let propYield = 0;
   if(realArea > 0 && insArea > 0 && areaErr > 0.1){
@@ -594,57 +613,55 @@ function calc(){
   }
   document.getElementById('propYield').value = propYield > 0 ? propYield.toFixed(2) + ' kg' : '';
 
-  // 조사수확량 = raw - 비례보상
+  // 조사수확량
   const surveyYield = Math.max(0, surveyYieldRaw - propYield);
-  document.getElementById('surveyYield').value = surveyYield > 0 ? surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
+  document.getElementById('surveyYield').value = surveyYield > 0
+    ? surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
 
   const unitYield = harvestArea > 0 ? surveyYield / harvestArea : 0;
   document.getElementById('unitYield').value = unitYield > 0 ? unitYield.toFixed(4) + ' kg/㎡' : '';
 
-  // 피해면적비율 (미수확+기수확 포함 개념)
-  const unharvestKan   = parseFloat(document.getElementById('unharvestKan').value)||0;
-  const preharvestKan  = parseFloat(document.getElementById('preharvestKan').value)||0;
-  const dmgKan = Math.max(0, actKan - harvestKan - unharvestKan - preharvestKan);
+  // 피해면적비율
+  const unharvestKan  = parseFloat(document.getElementById('unharvestKan').value)||0;
+  const preharvestKan = parseFloat(document.getElementById('preharvestKan').value)||0;
+  const dmgKan   = Math.max(0, actKan - harvestKan - unharvestKan - preharvestKan);
   const dmgRatio = actKan > 0 ? dmgKan / actKan : 0;
 
   const resultBox = document.getElementById('result-section');
-  const pctEl = document.getElementById('result-pct');
+  const pctEl     = document.getElementById('result-pct');
+  const detail    = document.getElementById('result-detail');
 
   if(!insAmt || !stdYield || !actKan || !harvestKan || !totalYield){
     resultBox.className = 'result-box pending';
     pctEl.textContent = '입력 대기중';
-    pctEl.style.color = 'white';
+    pctEl.style.color = 'rgba(255,255,255,0.5)';
+    detail.style.display = 'none';
     return;
   }
 
   // 미보상감수량
   const uninsLoss = Math.max(0, stdTotalYield - surveyYield) * uninsRate;
-  // 피해율 = (평년 - 조사 - 미보상) / 평년
-  const pihaeyul = stdTotalYield > 0 ? Math.max(0, (stdTotalYield - surveyYield - uninsLoss) / stdTotalYield) : 0;
+  // 피해율
+  const pihaeyul = stdTotalYield > 0
+    ? Math.max(0, (stdTotalYield - surveyYield - uninsLoss) / stdTotalYield) : 0;
   // 지급보험금
   const payAmt = Math.max(0, insAmt * (pihaeyul - selfDed));
-
-  document.getElementById('r-unit').textContent    = unitYield.toFixed(4) + ' kg/㎡';
-  document.getElementById('r-unins').textContent   = uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
-  document.getElementById('r-std').textContent     = stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
-  document.getElementById('r-survey').textContent  = surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
-  document.getElementById('r-area').textContent    = harvestArea.toFixed(2) + ' ㎡';
-  document.getElementById('r-farm').textContent    = farmArea.toFixed(2) + ' ㎡';
-  document.getElementById('r-dmg-ratio').textContent = (dmgRatio*100).toFixed(2) + '%';
-
-  const payEl = document.getElementById('r-pay');
-  const drowPay = document.getElementById('drow-pay');
-  if(payAmt > 0){
-    payEl.textContent = payAmt.toLocaleString('ko-KR',{maximumFractionDigits:0}) + ' 원';
-    drowPay.style.color = '#FFD0D0';
-  } else {
-    payEl.textContent = '지급보험금 없음';
-    drowPay.style.color = '';
-  }
 
   resultBox.className = 'result-box';
   pctEl.textContent = (pihaeyul*100).toFixed(2) + '%';
   pctEl.style.color = pihaeyul >= selfDed ? '#FFD0D0' : '#A8F0D8';
+
+  // 결과 상세
+  detail.style.display = 'block';
+  document.getElementById('r-unit-disp').value   = unitYield.toFixed(4) + ' kg/㎡';
+  document.getElementById('r-unins-disp').value  = uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
+  document.getElementById('r-std-disp').value    = stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
+  document.getElementById('r-survey-disp').value = surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
+  document.getElementById('r-area-disp').value   = harvestArea.toFixed(2) + ' ㎡';
+  document.getElementById('r-farm-disp').value   = farmArea.toFixed(2) + ' ㎡';
+  document.getElementById('r-dmg-disp').value    = (dmgRatio*100).toFixed(2) + '%';
+  document.getElementById('r-pay-disp').value    = payAmt > 0
+    ? payAmt.toLocaleString('ko-KR',{maximumFractionDigits:0}) + ' 원' : '지급보험금 없음';
 
   saveState();
 }
@@ -655,27 +672,26 @@ function closeResetModal(){ document.getElementById('reset-overlay').style.displ
 function confirmResetAll(){ closeResetModal(); resetAll(); }
 
 function resetAll(){
-  try{ localStorage.removeItem('ginseng_state'); }catch(e){}
+  try{ localStorage.removeItem('ginseng_v2_state'); }catch(e){}
   ['insAmt','insKan','insArea','actArea','stdYield','uninsRate','actKan','harvestKan',
-   'unharvestKan','preharvestKan','totalYield','soilLoss','bagLoss'].forEach(id=>{
+   'unharvestKan','preharvestKan','totalYield','soilLossPct','bagLoss'].forEach(id=>{
     const el=document.getElementById(id); if(el){el.value=''; el.classList.remove('filled');}
   });
   const pt=document.getElementById('propTarget');
   if(pt){pt.value=''; pt.style.color=''; pt.style.fontWeight='';}
-  document.getElementById('kanErr').value='-';
-  document.getElementById('kanErr').style.color='';
+  document.getElementById('kanErr').value='-'; document.getElementById('kanErr').style.color='';
   document.getElementById('insYear').value='';
   document.getElementById('selfDed').value='0.2';
   document.getElementById('poleGap').value='180';
   document.getElementById('ridgeW').value='90';
   document.getElementById('furrowW').value='90';
-  ['harvestArea','farmArea','stdTotalYield','propYield','surveyYield','unitYield'].forEach(id=>{
+  ['harvestArea','farmArea','stdTotalYield','soilAdjYield','propYield','surveyYield','unitYield'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
-  ['r-unit','r-unins','r-std','r-survey','r-area','r-farm','r-dmg-ratio','r-pay'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.textContent='-';
+  ['r-unit-disp','r-unins-disp','r-std-disp','r-survey-disp','r-area-disp','r-farm-disp','r-dmg-disp','r-pay-disp'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
   });
-  document.getElementById('drow-pay').style.color='';
+  document.getElementById('result-detail').style.display='none';
   calcKanArea();
   document.getElementById('result-section').className='result-box pending';
   document.getElementById('result-pct').textContent='입력 대기중';
@@ -710,13 +726,13 @@ function fillCaptureTemplate(){
   document.getElementById('cap-farm-area').textContent     = document.getElementById('farmArea').value || '-';
 
   document.getElementById('cap-total-yield').textContent   = document.getElementById('totalYield').value ? document.getElementById('totalYield').value + ' kg' : '-';
-  document.getElementById('cap-soil-loss').textContent     = f('soilLoss', ' kg');
-  document.getElementById('cap-bag-loss').textContent      = f('bagLoss', ' kg');
+  document.getElementById('cap-soil-loss').textContent     = document.getElementById('soilLossKg').value || (document.getElementById('soilLossPct').value ? document.getElementById('soilLossPct').value + '%' : '-');
+  document.getElementById('cap-bag-loss').textContent      = document.getElementById('bagLoss').value ? document.getElementById('bagLoss').value + ' kg' : '-';
   document.getElementById('cap-survey-yield').textContent  = document.getElementById('surveyYield').value || '-';
-  document.getElementById('cap-unins-loss').textContent    = document.getElementById('r-unins').textContent || '-';
+  document.getElementById('cap-unins-loss').textContent    = document.getElementById('r-unins-disp').value || '-';
 
   document.getElementById('cap-pct').textContent           = document.getElementById('result-pct').textContent || '-';
-  document.getElementById('cap-pay').textContent           = document.getElementById('r-pay').textContent || '-';
+  document.getElementById('cap-pay').textContent           = document.getElementById('r-pay-disp').value || '-';
   document.getElementById('cap-std-total-yield').textContent = document.getElementById('stdTotalYield').value || '-';
   document.getElementById('cap-unit-yield').textContent    = document.getElementById('unitYield').value || '-';
   document.getElementById('cap-prop-yield').textContent    = document.getElementById('propYield').value || '없음';
@@ -743,7 +759,7 @@ async function saveImage(){
 function saveState(){
   const ids = ['insAmt','insKan','insArea','insYear','selfDed','stdYield','uninsRate',
                'poleGap','ridgeW','furrowW','actKan','harvestKan','unharvestKan',
-               'preharvestKan','actArea','totalYield','soilLoss','bagLoss'];
+               'preharvestKan','actArea','totalYield','soilLossPct','bagLoss'];
   const state = {};
   ids.forEach(id=>{ state[id] = document.getElementById(id).value; });
   try{ localStorage.setItem('ginseng_v2_state', JSON.stringify(state)); }catch(e){}
