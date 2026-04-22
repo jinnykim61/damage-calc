@@ -1618,40 +1618,39 @@ async function saveImage() {
     document.getElementById('cap-tree-tbody').innerHTML = treeRows;
     document.getElementById('cap-tree-tfoot').innerHTML = tfootRow;
 
-    // ── 적과후착과수: 세로 방향 읽기 (번호↓ 착과수↓)
-    // 1~6품종: 3줄(6+6+5) — 크고 읽기 편함
-    // 7~10품종: 2줄(9+8)  — 공간 확보
-    const FIXED = 17;
+    // ── 적과후착과수: 세로 방향 읽기, 입력된 표본주만 표시
+    // 1~6품종: 3줄, 7~10품종: 2줄
     const COLS  = vCount <= 6 ? 3 : 2;
-    const ROWS  = Math.ceil(FIXED / COLS);
     let samplesHtml = '';
     varieties.forEach((v, vi) => {
       const name = v.name || `품종${vi+1}`;
       const fs   = cfg.tdFs;
 
-      // 세로 우선 배치: col c, row r → index = c*ROWS + r
-      // 번호 순서: 위→아래, 왼→오른 (세로 읽기)
-      const slots = Array.from({length: FIXED}, (_, si) => {
-        const raw = v.samples[si];
-        const val = (raw!==undefined&&raw!==''&&!isNaN(parseFloat(raw))) ? parseFloat(raw) : null;
-        return { no: si+1, val };
-      });
+      // 입력된 표본주만
+      const slots = v.samples
+        .map((raw, si) => ({ no: si+1, val: (raw!==''&&!isNaN(parseFloat(raw))) ? parseFloat(raw) : null }))
+        .filter(s => s.val !== null);
+
+      if(slots.length === 0) return;
+
+      const FIXED = slots.length;
+      const ROWS  = Math.ceil(FIXED / COLS);
 
       let tableHtml = `<table style="border-collapse:collapse;table-layout:fixed">`;
-      const cellW  = COLS === 3 ? 60 : 52; // 3줄이면 넓게, 2줄이면 좁게
-      const noW    = COLS === 3 ? 40 : 36;
+      const cellW = COLS === 3 ? 60 : 52;
+      const noW   = COLS === 3 ? 40 : 36;
       for(let r=0; r<ROWS; r++){
         tableHtml += `<tr>`;
         for(let c=0; c<COLS; c++){
           const idx = c * ROWS + r;
           if(idx >= FIXED){
-            tableHtml += `<td style="width:${noW}px;border:1px solid #eee;background:#f5f5f5;padding:2px"></td>`;
-            tableHtml += `<td style="width:${cellW}px;border:1px solid #eee;background:#f5f5f5;padding:2px"></td>`;
+            // 마지막 줄 남는 칸 — 번호+착과수 빈 셀
+            tableHtml += `<td style="width:${noW}px;border:none;background:transparent"></td>`;
+            tableHtml += `<td style="width:${cellW}px;border:none;background:transparent"></td>`;
           } else {
             const s = slots[idx];
-            const filled = s.val !== null;
-            tableHtml += `<td style="width:${noW}px;border:1px solid #2563EB;background:#185FA5;text-align:center;padding:3px 2px;font-size:${fs-1}px;font-weight:700;color:#fff">${idx+1}번</td>`;
-            tableHtml += `<td style="width:${cellW}px;border:1px solid ${filled?'#bbb':'#ddd'};background:${filled?'#fff':'#fafafa'};text-align:center;padding:4px 2px;font-size:${fs}px;font-weight:${filled?700:400};color:${filled?'#111':'#ccc'}">${filled?s.val.toLocaleString():''}</td>`;
+            tableHtml += `<td style="width:${noW}px;border:1px solid #2563EB;background:#185FA5;text-align:center;padding:3px 2px;font-size:${fs-1}px;font-weight:700;color:#fff">${s.no}번</td>`;
+            tableHtml += `<td style="width:${cellW}px;border:1px solid #bbb;background:#fff;text-align:center;padding:4px 2px;font-size:${fs}px;font-weight:700;color:#111">${s.val.toLocaleString()}</td>`;
           }
           if(c < COLS-1) tableHtml += `<td style="width:10px;background:transparent;border:none"></td>`;
         }
