@@ -703,10 +703,10 @@ const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0,
 
 // ── 작물별 독립 데이터 ────────────────────────────
 const allData = {
-  apple:          { avgFruit:'', varieties:[EMPTY_VARIETY()] },
-  pear:           { avgFruit:'', varieties:[EMPTY_VARIETY()] },
-  sweetpersimmon: { avgFruit:'', varieties:[EMPTY_VARIETY()] },
-  persimmon:      { avgFruit:'', varieties:[EMPTY_VARIETY()] },
+  apple:          { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
+  pear:           { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
+  sweetpersimmon: { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
+  persimmon:      { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
 };
 
 // 현재 작물 데이터 참조
@@ -840,7 +840,7 @@ function renderVarieties(totalSurvey, totalProper) {
           oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi})"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
           onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;calcVariety(${vi});this.blur();moveToNextVariety(${vi});`:`const inputs=document.querySelectorAll('#ss-${vi} input');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
+          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;calcVariety(${vi});moveToNextVariety(${vi});`:`const inputs=document.querySelectorAll('#ss-${vi} input');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
       </div>`;
     }
     samplesHtml += '</div>';
@@ -993,19 +993,34 @@ function moveToNextVariety(vi) {
   const nextSurvey = getSurveyTarget(varieties[nextVi]);
   if(nextSurvey <= 0) return;
   varieties[nextVi].open = true;
-  onInput();
-  setTimeout(()=>{
-    const ss = document.getElementById(`ss-${nextVi}`);
-    const icon = document.getElementById(`toggle-icon-${nextVi}`);
+  // onInput() 대신 직접 DOM 조작으로 재렌더 없이 열기
+  const ss = document.getElementById(`ss-${nextVi}`);
+  const icon = document.getElementById(`toggle-icon-${nextVi}`);
+  if(ss && ss.children.length === 0) {
+    // 착과수 칸이 없으면 onInput 필요
+    onInput();
+    setTimeout(()=>{
+      const ssNew = document.getElementById(`ss-${nextVi}`);
+      if(ssNew) ssNew.classList.add('open');
+      const firstInput = ssNew?.querySelector('input');
+      if(firstInput){
+        firstInput.focus();
+        const rect = firstInput.getBoundingClientRect();
+        window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
+      }
+    }, 150);
+  } else {
     if(ss) ss.classList.add('open');
     if(icon) icon.textContent = '▼';
-    const firstInput = ss?.querySelector('input');
-    if(firstInput){
-      firstInput.focus();
-      const rect = firstInput.getBoundingClientRect();
-      window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
-    }
-  }, 150);
+    setTimeout(()=>{
+      const firstInput = ss?.querySelector('input');
+      if(firstInput){
+        firstInput.focus();
+        const rect = firstInput.getBoundingClientRect();
+        window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
+      }
+    }, 50);
+  }
 }
 
 function autoOpenSamples(vi) {
@@ -1312,6 +1327,7 @@ function saveState(){
   try{
     allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
     allData[currentCrop].varieties = varieties;
+    allData[currentCrop].calcDone = !!window._lastCalcResults;
     localStorage.setItem('apple_multi_state', JSON.stringify({
       currentCrop,
       allData
@@ -1329,6 +1345,7 @@ function loadState(){
         if(s.allData[crop]){
           if(s.allData[crop].avgFruit !== undefined) allData[crop].avgFruit = s.allData[crop].avgFruit;
           if(s.allData[crop].varieties?.length > 0) allData[crop].varieties = s.allData[crop].varieties;
+          if(s.allData[crop].calcDone !== undefined) allData[crop].calcDone = s.allData[crop].calcDone;
         }
       }
     }
@@ -1399,7 +1416,7 @@ async function saveImage() {
     link.download = `과수착과수_${stamp}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-    document.getElementById('save-overlay').style.display = 'flex';
+    setTimeout(()=>showToast('갤러리에 저장됐어요 📷'), 500);
   } catch(e) {
     showToast('저장 중 오류가 발생했어요');
   }
@@ -1414,6 +1431,13 @@ if ('serviceWorker' in navigator) {
 // ── 초기 실행 ─────────────────────────────────────
 // 저장된 상태 불러오기
 const _loaded = loadState();
+// calcDone 복원
+if(allData[currentCrop].calcDone){
+  const btn = document.getElementById('calc-btn');
+  if(btn){ btn.classList.add('done'); btn.innerHTML='<span>✅</span><span>계산 완료!</span>'; }
+  document.getElementById('result-section').classList.add('show');
+  document.getElementById('result-detail-section').classList.add('show');
+}
 onInput();
 </script>
 </body>
