@@ -1465,8 +1465,10 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', ()=>{
   const _loaded = loadState();
   onInput();
-  // 결과박스만 복원 (버튼 상태는 복원 안 함)
+  // calcDone 복원
   if(allData[currentCrop].calcDone){
+    const btn = document.getElementById('calc-btn');
+    if(btn){ btn.classList.add('done'); btn.innerHTML='<span>✅</span><span>계산 완료!</span>'; }
     document.getElementById('result-section').classList.add('show');
     document.getElementById('result-detail-section').classList.add('show');
   }
