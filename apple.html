@@ -1576,7 +1576,7 @@ async function saveImage() {
       `<td style="padding:${cfg.tdPad};border:1px solid #d1d5db;text-align:center;background:${bg};font-weight:${bold?700:400};color:${color};font-size:${cfg.tdFs}px;white-space:nowrap">${txt??''}</td>`;
 
     // ── 나무조사: 입력된 품종만 표시 (빈 행 없이)
-    let totalSampleN=0, totalSampleSum=0, totalAfterSum=0;
+    let totalSampleN=0, totalSampleSum=0, totalAfterSum=0, totalProperSum=0;
     const treeRows = varieties.map((v,vi) => {
       const st      = getSurveyTarget(v);
       const properN = st>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*st/totalSurvey)) : 0;
@@ -1586,6 +1586,7 @@ async function saveImage() {
       const perTree = sN>0 ? sSum/sN : 0;
       const after   = perTree>0&&st>0 ? Math.round(perTree*st) : 0;
       totalSampleN  += sN; totalSampleSum += sSum; totalAfterSum += after;
+      totalProperSum += properN;  // 품종별 적정표본 합산
       const bg = vi%2?'#f8f9fa':'#fff';
       return `<tr style="background:${bg}">
         ${td(v.name||`품종${vi+1}`,bg,true)}
@@ -1608,7 +1609,7 @@ async function saveImage() {
       ${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}
       ${td(totalSurvey>0?totalSurvey.toLocaleString():'-','#dbeafe',true,'#185FA5')}
       ${td(totalSampleN>0?totalSampleN:'-','#e8edf2',true)}
-      ${td(totalProper>0?totalProper:'-')}
+      ${td(totalProperSum>0?totalProperSum:'-')}
       ${td(totalSampleSum>0?Math.round(totalSampleSum).toLocaleString():'-','#e8edf2',true)}
       ${td(totalPerTree>0?totalPerTree.toFixed(1):'-')}
       ${td(totalAfterSum>0?totalAfterSum.toLocaleString():'-','#d1fae5',true,'#0d5c35')}
@@ -1618,20 +1619,17 @@ async function saveImage() {
     document.getElementById('cap-tree-tfoot').innerHTML = tfootRow;
 
     // ── 적과후착과수: 세로 방향 읽기 (번호↓ 착과수↓)
-    // 17칸을 9열로 배치 → 1~9번이 1열, 10~17번이 2열 형태로 세로로 읽힘
+    // 1~6품종: 3줄(6+6+5) — 크고 읽기 편함
+    // 7~10품종: 2줄(9+8)  — 공간 확보
     const FIXED = 17;
-    const COLS  = 9; // 고정 9열 (17칸 → 2행: 9개 + 8개)
-
+    const COLS  = vCount <= 6 ? 3 : 2;
+    const ROWS  = Math.ceil(FIXED / COLS);
     let samplesHtml = '';
     varieties.forEach((v, vi) => {
       const name = v.name || `품종${vi+1}`;
       const fs   = cfg.tdFs;
 
-      // 17 슬롯 (세로 순서: col 우선)
-      // 세로로 읽히려면: 1열에 1,2,3...행, 2열에 다음 번호
-      // 즉 col=0 → 1~ROWS번, col=1 → ROWS+1~2*ROWS번 ...
-      const ROWS = Math.ceil(FIXED / COLS); // 2행
-      // slots[세로위치][가로위치] 로 재배열
+      // 세로 우선 배치: col c, row r → index = c*ROWS + r
       // 번호 순서: 위→아래, 왼→오른 (세로 읽기)
       const slots = Array.from({length: FIXED}, (_, si) => {
         const raw = v.samples[si];
@@ -1639,31 +1637,23 @@ async function saveImage() {
         return { no: si+1, val };
       });
 
-      // 세로 우선 배치: col c, row r → index = c*ROWS + r
       let tableHtml = `<table style="border-collapse:collapse;table-layout:fixed">`;
+      const cellW  = COLS === 3 ? 60 : 52; // 3줄이면 넓게, 2줄이면 좁게
+      const noW    = COLS === 3 ? 40 : 36;
       for(let r=0; r<ROWS; r++){
-        // 번호 행
         tableHtml += `<tr>`;
         for(let c=0; c<COLS; c++){
           const idx = c * ROWS + r;
           if(idx >= FIXED){
-            tableHtml += `<td style="width:52px;border:1px solid #eee;background:#f5f5f5;padding:2px"></td>`;
-          } else {
-            tableHtml += `<td style="width:52px;border:1px solid #2563EB;background:#185FA5;text-align:center;padding:3px 2px;font-size:${fs-1}px;font-weight:700;color:#fff">${idx+1}번</td>`;
-          }
-        }
-        tableHtml += `</tr>`;
-        // 착과수 행
-        tableHtml += `<tr>`;
-        for(let c=0; c<COLS; c++){
-          const idx = c * ROWS + r;
-          if(idx >= FIXED){
-            tableHtml += `<td style="width:52px;border:1px solid #eee;background:#f5f5f5;padding:2px"></td>`;
+            tableHtml += `<td style="width:${noW}px;border:1px solid #eee;background:#f5f5f5;padding:2px"></td>`;
+            tableHtml += `<td style="width:${cellW}px;border:1px solid #eee;background:#f5f5f5;padding:2px"></td>`;
           } else {
             const s = slots[idx];
             const filled = s.val !== null;
-            tableHtml += `<td style="width:52px;border:1px solid ${filled?'#bbb':'#ddd'};background:${filled?'#fff':'#fafafa'};text-align:center;padding:4px 2px;font-size:${fs}px;font-weight:${filled?700:400};color:${filled?'#111':'#ccc'}">${filled?s.val.toLocaleString():''}</td>`;
+            tableHtml += `<td style="width:${noW}px;border:1px solid #2563EB;background:#185FA5;text-align:center;padding:3px 2px;font-size:${fs-1}px;font-weight:700;color:#fff">${idx+1}번</td>`;
+            tableHtml += `<td style="width:${cellW}px;border:1px solid ${filled?'#bbb':'#ddd'};background:${filled?'#fff':'#fafafa'};text-align:center;padding:4px 2px;font-size:${fs}px;font-weight:${filled?700:400};color:${filled?'#111':'#ccc'}">${filled?s.val.toLocaleString():''}</td>`;
           }
+          if(c < COLS-1) tableHtml += `<td style="width:10px;background:transparent;border:none"></td>`;
         }
         tableHtml += `</tr>`;
       }
