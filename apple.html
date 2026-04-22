@@ -1024,32 +1024,24 @@ function renderSamplesOnly(vi) {
 function moveToNextVariety(vi) {
   const nextVi = vi + 1;
   if(nextVi >= varieties.length) {
-    setTimeout(()=>doCalc(), 50);
+    doCalc();
     return;
   }
-  const nextSurvey = getSurveyTarget(varieties[nextVi]);
-  if(nextSurvey <= 0) return;
 
   varieties[nextVi].open = true;
-
-  // ss 열기
   const ss = document.getElementById(`ss-${nextVi}`);
   const icon = document.getElementById(`toggle-icon-${nextVi}`);
   if(icon) icon.textContent = '▼';
-
-  // 착과수 칸만 교체 (전체 재렌더 없음 → 포커스 안 날아감)
   renderSamplesOnly(nextVi);
   if(ss) ss.classList.add('open');
 
-  // 첫 번째 착과수 칸 포커스
-  const firstInput = ss?.querySelector('input[type=number]');
-  if(firstInput){
-    firstInput.focus();
-    setTimeout(()=>{
-      const rect = firstInput.getBoundingClientRect();
-      window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
-    }, 50);
-  }
+  // 스크롤만 — 포커스는 사용자가 직접 탭
+  setTimeout(()=>{
+    if(ss){
+      const rect = ss.getBoundingClientRect();
+      window.scrollTo({top: window.pageYOffset + rect.top - 160, behavior:'smooth'});
+    }
+  }, 50);
 }
 
 function autoOpenSamples(vi) {
