@@ -1543,68 +1543,77 @@ async function saveImage() {
   try {
     const saved = window._lastCalcResults;
     if(!saved){ showToast('먼저 착과수 계산을 실행해 주세요'); return; }
-    const { results, totalAfterFruit, rate, needReview, avgFruit } = saved;
+    const { totalAfterFruit, rate, needReview, avgFruit } = saved;
 
     const CROP_KO = {apple:'사과', pear:'배', sweetpersimmon:'단감', persimmon:'떫은감'};
-    const cropName = CROP_KO[currentCrop]||'과수';
+    const cropName    = CROP_KO[currentCrop]||'과수';
     const totalReg    = varieties.reduce((s,v)=>s+(v.reg||0),0);
     const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
     const totalProper = getProperSample(totalSurvey);
+    const vCount      = varieties.length;
+
+    // ── 품종 수별 세팅
+    // sampleCols: 표본주를 몇 열로 배치할지 (세로로 읽힘: 번호/착과수 2행 한 세트)
+    const cfg = vCount <= 3
+      ? { canvasW:900, tdFs:10, tdPad:'5px 4px', thPad:'6px 4px', sampleCols:6,  sampleCellW:80 }
+      : vCount <= 6
+      ? { canvasW:900, tdFs:9,  tdPad:'4px 3px', thPad:'5px 3px', sampleCols:9,  sampleCellW:60 }
+      : { canvasW:960, tdFs:8,  tdPad:'3px 2px', thPad:'4px 2px', sampleCols:12, sampleCellW:50 };
 
     // ── 헤더바
-    document.getElementById('cap-title').textContent   = `${cropName} 적과후착과수 조사결과`;
-    document.getElementById('cap-avg').textContent     = avgFruit>0 ? avgFruit.toLocaleString()+'개' : '-';
-    document.getElementById('cap-reg').textContent     = totalReg>0 ? totalReg.toLocaleString()+'주' : '-';
-    document.getElementById('cap-survey').textContent  = totalSurvey>0 ? totalSurvey.toLocaleString()+'주' : '-';
-    document.getElementById('cap-rate').textContent    = avgFruit>0 ? (rate*100).toFixed(2)+'%' : '-';
-    document.getElementById('cap-total').textContent   = totalAfterFruit>0 ? Math.round(totalAfterFruit).toLocaleString()+'개' : '-';
+    document.getElementById('cap-title').textContent  = `${cropName} 적과후착과수 조사결과`;
+    document.getElementById('cap-avg').textContent    = avgFruit>0 ? avgFruit.toLocaleString()+'개' : '-';
+    document.getElementById('cap-reg').textContent    = totalReg>0 ? totalReg.toLocaleString()+'주' : '-';
+    document.getElementById('cap-survey').textContent = totalSurvey>0 ? totalSurvey.toLocaleString()+'주' : '-';
+    document.getElementById('cap-rate').textContent   = avgFruit>0 ? (rate*100).toFixed(2)+'%' : '-';
+    document.getElementById('cap-total').textContent  = totalAfterFruit>0 ? Math.round(totalAfterFruit).toLocaleString()+'개' : '-';
     const contractEl = document.getElementById('cap-contract');
-    contractEl.textContent  = needReview ? '계약변경' : '이상무';
-    contractEl.style.color  = needReview ? '#FFD0D0' : '#A8F0D8';
+    contractEl.textContent = needReview ? '계약변경' : '이상무';
+    contractEl.style.color = needReview ? '#FFD0D0' : '#A8F0D8';
 
-    // ── 나무조사 테이블 rows
+    // ── td 헬퍼
     const td = (txt, bg='#fff', bold=false, color='#111') =>
-      `<td style="padding:4px 3px;border:1px solid #d1d5db;text-align:center;background:${bg};font-weight:${bold?700:400};color:${color};font-size:9px">${txt??''}</td>`;
+      `<td style="padding:${cfg.tdPad};border:1px solid #d1d5db;text-align:center;background:${bg};font-weight:${bold?700:400};color:${color};font-size:${cfg.tdFs}px;white-space:nowrap">${txt??''}</td>`;
+    const tdE = () =>
+      `<td style="padding:${cfg.tdPad};border:1px solid #eee;background:#fafafa"> </td>`;
 
+    // ── 나무조사 10행 고정
     let totalSampleN=0, totalSampleSum=0, totalAfterSum=0;
-    const treeRows = varieties.map((v,vi) => {
-      const st = getSurveyTarget(v);
-      if(st<=0 && !v.reg) return '';
+    const treeRows = Array.from({length:10}, (_,vi) => {
+      const v = varieties[vi];
+      if(!v) return `<tr style="background:${vi%2?'#fafafa':'#fff'}">${Array(14).fill(tdE()).join('')}</tr>`;
+      const st      = getSurveyTarget(v);
       const properN = st>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*st/totalSurvey)) : 0;
       const validS  = v.samples.filter(s=>s!==''&&!isNaN(parseFloat(s)));
-      const sampleN = validS.length;
-      const sampleSum = validS.reduce((s,x)=>s+parseFloat(x),0);
-      const perTree   = sampleN>0 ? sampleSum/sampleN : 0;
-      const afterFruit= perTree>0&&st>0 ? Math.round(perTree*st) : 0;
-      totalSampleN   += sampleN;
-      totalSampleSum += sampleSum;
-      totalAfterSum  += afterFruit;
-      return `<tr style="background:${vi%2===0?'#fff':'#f8f9fa'}">
-        ${td(v.name||`품종${vi+1}`,vi%2===0?'#fff':'#f8f9fa',true)}
+      const sN      = validS.length;
+      const sSum    = validS.reduce((a,x)=>a+parseFloat(x),0);
+      const perTree = sN>0 ? sSum/sN : 0;
+      const after   = perTree>0&&st>0 ? Math.round(perTree*st) : 0;
+      totalSampleN  += sN; totalSampleSum += sSum; totalAfterSum += after;
+      const bg = vi%2?'#f8f9fa':'#fff';
+      return `<tr style="background:${bg}">
+        ${td(v.name||`품종${vi+1}`,bg,true)}
         ${td(v.age||'-')}
         ${td(v.reg>0?v.reg.toLocaleString():'-')}
         ${td(v.actual>0?v.actual.toLocaleString():'-')}
-        ${td(v.dead||0)}
-        ${td(v.unable||0)}
-        ${td(v.uninsDead||0)}
-        ${td(v.uninsAlive||0)}
+        ${td(v.dead||0)}${td(v.unable||0)}${td(v.uninsDead||0)}${td(v.uninsAlive||0)}
         ${td(st>0?st.toLocaleString():'-','#EBF4FF',true,'#185FA5')}
-        ${td(sampleN>0?sampleN:'-')}
+        ${td(sN>0?sN:'-')}
         ${td(properN>0?properN:'-')}
-        ${td(sampleSum>0?Math.round(sampleSum).toLocaleString():'-')}
+        ${td(sSum>0?Math.round(sSum).toLocaleString():'-')}
         ${td(perTree>0?perTree.toFixed(1):'-')}
-        ${td(afterFruit>0?afterFruit.toLocaleString():'-','#e8faf3',true,'#0d5c35')}
+        ${td(after>0?after.toLocaleString():'-','#e8faf3',true,'#0d5c35')}
       </tr>`;
     }).join('');
 
     const totalPerTree = totalSampleN>0 ? totalSampleSum/totalSampleN : 0;
-    const tfootRow = `<tr style="background:#f0f4f8">
+    const tfootRow = `<tr style="background:#e8edf2">
       ${td('합 계','#e8edf2',true)}
       ${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}
       ${td(totalSurvey>0?totalSurvey.toLocaleString():'-','#dbeafe',true,'#185FA5')}
-      ${td(totalSampleN>0?totalSampleN:'-','#f0f4f8',true)}
+      ${td(totalSampleN>0?totalSampleN:'-','#e8edf2',true)}
       ${td(totalProper>0?totalProper:'-')}
-      ${td(totalSampleSum>0?Math.round(totalSampleSum).toLocaleString():'-','#f0f4f8',true)}
+      ${td(totalSampleSum>0?Math.round(totalSampleSum).toLocaleString():'-','#e8edf2',true)}
       ${td(totalPerTree>0?totalPerTree.toFixed(1):'-')}
       ${td(totalAfterSum>0?totalAfterSum.toLocaleString():'-','#d1fae5',true,'#0d5c35')}
     </tr>`;
@@ -1612,33 +1621,63 @@ async function saveImage() {
     document.getElementById('cap-tree-tbody').innerHTML = treeRows;
     document.getElementById('cap-tree-tfoot').innerHTML = tfootRow;
 
-    // ── 적과후착과수 표본주별
-    const COLS = 10;
+    // ── 적과후착과수: 품종별 17칸 고정, 세로 방향 (번호↓ 착과수↓), 가로 sampleCols열
+    const FIXED = 17;
+    const COLS  = cfg.sampleCols;
+    const ROWS  = Math.ceil(FIXED / COLS); // 칸이 세로로 쌓일 행 수
+
     let samplesHtml = '';
-    varieties.forEach((v,vi) => {
-      const validS = v.samples.map((s,si)=>({si,val:parseFloat(s)||null})).filter(x=>x.val!==null);
-      if(validS.length===0) return;
+    varieties.forEach((v, vi) => {
       const name = v.name || `품종${vi+1}`;
-      samplesHtml += `<div style="margin-bottom:8px">
-        <div style="font-size:9px;font-weight:700;color:#185FA5;margin-bottom:4px">${name}</div>
-        <table style="width:100%;border-collapse:collapse;font-size:9px">
-          <tr>`;
-      validS.forEach((x,i) => {
-        if(i>0 && i%COLS===0) samplesHtml += `</tr><tr>`;
-        samplesHtml += `<td style="border:1px solid #d1d5db;text-align:center;padding:3px 2px;min-width:48px">
-          <div style="font-size:8px;color:#999">${x.si+1}번</div>
-          <div style="font-weight:700;color:#0d5c35">${x.val.toLocaleString()}</div>
-        </td>`;
+      // 17칸 슬롯 준비
+      const slots = Array.from({length: FIXED}, (_, si) => {
+        const raw = v.samples[si];
+        const val = (raw !== undefined && raw !== '' && !isNaN(parseFloat(raw))) ? parseFloat(raw) : null;
+        return { si, val };
       });
-      // 빈칸 채우기
-      const rem = validS.length % COLS;
-      if(rem>0) for(let i=0;i<COLS-rem;i++) samplesHtml+=`<td style="border:1px solid #e5e7eb;background:#f9f9f9"></td>`;
-      samplesHtml += `</tr></table></div>`;
+
+      // 열 우선 배치: slots를 COLS열 × ROWS행으로 채움
+      // 번호행 + 착과수행을 쌍으로 ROWS번 반복
+      let tableHtml = `<table style="border-collapse:collapse;table-layout:fixed;width:100%">`;
+      for(let row=0; row<ROWS; row++) {
+        // 번호 행
+        tableHtml += `<tr>`;
+        for(let col=0; col<COLS; col++) {
+          const idx = row * COLS + col;
+          if(idx >= FIXED) {
+            tableHtml += `<td style="border:1px solid #eee;background:#f5f5f5"></td>`;
+          } else {
+            tableHtml += `<td style="border:1px solid #378ADD;background:#185FA5;text-align:center;padding:2px 1px;font-size:${cfg.tdFs-1}px;font-weight:700;color:#fff">${idx+1}번</td>`;
+          }
+        }
+        tableHtml += `</tr>`;
+        // 착과수 행
+        tableHtml += `<tr>`;
+        for(let col=0; col<COLS; col++) {
+          const idx = row * COLS + col;
+          if(idx >= FIXED) {
+            tableHtml += `<td style="border:1px solid #eee;background:#f5f5f5"></td>`;
+          } else {
+            const s = slots[idx];
+            const filled = s.val !== null;
+            tableHtml += `<td style="border:1px solid ${filled?'#aaa':'#ddd'};background:${filled?'#fff':'#fafafa'};text-align:center;padding:3px 1px;font-size:${cfg.tdFs}px;font-weight:${filled?700:400};color:${filled?'#111':'#ccc'}">${filled ? s.val.toLocaleString() : ''}</td>`;
+          }
+        }
+        tableHtml += `</tr>`;
+      }
+      tableHtml += `</table>`;
+
+      samplesHtml += `<div style="margin-bottom:${vCount<=3?12:7}px">
+        <div style="font-size:${cfg.tdFs+1}px;font-weight:800;color:#185FA5;margin-bottom:3px">${name}
+          <span style="font-size:${cfg.tdFs-1}px;font-weight:400;color:#888;margin-left:6px">표본주 ${v.samples.filter(s=>s!==''&&!isNaN(parseFloat(s))).length}개 입력</span>
+        </div>
+        ${tableHtml}
+      </div>`;
     });
     document.getElementById('cap-samples-wrap').innerHTML = samplesHtml;
 
     const canvas = await html2canvas(document.getElementById('capture-template'), {
-      backgroundColor:'#f3f4f6', scale:2, useCORS:true, windowWidth:900
+      backgroundColor:'#f3f4f6', scale:2, useCORS:true, windowWidth:cfg.canvasW
     });
     const link = document.createElement('a');
     const now = new Date();
