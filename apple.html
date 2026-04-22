@@ -418,12 +418,12 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
               <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">품종</th>
               <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">수령</th>
               <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">가입<br>주수</th>
-              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">실제결과<br>주수</th>
-              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#5a6aad">고사</th>
-              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#5a6aad">수확불능</th>
-              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#6a7aad">미보상<br>고사</th>
-              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#6a7aad">미보상<br>미고사</th>
-              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">조사대상<br>주수</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">실제결과<br>주수(A)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#5a6aad">고사<br>(B)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#5a6aad">수확불능<br>(B)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#6a7aad">미보상<br>고사(E)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#6a7aad">미보상<br>미고사(E)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">조사대상<br>주수(F)</th>
               <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">표본<br>주수</th>
               <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">적정<br>표본</th>
               <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">표본착과수<br>합계</th>
@@ -736,6 +736,11 @@ function onCommaInput(el){
   el.classList.toggle('filled', el.value !== '' && el.value !== '0');
 }
 
+// ── 계약변경 여부 공통 함수 ────────────────────────
+function checkNeedReview() {
+  return varieties.some(v => v.reg > 0 && v.actual > 0 && Math.abs(v.actual - v.reg) / v.reg > 0.05);
+}
+
 // ── 상수 ──────────────────────────────────────────
 // 표본주수 기준표 (조사대상주 합계 기준)
 const SAMPLE_TABLE = [
@@ -806,7 +811,7 @@ function updateSummaryOnly() {
   set('proper_sample', properSample, '주');
   set('total_sampleN', totalSampleN, '주');
   updateTreeSummary(false);
-  const needReview = varieties.some(v => v.reg>0 && v.actual>0 && Math.abs(v.actual-v.reg)/v.reg>0.05);
+  const needReview = checkNeedReview();
   const cEl = document.getElementById('contract_yn');
   if(cEl){ cEl.value=totalReg>0?(needReview?'계약변경 대상':'이상무'):''; cEl.className='auto'+(needReview?' warn':(totalReg>0?' ok':'')); }
   updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample);
@@ -1277,12 +1282,7 @@ function updateSummary() {
     if(apEl) apEl.value = (avgFruit / totalReg).toFixed(4)+'개';
   }
 
-  let needReview = false;
-  for (const v of varieties) {
-    if (v.reg > 0 && v.actual > 0) {
-      if (Math.abs(v.actual - v.reg) / v.reg > 0.05) { needReview = true; break; }
-    }
-  }
+  const needReview = checkNeedReview();
   const contractEl = document.getElementById('contract_yn');
   if(contractEl) {
     contractEl.value = totalReg > 0 ? (needReview ? '계약변경 대상' : '이상무') : '';
@@ -1333,13 +1333,7 @@ function onInput() {
   if(afEl){ afEl.value = totalAfterFruit > 0 ? totalAfterFruit.toLocaleString() : ''; afEl.className = 'auto' + (totalAfterFruit>0?' ok':''); }
 
   // 계약변경 여부 (품종별 주수 오차 ±5% 초과)
-  let needReview = false;
-  for (const v of varieties) {
-    if (v.reg > 0 && v.actual > 0) {
-      const ratio = Math.abs(v.actual - v.reg) / v.reg;
-      if (ratio > 0.05) { needReview = true; break; }
-    }
-  }
+  const needReview = checkNeedReview();
   const contractEl = document.getElementById('contract_yn');
   contractEl.value = totalReg > 0 ? (needReview ? '계약변경 대상' : '이상무') : '';
   contractEl.className = 'auto' + (needReview ? ' warn' : (totalReg > 0 ? ' ok' : ''));
@@ -1390,7 +1384,7 @@ function doCalc(manual = false) {
     if (inputted < _pn) shortVarieties.push(`${v.name||'미입력'} (${inputted}/${_pn}주)`);
   }
   if (shortVarieties.length > 0) {
-  // 표본 부족 경고는 토스트로
+    showToast('표본 부족: ' + shortVarieties.join(', '), 3500);
   }
 
   // 품종별 계산
@@ -1424,7 +1418,7 @@ function doCalc(manual = false) {
   }
 
   const rate = avgFruit > 0 ? totalAfterFruit / avgFruit : 0;
-  const needReview = varieties.some(v => v.reg>0 && v.actual>0 && Math.abs(v.actual-v.reg)/v.reg>0.05);
+  const needReview = checkNeedReview();
 
   // 결과 저장 (갤러리 저장용)
   window._lastCalcResults = { results, totalAfterFruit, rate, needReview, avgFruit };
@@ -1525,15 +1519,20 @@ function loadState(){
 }
 
 function resetAll() {
-  allData[currentCrop].avgFruit = '';
-  allData[currentCrop].varieties = [EMPTY_VARIETY()];
+  for(const crop of Object.keys(allData)){
+    allData[crop].avgFruit = '';
+    allData[crop].varieties = [EMPTY_VARIETY()];
+    allData[crop].calcDone = false;
+  }
+  currentCrop = 'apple';
   varieties = allData[currentCrop].varieties;
+  document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===0));
   document.getElementById('avg_fruit').value = '';
   document.getElementById('avg_fruit').classList.remove('filled');
   document.getElementById('result-section').classList.remove('show');
   document.getElementById('result-detail-section').classList.remove('show');
   resetCalcBtn();
-  saveState();
+  localStorage.removeItem('apple_multi_state');
   onInput();
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -1598,7 +1597,7 @@ async function saveImage() {
         ${td(sN>0?sN:'-')}
         ${td(properN>0?properN:'-')}
         ${td(sSum>0?Math.round(sSum).toLocaleString():'-')}
-        ${td(perTree>0?perTree.toFixed(4):'-')}
+        ${td(perTree>0?perTree.toFixed(1):'-')}
         ${td(after>0?after.toLocaleString():'-','#e8faf3',true,'#0d5c35')}
       </tr>`;
     }).join('');
@@ -1611,7 +1610,7 @@ async function saveImage() {
       ${td(totalSampleN>0?totalSampleN:'-','#e8edf2',true)}
       ${td(totalProperSum>0?totalProperSum:'-')}
       ${td(totalSampleSum>0?Math.round(totalSampleSum).toLocaleString():'-','#e8edf2',true)}
-      ${td(totalPerTree>0?totalPerTree.toFixed(4):'-')}
+      ${td(totalPerTree>0?totalPerTree.toFixed(1):'-')}
       ${td(totalAfterSum>0?totalAfterSum.toLocaleString():'-','#d1fae5',true,'#0d5c35')}
     </tr>`;
 
