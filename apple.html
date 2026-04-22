@@ -20,7 +20,11 @@ function bindMobileFocusHandlers(){
     el.dataset.mobileFocusBound='1';
     el.addEventListener('focus',()=>el.classList.add('mobile-focus'),{passive:true});
     el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
+    let _touchStartY = 0;
+    el.addEventListener('touchstart',(e)=>{ _touchStartY = e.touches[0].clientY; },{passive:true});
     el.addEventListener('touchend',(e)=>{
+      const diff = Math.abs(e.changedTouches[0].clientY - _touchStartY);
+      if(diff > 8) return; // 스크롤이면 포커스 무시
       if(e.cancelable) e.preventDefault();
       el.focus(); el.classList.add('mobile-focus');
     },{passive:false});
@@ -29,6 +33,12 @@ function bindMobileFocusHandlers(){
 document.addEventListener('DOMContentLoaded',()=>{
   bindMobileFocusHandlers();
   document.addEventListener('click',()=>setTimeout(bindMobileFocusHandlers,0),{passive:true});
+  // 입력칸 탭 시 calc-done 해제
+  document.addEventListener('touchstart', e=>{
+    if(e.target.tagName==='INPUT'){
+      document.querySelector('.content')?.classList.remove('calc-done');
+    }
+  }, {passive:true});
 });
 </script>
 <style>
@@ -154,7 +164,8 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 .save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 .save-btn:active{background:rgba(255,255,255,0.35)}
 
-/* 표본주 그리드 */
+/* 계산 완료 후 스크롤 중 입력 방지 */
+.calc-done input.inp, .calc-done input[type=number]{pointer-events:none}
 .sg-wrap{display:grid;gap:6px;width:100%;overflow:hidden}
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;overflow:hidden}
 .sg-cell{display:flex;flex-direction:row;align-items:center;gap:4px}
@@ -538,20 +549,22 @@ function applySetupPopup() {
   closeSetupPopup();
   onInput();
   saveState();
-  // 품종1 착과수 입력칸으로 이동
+  // 품종1 착과수 입력칸으로 이동 — onInput 렌더링 완료 후
   setTimeout(()=>{
     varieties[0].open = true;
     const ss = document.getElementById('ss-0');
     const icon = document.getElementById('toggle-icon-0');
     if(ss) ss.classList.add('open');
     if(icon) icon.textContent = '▼';
-    const firstInput = ss?.querySelector('input');
-    if(firstInput){
-      firstInput.focus();
-      const rect = firstInput.getBoundingClientRect();
-      window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
-    }
-  }, 150);
+    setTimeout(()=>{
+      const firstInput = document.getElementById('ss-0')?.querySelector('input');
+      if(firstInput){
+        firstInput.focus();
+        const rect = firstInput.getBoundingClientRect();
+        window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
+      }
+    }, 50);
+  }, 100);
 }
 
 function toggleBasicInfo(){
@@ -893,7 +906,6 @@ function toggleTreeInspect(vi) {
 function moveToNextVariety(vi) {
   const nextVi = vi + 1;
   if(nextVi >= varieties.length) {
-    // 마지막 품종 완료 → 착과수 계산 실행
     setTimeout(()=>{
       doCalc();
       setTimeout(()=>{
@@ -905,6 +917,8 @@ function moveToNextVariety(vi) {
   const nextSurvey = getSurveyTarget(varieties[nextVi]);
   if(nextSurvey <= 0) return;
   varieties[nextVi].open = true;
+  // onInput으로 렌더링 먼저 완료 후 포커스
+  onInput();
   setTimeout(()=>{
     const ss = document.getElementById(`ss-${nextVi}`);
     const icon = document.getElementById(`toggle-icon-${nextVi}`);
@@ -916,7 +930,7 @@ function moveToNextVariety(vi) {
       const rect = firstInput.getBoundingClientRect();
       window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
     }
-  }, 100);
+  }, 80);
 }
 
 function autoOpenSamples(vi) {
@@ -1203,6 +1217,8 @@ function doCalc() {
 
   document.getElementById('result-section').classList.add('show');
   document.getElementById('result-detail-section').classList.add('show');
+  // 스크롤 중 입력 방지
+  document.querySelector('.content').classList.add('calc-done');
 
   document.getElementById('result-section').classList.add('show');
 
