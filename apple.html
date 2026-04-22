@@ -1018,6 +1018,9 @@ function renderSamplesOnly(vi) {
 }
 
 function moveToNextVariety(vi) {
+  // 현재 포커스 완전히 해제 (브라우저가 다음 input으로 자동 이동하는 것 방지)
+  document.activeElement?.blur();
+
   // 현재 버튼 숨기기
   const curBtn = document.getElementById(`next-btn-${vi}`);
   if(curBtn) curBtn.style.display = 'none';
@@ -1032,10 +1035,17 @@ function moveToNextVariety(vi) {
   const ss = document.getElementById(`ss-${nextVi}`);
   const icon = document.getElementById(`toggle-icon-${nextVi}`);
   const nextBtn = document.getElementById(`next-btn-${nextVi}`);
+
+  // innerHTML 교체 전 body에 임시 포커스 (자동 포커스 이동 차단)
+  document.body.setAttribute('tabindex', '-1');
+  document.body.focus();
+
   renderSamplesOnly(nextVi);
   if(ss) ss.classList.add('open');
   if(icon) icon.textContent = '▼';
   if(nextBtn) nextBtn.style.display = 'block';
+
+  document.body.removeAttribute('tabindex');
 
   setTimeout(()=>{
     if(ss){
