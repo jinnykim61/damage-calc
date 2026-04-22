@@ -617,10 +617,8 @@ function applySetupPopup() {
     varieties[0].open = true;
     const ss = document.getElementById('ss-0');
     const icon = document.getElementById('toggle-icon-0');
-    const nextBtn = document.getElementById('next-btn-0');
     if(ss) ss.classList.add('open');
     if(icon) icon.textContent = '▼';
-    if(nextBtn) nextBtn.style.display = 'block';
     setTimeout(()=>{
       const firstInput = document.getElementById('ss-0')?.querySelector('input');
       if(firstInput){
@@ -933,10 +931,6 @@ function renderVarieties(totalSurvey, totalProper) {
       <div class="sample-section ${v.open?'open':''}" id="ss-${vi}">
         ${samplesHtml}
       </div>
-      <button id="next-btn-${vi}" onclick="moveToNextVariety(${vi})"
-        style="display:${v.open?'block':'none'};margin-top:10px;width:100%;height:46px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">
-        ${vi < varieties.length-1 ? '다음 품종 →' : '착과수 계산 →'}
-      </button>
       ` : `<div id="ss-${vi}"></div>`}
     </div>`;
   }).join('');
@@ -1019,8 +1013,6 @@ function renderSamplesOnly(vi) {
 
 function moveToNextVariety(vi) {
   document.activeElement?.blur();
-  const curBtn = document.getElementById(`next-btn-${vi}`);
-  if(curBtn) curBtn.style.display = 'none';
 
   const nextVi = vi + 1;
   if(nextVi >= varieties.length) {
@@ -1031,14 +1023,12 @@ function moveToNextVariety(vi) {
   varieties[nextVi].open = true;
   const ss = document.getElementById(`ss-${nextVi}`);
   const icon = document.getElementById(`toggle-icon-${nextVi}`);
-  const nextBtn = document.getElementById(`next-btn-${nextVi}`);
 
   if(ss){
-    ss.style.removeProperty('display'); // 인라인 display:none 제거
+    ss.style.removeProperty('display');
     ss.classList.add('open');
   }
   if(icon) icon.textContent = '▼';
-  if(nextBtn) nextBtn.style.display = 'block';
 
   setTimeout(()=>{
     if(ss){
@@ -1076,10 +1066,8 @@ function toggleSamples(vi) {
   varieties[vi].open = !varieties[vi].open;
   const ss = document.getElementById(`ss-${vi}`);
   const icon = document.getElementById(`toggle-icon-${vi}`);
-  const btn = document.getElementById(`next-btn-${vi}`);
   ss.classList.toggle('open', varieties[vi].open);
   icon.textContent = varieties[vi].open ? '▼' : '▶';
-  if(btn) btn.style.display = varieties[vi].open ? 'block' : 'none';
 }
 
 function trimSamples(vi) {
