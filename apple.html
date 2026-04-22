@@ -982,19 +982,18 @@ function toggleTreeInspect(vi) {
 function moveToNextVariety(vi) {
   const nextVi = vi + 1;
   if(nextVi >= varieties.length) {
-    // 마지막 품종 → 자동 계산
     setTimeout(()=>doCalc(), 50);
     return;
   }
   const nextSurvey = getSurveyTarget(varieties[nextVi]);
   if(nextSurvey <= 0) return;
   varieties[nextVi].open = true;
-  // DOM 재렌더 없이 직접 열기
   const ss = document.getElementById(`ss-${nextVi}`);
   const icon = document.getElementById(`toggle-icon-${nextVi}`);
   if(ss) ss.classList.add('open');
   if(icon) icon.textContent = '▼';
-  const firstInput = ss?.querySelector('input');
+  // 반드시 ss 안의 number input만 찾기
+  const firstInput = ss?.querySelector('input[type=number]');
   if(firstInput){
     firstInput.focus();
     setTimeout(()=>{
@@ -1017,7 +1016,7 @@ function autoOpenSamples(vi) {
       const icon = document.getElementById(`toggle-icon-${vi}`);
       if(ss) ss.classList.add('open');
       if(icon) icon.textContent = '▼';
-      const firstInput = ss?.querySelector('input');
+      const firstInput = ss?.querySelector('input[type=number]');
       if(firstInput) {
         firstInput.focus();
         const rect = firstInput.getBoundingClientRect();
