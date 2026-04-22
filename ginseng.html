@@ -3,14 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#185FA5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>인삼 전수조사 계산기</title>
+<title>인삼 전수조사 수확량 계산기</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function bindMobileFocusHandlers(){
+  const selectors = 'input.inp, select.inp';
+  document.querySelectorAll(selectors).forEach(el=>{
+    if(el.dataset.mobileFocusBound==='1') return;
+    el.dataset.mobileFocusBound='1';
+    el.addEventListener('focus', ()=>el.classList.add('mobile-focus'), {passive:true});
+    el.addEventListener('blur',  ()=>el.classList.remove('mobile-focus'), {passive:true});
+    el.addEventListener('touchend', (e)=>{
+      if(e.cancelable) e.preventDefault();
+      el.focus(); el.classList.add('mobile-focus');
+    }, {passive:false});
+  });
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  bindMobileFocusHandlers();
+  document.addEventListener('click', ()=>{ setTimeout(bindMobileFocusHandlers, 0); }, {passive:true});
+});
+</script>
 <style>
 :root{
   --blue:#185FA5;--blue2:#378ADD;
@@ -20,73 +38,110 @@
   --red:#e24b4a;--green:#1D9E75;
   --r:12px;--rs:8px;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-user-select:none;user-select:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+
 .header{background:var(--blue);color:white;padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px}
 .back-btn{width:32px;height:32px;background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .header-icon{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .header h1{font-size:16px;font-weight:600}
 .header-sub{font-size:11px;opacity:0.75;margin-top:1px}
+
 .legend{display:flex;gap:12px;padding:8px 16px;background:var(--card);border-bottom:0.5px solid var(--border)}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
 .dot-inp{width:10px;height:10px;border-radius:2px;background:white;border:1.5px solid var(--binp)}
-.dot-filled{width:10px;height:10px;border-radius:2px;background:#e8faf3;border:1.5px solid var(--green)}
 .dot-auto{width:10px;height:10px;border-radius:2px;background:var(--auto);border:0.5px solid var(--border)}
+.dot-filled{width:10px;height:10px;border-radius:2px;background:#e8faf3;border:1.5px solid var(--green)}
+
 .content{padding:12px 12px 40px}
-.section{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:0.5px solid var(--border)}
-.sec-title{font-size:12px;font-weight:600;color:var(--sub);margin-bottom:10px;letter-spacing:0.04em}
-.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.section{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:0.5px solid var(--border);box-shadow:0 6px 18px rgba(0,0,0,0.04)}
+.sec-title{font-size:13px;font-weight:700;color:#555;margin-bottom:12px;letter-spacing:0.04em}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .sec-head .sec-title{margin-bottom:0}
+
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
 .g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px}
-.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
 .field{display:flex;flex-direction:column;gap:3px}
 .field label{font-size:11px;color:var(--sub);font-weight:500}
+
 input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center}
-select.inp{text-align:left;text-align-last:left}
+select.inp{text-align-last:center}
 input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
-input.inp::placeholder{color:var(--hint)}
+input.inp::placeholder{color:var(--hint);text-align:center}
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 select.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+
+input.inp.mobile-focus,select.inp.mobile-focus,
+input.inp:focus,input.inp:focus-visible,input.inp:active,
+select.inp:focus,select.inp:focus-visible,select.inp:active{
+  outline:none !important;border-color:#185FA5 !important;
+  box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
+  background:#DCEEFF !important;color:#185FA5 !important;
+}
+input.inp.filled.mobile-focus,select.inp.filled.mobile-focus,
+input.inp.filled:focus,input.inp.filled:focus-visible,input.inp.filled:active,
+select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active{
+  outline:none !important;border-color:#185FA5 !important;
+  box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
+  background:#DCEEFF !important;color:#185FA5 !important;
+}
+
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:center}
+
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
-.result-box{background:var(--blue);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;color:white}
-.result-box.pending{background:#888;opacity:0.5}
-.result-pct{font-size:40px;font-weight:700;line-height:1}
-.save-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;border-radius:var(--rs);padding:10px 14px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap}
-.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+
+/* 결과 박스 */
+.result-box{background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);border-radius:18px;padding:0 12px;margin-bottom:10px;color:white;border:1.5px solid rgba(255,255,255,0.25);box-shadow:0 8px 28px rgba(24,95,165,0.5),inset 0 1px 0 rgba(255,255,255,0.2)}
+.result-box.pending{background:linear-gradient(135deg,#888 0%,#aaa 100%);border:1.5px solid rgba(255,255,255,0.15);box-shadow:none}
+.result-top{display:flex;align-items:center;justify-content:space-between;padding:18px 0 4px}
+.result-label{font-size:13px;opacity:0.8;margin-bottom:4px}
+.result-pct{font-size:44px;font-weight:700;line-height:1}
+.result-pct.danger{color:#FFD0D0}
+.result-pct.safe{color:#A8F0D8}
+.save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
+.save-btn:active{background:rgba(255,255,255,0.35)}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:14px 0}
 .metric{background:rgba(255,255,255,0.15);border-radius:var(--rs);padding:10px 8px;text-align:center}
 .metric .ml{font-size:10px;opacity:0.75;margin-bottom:4px}
 .metric .mv{font-size:13px;font-weight:600}
-.drow{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:0.5px solid rgba(255,255,255,0.15)}
-.drow:last-child{border-bottom:none}
+.drow{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:0.5px solid rgba(255,255,255,0.15)}
+.drow:last-child{border-bottom:none;padding-bottom:16px}
 .drow span:first-child{opacity:0.75}
 .drow span:last-child{font-weight:600}
+
+/* 팝업 */
 #save-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center}
 #save-overlay.show{display:flex}
 .save-modal{background:white;border-radius:var(--r);padding:24px 20px;text-align:center;width:260px}
 .save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
 .save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
+
+/* 캡처 템플릿 */
+#capture-template{position:fixed;left:-9999px;top:0;width:430px;background:#F5F4F0;padding:16px;font-family:-apple-system,'Noto Sans KR',sans-serif;font-size:14px}
 </style>
 </head>
 <body>
+
 <div class="header">
-  <button class="back-btn" onclick="location.href='./index.html'">‹</button>
+  <button class="back-btn" onclick="history.back()">‹</button>
   <div class="header-icon">🌿</div>
   <div>
-    <h1>인삼 전수조사 계산기</h1>
+    <h1>인삼 전수조사 수확량 계산기</h1>
     <div class="header-sub">밭작물 · 전수조사</div>
   </div>
 </div>
+
 <div class="legend">
   <div class="legend-item"><div class="dot-inp"></div>직접 입력</div>
   <div class="legend-item"><div class="dot-filled"></div>입력 완료</div>
   <div class="legend-item"><div class="dot-auto"></div>자동 계산</div>
 </div>
+
 <div class="content">
 
-  <!-- 보험가입사항 -->
+  <!-- ① 보험가입사항 -->
   <div class="section">
     <div class="sec-head">
       <div class="sec-title">① 보험가입사항</div>
@@ -150,9 +205,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
   </div>
 
-  <!-- 조사칸 설정 -->
+  <!-- ② 조사칸 설정 -->
   <div class="section">
-    <div class="sec-head"><div class="sec-title">② 조사칸 설정</div><div style="font-size:11px;color:var(--hint)">단위: cm</div></div>
+    <div class="sec-head">
+      <div class="sec-title">② 조사칸 설정</div>
+      <div style="font-size:11px;color:var(--hint)">단위: cm</div>
+    </div>
     <div class="g4">
       <div class="field">
         <label>지주목간격</label>
@@ -176,7 +234,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
   </div>
 
-  <!-- 전수조사내역 -->
+  <!-- ③ 전수조사내역 -->
   <div class="section">
     <div class="sec-title">③ 전수조사내역</div>
     <div class="g4">
@@ -211,15 +269,18 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <input type="text" id="farmArea" class="auto" readonly>
       </div>
       <div class="field">
-        <label>면적오차</label>
+        <label>면적오차 (칸수기준)</label>
         <input type="text" id="kanErr" class="auto" readonly>
       </div>
     </div>
   </div>
 
-  <!-- 수확량 조사 -->
+  <!-- ④ 수확량 조사 -->
   <div class="section">
-    <div class="sec-head"><div class="sec-title">④ 수확량 조사</div><div style="font-size:11px;color:var(--hint)">총수확량·흙감량·공톤백: kg</div></div>
+    <div class="sec-head">
+      <div class="sec-title">④ 수확량 조사</div>
+      <div style="font-size:11px;color:var(--hint)">총수확량·흙감량·공톤백: kg</div>
+    </div>
     <div class="g4">
       <div class="field">
         <label>총수확량</label>
@@ -244,11 +305,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
     <div class="g2">
       <div class="field">
-        <label>평년수확량 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
+        <label>금차평년수확량 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
         <input type="text" id="stdTotalYield" class="auto" readonly>
       </div>
       <div class="field">
-        <label>비례보상 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
+        <label>비례보상수확량 <span style="font-size:10px;color:var(--hint)">(자동, kg)</span></label>
         <input type="text" id="propYield" class="auto" readonly>
       </div>
     </div>
@@ -266,13 +327,13 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div class="result-top">
       <div>
-        <div style="font-size:12px;opacity:0.8;margin-bottom:4px">피해율</div>
+        <div class="result-label">피해율</div>
         <div class="result-pct" id="result-pct">입력 대기중</div>
       </div>
       <button class="save-btn" onclick="saveImage()">
-        <span style="font-size:20px">📷</span>
+        <span style="font-size:18px">📷</span>
         <span>갤러리 저장</span>
       </button>
     </div>
@@ -280,17 +341,123 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="metric"><div class="ml">단위면적당 조사수확량</div><div class="mv" id="r-unit">-</div></div>
       <div class="metric"><div class="ml">미보상감수량</div><div class="mv" id="r-unins">-</div></div>
     </div>
-    <div class="drow"><span>평년수확량</span><span id="r-std">-</span></div>
+    <div class="drow"><span>금차평년수확량</span><span id="r-std">-</span></div>
     <div class="drow"><span>조사수확량</span><span id="r-survey">-</span></div>
     <div class="drow"><span>금차수확면적</span><span id="r-area">-</span></div>
     <div class="drow"><span>재배면적</span><span id="r-farm">-</span></div>
     <div class="drow"><span>피해면적비율</span><span id="r-dmg-ratio">-</span></div>
-    <div class="drow" id="drow-pay"><span>지급보험금</span><span id="r-pay">-</span></div>
+    <div class="drow" id="drow-pay"><span>지급보험금 (추정)</span><span id="r-pay">-</span></div>
   </div>
 
+</div><!-- /content -->
+
+<!-- 캡처 템플릿 -->
+<div id="capture-template">
+  <div style="background:#185FA5;color:white;border-radius:14px;padding:14px 16px;margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="font-size:20px">🌿</span>
+      <div>
+        <div style="font-size:15px;font-weight:800">인삼 전수조사 수확량 계산기</div>
+        <div style="font-size:11px;opacity:0.75;margin-top:1px">밭작물 · 전수조사</div>
+      </div>
+    </div>
+    <div style="font-size:11px;opacity:0.65" id="cap-timestamp"></div>
+  </div>
+
+  <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;border:0.5px solid #D8D6CE">
+    <div style="font-size:14px;font-weight:800;color:#111;margin-bottom:10px">1. 보험가입사항</div>
+    <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+      <thead>
+        <tr>
+          <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">가입금액</th>
+          <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">가입면적</th>
+          <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">가입연근</th>
+          <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">기준수확량</th>
+          <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">자부담</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-ins-amt">-</td>
+          <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-ins-area">-</td>
+          <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-ins-year">-</td>
+          <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-std-yield">-</td>
+          <td style="padding:7px 8px;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-self-ded">-</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;border:0.5px solid #D8D6CE">
+    <div style="font-size:14px;font-weight:800;color:#111;margin-bottom:10px">2. 전수조사내역</div>
+    <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+      <thead>
+        <tr>
+          <th style="padding:7px 6px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">실경작칸수</th>
+          <th style="padding:7px 6px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">금차수확칸수</th>
+          <th style="padding:7px 6px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">미수확칸수</th>
+          <th style="padding:7px 6px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">기수확칸수</th>
+          <th style="padding:7px 6px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">금차수확면적</th>
+          <th style="padding:7px 6px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">재배면적</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-act-kan">-</td>
+          <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-harvest-kan">-</td>
+          <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-unharvest-kan">-</td>
+          <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-preharvest-kan">-</td>
+          <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;white-space:nowrap" id="cap-harvest-area">-</td>
+          <td style="padding:7px 6px;text-align:center;background:#e8faf3;font-weight:700;white-space:nowrap" id="cap-farm-area">-</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;border:0.5px solid #D8D6CE">
+    <div style="font-size:14px;font-weight:800;color:#111;margin-bottom:10px">3. 수확량 조사</div>
+    <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+      <thead>
+        <tr>
+          <th style="padding:7px 6px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">총수확량</th>
+          <th style="padding:7px 6px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">흙감량</th>
+          <th style="padding:7px 6px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">공톤백</th>
+          <th style="padding:7px 6px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">조사수확량</th>
+          <th style="padding:7px 6px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;text-align:center;white-space:nowrap">미보상감수량</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-total-yield">-</td>
+          <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-soil-loss">-</td>
+          <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;white-space:nowrap" id="cap-bag-loss">-</td>
+          <td style="padding:7px 6px;border-right:1px solid #d1d5db;text-align:center;background:#e8faf3;font-weight:700;white-space:nowrap" id="cap-survey-yield">-</td>
+          <td style="padding:7px 6px;text-align:center;background:#e8faf3;font-weight:700;white-space:nowrap" id="cap-unins-loss">-</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);border-radius:14px;padding:16px;color:white">
+    <div style="font-size:14px;font-weight:800;margin-bottom:12px;opacity:0.9">4. 결과</div>
+    <div style="display:flex;gap:10px;margin-bottom:12px">
+      <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:10px;opacity:0.75;margin-bottom:4px">피해율</div>
+        <div style="font-size:26px;font-weight:800;color:#FFD0D0" id="cap-pct">-</div>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:10px;opacity:0.75;margin-bottom:4px">지급보험금 (추정)</div>
+        <div style="font-size:14px;font-weight:700" id="cap-pay">-</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:0.5px solid rgba(255,255,255,0.15)"><span style="opacity:0.75">금차평년수확량</span><span style="font-weight:600" id="cap-std-total-yield">-</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:0.5px solid rgba(255,255,255,0.15)"><span style="opacity:0.75">단위면적당 조사수확량</span><span style="font-weight:600" id="cap-unit-yield">-</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:0.5px solid rgba(255,255,255,0.15)"><span style="opacity:0.75">비례보상수확량</span><span style="font-weight:600" id="cap-prop-yield">-</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0"><span style="opacity:0.75">면적오차 (칸수기준)</span><span style="font-weight:600" id="cap-kan-err">-</span></div>
+  </div>
 </div>
 
-
+<!-- 초기화 확인 모달 -->
 <div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
     <div style="font-size:18px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">전체 초기화</div>
@@ -302,32 +469,31 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
   </div>
 </div>
 
-
+<!-- 저장 완료 모달 -->
 <div id="save-overlay">
   <div class="save-modal">
     <div style="font-size:36px;margin-bottom:10px">✅</div>
-    <p>결과가 갤러리에 저장됐어요!</p>
+    <p>결과가 저장됐어요!</p>
     <button class="btn-ok" onclick="document.getElementById('save-overlay').classList.remove('show')">확인</button>
   </div>
 </div>
 
 <script>
-// 천단위 구분 입력 처리
+// ── 유틸 ──────────────────────────────────────────
 function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
-function fmtComma(val){ return val > 0 ? Math.round(val).toLocaleString('ko-KR') : ''; }
 function onCommaInput(el){
   const raw = el.value.replace(/,/g,'').replace(/[^0-9.]/g,'');
-  const num = parseFloat(raw);
-  el.value = raw ? num.toLocaleString('ko-KR') : '';
+  const parts = raw.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  el.value = parts.join('.');
+  el.classList.toggle('filled', el.value !== '' && el.value !== '0');
+}
+function markFilled(el){
   el.classList.toggle('filled', el.value !== '');
 }
 
 // 연근별 기준수확량 (kg/㎡)
 const STD_YIELD = {2:0.50, 3:0.64, 4:0.71, 5:0.73, 6:0.73};
-
-function markFilled(el){
-  el.classList.toggle('filled', el.value !== '');
-}
 
 function onYearChange(){
   const yr = document.getElementById('insYear').value;
@@ -355,45 +521,45 @@ function calc(){
   const selfDed = parseFloat(document.getElementById('selfDed').value)||0.2;
   const uninsRate = (parseFloat(document.getElementById('uninsRate').value)||0)/100;
 
-  const pole = parseFloat(document.getElementById('poleGap').value)||180;
-  const ridge = parseFloat(document.getElementById('ridgeW').value)||90;
+  const pole   = parseFloat(document.getElementById('poleGap').value)||180;
+  const ridge  = parseFloat(document.getElementById('ridgeW').value)||90;
   const furrow = parseFloat(document.getElementById('furrowW').value)||90;
   const kanArea = pole * (ridge + furrow) / 10000;
   document.getElementById('kanArea').value = parseFloat(kanArea.toFixed(4)) + ' ㎡';
 
-  const actKan = parseFloat(document.getElementById('actKan').value)||0;
-  const harvestKan = parseFloat(document.getElementById('harvestKan').value)||0;
-  const totalYield = toNum(document.getElementById('totalYield'));
-  const soilLoss = parseFloat(document.getElementById('soilLoss').value)||0;
-  const bagLoss = parseFloat(document.getElementById('bagLoss').value)||0;
-  // 비례보상 수확량 자동계산
-  // = 조사수확량 × (증가면적 / 실경작면적)
+  const actKan      = parseFloat(document.getElementById('actKan').value)||0;
+  const harvestKan  = parseFloat(document.getElementById('harvestKan').value)||0;
+  const totalYield  = toNum(document.getElementById('totalYield'));
+  const soilLoss    = parseFloat(document.getElementById('soilLoss').value)||0;
+  const bagLoss     = parseFloat(document.getElementById('bagLoss').value)||0;
+
   const insArea = toNum(document.getElementById('insArea'));
   const actArea = toNum(document.getElementById('actArea'));
 
-  // 실제경작면적 ±10% 이내이면 가입면적으로 계산
+  // 면적오차 (가입면적 기준)
   const areaErr = insArea > 0 && actArea > 0 ? (actArea - insArea) / insArea : 0;
   const calcArea = (insArea > 0 && actArea > 0 && Math.abs(areaErr) <= 0.1) ? insArea : (actArea || insArea);
 
-  // 면적오차 표시
+  // 칸수 오차 표시
   const kanErrEl = document.getElementById('kanErr');
-  if(insArea > 0 && actArea > 0) {
-    kanErrEl.value = (areaErr * 100).toFixed(2) + '%';
-    kanErrEl.style.color = Math.abs(areaErr) > 0.1 ? '#e24b4a' : '';
-    kanErrEl.style.fontWeight = Math.abs(areaErr) > 0.1 ? '700' : '';
+  if(insKan > 0 && actKan > 0){
+    const kanErrVal = (actKan - insKan) / insKan * 100;
+    kanErrEl.value = kanErrVal.toFixed(2) + '%';
+    kanErrEl.style.color = Math.abs(kanErrVal) > 10 ? '#e24b4a' : '';
+    kanErrEl.style.fontWeight = Math.abs(kanErrVal) > 10 ? '700' : '';
   } else {
     kanErrEl.value = '-';
     kanErrEl.style.color = '';
   }
 
-  // 비례보상 대상여부 (인삼은 증가면적 비례보상 대상)
+  // 비례보상 대상여부
   const propTargetEl = document.getElementById('propTarget');
-  if(insArea > 0 && actArea > 0) {
-    if(areaErr > 0.1) {
+  if(insArea > 0 && actArea > 0){
+    if(areaErr > 0.1){
       propTargetEl.value = '비례보상 대상';
       propTargetEl.style.color = '#e24b4a';
       propTargetEl.style.fontWeight = '700';
-    } else if(areaErr < -0.1) {
+    } else if(areaErr < -0.1){
       propTargetEl.value = '원장변경 대상';
       propTargetEl.style.color = '#e24b4a';
       propTargetEl.style.fontWeight = '700';
@@ -406,37 +572,40 @@ function calc(){
     propTargetEl.value = '';
   }
 
-  const realArea = actArea > 0 ? actArea : insArea;
-  const surveyYieldRaw = Math.max(0, totalYield - soilLoss - bagLoss);
+  // 면적 계산
+  const harvestArea = harvestKan * kanArea;
+  const farmArea    = actKan * kanArea;
+  document.getElementById('harvestArea').value = harvestArea > 0 ? harvestArea.toFixed(2) + ' ㎡' : '';
+  document.getElementById('farmArea').value    = farmArea > 0 ? farmArea.toFixed(2) + ' ㎡' : '';
 
-  // 금차평년수확량 = 평년수확량(전체) × (금차수확면적 / 재배면적)
+  // 금차평년수확량 = 기준수확량 × 계산면적 × (금차수확면적 / 재배면적)
   const fullStdYield = stdYield * calcArea;
   const stdTotalYield = farmArea > 0 ? fullStdYield * (harvestArea / farmArea) : fullStdYield;
   document.getElementById('stdTotalYield').value = stdTotalYield > 0 ? stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
 
-  // 비례보상 = 조사수확량 × (증가면적/실제경작면적) - 면적 10% 초과시만
+  // 조사수확량(raw) = 총수확량 - 흙감량 - 공톤백
+  const surveyYieldRaw = Math.max(0, totalYield - soilLoss - bagLoss);
+
+  // 비례보상수확량 = 조사수확량 × (증가면적 / 실경작면적) — 10% 초과시만
+  const realArea = actArea > 0 ? actArea : insArea;
   let propYield = 0;
-  if(realArea > 0 && insArea > 0 && areaErr > 0.1) {
+  if(realArea > 0 && insArea > 0 && areaErr > 0.1){
     propYield = surveyYieldRaw * ((realArea - insArea) / realArea);
   }
   document.getElementById('propYield').value = propYield > 0 ? propYield.toFixed(2) + ' kg' : '';
 
-  // 칸수 오차
-  const kanErr = insKan > 0 ? ((actKan - insKan) / insKan * 100).toFixed(2) + '%' : '-';
-  document.getElementById('kanErr').value = kanErr;
-
-  // 면적
-  const harvestArea = harvestKan * kanArea;
-  const farmArea = actKan * kanArea;
-  document.getElementById('harvestArea').value = harvestArea > 0 ? harvestArea.toFixed(2) + ' ㎡' : '';
-  document.getElementById('farmArea').value = farmArea > 0 ? farmArea.toFixed(2) + ' ㎡' : '';
-
-  // 조사수확량 = 총수확량 - 흙감량 - 공톤백 - 비례보상수확량
-  const surveyYield = Math.max(0, totalYield - soilLoss - bagLoss - propYield);
+  // 조사수확량 = raw - 비례보상
+  const surveyYield = Math.max(0, surveyYieldRaw - propYield);
   document.getElementById('surveyYield').value = surveyYield > 0 ? surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg' : '';
 
   const unitYield = harvestArea > 0 ? surveyYield / harvestArea : 0;
   document.getElementById('unitYield').value = unitYield > 0 ? unitYield.toFixed(4) + ' kg/㎡' : '';
+
+  // 피해면적비율 (미수확+기수확 포함 개념)
+  const unharvestKan   = parseFloat(document.getElementById('unharvestKan').value)||0;
+  const preharvestKan  = parseFloat(document.getElementById('preharvestKan').value)||0;
+  const dmgKan = Math.max(0, actKan - harvestKan - unharvestKan - preharvestKan);
+  const dmgRatio = actKan > 0 ? dmgKan / actKan : 0;
 
   const resultBox = document.getElementById('result-section');
   const pctEl = document.getElementById('result-pct');
@@ -448,21 +617,20 @@ function calc(){
     return;
   }
 
-  // 피해율 = (평년수확량 - 조사수확량) / 평년수확량
-  // 피해율 = (평년수확량 - 조사수확량 - 미보상감수량) / 평년수확량
+  // 미보상감수량
   const uninsLoss = Math.max(0, stdTotalYield - surveyYield) * uninsRate;
+  // 피해율 = (평년 - 조사 - 미보상) / 평년
   const pihaeyul = stdTotalYield > 0 ? Math.max(0, (stdTotalYield - surveyYield - uninsLoss) / stdTotalYield) : 0;
-
   // 지급보험금
   const payAmt = Math.max(0, insAmt * (pihaeyul - selfDed));
 
-  document.getElementById('r-unit').textContent = unitYield.toFixed(4) + ' kg/㎡';
-  document.getElementById('r-unins').textContent = uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
-  document.getElementById('r-survey').textContent = surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
-  document.getElementById('r-area').textContent = harvestArea.toFixed(2) + ' ㎡';
-  document.getElementById('r-farm').textContent = farmArea.toFixed(2) + ' ㎡';
+  document.getElementById('r-unit').textContent    = unitYield.toFixed(4) + ' kg/㎡';
+  document.getElementById('r-unins').textContent   = uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
+  document.getElementById('r-std').textContent     = stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
+  document.getElementById('r-survey').textContent  = surveyYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
+  document.getElementById('r-area').textContent    = harvestArea.toFixed(2) + ' ㎡';
+  document.getElementById('r-farm').textContent    = farmArea.toFixed(2) + ' ㎡';
   document.getElementById('r-dmg-ratio').textContent = (dmgRatio*100).toFixed(2) + '%';
-  document.getElementById('r-std').textContent = stdTotalYield.toLocaleString('ko-KR',{maximumFractionDigits:2}) + ' kg';
 
   const payEl = document.getElementById('r-pay');
   const drowPay = document.getElementById('drow-pay');
@@ -481,21 +649,112 @@ function calc(){
   saveState();
 }
 
+// ── 초기화 ───────────────────────────────────────
+function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
+function closeResetModal(){ document.getElementById('reset-overlay').style.display='none'; }
+function confirmResetAll(){ closeResetModal(); resetAll(); }
+
+function resetAll(){
+  try{ localStorage.removeItem('ginseng_state'); }catch(e){}
+  ['insAmt','insKan','insArea','actArea','stdYield','uninsRate','actKan','harvestKan',
+   'unharvestKan','preharvestKan','totalYield','soilLoss','bagLoss'].forEach(id=>{
+    const el=document.getElementById(id); if(el){el.value=''; el.classList.remove('filled');}
+  });
+  const pt=document.getElementById('propTarget');
+  if(pt){pt.value=''; pt.style.color=''; pt.style.fontWeight='';}
+  document.getElementById('kanErr').value='-';
+  document.getElementById('kanErr').style.color='';
+  document.getElementById('insYear').value='';
+  document.getElementById('selfDed').value='0.2';
+  document.getElementById('poleGap').value='180';
+  document.getElementById('ridgeW').value='90';
+  document.getElementById('furrowW').value='90';
+  ['harvestArea','farmArea','stdTotalYield','propYield','surveyYield','unitYield'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  ['r-unit','r-unins','r-std','r-survey','r-area','r-farm','r-dmg-ratio','r-pay'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent='-';
+  });
+  document.getElementById('drow-pay').style.color='';
+  calcKanArea();
+  document.getElementById('result-section').className='result-box pending';
+  document.getElementById('result-pct').textContent='입력 대기중';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── 캡처 저장 ────────────────────────────────────
+function fillCaptureTemplate(){
+  const now = new Date();
+  const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('cap-timestamp').textContent = '조사일시: ' + stamp;
+
+  const insAmtVal = document.getElementById('insAmt').value;
+  const insYearEl = document.getElementById('insYear');
+  const insYearTxt = insYearEl.value ? insYearEl.options[insYearEl.selectedIndex].text : '-';
+  const selfDedEl = document.getElementById('selfDed');
+  const selfDedTxt = selfDedEl.options[selfDedEl.selectedIndex].text;
+
+  document.getElementById('cap-ins-amt').textContent   = insAmtVal ? insAmtVal + ' 원' : '-';
+  document.getElementById('cap-ins-area').textContent  = document.getElementById('insArea').value ? document.getElementById('insArea').value + ' ㎡' : '-';
+  document.getElementById('cap-ins-year').textContent  = insYearTxt;
+  document.getElementById('cap-std-yield').textContent = document.getElementById('stdYield').value ? document.getElementById('stdYield').value + ' kg/㎡' : '-';
+  document.getElementById('cap-self-ded').textContent  = selfDedTxt;
+
+  const f = (id, unit) => { const v=document.getElementById(id).value; return v ? v+(unit||'') : '-'; };
+
+  document.getElementById('cap-act-kan').textContent       = f('actKan', ' 칸');
+  document.getElementById('cap-harvest-kan').textContent   = f('harvestKan', ' 칸');
+  document.getElementById('cap-unharvest-kan').textContent = f('unharvestKan', ' 칸') || '0 칸';
+  document.getElementById('cap-preharvest-kan').textContent= f('preharvestKan', ' 칸') || '0 칸';
+  document.getElementById('cap-harvest-area').textContent  = document.getElementById('harvestArea').value || '-';
+  document.getElementById('cap-farm-area').textContent     = document.getElementById('farmArea').value || '-';
+
+  document.getElementById('cap-total-yield').textContent   = document.getElementById('totalYield').value ? document.getElementById('totalYield').value + ' kg' : '-';
+  document.getElementById('cap-soil-loss').textContent     = f('soilLoss', ' kg');
+  document.getElementById('cap-bag-loss').textContent      = f('bagLoss', ' kg');
+  document.getElementById('cap-survey-yield').textContent  = document.getElementById('surveyYield').value || '-';
+  document.getElementById('cap-unins-loss').textContent    = document.getElementById('r-unins').textContent || '-';
+
+  document.getElementById('cap-pct').textContent           = document.getElementById('result-pct').textContent || '-';
+  document.getElementById('cap-pay').textContent           = document.getElementById('r-pay').textContent || '-';
+  document.getElementById('cap-std-total-yield').textContent = document.getElementById('stdTotalYield').value || '-';
+  document.getElementById('cap-unit-yield').textContent    = document.getElementById('unitYield').value || '-';
+  document.getElementById('cap-prop-yield').textContent    = document.getElementById('propYield').value || '없음';
+  document.getElementById('cap-kan-err').textContent       = document.getElementById('kanErr').value || '-';
+}
+
+async function saveImage(){
+  try{
+    const isPending = document.getElementById('result-section').classList.contains('pending');
+    if(isPending){ alert('계산 결과가 없어요. 값을 입력해주세요.'); return; }
+    fillCaptureTemplate();
+    const canvas = await html2canvas(document.getElementById('capture-template'),{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:430});
+    const now = new Date();
+    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+    const link = document.createElement('a');
+    link.download=`인삼전수조사_${stamp}.png`;
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    document.getElementById('save-overlay').classList.add('show');
+  }catch(e){ alert('저장 중 오류가 발생했어요.'); }
+}
+
+// ── localStorage 저장/불러오기 ────────────────────
 function saveState(){
   const ids = ['insAmt','insKan','insArea','insYear','selfDed','stdYield','uninsRate',
                'poleGap','ridgeW','furrowW','actKan','harvestKan','unharvestKan',
                'preharvestKan','actArea','totalYield','soilLoss','bagLoss'];
   const state = {};
-  ids.forEach(id => { state[id] = document.getElementById(id).value; });
-  try{ localStorage.setItem('ginseng_state', JSON.stringify(state)); }catch(e){}
+  ids.forEach(id=>{ state[id] = document.getElementById(id).value; });
+  try{ localStorage.setItem('ginseng_v2_state', JSON.stringify(state)); }catch(e){}
 }
 
 function loadState(){
   try{
-    const raw = localStorage.getItem('ginseng_state');
+    const raw = localStorage.getItem('ginseng_v2_state');
     if(!raw) return false;
     const s = JSON.parse(raw);
-    Object.keys(s).forEach(id => {
+    Object.keys(s).forEach(id=>{
       const el = document.getElementById(id);
       if(el && s[id] !== ''){ el.value = s[id]; el.classList.toggle('filled', true); }
     });
@@ -503,57 +762,12 @@ function loadState(){
   }catch(e){ return false; }
 }
 
-
-function openResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'flex';
-}
-function closeResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'none';
-}
-function confirmResetAll(){
-  closeResetModal();
-  resetAll();
-}
-
-function resetAll(){
-  
-  try{ localStorage.removeItem('ginseng_state'); }catch(e){}
-  ['insAmt','insKan','insArea','actArea','stdYield','uninsRate','actKan','harvestKan',
-   'unharvestKan','preharvestKan','totalYield','soilLoss','bagLoss'].forEach(id => {
-    const el = document.getElementById(id); if(el){el.value=''; el.classList.remove('filled');}
-  });
-  const pt = document.getElementById('propTarget');
-  if(pt){pt.value=''; pt.style.color=''; pt.style.fontWeight='';}
-  document.getElementById('insYear').value='';
-  document.getElementById('selfDed').value='0.2';
-  document.getElementById('poleGap').value='180';
-  document.getElementById('ridgeW').value='90';
-  document.getElementById('furrowW').value='90';
-  calcKanArea();
-  document.getElementById('result-section').className='result-box pending';
-  document.getElementById('result-pct').textContent='입력 대기중';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-async function saveImage(){
-  try{
-    const el = document.querySelector('.content');
-    const canvas = await html2canvas(el,{backgroundColor:'#F5F4F0',scale:2,useCORS:true,windowWidth:420});
-    const link = document.createElement('a');
-    const now = new Date();
-    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
-    link.download=`인삼피해율_${stamp}.png`; link.href=canvas.toDataURL('image/png'); link.click();
-    document.getElementById('save-overlay').classList.add('show');
-  }catch(e){ alert('저장 중 오류가 발생했어요.'); }
-}
-
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
   caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
 }
 
+window.addEventListener('beforeunload', saveState);
 loadState();
 setTimeout(()=>{ calcKanArea(); }, 50);
 </script>
