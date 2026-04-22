@@ -643,6 +643,8 @@ function resetCalcBtn(){
   if(btn){ btn.classList.remove('done'); btn.innerHTML='<span>🧮</span><span>착과수 계산</span>'; }
   window._lastCalcResults = null;
 }
+
+function toggleBasicInfo(){
   const body = document.getElementById('basic-info-body');
   const icon = document.getElementById('info-toggle-icon');
   const lbl = document.getElementById('info-toggle-lbl');
