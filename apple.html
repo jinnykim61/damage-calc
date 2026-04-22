@@ -806,15 +806,30 @@ function updateSummaryOnly() {
   set('total_actual', totalActual);
   set('total_survey_disp', totalSurvey);
   set('proper_sample', properSample, '주');
-  set('total_dead', totalDead);
-  set('total_unable', totalUnable);
-  set('total_uninsDead', totalUninsDead);
-  set('total_uninsAlive', totalUninsAlive);
   set('total_sampleN', totalSampleN, '주');
+  updateTreeSummary(false);
   const needReview = varieties.some(v => v.reg>0 && v.actual>0 && Math.abs(v.actual-v.reg)/v.reg>0.05);
   const cEl = document.getElementById('contract_yn');
   if(cEl){ cEl.value=totalReg>0?(needReview?'계약변경 대상':'이상무'):''; cEl.className='auto'+(needReview?' warn':(totalReg>0?' ok':'')); }
   updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample);
+}
+
+// ── 나무조사 합계 상세정보 표시 ──────────────────────
+// showZero: true이면 0도 '0주'로 표시 (계산 후), false이면 0은 빈칸
+function updateTreeSummary(showZero) {
+  const totalDead      = varieties.reduce((s,v)=>s+(v.dead||0),0);
+  const totalUnable    = varieties.reduce((s,v)=>s+(v.unable||0),0);
+  const totalUninsDead = varieties.reduce((s,v)=>s+(v.uninsDead||0),0);
+  const totalUninsAlive= varieties.reduce((s,v)=>s+(v.uninsAlive||0),0);
+  const fmt = (id, val) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.value = (showZero || val > 0) ? val.toLocaleString()+'주' : '';
+  };
+  fmt('total_dead',      totalDead);
+  fmt('total_unable',    totalUnable);
+  fmt('total_uninsDead', totalUninsDead);
+  fmt('total_uninsAlive',totalUninsAlive);
 }
 
 // ── 표본주수 계산 ─────────────────────────────────
@@ -1282,10 +1297,7 @@ function onInput() {
   const totalUninsDead = varieties.reduce((s,v) => s+(v.uninsDead||0), 0);
   const totalUninsAlive = varieties.reduce((s,v) => s+(v.uninsAlive||0), 0);
   const set = (id, val) => { const el=document.getElementById(id); if(el) el.value = val>0 ? val.toLocaleString()+'주' : ''; };
-  set('total_dead', totalDead);
-  set('total_unable', totalUnable);
-  set('total_uninsDead', totalUninsDead);
-  set('total_uninsAlive', totalUninsAlive);
+  updateTreeSummary(false);  // 나무조사: 값 있으면 표시, 0은 빈칸
 
   // 3열: 표본주수/합계/1주당/착과수 합계
   const totalSampleN = varieties.reduce((s,v) => s + v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x))).length, 0);
@@ -1417,6 +1429,9 @@ function doCalc(manual = false) {
   document.getElementById('result-detail-section').classList.add('show');
   // 스크롤 중 입력 방지
   document.querySelector('.content').classList.add('calc-done');
+
+  // 착과수 계산 완료 후 상세정보 나무조사 항목 0주 포함 표시
+  updateTreeSummary(true);
 
   document.getElementById('result-section').classList.add('show');
 
