@@ -15,16 +15,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 function bindMobileFocusHandlers(){
-  document.querySelectorAll('input.inp, select.inp, input.sg-inp').forEach(el=>{
+  document.querySelectorAll('input.inp, select.inp, input.sg-inp, input[type=number], #setup-rows input').forEach(el=>{
     if(el.dataset.mobileFocusBound==='1') return;
     el.dataset.mobileFocusBound='1';
-    el.addEventListener('focus',()=>el.classList.add('mobile-focus'),{passive:true});
+    el.addEventListener('focus',()=>{
+      el.classList.add('mobile-focus');
+      const v=el.value; el.value=''; el.value=v;
+    },{passive:true});
     el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
     let _touchStartY = 0;
     el.addEventListener('touchstart',(e)=>{ _touchStartY = e.touches[0].clientY; },{passive:true});
     el.addEventListener('touchend',(e)=>{
       const diff = Math.abs(e.changedTouches[0].clientY - _touchStartY);
-      if(diff > 8) return; // 스크롤이면 포커스 무시
+      if(diff > 8) return;
       if(e.cancelable) e.preventDefault();
       el.focus(); el.classList.add('mobile-focus');
     },{passive:false});
@@ -569,17 +572,17 @@ function renderSetupRows() {
         style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 8px;font-size:13px;background:${r.name?'#e8faf3':'white'};color:${r.name?'#0d5c35':'#1a1a1a'};-webkit-appearance:none;box-sizing:border-box;width:100%"
         oninput="setupRows[${i}].name=this.value;this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[1]?.focus()}">
-      <input type="number" value="${r.age||''}" placeholder="수령" inputmode="decimal"
+      <input type="number" value="${r.age||''}" placeholder="0년" inputmode="decimal"
         enterkeyhint="next"
         style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 4px;font-size:13px;text-align:center;background:${r.age?'#e8faf3':'white'};-webkit-appearance:none;box-sizing:border-box;width:100%"
         oninput="setupRows[${i}].age=+this.value||'';this.style.background=this.value?'#e8faf3':'white'"
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[2]?.focus()}">
-      <input type="number" value="${r.reg||''}" placeholder="0" inputmode="decimal"
+      <input type="number" value="${r.reg||''}" placeholder="0주" inputmode="decimal"
         enterkeyhint="next"
         style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 4px;font-size:13px;text-align:center;background:${r.reg?'#e8faf3':'white'};-webkit-appearance:none;box-sizing:border-box;width:100%"
         oninput="setupRows[${i}].reg=+this.value||0;this.style.background=this.value?'#e8faf3':'white'"
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[3]?.focus()}">
-      <input type="number" value="${r.actual||''}" placeholder="0" inputmode="decimal"
+      <input type="number" value="${r.actual||''}" placeholder="0주" inputmode="decimal"
         enterkeyhint="${i===setupRows.length-1?'done':'next'}"
         style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 4px;font-size:13px;text-align:center;background:${r.actual?'#e8faf3':'white'};-webkit-appearance:none;box-sizing:border-box;width:100%"
         oninput="setupRows[${i}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white'"
@@ -834,9 +837,10 @@ function renderVarieties(totalSurvey, totalProper) {
 
     const inp = (field, val, label) => {
       const filled = val > 0;
+      const ph = (field==='reg'||field==='actual'||field==='dead'||field==='unable'||field==='uninsDead'||field==='uninsAlive') ? '0주' : '0';
       return `<div class="field">
         <label>${label}</label>
-        <input type="number" class="inp${filled?' filled':''}" value="${val||''}" inputmode="decimal"
+        <input type="number" class="inp${filled?' filled':''}" value="${val||''}" inputmode="decimal" placeholder="${ph}"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
           onblur="varieties[${vi}].${field}=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'${field}',this.value);saveState()"
           oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].${field}=+this.value||0">
@@ -857,7 +861,7 @@ function renderVarieties(totalSurvey, totalProper) {
           onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
           oninput="varieties[${vi}].name=this.value;saveState()"
           onkeydown="if(event.key==='Enter'){event.preventDefault();document.querySelector('#vc-${vi} input[placeholder=수령]')?.focus()}">
-        <input type="number" class="inp${v.age>0?' filled':''}" value="${v.age||''}" inputmode="decimal" placeholder="수령"
+        <input type="number" class="inp${v.age>0?' filled':''}" value="${v.age||''}" inputmode="decimal" placeholder="0년"
           style="flex:0.8;height:40px;font-size:13px" enterkeyhint="next"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
           onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
