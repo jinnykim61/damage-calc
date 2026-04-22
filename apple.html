@@ -372,7 +372,72 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 
 </div>
 
-<div id="save-overlay">
+<!-- 갤러리 저장용 캡처 템플릿 -->
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
+  <div style="min-height:932px;background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
+    <div style="height:26px"></div>
+    <div style="text-align:center;color:#fff;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700" id="cap-title">과수4종 착과수 계산결과</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+      <!-- 기본정보 -->
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">1. 기본정보</div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">작물</th>
+            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">평년착과수</th>
+            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">가입주수</th>
+            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">조사대상</th>
+            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:11px;font-weight:700;text-align:center">계약변경</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-crop">-</td>
+            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-avg">-</td>
+            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-reg">-</td>
+            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-survey">-</td>
+            <td style="padding:7px 8px;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-contract">-</td>
+          </tr></tbody>
+        </table>
+      </div>
+
+      <!-- 품종별 결과 -->
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">2. 품종별 조사결과</div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:11px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">품종</th>
+            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">조사대상</th>
+            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">표본주</th>
+            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">표본합계</th>
+            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">1주당</th>
+            <th style="padding:6px 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">적과후</th>
+          </tr></thead>
+          <tbody id="cap-variety-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- 결과 -->
+      <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
+        <div style="font-size:15px;font-weight:900;color:#111;margin-bottom:10px">3. 결과</div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid #d1d5db;border-radius:10px;overflow:hidden">
+          <thead><tr>
+            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">착과율</th>
+            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">평년착과수</th>
+            <th style="padding:7px 8px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-weight:700;text-align:center">적과후착과수</th>
+          </tr></thead>
+          <tbody><tr>
+            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#EBF4FF;font-weight:900;font-size:16px;color:#185FA5" id="cap-rate">-</td>
+            <td style="padding:7px 8px;border-right:1px solid #d1d5db;text-align:center;background:#fff;font-weight:700;font-size:12px" id="cap-avg2">-</td>
+            <td style="padding:7px 8px;text-align:center;background:#e8faf3;font-weight:700;font-size:14px;color:#0d5c35" id="cap-total">-</td>
+          </tr></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
   <div class="save-modal">
     <div style="font-size:36px;margin-bottom:10px">✅</div>
     <p>결과가 갤러리에 저장됐어요!</p>
@@ -1287,12 +1352,57 @@ function resetAll() {
 // ── 갤러리 저장 ───────────────────────────────────
 async function saveImage() {
   try {
-    const el = document.querySelector('.content');
-    const canvas = await html2canvas(el, {backgroundColor:'#F5F4F0', scale:2, useCORS:true, windowWidth:420});
+    // 캡처 템플릿에 데이터 채우기
+    const CROP_KO = {apple:'사과', pear:'배', sweetpersimmon:'단감', persimmon:'떫은감'};
+    const avgFruit = toNum(document.getElementById('avg_fruit'));
+    const totalReg = varieties.reduce((s,v)=>s+(v.reg||0),0);
+    const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
+    const totalSampleN = varieties.reduce((s,v)=>s+v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x))).length,0);
+    const totalSampleSum = varieties.reduce((s,v)=>s+v.samples.reduce((ss,x)=>ss+(parseFloat(x)||0),0),0);
+    const perTree = totalSampleN > 0 ? totalSampleSum/totalSampleN : 0;
+    const totalAfter = perTree > 0 && totalSurvey > 0 ? Math.round(perTree*totalSurvey) : 0;
+    const rate = avgFruit > 0 ? totalAfter/avgFruit : 0;
+    const needReview = varieties.some(v=>v.reg>0&&v.actual>0&&Math.abs(v.actual-v.reg)/v.reg>0.05);
+
+    document.getElementById('cap-title').textContent = `${CROP_KO[currentCrop]||'과수'} 착과수 계산결과`;
+    document.getElementById('cap-crop').textContent = CROP_KO[currentCrop]||'-';
+    document.getElementById('cap-avg').textContent = avgFruit>0?avgFruit.toLocaleString()+'개':'-';
+    document.getElementById('cap-avg2').textContent = avgFruit>0?avgFruit.toLocaleString()+'개':'-';
+    document.getElementById('cap-reg').textContent = totalReg>0?totalReg.toLocaleString()+'주':'-';
+    document.getElementById('cap-survey').textContent = totalSurvey>0?totalSurvey.toLocaleString()+'주':'-';
+    document.getElementById('cap-contract').textContent = totalReg>0?(needReview?'계약변경':'이상무'):'-';
+    document.getElementById('cap-rate').textContent = avgFruit>0?(rate*100).toFixed(2)+'%':'-';
+    document.getElementById('cap-total').textContent = totalAfter>0?totalAfter.toLocaleString()+'개':'-';
+
+    // 품종별 결과 테이블
+    const totalProper = getProperSample(totalSurvey);
+    const rows = varieties.map(v => {
+      const st = getSurveyTarget(v);
+      if(st<=0) return '';
+      const pn = Math.max(1,Math.ceil(totalProper*st/totalSurvey));
+      const valid = v.samples.filter(s=>s!==''&&!isNaN(parseFloat(s)));
+      const sum = valid.reduce((s,x)=>s+parseFloat(x),0);
+      const pt = valid.length>0?sum/valid.length:0;
+      const af = pt>0&&st>0?Math.round(pt*st):0;
+      const name = v.name||`품종${varieties.indexOf(v)+1}`;
+      return `<tr>
+        <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-weight:700;font-size:11px">${name}</td>
+        <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${st}주</td>
+        <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${valid.length}주</td>
+        <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${Math.round(sum).toLocaleString()}</td>
+        <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${pt.toFixed(1)}</td>
+        <td style="padding:5px 4px;border-bottom:1px solid #e5e7eb;text-align:center;background:#e8faf3;font-weight:700;font-size:11px;color:#0d5c35">${af.toLocaleString()}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('cap-variety-tbody').innerHTML = rows;
+
+    const canvas = await html2canvas(document.getElementById('capture-template'), {
+      backgroundColor:'#f3f4f6', scale:2, useCORS:true, windowWidth:430
+    });
     const link = document.createElement('a');
     const now = new Date();
     const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
-    link.download = `다품종착과율_${stamp}.png`;
+    link.download = `과수착과수_${stamp}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
     document.getElementById('save-overlay').classList.add('show');
