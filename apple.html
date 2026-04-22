@@ -1676,6 +1676,7 @@ async function saveImage() {
         </div>
         ${tableHtml}
       </div>`;
+    });  // varieties.forEach 닫기
     document.getElementById('cap-samples-wrap').innerHTML = samplesHtml;
 
     const canvas = await html2canvas(document.getElementById('capture-template'), {
