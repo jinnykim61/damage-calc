@@ -160,7 +160,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 .save-btn:active{background:rgba(255,255,255,0.35)}
 
 /* 계산 완료 후 스크롤 중 입력 방지 */
-.calc-done input.inp, .calc-done input[type=number]{pointer-events:none}
+/* 계산 완료 후 스크롤 중 입력 방지 - 제거됨 */
 .sg-wrap{display:grid;gap:6px;width:100%;overflow:hidden}
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;overflow:hidden}
 .sg-cell{display:flex;flex-direction:row;align-items:center;gap:4px}
@@ -832,7 +832,7 @@ function renderVarieties(totalSurvey, totalProper) {
           oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi})"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
           onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;this.blur();${vi===varieties.length-1?'setTimeout(()=>doCalc(),50);':''}`:`varieties[${vi}].samples[${si}]=this.value;const _next=document.getElementById('si-${vi}-${si+1}');if(_next){_next.focus();}`}}">
+          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;${vi===varieties.length-1?'setTimeout(()=>doCalc(),50);':''}`:`varieties[${vi}].samples[${si}]=this.value;const _next=document.getElementById('si-${vi}-${si+1}');if(_next){_next.focus();}`}}">
       </div>`;
     }
     samplesHtml += '</div>';
