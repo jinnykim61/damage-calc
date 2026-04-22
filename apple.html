@@ -184,7 +184,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 .save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
 </style>
 </head>
-<body>
+<body style="visibility:hidden">
 
 <div class="header">
   <button class="back-btn" onclick="location.href='./index.html'">‹</button>
@@ -334,7 +334,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   </div>
 
   <!-- 계산 버튼 -->
-  <button class="calc-btn" id="calc-btn" onclick="doCalc()">
+  <button class="calc-btn" id="calc-btn" onclick="doCalc(true)">
     <span>🧮</span><span>착과수 계산</span>
   </button>
 
@@ -840,7 +840,7 @@ function renderVarieties(totalSurvey, totalProper) {
           oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi})"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
           onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;calcVariety(${vi});moveToNextVariety(${vi});`:`const inputs=document.querySelectorAll('#ss-${vi} input');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
+          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;moveToNextVariety(${vi});`:`const inputs=document.querySelectorAll('#ss-${vi} input');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
       </div>`;
     }
     samplesHtml += '</div>';
@@ -982,43 +982,24 @@ function toggleTreeInspect(vi) {
 function moveToNextVariety(vi) {
   const nextVi = vi + 1;
   if(nextVi >= varieties.length) {
-    setTimeout(()=>{
-      doCalc();
-      setTimeout(()=>{
-        document.getElementById('result-section')?.scrollIntoView({behavior:'smooth', block:'start'});
-      }, 200);
-    }, 100);
+    // 마지막 품종 → 자동 계산
+    setTimeout(()=>doCalc(), 50);
     return;
   }
   const nextSurvey = getSurveyTarget(varieties[nextVi]);
   if(nextSurvey <= 0) return;
   varieties[nextVi].open = true;
-  // onInput() 대신 직접 DOM 조작으로 재렌더 없이 열기
+  // DOM 재렌더 없이 직접 열기
   const ss = document.getElementById(`ss-${nextVi}`);
   const icon = document.getElementById(`toggle-icon-${nextVi}`);
-  if(ss && ss.children.length === 0) {
-    // 착과수 칸이 없으면 onInput 필요
-    onInput();
+  if(ss) ss.classList.add('open');
+  if(icon) icon.textContent = '▼';
+  const firstInput = ss?.querySelector('input');
+  if(firstInput){
+    firstInput.focus();
     setTimeout(()=>{
-      const ssNew = document.getElementById(`ss-${nextVi}`);
-      if(ssNew) ssNew.classList.add('open');
-      const firstInput = ssNew?.querySelector('input');
-      if(firstInput){
-        firstInput.focus();
-        const rect = firstInput.getBoundingClientRect();
-        window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
-      }
-    }, 150);
-  } else {
-    if(ss) ss.classList.add('open');
-    if(icon) icon.textContent = '▼';
-    setTimeout(()=>{
-      const firstInput = ss?.querySelector('input');
-      if(firstInput){
-        firstInput.focus();
-        const rect = firstInput.getBoundingClientRect();
-        window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
-      }
+      const rect = firstInput.getBoundingClientRect();
+      window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
     }, 50);
   }
 }
@@ -1215,7 +1196,7 @@ function onInput() {
 }
 
 // ── 계산 실행 ─────────────────────────────────────
-function doCalc() {
+function doCalc(manual = false) {
   const avgFruit = toNum(document.getElementById('avg_fruit'));
 
   // 필수값 체크
@@ -1316,8 +1297,16 @@ function doCalc() {
   document.getElementById('result-section').classList.add('show');
 
   const btn = document.getElementById('calc-btn');
-  btn.classList.add('done');
-  btn.innerHTML = '<span>✅</span><span>계산 완료!</span>';
+  if(manual){
+    btn.classList.add('done');
+    btn.innerHTML = '<span>✅</span><span>계산 완료!</span>';
+    allData[currentCrop].calcDone = true;
+  } else {
+    btn.classList.remove('done');
+    btn.innerHTML = '<span>🧮</span><span>착과수 계산</span>';
+    allData[currentCrop].calcDone = false;
+  }
+  saveState();
   document.getElementById('result-section').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
@@ -1327,7 +1316,6 @@ function saveState(){
   try{
     allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
     allData[currentCrop].varieties = varieties;
-    allData[currentCrop].calcDone = !!window._lastCalcResults;
     localStorage.setItem('apple_multi_state', JSON.stringify({
       currentCrop,
       allData
@@ -1429,16 +1417,18 @@ if ('serviceWorker' in navigator) {
 }
 
 // ── 초기 실행 ─────────────────────────────────────
-// 저장된 상태 불러오기
-const _loaded = loadState();
-// calcDone 복원
-if(allData[currentCrop].calcDone){
-  const btn = document.getElementById('calc-btn');
-  if(btn){ btn.classList.add('done'); btn.innerHTML='<span>✅</span><span>계산 완료!</span>'; }
-  document.getElementById('result-section').classList.add('show');
-  document.getElementById('result-detail-section').classList.add('show');
-}
-onInput();
+document.addEventListener('DOMContentLoaded', ()=>{
+  const _loaded = loadState();
+  onInput();
+  // calcDone 복원
+  if(allData[currentCrop].calcDone){
+    const btn = document.getElementById('calc-btn');
+    if(btn){ btn.classList.add('done'); btn.innerHTML='<span>✅</span><span>계산 완료!</span>'; }
+    document.getElementById('result-section').classList.add('show');
+    document.getElementById('result-detail-section').classList.add('show');
+  }
+  document.body.style.visibility = 'visible';
+});
 </script>
 </body>
 </html>
