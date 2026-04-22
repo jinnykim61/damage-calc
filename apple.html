@@ -442,7 +442,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   </div>
 </div>
 
-<div id="save-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;padding:20px">
+<div id="save-overlay" style="display:none;position:fixed;inset:0;z-index:500;align-items:center;justify-content:center;padding:20px">
   <div class="save-modal">
     <div style="font-size:36px;margin-bottom:10px">✅</div>
     <p>결과가 갤러리에 저장됐어요!</p>
@@ -638,7 +638,11 @@ function applySetupPopup() {
   }, 100);
 }
 
-function toggleBasicInfo(){
+function resetCalcBtn(){
+  const btn = document.getElementById('calc-btn');
+  if(btn){ btn.classList.remove('done'); btn.innerHTML='<span>🧮</span><span>착과수 계산</span>'; }
+  window._lastCalcResults = null;
+}
   const body = document.getElementById('basic-info-body');
   const icon = document.getElementById('info-toggle-icon');
   const lbl = document.getElementById('info-toggle-lbl');
@@ -781,6 +785,7 @@ function setCrop(crop, idx) {
   af.classList.toggle('filled', !!af.value);
   document.getElementById('result-section').classList.remove('show');
   document.getElementById('result-detail-section').classList.remove('show');
+  resetCalcBtn();
   onInput();
 }
 
@@ -986,22 +991,19 @@ function moveToNextVariety(vi) {
   const nextSurvey = getSurveyTarget(varieties[nextVi]);
   if(nextSurvey <= 0) return;
   varieties[nextVi].open = true;
-  // onInput 렌더링 완료 후 포커스 — document.activeElement blur로 키보드 잠깐 내렸다가 올리는 것 방지
   onInput();
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      const ss = document.getElementById(`ss-${nextVi}`);
-      const icon = document.getElementById(`toggle-icon-${nextVi}`);
-      if(ss) ss.classList.add('open');
-      if(icon) icon.textContent = '▼';
-      const firstInput = ss?.querySelector('input');
-      if(firstInput){
-        firstInput.focus();
-        const rect = firstInput.getBoundingClientRect();
-        window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
-      }
-    });
-  });
+  setTimeout(()=>{
+    const ss = document.getElementById(`ss-${nextVi}`);
+    const icon = document.getElementById(`toggle-icon-${nextVi}`);
+    if(ss) ss.classList.add('open');
+    if(icon) icon.textContent = '▼';
+    const firstInput = ss?.querySelector('input');
+    if(firstInput){
+      firstInput.focus();
+      const rect = firstInput.getBoundingClientRect();
+      window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
+    }
+  }, 150);
 }
 
 function autoOpenSamples(vi) {
@@ -1272,6 +1274,9 @@ function doCalc() {
   const rate = avgFruit > 0 ? totalAfterFruit / avgFruit : 0;
   const needReview = varieties.some(v => v.reg>0 && v.actual>0 && Math.abs(v.actual-v.reg)/v.reg>0.05);
 
+  // 결과 저장 (갤러리 저장용)
+  window._lastCalcResults = { results, totalAfterFruit, rate, needReview, avgFruit };
+
   // 메인 결과 박스
   const rateEl = document.getElementById('result-rate');
   rateEl.textContent = (rate * 100).toFixed(2)+'%';
@@ -1296,10 +1301,6 @@ function doCalc() {
   const btn = document.getElementById('calc-btn');
   btn.classList.add('done');
   btn.innerHTML = '<span>✅</span><span>계산 완료!</span>';
-  setTimeout(() => {
-    btn.classList.remove('done');
-    btn.innerHTML = '<span>🧮</span><span>착과수 계산</span>';
-  }, 2000);
   document.getElementById('result-section').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
@@ -1350,6 +1351,7 @@ function resetAll() {
   document.getElementById('avg_fruit').classList.remove('filled');
   document.getElementById('result-section').classList.remove('show');
   document.getElementById('result-detail-section').classList.remove('show');
+  resetCalcBtn();
   saveState();
   onInput();
   window.scrollTo({top:0, behavior:'smooth'});
@@ -1358,17 +1360,13 @@ function resetAll() {
 // ── 갤러리 저장 ───────────────────────────────────
 async function saveImage() {
   try {
-    // 캡처 템플릿에 데이터 채우기
+    const saved = window._lastCalcResults;
+    if(!saved){ showToast('먼저 착과수 계산을 실행해 주세요'); return; }
+    const { results, totalAfterFruit, rate, needReview, avgFruit } = saved;
+
     const CROP_KO = {apple:'사과', pear:'배', sweetpersimmon:'단감', persimmon:'떫은감'};
-    const avgFruit = toNum(document.getElementById('avg_fruit'));
     const totalReg = varieties.reduce((s,v)=>s+(v.reg||0),0);
     const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
-    const totalSampleN = varieties.reduce((s,v)=>s+v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x))).length,0);
-    const totalSampleSum = varieties.reduce((s,v)=>s+v.samples.reduce((ss,x)=>ss+(parseFloat(x)||0),0),0);
-    const perTree = totalSampleN > 0 ? totalSampleSum/totalSampleN : 0;
-    const totalAfter = perTree > 0 && totalSurvey > 0 ? Math.round(perTree*totalSurvey) : 0;
-    const rate = avgFruit > 0 ? totalAfter/avgFruit : 0;
-    const needReview = varieties.some(v=>v.reg>0&&v.actual>0&&Math.abs(v.actual-v.reg)/v.reg>0.05);
 
     document.getElementById('cap-title').textContent = `${CROP_KO[currentCrop]||'과수'} 착과수 계산결과`;
     document.getElementById('cap-crop').textContent = CROP_KO[currentCrop]||'-';
@@ -1378,28 +1376,16 @@ async function saveImage() {
     document.getElementById('cap-survey').textContent = totalSurvey>0?totalSurvey.toLocaleString()+'주':'-';
     document.getElementById('cap-contract').textContent = totalReg>0?(needReview?'계약변경':'이상무'):'-';
     document.getElementById('cap-rate').textContent = avgFruit>0?(rate*100).toFixed(2)+'%':'-';
-    document.getElementById('cap-total').textContent = totalAfter>0?totalAfter.toLocaleString()+'개':'-';
+    document.getElementById('cap-total').textContent = totalAfterFruit>0?Math.round(totalAfterFruit).toLocaleString()+'개':'-';
 
-    // 품종별 결과 테이블
-    const totalProper = getProperSample(totalSurvey);
-    const rows = varieties.map(v => {
-      const st = getSurveyTarget(v);
-      if(st<=0) return '';
-      const pn = Math.max(1,Math.ceil(totalProper*st/totalSurvey));
-      const valid = v.samples.filter(s=>s!==''&&!isNaN(parseFloat(s)));
-      const sum = valid.reduce((s,x)=>s+parseFloat(x),0);
-      const pt = valid.length>0?sum/valid.length:0;
-      const af = pt>0&&st>0?Math.round(pt*st):0;
-      const name = v.name||`품종${varieties.indexOf(v)+1}`;
-      return `<tr>
-        <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-weight:700;font-size:11px">${name}</td>
-        <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${st}주</td>
-        <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${valid.length}주</td>
-        <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${Math.round(sum).toLocaleString()}</td>
-        <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${pt.toFixed(1)}</td>
-        <td style="padding:5px 4px;border-bottom:1px solid #e5e7eb;text-align:center;background:#e8faf3;font-weight:700;font-size:11px;color:#0d5c35">${af.toLocaleString()}</td>
-      </tr>`;
-    }).join('');
+    const rows = results.map(r => `<tr>
+      <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-weight:700;font-size:11px">${r.name}</td>
+      <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${r.surveyTarget}주</td>
+      <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${r.sampleCount}주</td>
+      <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${Math.round(r.sampleSum).toLocaleString()}</td>
+      <td style="padding:5px 4px;border-right:1px solid #d1d5db;border-bottom:1px solid #e5e7eb;text-align:center;background:#fff;font-size:11px">${r.perTree.toFixed(1)}</td>
+      <td style="padding:5px 4px;border-bottom:1px solid #e5e7eb;text-align:center;background:#e8faf3;font-weight:700;font-size:11px;color:#0d5c35">${Math.round(r.afterFruit).toLocaleString()}</td>
+    </tr>`).join('');
     document.getElementById('cap-variety-tbody').innerHTML = rows;
 
     const canvas = await html2canvas(document.getElementById('capture-template'), {
