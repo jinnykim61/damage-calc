@@ -441,11 +441,14 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     </div>
   </div>
 </div>
+
+<div id="save-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;padding:20px">
   <div class="save-modal">
     <div style="font-size:36px;margin-bottom:10px">✅</div>
     <p>결과가 갤러리에 저장됐어요!</p>
-    <button class="btn-ok" onclick="document.getElementById('save-overlay').classList.remove('show')">확인</button>
+    <button class="btn-ok" onclick="document.getElementById('save-overlay').style.display='none'">확인</button>
   </div>
+</div>
 </div>
 
 
@@ -875,7 +878,7 @@ function renderVarieties(totalSurvey, totalProper) {
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:end;margin-bottom:6px">
         <div class="field">
           <label>가입주수</label>
-          <input type="number" id="vi-reg-${vi}" class="inp${v.reg>0?' filled':''}" value="${v.reg||''}" inputmode="decimal"
+          <input type="number" id="vi-reg-${vi}" class="inp${v.reg>0?' filled':''}" value="${v.reg||''}" inputmode="decimal" placeholder="0주"
             enterkeyhint="next"
             onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
             onblur="varieties[${vi}].reg=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';updateSummaryOnly();saveState()"
@@ -884,7 +887,7 @@ function renderVarieties(totalSurvey, totalProper) {
         </div>
         <div class="field">
           <label>실제결과주수</label>
-          <input type="number" id="vi-actual-${vi}" class="inp${v.actual>0?' filled':''}" value="${v.actual||''}" inputmode="decimal"
+          <input type="number" id="vi-actual-${vi}" class="inp${v.actual>0?' filled':''}" value="${v.actual||''}" inputmode="decimal" placeholder="0주"
             enterkeyhint="done"
             onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
             onblur="varieties[${vi}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'actual',this.value);saveState()"
@@ -986,20 +989,22 @@ function moveToNextVariety(vi) {
   const nextSurvey = getSurveyTarget(varieties[nextVi]);
   if(nextSurvey <= 0) return;
   varieties[nextVi].open = true;
-  // onInput으로 렌더링 먼저 완료 후 포커스
+  // onInput 렌더링 완료 후 포커스 — document.activeElement blur로 키보드 잠깐 내렸다가 올리는 것 방지
   onInput();
-  setTimeout(()=>{
-    const ss = document.getElementById(`ss-${nextVi}`);
-    const icon = document.getElementById(`toggle-icon-${nextVi}`);
-    if(ss) ss.classList.add('open');
-    if(icon) icon.textContent = '▼';
-    const firstInput = ss?.querySelector('input');
-    if(firstInput){
-      firstInput.focus();
-      const rect = firstInput.getBoundingClientRect();
-      window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
-    }
-  }, 80);
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      const ss = document.getElementById(`ss-${nextVi}`);
+      const icon = document.getElementById(`toggle-icon-${nextVi}`);
+      if(ss) ss.classList.add('open');
+      if(icon) icon.textContent = '▼';
+      const firstInput = ss?.querySelector('input');
+      if(firstInput){
+        firstInput.focus();
+        const rect = firstInput.getBoundingClientRect();
+        window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
+      }
+    });
+  });
 }
 
 function autoOpenSamples(vi) {
@@ -1409,7 +1414,7 @@ async function saveImage() {
     link.download = `과수착과수_${stamp}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-    document.getElementById('save-overlay').classList.add('show');
+    document.getElementById('save-overlay').style.display = 'flex';
   } catch(e) {
     showToast('저장 중 오류가 발생했어요');
   }
