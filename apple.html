@@ -160,7 +160,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 .save-btn:active{background:rgba(255,255,255,0.35)}
 
 /* 계산 완료 후 스크롤 중 입력 방지 */
-/* 계산 완료 후 스크롤 중 입력 방지 - 제거됨 */
+/* 계산 완료 후 스크롤 중 입력 방지 - 제거 */
 .sg-wrap{display:grid;gap:6px;width:100%;overflow:hidden}
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;overflow:hidden}
 .sg-cell{display:flex;flex-direction:row;align-items:center;gap:4px}
@@ -434,13 +434,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   </div>
 </div>
 
-<div id="save-overlay" style="display:none;position:fixed;inset:0;z-index:500;align-items:center;justify-content:center;padding:20px">
-  <div class="save-modal">
-    <div style="font-size:36px;margin-bottom:10px">✅</div>
-    <p>결과가 갤러리에 저장됐어요!</p>
-    <button class="btn-ok" onclick="document.getElementById('save-overlay').style.display='none'">확인</button>
-  </div>
-</div>
+
 </div>
 
 
@@ -617,8 +611,10 @@ function applySetupPopup() {
     varieties[0].open = true;
     const ss = document.getElementById('ss-0');
     const icon = document.getElementById('toggle-icon-0');
+    const nextBtn = document.getElementById('next-btn-0');
     if(ss) ss.classList.add('open');
     if(icon) icon.textContent = '▼';
+    if(nextBtn) nextBtn.style.display = 'block';
     setTimeout(()=>{
       const firstInput = document.getElementById('ss-0')?.querySelector('input');
       if(firstInput){
@@ -826,13 +822,13 @@ function renderVarieties(totalSurvey, totalProper) {
       const isLast = si === _total - 1;
       samplesHtml += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
         <span style="font-size:10px;font-weight:700;color:var(--hint)">${si+1}</span>
-        <input type="number" id="si-${vi}-${si}" value="${s}" inputmode="decimal" placeholder=""
+        <input type="number" value="${s}" inputmode="decimal" placeholder=""
           enterkeyhint="${isLast?'done':'next'}"
           style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
           oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi})"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
           onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;${vi===varieties.length-1?'setTimeout(()=>doCalc(),50);':''}`:`varieties[${vi}].samples[${si}]=this.value;const _next=document.getElementById('si-${vi}-${si+1}');if(_next){_next.focus();}`}}">
+          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;`:`const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
       </div>`;
     }
     samplesHtml += '</div>';
@@ -931,6 +927,10 @@ function renderVarieties(totalSurvey, totalProper) {
       <div class="sample-section ${v.open?'open':''}" id="ss-${vi}">
         ${samplesHtml}
       </div>
+      <button id="next-btn-${vi}" onclick="moveToNextVariety(${vi})"
+        style="display:none;margin-top:10px;width:100%;height:46px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">
+        ${vi < varieties.length-1 ? '다음 품종 →' : '착과수 계산 →'}
+      </button>
       ` : `<div id="ss-${vi}"></div>`}
     </div>`;
   }).join('');
@@ -971,7 +971,77 @@ function toggleTreeInspect(vi) {
   saveState();
 }
 
-// ── 품종별 자동계산 업데이트 (표본입력 시) ────────
+// ── 착과수 칸만 교체 (전체 재렌더 없이) ────────────
+function renderSamplesOnly(vi) {
+  const ss = document.getElementById(`ss-${vi}`);
+  if(!ss) return;
+  const v = varieties[vi];
+  const totalSurvey = varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);
+  const totalProper = getProperSample(totalSurvey);
+  const surveyTarget = getSurveyTarget(v);
+  const properN = surveyTarget>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
+  while(v.samples.length < properN) v.samples.push('');
+  const _total = Math.max(v.samples.length, properN);
+  let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px">`;
+  for(let si=0; si<_total; si++){
+    const s = v.samples[si]||'';
+    const filled = s!==''&&!isNaN(parseFloat(s));
+    const isLast = si===_total-1;
+    html += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+      <span style="font-size:10px;font-weight:700;color:var(--hint)">${si+1}</span>
+      <input type="number" value="${s}" inputmode="decimal" placeholder=""
+        enterkeyhint="${isLast?'done':'next'}"
+        style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
+        oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi})"
+        onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
+        onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;`:`const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
+    </div>`;
+  }
+  html += '</div>';
+  const isLastVariety = vi === varieties.length - 1;
+  const nextLabel = isLastVariety ? '착과수 계산 →' : '다음 품종 →';
+  const nextAction = isLastVariety ? `doCalc()` : `moveToNextVariety(${vi})`;
+  html += `<button onclick="${nextAction}" style="margin-top:10px;width:100%;height:44px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">${nextLabel}</button>`;
+  ss.innerHTML = html;
+  // 표본주수/간격 업데이트
+  const pnEl = document.getElementById(`vi-proper-num-${vi}`);
+  const ivEl = document.getElementById(`vi-interval-${vi}`);
+  if(pnEl) pnEl.textContent = properN;
+  if(ivEl) ivEl.textContent = surveyTarget>0&&properN>0 ? Math.round(surveyTarget/properN) : 0;
+}
+
+function moveToNextVariety(vi) {
+  document.activeElement?.blur();
+  const curBtn = document.getElementById(`next-btn-${vi}`);
+  if(curBtn) curBtn.style.display = 'none';
+
+  const nextVi = vi + 1;
+  if(nextVi >= varieties.length) {
+    doCalc();
+    return;
+  }
+
+  varieties[nextVi].open = true;
+  const ss = document.getElementById(`ss-${nextVi}`);
+  const icon = document.getElementById(`toggle-icon-${nextVi}`);
+  const nextBtn = document.getElementById(`next-btn-${nextVi}`);
+
+  if(ss){
+    ss.style.removeProperty('display'); // 인라인 display:none 제거
+    ss.classList.add('open');
+  }
+  if(icon) icon.textContent = '▼';
+  if(nextBtn) nextBtn.style.display = 'block';
+
+  setTimeout(()=>{
+    if(ss){
+      const rect = ss.getBoundingClientRect();
+      window.scrollTo({top: window.pageYOffset + rect.top - 160, behavior:'smooth'});
+    }
+  }, 50);
+}
+
 function autoOpenSamples(vi) {
   varieties[vi].actual = +document.getElementById(`vi-actual-${vi}`)?.value || varieties[vi].actual;
   quickUpdate(vi, 'actual', varieties[vi].actual);
@@ -1000,8 +1070,10 @@ function toggleSamples(vi) {
   varieties[vi].open = !varieties[vi].open;
   const ss = document.getElementById(`ss-${vi}`);
   const icon = document.getElementById(`toggle-icon-${vi}`);
+  const btn = document.getElementById(`next-btn-${vi}`);
   ss.classList.toggle('open', varieties[vi].open);
   icon.textContent = varieties[vi].open ? '▼' : '▶';
+  if(btn) btn.style.display = varieties[vi].open ? 'block' : 'none';
 }
 
 function trimSamples(vi) {
@@ -1387,7 +1459,6 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', ()=>{
   const _loaded = loadState();
   onInput();
-  // calcDone 복원 — doCalc 재실행으로 결과값 채우기
   if(allData[currentCrop].calcDone){
     doCalc(true);
   }
