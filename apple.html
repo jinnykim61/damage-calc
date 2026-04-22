@@ -23,14 +23,6 @@ function bindMobileFocusHandlers(){
       const v=el.value; el.value=''; el.value=v;
     },{passive:true});
     el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
-    let _touchStartY = 0;
-    el.addEventListener('touchstart',(e)=>{ _touchStartY = e.touches[0].clientY; },{passive:true});
-    el.addEventListener('touchend',(e)=>{
-      const diff = Math.abs(e.changedTouches[0].clientY - _touchStartY);
-      if(diff > 8) return;
-      if(e.cancelable) e.preventDefault();
-      el.focus(); el.classList.add('mobile-focus');
-    },{passive:false});
   });
 }
 document.addEventListener('DOMContentLoaded',()=>{
