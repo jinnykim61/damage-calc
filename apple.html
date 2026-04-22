@@ -435,6 +435,8 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 </div>
 
 
+</div>
+
 
 <div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
@@ -1442,7 +1444,7 @@ async function saveImage() {
     link.download = `과수착과수_${stamp}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-    setTimeout(()=>showToast('갤러리에 저장됐어요 📷'), 300);
+    showToast('갤러리에 저장됐어요 📷');
   } catch(e) {
     showToast('저장 중 오류가 발생했어요');
   }
