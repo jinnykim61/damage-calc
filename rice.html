@@ -685,10 +685,10 @@ function calc(){
 
       // 미보상감수량 (병충해단독이어도 미보상 계산, 단 최고한도 70%)
       // 단위면적당 평년수확량 × (타작물+기수확) 가산
-      const unitAvgF = realArea > 0 ? avgYield / realArea : 0;
+      const unitAvgF = realArea > 0 ? effAvg / realArea : 0;
       const addYieldF = unitAvgF * (uninsArea + preArea);
       const totalYieldF = Math.floor(surveyYield + addYieldF);
-      const uninsLoss = Math.round(Math.max(0, avgYield - totalYieldF) * uninsRate * 10000) / 10000;
+      const uninsLoss = Math.round(Math.max(0, effAvg - totalYieldF) * uninsRate * 10000) / 10000;
       let pihaeyul = Math.floor((effAvg - totalYieldF - uninsLoss) / effAvg * 10000) / 10000;
       pihaeyul = Math.max(0, pihaeyul);
       if(disease === 'y') pihaeyul = Math.min(pihaeyul, 0.7);

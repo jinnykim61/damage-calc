@@ -684,6 +684,7 @@ function calc(){
     payDispEl.style.color = '#1D9E75';
   }
 
+  window._ginsengLastCalc = { uninsLoss, payAmt, stdTotalYield, surveyYield, unitYield };
   saveState();
 }
 
@@ -747,13 +748,17 @@ function fillCaptureTemplate(){
   document.getElementById('cap-farm-area').textContent     = document.getElementById('farmArea').value || '-';
 
   document.getElementById('cap-total-yield').textContent   = document.getElementById('totalYield').value ? document.getElementById('totalYield').value + ' kg' : '-';
-  document.getElementById('cap-soil-loss').textContent     = document.getElementById('soilLossKg').value || (document.getElementById('soilLossPct').value ? document.getElementById('soilLossPct').value + '%' : '-');
+  const _soilPct = parseFloat(document.getElementById('soilLossPct').value)||0;
+  const _totalYv = parseFloat((document.getElementById('totalYield').value||'').replace(/,/g,''))||0;
+  const _soilKg  = _totalYv * _soilPct / 100;
+  document.getElementById('cap-soil-loss').textContent     = _soilKg > 0 ? _soilKg.toLocaleString('ko-KR',{maximumFractionDigits:2})+' kg' : (_soilPct > 0 ? _soilPct+'%' : '-');
   document.getElementById('cap-bag-loss').textContent      = document.getElementById('bagLoss').value ? document.getElementById('bagLoss').value + ' kg' : '-';
   document.getElementById('cap-survey-yield').textContent  = document.getElementById('surveyYield').value || '-';
-  document.getElementById('cap-unins-loss').textContent    = document.getElementById('r-unins-disp').value || '-';
+  const _last = window._ginsengLastCalc;
+  document.getElementById('cap-unins-loss').textContent    = _last ? _last.uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:2})+' kg' : '-';
 
   document.getElementById('cap-pct').textContent           = document.getElementById('result-pct').textContent || '-';
-  document.getElementById('cap-pay').textContent           = document.getElementById('r-pay-disp').value || '-';
+  document.getElementById('cap-pay').textContent           = _last ? (_last.payAmt > 0 ? _last.payAmt.toLocaleString('ko-KR',{maximumFractionDigits:0})+' 원' : '지급없음') : '-';
   document.getElementById('cap-std-total-yield').textContent = document.getElementById('stdTotalYield').value || '-';
   document.getElementById('cap-unit-yield').textContent    = document.getElementById('unitYield').value || '-';
   document.getElementById('cap-prop-yield').textContent    = document.getElementById('propYield').value || '없음';
@@ -799,6 +804,7 @@ function loadState(){
           el.style.background = '#e8faf3';
           el.style.borderColor = '#1D9E75';
           el.style.color = '#0d5c35';
+          el.classList.add('filled');
         } else {
           el.classList.toggle('filled', true);
         }
@@ -815,7 +821,7 @@ if('serviceWorker' in navigator){
 
 window.addEventListener('beforeunload', saveState);
 loadState();
-setTimeout(()=>{ calcKanArea(); }, 50);
+setTimeout(()=>{ calcKanArea(); calc(); }, 50);
 </script>
 </body>
 </html>

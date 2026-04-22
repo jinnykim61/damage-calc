@@ -995,49 +995,6 @@ window.addEventListener('pageshow', ()=>{
   if(loaded) setTimeout(()=>{ calc(); }, 120);
 });
 
-function openResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'flex';
-}
-function closeResetModal(){
-  const el = document.getElementById('reset-overlay');
-  if(el) el.style.display = 'none';
-}
-function confirmResetAll(){
-  closeResetModal();
-  resetAll();
-}
-function showDeleteLimitModal(){
-  const el = document.getElementById('delete-limit-overlay');
-  if(el) el.style.display = 'flex';
-}
-function closeDeleteLimitModal(){
-  const el = document.getElementById('delete-limit-overlay');
-  if(el) el.style.display = 'none';
-}
-function bindMobileFocusHandlers(){
-  const selectors = 'input.inp, select.inp, tbody td input';
-  document.querySelectorAll(selectors).forEach(el=>{
-    if(el.dataset.mobileFocusBound === '1') return;
-    el.dataset.mobileFocusBound = '1';
-    el.addEventListener('focus', ()=> el.classList.add('mobile-focus'), {passive:true});
-    el.addEventListener('blur',  ()=> el.classList.remove('mobile-focus'), {passive:true});
-    // select(드롭다운)와 date input은 브라우저 기본 동작(피커 열기)을 막지 않는다
-    const isSelect = el.tagName === 'SELECT';
-    const isDate = el.type === 'date';
-    if(!isSelect && !isDate){
-      el.addEventListener('touchend', (e)=>{
-        if(e.cancelable) e.preventDefault();
-        el.focus();
-        el.classList.add('mobile-focus');
-      }, {passive:false});
-    }
-  });
-}
-document.addEventListener('DOMContentLoaded', ()=>{
-  bindMobileFocusHandlers();
-  document.addEventListener('click', ()=>{ setTimeout(bindMobileFocusHandlers, 0); }, {passive:true});
-});
 
 </script>
 </body>

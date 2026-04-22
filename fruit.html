@@ -318,8 +318,20 @@ function getProperSample(total) {
 
 // ── 품목 전환 ─────────────────────────────────────
 function setCrop(crop, idx) {
+  // 현재 작물 avgFruit 저장
+  const state = JSON.parse(localStorage.getItem('fruit_state')||'{}');
+  if(!state.avgFruitMap) state.avgFruitMap = {};
+  state.avgFruitMap[currentCrop] = document.getElementById('avg_fruit').value;
+  try{ localStorage.setItem('fruit_state', JSON.stringify(state)); }catch(e){}
+
   currentCrop = crop;
+  varieties = state['varieties_'+crop] ? state['varieties_'+crop] : varieties;
   document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===idx));
+
+  // 새 작물 avgFruit 복원
+  const af = document.getElementById('avg_fruit');
+  af.value = (state.avgFruitMap && state.avgFruitMap[crop]) || '';
+  af.classList.toggle('filled', !!af.value);
   onInput();
 }
 
@@ -671,10 +683,15 @@ function doCalc() {
 // ── localStorage 저장/불러오기 ────────────────────
 function saveState(){
   try{
+    const prev = JSON.parse(localStorage.getItem('fruit_state')||'{}');
+    const avgFruitMap = prev.avgFruitMap || {};
+    avgFruitMap[currentCrop] = document.getElementById('avg_fruit').value;
     const state={
       crop: currentCrop,
       avgFruit: document.getElementById('avg_fruit').value,
-      varieties: varieties
+      avgFruitMap,
+      varieties: varieties,
+      ['varieties_'+currentCrop]: varieties
     };
     localStorage.setItem('fruit_state', JSON.stringify(state));
   }catch(e){}
@@ -687,16 +704,22 @@ function loadState(){
     const s = JSON.parse(raw);
     if(s.crop) {
       currentCrop = s.crop;
-      // 탭 UI 업데이트
       const idx = {'grape':0,'peach':1,'plum':2}[s.crop]||0;
       document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===idx));
     }
-    if(s.avgFruit) {
+    // 현재 작물 avgFruit 복원 (avgFruitMap 우선, 없으면 avgFruit)
+    const afVal = (s.avgFruitMap && s.avgFruitMap[currentCrop]) || s.avgFruit || '';
+    if(afVal) {
       const el = document.getElementById('avg_fruit');
-      el.value = s.avgFruit;
+      el.value = afVal;
       el.classList.add('filled');
     }
-    if(s.varieties && s.varieties.length > 0) varieties = s.varieties;
+    // 현재 작물 품종 복원
+    if(s['varieties_'+currentCrop] && s['varieties_'+currentCrop].length > 0){
+      varieties = s['varieties_'+currentCrop];
+    } else if(s.varieties && s.varieties.length > 0){
+      varieties = s.varieties;
+    }
     return true;
   }catch(e){ return false; }
 }

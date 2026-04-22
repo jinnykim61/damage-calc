@@ -575,7 +575,7 @@ function loadState(){
     if(!raw) return;
     const s=JSON.parse(raw);
     ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate',
-     'fullWeight','fullMoisture','fullDeadArea','fullUninsArea','fullUninsRate'].forEach(id=>{
+     'fullWeight','fullMoisture','fullUninsRate'].forEach(id=>{
       const el=document.getElementById(id);
       if(el&&s[id]!==undefined&&s[id]!==''){el.value=s[id];el.classList.add('filled');}
     });
@@ -587,7 +587,7 @@ function loadState(){
 function resetAll(){
   try{localStorage.removeItem('bean_state');}catch(e){}
   ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate',
-   'fullWeight','fullMoisture','fullDeadArea','fullUninsArea','fullUninsRate',
+   'fullWeight','fullMoisture','fullUninsRate',
    'fullSurvey','surveyArea','contractYn','commonSurvey'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){el.value='';el.classList.remove('filled');el.style.color='';el.style.fontWeight='';}
