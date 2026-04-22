@@ -1029,20 +1029,37 @@ function moveToNextVariety(vi) {
   }
 
   varieties[nextVi].open = true;
+
   const ss = document.getElementById(`ss-${nextVi}`);
-  const icon = document.getElementById(`toggle-icon-${nextVi}`);
-  const nextBtn = document.getElementById(`next-btn-${nextVi}`);
 
-  if(ss) ss.classList.add('open');
-  if(icon) icon.textContent = '▼';
-  if(nextBtn) nextBtn.style.display = 'block';
-
-  setTimeout(()=>{
-    if(ss){
+  // ss가 빈 placeholder(display:none 인라인)이면 onInput으로 재렌더 필요
+  if(!ss || ss.children.length === 0 || ss.style.display === 'none') {
+    onInput();
+    setTimeout(()=>{
+      const ssNew = document.getElementById(`ss-${nextVi}`);
+      const iconNew = document.getElementById(`toggle-icon-${nextVi}`);
+      const btnNew = document.getElementById(`next-btn-${nextVi}`);
+      if(ssNew) ssNew.classList.add('open');
+      if(iconNew) iconNew.textContent = '▼';
+      if(btnNew) btnNew.style.display = 'block';
+      setTimeout(()=>{
+        if(ssNew){
+          const rect = ssNew.getBoundingClientRect();
+          window.scrollTo({top: window.pageYOffset + rect.top - 160, behavior:'smooth'});
+        }
+      }, 50);
+    }, 150);
+  } else {
+    const icon = document.getElementById(`toggle-icon-${nextVi}`);
+    const nextBtn = document.getElementById(`next-btn-${nextVi}`);
+    ss.classList.add('open');
+    if(icon) icon.textContent = '▼';
+    if(nextBtn) nextBtn.style.display = 'block';
+    setTimeout(()=>{
       const rect = ss.getBoundingClientRect();
       window.scrollTo({top: window.pageYOffset + rect.top - 160, behavior:'smooth'});
-    }
-  }, 50);
+    }, 50);
+  }
 }
 
 function autoOpenSamples(vi) {
