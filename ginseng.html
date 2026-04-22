@@ -12,15 +12,26 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 function bindMobileFocusHandlers(){
-  const selectors = 'input.inp, select.inp';
+  const selectors = 'input.inp, select#insYear, select#selfDed';
   document.querySelectorAll(selectors).forEach(el=>{
     if(el.dataset.mobileFocusBound==='1') return;
     el.dataset.mobileFocusBound='1';
     el.addEventListener('focus', ()=>el.classList.add('mobile-focus'), {passive:true});
     el.addEventListener('blur',  ()=>el.classList.remove('mobile-focus'), {passive:true});
+
+    let _touchStartY = 0;
+    let _touchStartX = 0;
+    el.addEventListener('touchstart', (e)=>{
+      _touchStartY = e.touches[0].clientY;
+      _touchStartX = e.touches[0].clientX;
+    }, {passive:true});
     el.addEventListener('touchend', (e)=>{
+      const dy = Math.abs(e.changedTouches[0].clientY - _touchStartY);
+      const dx = Math.abs(e.changedTouches[0].clientX - _touchStartX);
+      if(dy > 8 || dx > 8) return; // 스크롤이면 무시
       if(e.cancelable) e.preventDefault();
-      el.focus(); el.classList.add('mobile-focus');
+      el.focus();
+      el.classList.add('mobile-focus');
     }, {passive:false});
   });
 }
