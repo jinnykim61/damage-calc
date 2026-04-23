@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" translate="no" class="notranslate">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#185FA5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -288,6 +289,26 @@ tbody td input.filled:active{
   color:#185FA5 !important;
 }
 
+</style>
+
+<style>
+  /* 잠금 및 안정화 스타일 추가 */
+  input.locked, select.locked {
+    background-color: #f0fdf4 !important;
+    color: #166534 !important;
+    pointer-events: none !important;
+    border: 1px solid #bbf7d0 !important;
+  }
+  .header-tools { display: flex; align-items: center; gap: 10px; }
+  .lock-icon { font-size: 20px; cursor: pointer; }
+  .calc-btn-wrap { padding: 15px; text-align: center; }
+  .btn-main-calc {
+    width: 100%; padding: 15px; background: #185FA5; color: white;
+    border: none; border-radius: 8px; font-weight: bold; font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .btn-main-calc:disabled { background: #ccc; cursor: not-allowed; }
+  body { padding-bottom: 120px !important; }
 </style>
 </head>
 <body>
@@ -1217,6 +1238,41 @@ function bindSampleNextNavigation(){
   });
 }
 
+</script>
+
+<script>
+let isLocked = false;
+function runFinalCalculation() {
+    if(typeof calc === 'function') calc();
+    setLock(true);
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+function setLock(lock) {
+    isLocked = lock;
+    const inputs = document.querySelectorAll('input, select');
+    const lockBtn = document.getElementById('lock-status');
+    const mainBtn = document.getElementById('btn-main-calc');
+    inputs.forEach(el => {
+        if (isLocked) {
+            el.classList.add('locked');
+            el.setAttribute('readonly', true);
+        } else {
+            el.classList.remove('locked');
+            el.removeAttribute('readonly');
+        }
+    });
+    lockBtn.innerText = isLocked ? "🔒" : "🔓";
+    if(mainBtn) mainBtn.disabled = isLocked;
+}
+function toggleLock() { setLock(!isLocked); }
+window.addEventListener('touchmove', function() {
+    if (isLocked && document.activeElement.tagName === 'INPUT') {
+        document.activeElement.blur();
+    }
+}, { passive: true });
+document.querySelectorAll('input').forEach(input => {
+    input.setAttribute('autocomplete', 'off');
+});
 </script>
 </body>
 </html>
