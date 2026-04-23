@@ -979,7 +979,8 @@ function saveState(){
     crack_count: document.getElementById('crack_count')?.value||'',
     survey_date: document.getElementById('survey_date').value,
     harvest_date: document.getElementById('harvest_date').value,
-    samples: samples
+    samples: samples,
+    isLocked: _isLocked
   };
   try{ localStorage.setItem('onion_state', JSON.stringify(state)); }catch(e){}
 }
@@ -1008,6 +1009,7 @@ function loadState(){
     });
 
     if(s.samples && s.samples.length>0) samples=s.samples;
+    if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
     return true;
   }catch(e){ return false; }
 }
