@@ -297,7 +297,9 @@ tbody td input.filled:active{
       <div class="field">
         <label>기수확면적 (㎡)</label>
         <input type="number" id="harv_area" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
+          enterkeyhint="next"
+          oninput="markFilled(this)" onblur="updateSamplesAndCalc()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('harvest_date').focus()}">
       </div>
     </div>
     <div class="g3">
