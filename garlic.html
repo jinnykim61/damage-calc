@@ -154,7 +154,7 @@ tfoot td.v{color:var(--text)}
 
 /* 결과 — 항상 표시, 값 없으면 대기 상태 */
 .result-box{background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);border-radius:18px;padding:0 12px;margin-bottom:10px;color:white;border:1.5px solid rgba(255,255,255,0.25);box-shadow:0 8px 28px rgba(24,95,165,0.5),inset 0 1px 0 rgba(255,255,255,0.2)}
-.result-box.pending{background:linear-gradient(135deg,#888 0%,#aaa 100%);border:1.5px solid rgba(255,255,255,0.15);box-shadow:none}
+.result-box.pending{background:linear-gradient(135deg,#888 0%,#aaa 100%);border:1.5px solid rgba(255,255,255,0.15);box-shadow:none;display:none}
 .result-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .result-label{font-size:13px;opacity:0.8;margin-bottom:4px;text-align:center}
 .result-pct{font-size:44px;font-weight:700;line-height:1;text-align:center}
@@ -320,7 +320,7 @@ tbody td input.filled:active{
       <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
     </div>
     <div style="width:50%">
-      <select id="crop" class="inp filled" onchange="markFilled(this);onCropChange()" style="text-align:left;text-align-last:left">
+      <select id="crop" class="inp filled" onchange="markFilled(this);saveState();onCropChange()" style="text-align:left;text-align-last:left">
         <option value="garlic_s">마늘 난지형</option>
         <option value="garlic_n">마늘 한지형</option>
       </select>
@@ -333,35 +333,35 @@ tbody td input.filled:active{
       <div class="field">
         <label>평년수확량 (kg)</label>
         <input type="text" id="avg_yield" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onchange="calc()" onblur="calc()">
+          oninput="onCommaInput(this);saveState()" onchange="calc()" onblur="calc()">
       </div>
       <div class="field">
         <label>가입면적 (㎡)</label>
         <input type="text" id="ins_area" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onchange="calc()" onblur="calc()">
+          oninput="onCommaInput(this);saveState()" onchange="calc()" onblur="calc()">
       </div>
       <div class="field">
         <label>실제경작면적 (㎡)</label>
         <input type="text" id="act_area" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this);updateSamplesAndCalc()" onchange="updateSamplesAndCalc()">
+          oninput="onCommaInput(this);saveState();updateSamplesAndCalc()" onchange="updateSamplesAndCalc()">
       </div>
     </div>
     <div class="g3">
       <div class="field">
         <label>고사면적 (㎡)</label>
         <input type="number" id="dead_area" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
+          oninput="markFilled(this);saveState()" onblur="updateSamplesAndCalc()">
       </div>
       <div class="field">
         <label>타작물/미보상 (㎡)</label>
         <input type="number" id="other_area" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
+          oninput="markFilled(this);saveState()" onblur="updateSamplesAndCalc()">
       </div>
       <div class="field">
         <label>기수확면적 (㎡)</label>
         <input type="number" id="harv_area" class="inp" inputmode="decimal"
           enterkeyhint="next"
-          oninput="markFilled(this)" onblur="updateSamplesAndCalc()"
+          oninput="markFilled(this);saveState()" onblur="updateSamplesAndCalc()"
           onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('harvest_date').focus()}">
       </div>
     </div>
@@ -386,11 +386,11 @@ tbody td input.filled:active{
     <div class="g2">
       <div class="field">
         <label>조사일자</label>
-        <input type="date" id="survey_date" class="inp" onchange="markFilled(this);calc()">
+        <input type="date" id="survey_date" class="inp" onchange="markFilled(this);saveState();calc()">
       </div>
       <div class="field">
         <label>수확예정일</label>
-        <input type="date" id="harvest_date" class="inp" onchange="markFilled(this);calc()">
+        <input type="date" id="harvest_date" class="inp" onchange="markFilled(this);saveState();calc()">
       </div>
     </div>
     <div style="display:grid;grid-template-columns:2fr 0.75fr 0.75fr;gap:6px;margin-bottom:8px">
@@ -401,12 +401,12 @@ tbody td input.filled:active{
       <div class="field">
         <label>열공수 (개)</label>
         <input type="number" id="crack_count" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()">
+          oninput="markFilled(this);saveState()" onblur="calc()">
       </div>
       <div class="field">
         <label>미보상 (%)</label>
         <input type="number" id="unins_rate" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()">
+          oninput="markFilled(this);saveState()" onblur="calc()">
       </div>
     </div>
   </div>
@@ -625,8 +625,7 @@ tbody td input.filled:active{
   </div>
 </div>
 
-<div id="install-banner">
-  <div class="banner-title">홈 화면에 추가하기</div>
+
   <div class="banner-sub">앱처럼 설치하면 오프라인에서도 사용 가능해요</div>
   <div class="banner-btns">
     <button class="btn-install" id="btn-install">홈 화면에 추가</button>
@@ -683,33 +682,37 @@ function renderSamples(){
       <td class="no">${i+1}</td>
       <td><input type="number" value="${s.len}" step="0.01" inputmode="decimal"
         class="${s.len?'filled':''}"
-        oninput="this.classList.toggle('filled',this.value!='')"
+        oninput="samples[${i}].len=this.value;this.classList.toggle('filled',this.value!='');debouncedCalcTotals();saveState()"
         onblur="samples[${i}].len=this.value;calcTotals();saveState()"></td>
       <td><input type="number" value="${s.wid}" step="0.01" inputmode="decimal"
         class="${s.wid?'filled':''}"
-        oninput="this.classList.toggle('filled',this.value!='')"
+        oninput="samples[${i}].wid=this.value;this.classList.toggle('filled',this.value!='');debouncedCalcTotals();saveState()"
         onblur="samples[${i}].wid=this.value;calcTotals();saveState()"></td>
       <td><input type="text" value="${s.norm?Number(s.norm).toLocaleString():''}" inputmode="decimal"
         class="${s.norm?'filled':''}"
-        oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'')"
+        oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'');debouncedCalcTotals();saveState()"
         onblur="samples[${i}].norm=this.value.replace(/,/g,'');calcTotals();saveState()"></td>
       <td><input type="text" value="${s.d80?Number(s.d80).toLocaleString():''}" inputmode="decimal"
         class="${s.d80?'filled':''}"
-        oninput="onCommaInput(this);samples[${i}].d80=this.value.replace(/,/g,'')"
+        oninput="onCommaInput(this);samples[${i}].d80=this.value.replace(/,/g,'');debouncedCalcTotals();saveState()"
         onblur="samples[${i}].d80=this.value.replace(/,/g,'');calcTotals();saveState()"></td>
       <td class="col-d50"><input type="text" value="${s.d50?Number(s.d50).toLocaleString():''}" inputmode="decimal"
         class="${s.d50?'filled':''}"
-        oninput="onCommaInput(this);samples[${i}].d50=this.value.replace(/,/g,'')"
+        oninput="onCommaInput(this);samples[${i}].d50=this.value.replace(/,/g,'');debouncedCalcTotals();saveState()"
         onblur="samples[${i}].d50=this.value.replace(/,/g,'');calcTotals();saveState()"></td>
     </tr>`).join('');
-  setTimeout(()=>{ updateGarlicCols(); bindMobileFocusHandlers(); bindSampleNextNavigation(); }, 0);
+  setTimeout(()=>{ updateGarlicCols(); bindMobileFocusHandlers(); bindSampleNextNavigation(); calcTotals(); }, 0);
 }
 
 function addSample(){samples.push({len:'',wid:'',norm:'',d80:'',d50:''});renderSamples();}
 function delSample(i){if(samples.length<=1)return;samples.splice(i,1);renderSamples();calcTotals();}
 
 // ── 면적 변경 → 표본 자동 생성 + 계산 ───────────
-
+let _calcTimer=null;
+function debouncedCalcTotals(){
+  clearTimeout(_calcTimer);
+  _calcTimer=setTimeout(calcTotals,300);
+}
 
 function removeSample(){
   const actArea=toNum(document.getElementById('act_area'));
@@ -1148,7 +1151,7 @@ if('serviceWorker' in navigator){
 
 // ── PWA 설치 배너 ─────────────────────────────────
 let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-banner').classList.add('show');});
+deferredPrompt=e;document.getElementById('install-banner').classList.add('show');});
 document.getElementById('btn-install').addEventListener('click',async()=>{
   if(!deferredPrompt)return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null;
   document.getElementById('install-banner').classList.remove('show');
@@ -1165,9 +1168,14 @@ if(!loaded){
 }
 
 window.addEventListener('beforeunload', saveState);
+window.addEventListener('pagehide', saveState);
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'hidden') saveState();
+});
 
 updateGarlicCols();
-setTimeout(()=>{
+function restoreAndRecalc(){
+
   if(loaded){
     const actArea=toNum(document.getElementById('act_area'))||toNum(document.getElementById('ins_area'));
     const insArea=toNum(document.getElementById('ins_area'));
@@ -1175,21 +1183,33 @@ setTimeout(()=>{
     const otherArea=parseFloat(document.getElementById('other_area').value)||0;
     const harvArea=parseFloat(document.getElementById('harv_area').value)||0;
     const surveyArea=Math.max(0,actArea-deadArea-otherArea-harvArea);
-    const areaErr=insArea>0?((actArea-insArea)/insArea*100).toFixed(2):'-';
     document.getElementById('survey_area_disp').value=surveyArea>0?surveyArea.toLocaleString()+' ㎡':'';
     document.getElementById('area_err_disp').value='';
 
     if(samples.length>0){
       renderSamples();
       calcTotals();
+      setTimeout(()=>{ calcTotals(); calc(); }, 80);
+      setTimeout(()=>{ calc(); }, 180);
     } else {
       updateSamplesAndCalc();
+      setTimeout(()=>{ calc(); }, 120);
     }
-    calc();
   } else {
     updateSamplesAndCalc();
+    setTimeout(()=>{ calc(); }, 120);
   }
-}, 50);
+}
+
+setTimeout(restoreAndRecalc, 50);
+
+window.addEventListener('load', ()=>{
+  if(loaded) setTimeout(()=>{ calc(); }, 120);
+});
+
+window.addEventListener('pageshow', ()=>{
+  if(loaded) setTimeout(()=>{ calc(); }, 120);
+});
 
 // bindMobileFocusHandlers 및 DOMContentLoaded는 head 스크립트에서 처리
 
