@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html lang="ko" translate="no" class="notranslate">
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="google" content="notranslate">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#185FA5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>마늘 피해율계산기</title>
 <!-- v1776611953 -->
-
-
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 function bindMobileFocusHandlers(){
@@ -290,31 +289,12 @@ tbody td input.filled:active{
 }
 
 </style>
-
-<style>
-  input.locked, select.locked {
-    background-color: #f0fdf4 !important;
-    color: #166534 !important;
-    pointer-events: none !important;
-    border: 1px solid #bbf7d0 !important;
-  }
-  .header { display: flex; justify-content: space-between; align-items: center; }
-  .lock-btn { font-size: 24px; cursor: pointer; padding: 5px; }
-  .calc-btn-wrap { padding: 15px; }
-  .btn-main-calc {
-    width: 100%; padding: 16px; background: #185FA5; color: white;
-    border: none; border-radius: 10px; font-weight: bold; font-size: 18px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  }
-  .btn-main-calc:disabled { background: #ccc; }
-  body { padding-bottom: 120px !important; }
-</style>
 </head>
 <body>
 
 <div class="header">
   <button class="back-btn" onclick="location.href='./index.html'">‹</button>
-  <div class="header-icon">🧅<div id="lock-status" class="lock-btn" onclick="toggleLock()">🔓</div></div>
+  <div class="header-icon">🧅</div>
   <div>
     <h1>마늘 피해율계산기</h1>
     <div class="header-sub">밭작물 · 수확량 조사</div>
@@ -1237,43 +1217,6 @@ function bindSampleNextNavigation(){
   });
 }
 
-</script>
-
-<script>
-let isLocked = false;
-function runFinalCalculation() {
-    if(typeof calc === 'function') calc();
-    setLock(true);
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-}
-function setLock(lock) {
-    isLocked = lock;
-    const inputs = document.querySelectorAll('input, select');
-    const lockBtn = document.getElementById('lock-status');
-    const mainBtn = document.getElementById('btn-main-calc');
-    inputs.forEach(el => {
-        if (isLocked) {
-            el.classList.add('locked');
-            el.setAttribute('readonly', true);
-        } else {
-            el.classList.remove('locked');
-            el.removeAttribute('readonly');
-        }
-    });
-    lockBtn.innerText = isLocked ? "🔒" : "🔓";
-    if(mainBtn) mainBtn.disabled = isLocked;
-}
-function toggleLock() { setLock(!isLocked); }
-// 스크롤 시 포커스 해제 (키패드 방지)
-window.addEventListener('touchmove', function() {
-    if (isLocked && document.activeElement.tagName === 'INPUT') {
-        document.activeElement.blur();
-    }
-}, { passive: true });
-// 모든 input 자동완성 끄기
-document.querySelectorAll('input').forEach(input => {
-    input.setAttribute('autocomplete', 'off');
-});
 </script>
 </body>
 </html>
