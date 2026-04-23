@@ -18,10 +18,13 @@ function bindMobileFocusHandlers(){
     if(el.dataset.mobileFocusBound === '1') return;
     el.dataset.mobileFocusBound = '1';
 
-    el.addEventListener('focus', ()=> el.classList.add('mobile-focus'), {passive:true});
-    el.addEventListener('blur',  ()=> el.classList.remove('mobile-focus'), {passive:true});
+    el.addEventListener('focus', ()=>{
+      el.classList.add('mobile-focus');
+      const len = el.value.length;
+      try{ el.setSelectionRange(len, len); }catch(_){}
+    }, {passive:true});
+    el.addEventListener('blur', ()=> el.classList.remove('mobile-focus'), {passive:true});
 
-    // select(드롭다운)와 date input은 브라우저 기본 동작(피커 열기)을 막지 않는다
     const isSelect = el.tagName === 'SELECT';
     const isDate = el.type === 'date';
     if(!isSelect && !isDate){
@@ -29,6 +32,8 @@ function bindMobileFocusHandlers(){
         if(e.cancelable) e.preventDefault();
         el.focus();
         el.classList.add('mobile-focus');
+        const len = el.value.length;
+        try{ el.setSelectionRange(len, len); }catch(_){}
       }, {passive:false});
     }
   });
@@ -937,7 +942,10 @@ function calc(){
 
 // ── 입력 잠금 / 해제 토글 ────────────────────────
 let _isLocked = false;
+let _manualUnlock = false; // 사용자가 수동으로 해제한 상태
 function lockInputs(){
+  // 사용자가 수동으로 해제한 상태이면 자동잠금 안 함
+  if(_manualUnlock) return;
   _isLocked = true;
   document.querySelector('.content').classList.add('locked');
   document.getElementById('lock-bar').classList.add('show');
@@ -946,11 +954,23 @@ function lockInputs(){
 }
 function unlockInputs(){
   _isLocked = false;
+  _manualUnlock = false;
   document.querySelector('.content').classList.remove('locked');
   document.getElementById('lock-bar').classList.remove('show');
 }
 function toggleLock(){
-  if(_isLocked){ unlockInputs(); } else { lockInputs(); }
+  if(_isLocked){
+    // 수동 해제 → 이후 자동잠금 방지
+    _manualUnlock = true;
+    unlockInputs();
+    document.getElementById('lock-bar').classList.add('show');
+    document.getElementById('lock-label').textContent = '🔓 잠금 해제됨';
+    document.getElementById('lock-toggle-btn').textContent = '🔒 잠금';
+  } else {
+    // 수동 잠금
+    _manualUnlock = false;
+    lockInputs();
+  }
 }
 
 function showDeleteLimitModal(){
@@ -989,7 +1009,7 @@ function resetAll(){
   const cropEl=document.getElementById('crop');
   cropEl.value='garlic_s';
   cropEl.classList.add('filled');
-  unlockInputs();
+  _manualUnlock = false; unlockInputs();
   samples=[];
   renderSamples();
   updateGarlicCols();
