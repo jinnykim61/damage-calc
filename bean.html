@@ -75,10 +75,14 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
 .save-btn:active{background:rgba(255,255,255,0.35)}
 /* 입력 잠금 상태 */
 .locked input.inp, .locked select.inp, .locked tbody td input{ pointer-events:none; opacity:0.72; }
-.lock-bar{display:none;background:#1D9E75;color:white;padding:7px 16px;font-size:12px;font-weight:600;letter-spacing:0.03em;align-items:center;justify-content:space-between}
+.lock-bar{position:sticky;top:56px;z-index:99;display:none;background:#1D9E75;color:white;padding:7px 16px;font-size:12px;font-weight:600;align-items:center;justify-content:space-between}
 .lock-bar.show{display:flex}
-.unlock-btn{height:30px;padding:0 14px;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.5);border-radius:8px;color:white;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
-.unlock-btn:active{background:rgba(255,255,255,0.35)}
+.lock-toggle-btn{height:30px;padding:0 14px;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.5);border-radius:8px;color:white;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.lock-toggle-btn:active{background:rgba(255,255,255,0.35)}
+
+
+
+
 /* 삭제불가 모달 */
 .del-limit-modal-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:350;align-items:center;justify-content:center;padding:20px}
 .del-limit-modal-wrap.show{display:flex}
@@ -115,8 +119,8 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
   <button class="mode-tab" id="tab-full" onclick="setMode('full')">전수조사</button>
 </div>
 <div class="lock-bar" id="lock-bar">
-  <span>🔒 입력 잠금 중 — 스크롤로 확인하세요</span>
-  <button class="unlock-btn" onclick="unlockInputs()">✏️ 수정하기</button>
+  <span id="lock-label">🔒 입력 잠금 중</span>
+  <button class="lock-toggle-btn" id="lock-toggle-btn" onclick="toggleLock()">🔓 잠금 해제</button>
 </div>
 
 <div class="legend">
@@ -222,7 +226,6 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding-left:12px;flex-shrink:0">
         <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
-        <button class="save-btn" onclick="unlockInputs()" id="result-unlock-btn" style="display:none;background:rgba(255,255,255,0.15)"><span style="font-size:14px">✏️</span><span>수정</span></button>
       </div>
     </div>
   </div>
@@ -520,16 +523,22 @@ function showResult(avg, survey, unit, area, unins, pihaeyul){
   lockInputs();
 }
 
-// ── 입력 잠금 / 해제 ─────────────────────────────
+// ── 입력 잠금 / 해제 토글 ────────────────────────
+let _isLocked = false;
 function lockInputs(){
+  _isLocked = true;
   document.querySelector('.content').classList.add('locked');
   document.getElementById('lock-bar').classList.add('show');
-  document.getElementById('result-unlock-btn').style.display='inline-flex';
+  document.getElementById('lock-label').textContent = '🔒 입력 잠금 중';
+  document.getElementById('lock-toggle-btn').textContent = '🔓 잠금 해제';
 }
 function unlockInputs(){
+  _isLocked = false;
   document.querySelector('.content').classList.remove('locked');
   document.getElementById('lock-bar').classList.remove('show');
-  document.getElementById('result-unlock-btn').style.display='none';
+}
+function toggleLock(){
+  if(_isLocked){ unlockInputs(); } else { lockInputs(); }
 }
 
 function renderSamples(){
