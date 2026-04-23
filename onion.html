@@ -1078,5 +1078,28 @@ window.addEventListener('pageshow', ()=>{
 
 
 </script>
+
+<div style="position:fixed;bottom:20px;left:0;right:0;display:flex;gap:10px;padding:0 12px;z-index:200">
+  <button onclick="lockNow()" style="flex:1;height:48px;background:#185FA5;color:white;border:none;border-radius:12px;font-size:16px;font-weight:700">계산하기</button>
+  <button onclick="unlockNow()" style="flex:1;height:48px;background:#fff;border:2px solid #185FA5;color:#185FA5;border-radius:12px;font-size:16px;font-weight:700">수정하기</button>
+</div>
+
+
+<script>
+let locked = false;
+
+function lockNow(){
+  locked = true;
+  document.body.classList.add('locked');
+  document.getElementById('lock-state').textContent = '🔒';
+}
+
+function unlockNow(){
+  locked = false;
+  document.body.classList.remove('locked');
+  document.getElementById('lock-state').textContent = '🔓';
+}
+</script>
+
 </body>
 </html>
