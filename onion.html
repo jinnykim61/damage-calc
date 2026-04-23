@@ -533,6 +533,14 @@ tbody td input.filled:active{
 </div>
 
 
+<div id="save-done-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center">
+  <div class="save-modal">
+    <div style="font-size:36px;margin-bottom:10px">📷</div>
+    <p>이미지가 저장되었어요!</p>
+    <button class="btn-ok" onclick="document.getElementById('save-done-overlay').style.display='none'">확인</button>
+  </div>
+</div>
+
 <div id="install-banner">
   <div class="banner-title">홈 화면에 추가하기</div>
   <div class="banner-sub">앱처럼 설치하면 오프라인에서도 사용 가능해요</div>
@@ -897,6 +905,7 @@ async function saveImage(){
     link.download=`양파피해율_${stamp}.png`;
     link.href=canvas.toDataURL('image/png');
     link.click();
+    document.getElementById('save-done-overlay').style.display='flex';
   }catch(e){ alert('저장 중 오류가 발생했어요.'); }
 }
 
