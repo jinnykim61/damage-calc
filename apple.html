@@ -20,9 +20,26 @@ function bindMobileFocusHandlers(){
     el.dataset.mobileFocusBound='1';
     el.addEventListener('focus',()=>{
       el.classList.add('mobile-focus');
-      const v=el.value; el.value=''; el.value=v;
+      const len=el.value.length;
+      try{ el.setSelectionRange(len,len); }catch(_){}
     },{passive:true});
     el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
+    const isDate = el.type==='date';
+    if(!isDate){
+      el.addEventListener('touchend',(e)=>{
+        if(e.cancelable) e.preventDefault();
+        const wasFilled = el.classList.contains('filled');
+        el.focus();
+        el.classList.add('mobile-focus');
+        if(wasFilled){
+          el.value='';
+          el.classList.remove('filled');
+        } else {
+          const len=el.value.length;
+          try{ el.setSelectionRange(len,len); }catch(_){}
+        }
+      },{passive:false});
+    }
   });
 }
 document.addEventListener('DOMContentLoaded',()=>{
@@ -158,6 +175,17 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 .result-detail-box.show{display:block}
 .save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 .save-btn:active{background:rgba(255,255,255,0.35)}
+/* 입력 잠금 상태 */
+.locked input.inp:not([type=date]), .locked select.inp, .locked input.sg-inp, .locked input[type=number]{ pointer-events:none; opacity:0.72; }
+.locked input[type=date].inp{ pointer-events:none; opacity:0.72; }
+/* 계산하기/수정하기 버튼 */
+.calc-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.btn-calc{height:46px;border:none;border-radius:12px;background:var(--blue);color:white;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-calc:active{background:#1354a0}
+.btn-edit{height:46px;border:2px solid var(--green);border-radius:12px;background:white;color:var(--green);font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-edit:active{background:#f0fdf8}
+.btn-calc.active{background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);box-shadow:0 4px 14px rgba(24,95,165,0.35)}
+.btn-edit.active{background:var(--green);color:white;box-shadow:0 4px 14px rgba(29,158,117,0.35)}
 
 /* 계산 완료 후 스크롤 중 입력 방지 */
 /* 계산 완료 후 스크롤 중 입력 방지 - 제거 */
@@ -325,10 +353,11 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     </div>
   </div>
 
-  <!-- 계산 버튼 -->
-  <button class="calc-btn" id="calc-btn" onclick="doCalc(true)">
-    <span>🧮</span><span>착과수 계산</span>
-  </button>
+  <!-- 계산하기 / 수정하기 버튼 -->
+  <div class="calc-action-row">
+    <button class="btn-edit active" id="btn-edit" onclick="setEditMode()">✏️ 수정하기</button>
+    <button class="btn-calc" id="btn-calc" onclick="setCalcMode()">🧮 착과수 계산하기</button>
+  </div>
 
   <!-- 결과 메인 박스 (마늘 스타일) -->
   <div class="result-box" id="result-section">
@@ -1465,15 +1494,17 @@ function doCalc(manual = false) {
   document.getElementById('result-section').classList.add('show');
 
   const btn = document.getElementById('calc-btn');
-  if(manual){
-    btn.classList.add('done');
-    btn.innerHTML = '<span>✅</span><span>계산 완료!</span>';
-    allData[currentCrop].calcDone = true;
-  } else {
-    btn.classList.remove('done');
-    btn.innerHTML = '<span>🧮</span><span>착과수 계산</span>';
-    allData[currentCrop].calcDone = false;
+  if(btn){
+    if(manual){
+      btn.classList.add('done');
+      btn.innerHTML = '<span>✅</span><span>계산 완료!</span>';
+    } else {
+      btn.classList.remove('done');
+      btn.innerHTML = '<span>🧮</span><span>착과수 계산</span>';
+    }
   }
+  if(manual) allData[currentCrop].calcDone = true;
+  else allData[currentCrop].calcDone = false;
   saveState();
   document.getElementById('result-section').scrollIntoView({behavior:'smooth', block:'start'});
 }
@@ -1486,7 +1517,8 @@ function saveState(){
     allData[currentCrop].varieties = varieties;
     localStorage.setItem('apple_multi_state', JSON.stringify({
       currentCrop,
-      allData
+      allData,
+      isLocked: _isLocked
     }));
   }catch(e){}
 }
@@ -1514,6 +1546,7 @@ function loadState(){
     const af = document.getElementById('avg_fruit');
     af.value = allData[currentCrop].avgFruit || '';
     if(af.value) af.classList.add('filled');
+    if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
     return true;
   }catch(e){ return false; }
 }
@@ -1533,9 +1566,30 @@ function resetAll() {
   document.getElementById('result-detail-section').classList.remove('show');
   resetCalcBtn();
   localStorage.removeItem('apple_multi_state');
+  unlockInputs();
   onInput();
   window.scrollTo({top:0, behavior:'smooth'});
 }
+
+// ── 계산하기 / 수정하기 모드 ─────────────────────
+let _isLocked = false;
+function setCalcMode(){
+  _isLocked = true;
+  document.querySelector('.content').classList.add('locked');
+  document.getElementById('btn-calc').classList.add('active');
+  document.getElementById('btn-edit').classList.remove('active');
+  doCalc(true);
+  saveState();
+}
+function setEditMode(){
+  _isLocked = false;
+  document.querySelector('.content').classList.remove('locked');
+  document.getElementById('btn-edit').classList.add('active');
+  document.getElementById('btn-calc').classList.remove('active');
+  saveState();
+}
+function lockInputs(){ setCalcMode(); }
+function unlockInputs(){ setEditMode(); }
 
 // ── 갤러리 저장 ───────────────────────────────────
 async function saveImage() {

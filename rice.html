@@ -76,6 +76,17 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 .result-box.pending{background:linear-gradient(135deg,#888 0%,#aaa 100%);border:1.5px solid rgba(255,255,255,0.15);box-shadow:none}
 .save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 .save-btn:active{background:rgba(255,255,255,0.35)}
+/* 입력 잠금 상태 */
+.locked input.inp:not([type=date]), .locked select.inp, .locked input[type=number]{ pointer-events:none; opacity:0.72; }
+.locked input[type=date].inp{ pointer-events:none; opacity:0.72; }
+/* 계산하기/수정하기 버튼 */
+.calc-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.btn-calc{height:46px;border:none;border-radius:12px;background:var(--blue);color:white;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-calc:active{background:#1354a0}
+.btn-edit{height:46px;border:2px solid var(--green);border-radius:12px;background:white;color:var(--green);font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-edit:active{background:#f0fdf8}
+.btn-calc.active{background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);box-shadow:0 4px 14px rgba(24,95,165,0.35)}
+.btn-edit.active{background:var(--green);color:white;box-shadow:0 4px 14px rgba(29,158,117,0.35)}
 .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
 .metric{background:rgba(255,255,255,0.15);border-radius:var(--rs);padding:10px 8px;text-align:center}
 .metric .ml{font-size:10px;opacity:0.75;margin-bottom:4px}
@@ -299,6 +310,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
   </div>
 
 
+
+  <!-- 계산하기 / 수정하기 버튼 -->
+  <div class="calc-action-row">
+    <button class="btn-edit active" id="btn-edit" onclick="setEditMode()">✏️ 수정하기</button>
+    <button class="btn-calc" id="btn-calc" onclick="setCalcMode()">🔒 계산하기</button>
+  </div>
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
@@ -719,7 +736,7 @@ function showResult(box, pctEl, avg, survey, eff, area, unins, pihaeyul, isDis){
 function saveState(){
   const ids = ['avgYield','insArea','actArea','deadArea','uninsArea','preArea',
                'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture','surveyDate'];
-  const state = {mode, disease: document.getElementById('dis-y')?.checked ? 'y' : 'n'};
+  const state = {mode, disease: document.getElementById('dis-y')?.checked ? 'y' : 'n', isLocked: _isLocked};
   ids.forEach(id => { const el=document.getElementById(id); if(el) state[id]=el.value; });
 
   // sp0 칸이 DOM에 있을 때만 spVals 새로 저장, 없으면 기존값 유지
@@ -808,6 +825,7 @@ function resetAll(){
   if(sdEl){const t=new Date();sdEl.value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;sdEl.classList.add('filled');}
   document.getElementById('result-pct').textContent='- -';
   document.getElementById('result-pct').style.color='white';
+  unlockInputs();
   calc();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -923,7 +941,57 @@ if('serviceWorker' in navigator){
   caches.keys().then(k=>Promise.all(k.map(c=>caches.delete(c))));
 }
 
+// ── 계산하기 / 수정하기 모드 ─────────────────────
+let _isLocked = false;
+function setCalcMode(){
+  _isLocked = true;
+  document.querySelector('.content').classList.add('locked');
+  document.getElementById('btn-calc').classList.add('active');
+  document.getElementById('btn-edit').classList.remove('active');
+  saveState();
+}
+function setEditMode(){
+  _isLocked = false;
+  document.querySelector('.content').classList.remove('locked');
+  document.getElementById('btn-edit').classList.add('active');
+  document.getElementById('btn-calc').classList.remove('active');
+  saveState();
+}
+function lockInputs(){ setCalcMode(); }
+function unlockInputs(){ setEditMode(); }
+
+function bindMobileFocusHandlers(){
+  document.querySelectorAll('input.inp, select.inp, input[type=number]').forEach(el=>{
+    if(el.dataset.mobileFocusBound==='1') return;
+    el.dataset.mobileFocusBound='1';
+    el.addEventListener('focus',()=>{
+      el.classList.add('mobile-focus');
+      const len=el.value.length;
+      try{ el.setSelectionRange(len,len); }catch(_){}
+    },{passive:true});
+    el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
+    const isDate=el.type==='date';
+    if(!isDate){
+      el.addEventListener('touchend',(e)=>{
+        if(e.cancelable) e.preventDefault();
+        const wasFilled=el.classList.contains('filled');
+        el.focus();
+        el.classList.add('mobile-focus');
+        if(wasFilled){
+          el.value='';
+          el.classList.remove('filled');
+        } else {
+          const len=el.value.length;
+          try{ el.setSelectionRange(len,len); }catch(_){}
+        }
+      },{passive:false});
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function(){
+  bindMobileFocusHandlers();
+  document.addEventListener('click',()=>setTimeout(bindMobileFocusHandlers,0),{passive:true});
   clearOldCache();
   loadState();
   setMode('sample');
@@ -966,6 +1034,11 @@ document.addEventListener('DOMContentLoaded', function(){
           }
         });
         if(restored) calc();
+      }catch(e){}
+      // 잠금 상태 복원
+      try{
+        const raw2 = localStorage.getItem('rice_state');
+        if(raw2){ const s2=JSON.parse(raw2); if(s2.isLocked) setCalcMode(); }
       }catch(e){}
       document.body.style.visibility = 'visible';
     }, 50);
