@@ -457,7 +457,7 @@ tbody td input.filled:active{
   </div>
 
   <!-- 결과 -->
-  <div class="result-box pending" id="result-section">
+  <div class="result-box pending" id="result-section" style="display:none">
     <div style="display:flex;align-items:center;padding:14px 0">
       <div style="padding-right:12px;flex-shrink:0">
         <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">피해율</span>
@@ -622,15 +622,6 @@ tbody td input.filled:active{
     <div style="font-size:36px;margin-bottom:10px">📷</div>
     <p>이미지가 저장되었어요!</p>
     <button class="btn-ok" onclick="document.getElementById('save-done-overlay').style.display='none'">확인</button>
-  </div>
-</div>
-
-<div id="install-banner">
-  <div class="banner-title">홈 화면에 추가하기</div>
-  <div class="banner-sub">앱처럼 설치하면 오프라인에서도 사용 가능해요</div>
-  <div class="banner-btns">
-    <button class="btn-install" id="btn-install">홈 화면에 추가</button>
-    <button class="btn-later" onclick="document.getElementById('install-banner').classList.remove('show')">나중에</button>
   </div>
 </div>
 
@@ -876,6 +867,8 @@ function calc(){
 
   // 필수값 미입력시 대기 상태
   if(!avgYield||!actArea||surveyArea<=0){
+    resultBox.style.display='none';
+    resultBox.style.display='none';
     resultBox.className='result-box pending';
     pctEl.textContent='- -'; pctEl.style.color='white';
     unlockInputs();
@@ -905,6 +898,7 @@ function calc(){
   }
 
   if(tA<=0||tEff<=0){
+    resultBox.style.display='none';
     resultBox.className='result-box pending';
     pctEl.textContent='- -'; pctEl.style.color='white';
     unlockInputs();
@@ -933,6 +927,7 @@ function calc(){
   document.getElementById('r-unins').textContent=uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
   document.getElementById('r-loss').textContent=netLoss.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
 
+  resultBox.style.display='block';
   resultBox.className='result-box';
   pctEl.textContent=pct.toFixed(2)+'%';
   pctEl.style.color='#FFD0D0';
@@ -1147,9 +1142,6 @@ if('serviceWorker' in navigator){
 }
 
 // ── PWA 설치 배너 ─────────────────────────────────
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-banner').classList.add('show');});
-document.getElementById('btn-install').addEventListener('click',async()=>{
   if(!deferredPrompt)return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null;
   document.getElementById('install-banner').classList.remove('show');
 });
