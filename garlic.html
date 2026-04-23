@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>마늘 피해율계산기</title>
 <!-- v1776611953 -->
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icon-192.png">
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 function bindMobileFocusHandlers(){
@@ -292,22 +292,21 @@ tbody td input.filled:active{
 </style>
 
 <style>
-  /* 잠금 및 안정화 스타일 추가 */
   input.locked, select.locked {
     background-color: #f0fdf4 !important;
     color: #166534 !important;
     pointer-events: none !important;
     border: 1px solid #bbf7d0 !important;
   }
-  .header-tools { display: flex; align-items: center; gap: 10px; }
-  .lock-icon { font-size: 20px; cursor: pointer; }
-  .calc-btn-wrap { padding: 15px; text-align: center; }
+  .header { display: flex; justify-content: space-between; align-items: center; }
+  .lock-btn { font-size: 24px; cursor: pointer; padding: 5px; }
+  .calc-btn-wrap { padding: 15px; }
   .btn-main-calc {
-    width: 100%; padding: 15px; background: #185FA5; color: white;
-    border: none; border-radius: 8px; font-weight: bold; font-size: 16px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%; padding: 16px; background: #185FA5; color: white;
+    border: none; border-radius: 10px; font-weight: bold; font-size: 18px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   }
-  .btn-main-calc:disabled { background: #ccc; cursor: not-allowed; }
+  .btn-main-calc:disabled { background: #ccc; }
   body { padding-bottom: 120px !important; }
 </style>
 </head>
@@ -315,7 +314,7 @@ tbody td input.filled:active{
 
 <div class="header">
   <button class="back-btn" onclick="location.href='./index.html'">‹</button>
-  <div class="header-icon">🧅</div>
+  <div class="header-icon">🧅<div id="lock-status" class="lock-btn" onclick="toggleLock()">🔓</div></div>
   <div>
     <h1>마늘 피해율계산기</h1>
     <div class="header-sub">밭작물 · 수확량 조사</div>
@@ -1265,11 +1264,13 @@ function setLock(lock) {
     if(mainBtn) mainBtn.disabled = isLocked;
 }
 function toggleLock() { setLock(!isLocked); }
+// 스크롤 시 포커스 해제 (키패드 방지)
 window.addEventListener('touchmove', function() {
     if (isLocked && document.activeElement.tagName === 'INPUT') {
         document.activeElement.blur();
     }
 }, { passive: true });
+// 모든 input 자동완성 끄기
 document.querySelectorAll('input').forEach(input => {
     input.setAttribute('autocomplete', 'off');
 });
