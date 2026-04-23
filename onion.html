@@ -158,6 +158,17 @@ tfoot td.v{color:var(--text)}
 .save-modal p{font-size:14px;margin-bottom:16px;color:var(--sub)}
 .save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
 
+/* 입력 잠금 상태 */
+.locked input.inp:not([type=date]), .locked select.inp,
+.locked tbody td input{
+  pointer-events:none;
+  opacity:0.72;
+}
+.locked input[type=date].inp{ pointer-events:none; opacity:0.72; }
+.lock-bar{display:none;background:#1D9E75;color:white;padding:7px 16px;font-size:12px;font-weight:600;letter-spacing:0.03em;align-items:center;justify-content:space-between}
+.lock-bar.show{display:flex}
+.unlock-btn{height:30px;padding:0 14px;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.5);border-radius:8px;color:white;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.unlock-btn:active{background:rgba(255,255,255,0.35)}
 #install-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);padding:14px 16px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.1)}
 #install-banner.show{display:block}
 .banner-title{font-size:14px;font-weight:600;margin-bottom:4px}
@@ -244,6 +255,11 @@ tbody td input.filled:active{
     <h1>양파 피해율계산기</h1>
     <div class="header-sub">밭작물 · 수확량 조사</div>
   </div>
+</div>
+
+<div class="lock-bar" id="lock-bar">
+  <span>🔒 입력 잠금 중 — 스크롤로 확인하세요</span>
+  <button class="unlock-btn" onclick="unlockInputs()">✏️ 수정하기</button>
 </div>
 
 <div class="legend">
@@ -405,6 +421,7 @@ tbody td input.filled:active{
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding-left:12px;flex-shrink:0">
         <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
+        <button class="save-btn" onclick="unlockInputs()" id="result-unlock-btn" style="display:none;background:rgba(255,255,255,0.15)"><span style="font-size:14px">✏️</span><span>수정</span></button>
       </div>
     </div>
   </div>
@@ -770,6 +787,7 @@ function calc(){
   if(!avgYield||!actArea||surveyArea<=0){
     resultBox.className='result-box pending';
     pctEl.textContent='- -'; pctEl.style.color='white';
+    unlockInputs();
     return;
   }
 
@@ -795,6 +813,7 @@ function calc(){
   if(tA<=0||tEff<=0||effAvg<=0){
     resultBox.className='result-box pending';
     pctEl.textContent='- -'; pctEl.style.color='white';
+    unlockInputs();
     return;
   }
 
@@ -822,12 +841,24 @@ function calc(){
   resultBox.className='result-box';
   pctEl.textContent=pct.toFixed(2)+'%';
   pctEl.style.color='#FFD0D0';
+  lockInputs();
   saveState();
+}
+
+// ── 입력 잠금 / 해제 ─────────────────────────────
+function lockInputs(){
+  document.querySelector('.content').classList.add('locked');
+  document.getElementById('lock-bar').classList.add('show');
+  document.getElementById('result-unlock-btn').style.display='inline-flex';
+}
+function unlockInputs(){
+  document.querySelector('.content').classList.remove('locked');
+  document.getElementById('lock-bar').classList.remove('show');
+  document.getElementById('result-unlock-btn').style.display='none';
 }
 
 // ── 초기화 ───────────────────────────────────────
 function resetAll(){
-  
   try{ localStorage.removeItem('onion_state'); }catch(e){}
   ['avg_yield','ins_area','act_area','dead_area','other_area','harv_area','unins_rate','harvest_date','crack_count'].forEach(id=>{
     const el=document.getElementById(id);
@@ -838,6 +869,7 @@ function resetAll(){
   document.getElementById('area_err_disp').value='';
   document.getElementById('remain_info').value='-';
   document.getElementById('crop').classList.remove('filled');
+  unlockInputs();
   samples=[];
   renderSamples();
   calc();
