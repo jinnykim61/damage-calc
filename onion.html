@@ -869,12 +869,14 @@ function setCalcMode(){
   document.querySelector('.content').classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
   document.getElementById('btn-edit').classList.remove('active');
+  saveState();
 }
 function setEditMode(){
   _isLocked = false;
   document.querySelector('.content').classList.remove('locked');
   document.getElementById('btn-edit').classList.add('active');
   document.getElementById('btn-calc').classList.remove('active');
+  saveState();
 }
 function lockInputs(){ setCalcMode(); }
 function unlockInputs(){ setEditMode(); }

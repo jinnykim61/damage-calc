@@ -960,12 +960,14 @@ function setCalcMode(){
   document.querySelector('.content').classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
   document.getElementById('btn-edit').classList.remove('active');
+  saveState();
 }
 function setEditMode(){
   _isLocked = false;
   document.querySelector('.content').classList.remove('locked');
   document.getElementById('btn-edit').classList.add('active');
   document.getElementById('btn-calc').classList.remove('active');
+  saveState();
 }
 function lockInputs(){
   setCalcMode();
@@ -1110,7 +1112,8 @@ function saveState(){
     crack_count: document.getElementById('crack_count')?.value||'',
     survey_date: document.getElementById('survey_date').value,
     harvest_date: document.getElementById('harvest_date').value,
-    samples: samples
+    samples: samples,
+    isLocked: _isLocked
   };
   try{ localStorage.setItem('garlic_state', JSON.stringify(state)); }catch(e){}
 }
@@ -1139,6 +1142,7 @@ function loadState(){
     });
 
     if(s.samples && s.samples.length>0) samples=s.samples;
+    if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
     return true;
   }catch(e){ return false; }
 }
