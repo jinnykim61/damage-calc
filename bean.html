@@ -73,7 +73,12 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
 .sample-summary-value{font-size:13px;font-weight:800;color:var(--text);white-space:nowrap}
 .save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-direction:row;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 .save-btn:active{background:rgba(255,255,255,0.35)}
-.save-btn:active{background:rgba(255,255,255,0.35)}
+/* 입력 잠금 상태 */
+.locked input.inp, .locked select.inp, .locked tbody td input{ pointer-events:none; opacity:0.72; }
+.lock-bar{display:none;background:#1D9E75;color:white;padding:7px 16px;font-size:12px;font-weight:600;letter-spacing:0.03em;align-items:center;justify-content:space-between}
+.lock-bar.show{display:flex}
+.unlock-btn{height:30px;padding:0 14px;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.5);border-radius:8px;color:white;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.unlock-btn:active{background:rgba(255,255,255,0.35)}
 /* 삭제불가 모달 */
 .del-limit-modal-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:350;align-items:center;justify-content:center;padding:20px}
 .del-limit-modal-wrap.show{display:flex}
@@ -109,6 +114,11 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
   <button class="mode-tab on" id="tab-sample" onclick="setMode('sample')">표본조사</button>
   <button class="mode-tab" id="tab-full" onclick="setMode('full')">전수조사</button>
 </div>
+<div class="lock-bar" id="lock-bar">
+  <span>🔒 입력 잠금 중 — 스크롤로 확인하세요</span>
+  <button class="unlock-btn" onclick="unlockInputs()">✏️ 수정하기</button>
+</div>
+
 <div class="legend">
   <div class="legend-item"><div class="dot-inp"></div>직접 입력</div>
   <div class="legend-item"><div class="dot-filled"></div>입력 완료</div>
@@ -212,6 +222,7 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding-left:12px;flex-shrink:0">
         <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
+        <button class="save-btn" onclick="unlockInputs()" id="result-unlock-btn" style="display:none;background:rgba(255,255,255,0.15)"><span style="font-size:14px">✏️</span><span>수정</span></button>
       </div>
     </div>
   </div>
@@ -376,12 +387,12 @@ function setMode(m){
   document.getElementById('tab-full').className = 'mode-tab'+(m==='full'?' on':'');
   document.getElementById('sec-sample').style.display = m==='sample' ? '' : 'none';
   document.getElementById('sec-full').style.display = m==='full' ? '' : 'none';
-  // 탭 전환 시 결과 초기화 (이전 탭 값 잔류 방지)
+  // 탭 전환 시 결과 초기화 + 잠금 해제
   document.getElementById('result-section').className='result-box pending';
   document.getElementById('result-pct').textContent='- -';
   document.getElementById('result-pct').style.color='white';
-  // 조사수확량 초기화 (표본조사 값이 전수조사 탭에 남지 않도록)
   document.getElementById('commonSurvey').value='';
+  unlockInputs();
 }
 
 function getProper(area){
@@ -441,8 +452,8 @@ function calc(){
     const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0;
     const z=parseFloat(s.weight)||0, h=parseFloat(s.moist)||0;
     if(l&&w&&z&&h){
-      totalEff += Math.round(z*(1-h/100)/(1-STD)*100)/100;
-      totalArea += Math.round((l*w+Number.EPSILON)*100)/100;
+      totalEff  += Math.round(z*(1-h/100)/(1-STD)*100)/100;   // ROUND2 유효중량
+      totalArea += Math.round(l*w*100)/100;                    // ROUND2 면적
       inputted++;
     }
   });
@@ -453,13 +464,14 @@ function calc(){
   const pctEl = document.getElementById('result-pct');
 
   if(!effAvg||!surveyArea||totalArea===0){
-    resultBox.className='result-box pending'; pctEl.textContent='- -'; pctEl.style.color='white'; return;
+    resultBox.className='result-box pending'; pctEl.textContent='- -'; pctEl.style.color='white'; unlockInputs(); return;
   }
 
   const m2 = totalEff/totalArea/1000;
   const surveyYield = Math.floor(m2*surveyArea);
   const uninsLoss = Math.round(Math.max(0,effAvg-surveyYield)*uninsRate);
-  const pihaeyul = Math.max(0, Math.floor((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000);
+  // ROUND 피해율 (소수4자리)
+  const pihaeyul = Math.max(0, Math.round((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000);
 
   document.getElementById('s-area').textContent = totalArea>0 ? totalArea.toFixed(2)+' ㎡' : '-';
   document.getElementById('s-unit').textContent = m2.toFixed(4)+' kg/㎡';
@@ -479,14 +491,15 @@ function calcFull(){
   const pctEl = document.getElementById('result-pct');
 
   if(!fullWeight||!fullMoisture||!effAvg){
-    resultBox.className='result-box pending'; pctEl.textContent='입력 대기중'; return;
+    resultBox.className='result-box pending'; pctEl.textContent='입력 대기중'; unlockInputs(); return;
   }
 
   const surveyYield = Math.round(fullWeight*(1-fullMoisture/100)/(1-STD));
   document.getElementById('commonSurvey').value = surveyYield.toLocaleString()+' kg';
 
   const uninsLoss = Math.round(Math.max(0,effAvg-surveyYield)*fullUninsRate);
-  const pihaeyul = Math.max(0, Math.floor((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000);
+  // ROUND 피해율 (소수4자리)
+  const pihaeyul = Math.max(0, Math.round((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000);
   showResult(effAvg, surveyYield, '-', surveyArea, uninsLoss, pihaeyul);
   saveState();
 }
@@ -504,6 +517,19 @@ function showResult(avg, survey, unit, area, unins, pihaeyul){
   document.getElementById('r-unins').textContent=unins.toLocaleString()+' kg';
   const loss = Math.max(0, avg - survey - unins);
   document.getElementById('r-loss').textContent=loss.toLocaleString()+' kg';
+  lockInputs();
+}
+
+// ── 입력 잠금 / 해제 ─────────────────────────────
+function lockInputs(){
+  document.querySelector('.content').classList.add('locked');
+  document.getElementById('lock-bar').classList.add('show');
+  document.getElementById('result-unlock-btn').style.display='inline-flex';
+}
+function unlockInputs(){
+  document.querySelector('.content').classList.remove('locked');
+  document.getElementById('lock-bar').classList.remove('show');
+  document.getElementById('result-unlock-btn').style.display='none';
 }
 
 function renderSamples(){
@@ -599,6 +625,7 @@ function resetAll(){
   document.getElementById('s-unit').textContent='-';
   document.getElementById('result-section').className='result-box pending';
   document.getElementById('result-pct').textContent='입력 대기중';
+  unlockInputs();
   setMode('sample');
   window.scrollTo({top:0,behavior:'smooth'});
 }
