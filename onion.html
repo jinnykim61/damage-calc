@@ -676,18 +676,18 @@ function debouncedCalcTotals(){
 
 function calcTotals(){
   const crop=document.getElementById('crop').value;
-  // 품목별 유효중량 계수: 양파=1.0, 마늘난지형=0.72, 마늘한지형=0.7
   const cropCoeff={onion:1.0, garlic_s:0.72, garlic_n:0.7};
   const cc=cropCoeff[crop]||1.0;
+  const trunc2 = v => Math.trunc(v*100)/100;
+  const round2 = v => Math.round(v*100)/100;
 
   let tN=0,t80=0,t50=0,tA=0,tEff=0,tL=0,tW=0;
   for(const s of samples){
     const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0;
     const n=parseFloat(s.norm)||0,d8=parseFloat(s.d80)||0,d5=parseFloat(s.d50)||0;
     tL+=l; tW+=w; tN+=n; t80+=d8; t50+=d5;
-    tA+=l*w;
-    // 유효중량 = (정상 + 80%형×0.2 + 50%형) × 품목계수
-    tEff+=(n + d8*0.2 + d5)*cc;
+    tA += round2(l*w);
+    tEff += trunc2((n + d8*0.2 + d5)*cc);
   }
   document.getElementById('t-len').textContent=tL.toFixed(2)+'m';
   document.getElementById('t-wid').textContent=tW.toFixed(2)+'m';
@@ -767,13 +767,19 @@ function calc(){
   const cropCoeff={onion:1.0, garlic_s:0.72, garlic_n:0.7};
   const cc=cropCoeff[crop]||1.0;
 
-  // 표본 합산
-  let tA=0,tEff=0;
+  // ── 전산 공식 적용 ──────────────────────────────
+  // ① TRUNC2 유효중량  ② ROUND2 면적
+  // ③ ROUND3 단위면적당  ④ FLOOR 조사수확량  ⑤ FLOOR 피해율
+  const trunc2 = v => Math.trunc(v*100)/100;
+  const round2 = v => Math.round(v*100)/100;
+  const round3 = v => Math.round(v*1000)/1000;
+
+  let tA=0, tEff=0;
   for(const s of samples){
-    const l=parseFloat(s.len)||0,w=parseFloat(s.wid)||0;
-    const n=parseFloat(s.norm)||0,d8=parseFloat(s.d80)||0,d5=parseFloat(s.d50)||0;
-    tA+=l*w;
-    tEff+=(n + d8*0.2 + d5)*cc;
+    const l=parseFloat(s.len)||0, w=parseFloat(s.wid)||0;
+    const n=parseFloat(s.norm)||0, d8=parseFloat(s.d80)||0, d5=parseFloat(s.d50)||0;
+    tA  += round2(l*w);
+    tEff += trunc2((n + d8*0.2 + d5)*cc);
   }
 
   if(tA<=0||tEff<=0||effAvg<=0){
@@ -782,20 +788,23 @@ function calc(){
     return;
   }
 
-  const unitYield=(tEff/1000)/tA;
-  const survYield=unitYield*surveyArea;
-  const estYield=survYield*growIdx;
-  const totalYield=survYield+estYield;
-  const loss=Math.max(0,effAvg-totalYield);
-  const uninsLoss=loss*uninsRate;
-  const netLoss=Math.max(0,loss-uninsLoss);
-  const pct=netLoss/effAvg*100;
+  // ③ 비대지수 반영 후 ROUND3
+  const unitYield = round3(tEff * (1 + growIdx) / 1000 / tA);
+  // ④ FLOOR 조사수확량
+  const totalYield = Math.floor(unitYield * surveyArea);
+  const estYield = tEff/1000/tA * growIdx * surveyArea; // 표시용
+
+  const loss = Math.max(0, effAvg - totalYield);
+  const uninsLoss = loss * uninsRate;
+  const netLoss = Math.max(0, loss - uninsLoss);
+  // ⑤ ROUND 피해율 소수4자리
+  const pct = Math.round(netLoss / effAvg * 10000) / 100;
 
   document.getElementById('r-area').textContent=surveyArea.toLocaleString()+' ㎡';
   document.getElementById('r-avg-unit').textContent=actArea>0?(effAvg/actArea).toFixed(4)+' kg/㎡':'-';
   document.getElementById('r-coeff').textContent={onion:'1.00(양파)',garlic_s:'0.72(난지형)',garlic_n:'0.70(한지형)'}[crop];
-  document.getElementById('r-surv').textContent=survYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
-  document.getElementById('area_err_disp').value=survYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
+  document.getElementById('r-surv').textContent=totalYield.toLocaleString('ko-KR')+' kg';
+  document.getElementById('area_err_disp').value=totalYield.toLocaleString('ko-KR')+' kg';
   document.getElementById('r-est').textContent=estYield.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
   document.getElementById('r-unins').textContent=uninsLoss.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
   document.getElementById('r-loss').textContent=netLoss.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
