@@ -1002,18 +1002,18 @@ function renderVarieties(totalSurvey) {
     const cardOpen = v.cardOpen !== false;
 
     return `
-    <div class="variety-card" id="vc-${vi}">
+    <div class="variety-card" id="vc-${vi}" style="padding:${cardOpen?'14px':'0'};overflow:hidden">
       <!-- 카드 헤더 (항상 표시) -->
-      <div onclick="toggleCard(${vi})" style="display:flex;align-items:center;gap:8px;cursor:pointer;${cardOpen?'margin-bottom:10px':''}">
-        <div class="variety-num" style="flex-shrink:0">${vi+1}</div>
-        <div style="flex:1;min-width:0">
-          <div id="card-name-${vi}" style="font-size:14px;font-weight:700;color:var(--text)">${displayName}${v.age>0?` ${v.age}년`:''}</div>
-          <div id="card-summary-${vi}" style="font-size:12px;margin-top:3px;display:${cardOpen?'none':'block'}">${sampleOk?`<span style="color:#1D9E75;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ✅</span>`:`<span style="color:#e05c00;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ⚠️</span>`}<span style="color:#bbb;margin:0 5px">|</span><span style="color:#0d5c35;font-weight:800;font-size:13px">${fruitStatus}</span></div>
+      <div onclick="toggleCard(${vi})" style="display:flex;align-items:center;gap:10px;cursor:pointer;${cardOpen?'margin-bottom:10px;':'background:#185FA5;padding:12px 14px;border-radius:10px;'}">
+        <div class="variety-num" style="flex-shrink:0;${!cardOpen?'background:rgba(255,255,255,0.2);color:#fff;border:none;':''}">${vi+1}</div>
+        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div id="card-name-${vi}" style="font-size:14px;font-weight:700;color:${cardOpen?'var(--text)':'#fff'};white-space:nowrap">${displayName}${v.age>0?` ${v.age}년`:''}</div>
+          <div id="card-summary-${vi}" style="font-size:14px;display:${cardOpen?'none':'flex'};align-items:center;gap:5px">${sampleOk?`<span style="color:#A8F0D8;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ✅</span>`:`<span style="color:#FFD0A0;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ⚠️</span>`}<span style="color:rgba(255,255,255,0.35)">|</span><span style="color:#fff;font-weight:800">${fruitStatus}</span></div>
         </div>
-        <span id="card-icon-${vi}" style="font-size:16px;color:var(--sub);flex-shrink:0">${cardOpen?'▼':'▶'}</span>
+        <span id="card-icon-${vi}" style="font-size:14px;color:${cardOpen?'var(--sub)':'rgba(255,255,255,0.8)'};flex-shrink:0">${cardOpen?'▼':'▶'}</span>
       </div>
       <!-- 카드 본문 (접기/펼치기) -->
-      <div id="card-body-${vi}" style="display:${cardOpen?'block':'none'}">
+      <div id="card-body-${vi}" style="display:${cardOpen?'block':'none'};padding-top:${cardOpen?'0':'10px'}">
       <!-- 1열: 품종명 / 수령 / 초기화버튼 -->
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <input type="text" class="inp${v.name?' filled':''}" value="${v.name||''}" placeholder="${defaultName}"
@@ -1188,13 +1188,14 @@ function updateCardSummary(vi) {
   const displayName = v.name || `품종${vi+1}`;
   if(nameEl) nameEl.textContent = `${displayName}${v.age>0?` ${v.age}년`:''}`;
   if(summaryEl){
-    summaryEl.style.display = cardOpen ? 'none' : 'block';
+    summaryEl.style.display = cardOpen ? 'none' : 'flex';
+    summaryEl.style.fontSize = '14px';
     const sOk = properN>0 && validS.length>=properN;
     const sSpan = sOk
       ? `<span style="color:#A8F0D8;font-weight:700">표본 ${validS.length}/${properN}주 ✅</span>`
       : `<span style="color:#FFD0A0;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ⚠️</span>`;
-    const fSpan = `<span style="color:#fff;font-weight:800;font-size:13px">${afterFruit>0?afterFruit.toLocaleString()+'개':'-'}</span>`;
-    summaryEl.innerHTML = `${sSpan}<span style="color:rgba(255,255,255,0.35);margin:0 6px">|</span>${fSpan}`;
+    const fSpan = `<span style="color:#fff;font-weight:800">${afterFruit>0?afterFruit.toLocaleString()+'개':'-'}</span>`;
+    summaryEl.innerHTML = `${sSpan}<span style="color:rgba(255,255,255,0.35);margin:0 5px">|</span>${fSpan}`;
   }
   if(iconEl) iconEl.textContent = cardOpen ? '▼' : '▶';
 }

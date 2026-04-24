@@ -469,6 +469,14 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 </div>
 
 
+<div id="save-overlay">
+  <div class="save-modal">
+    <div style="font-size:36px;margin-bottom:10px">✅</div>
+    <p>결과가 갤러리에 저장됐어요!</p>
+    <button class="btn-ok" onclick="document.getElementById('save-overlay').classList.remove('show')">확인</button>
+  </div>
+</div>
+
 <div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
     <div style="font-size:18px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">전체 초기화</div>
@@ -767,7 +775,7 @@ function checkNeedReview() {
 const CROP_NAMES = {grape:'포도', peach:'복숭아', plum:'자두'};
 let currentCrop = 'grape';
 
-const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false});
+const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false, cardOpen:true});
 
 // ── 작물별 독립 데이터 ────────────────────────────
 const allData = {
@@ -962,9 +970,29 @@ function renderVarieties(totalSurvey, totalProper) {
 
     const defaultName = `품종${vi+1}`;
     const displayName = v.name || defaultName;
+    const cardOpen = v.cardOpen !== false;
+
+    // 요약 정보 계산
+    const _validS = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s)));
+    const _sumS = _validS.reduce((a,x)=>a+parseFloat(x),0);
+    const _perS = _validS.length>0 ? _sumS/_validS.length : 0;
+    const _afterS = _perS>0&&surveyTarget>0 ? Math.round(_perS*surveyTarget) : 0;
+    const _sampleOk = properN>0 && _validS.length>=properN;
+    const _fruitStatus = _afterS>0 ? `${_afterS.toLocaleString()}개` : '-';
 
     return `
-    <div class="variety-card" id="vc-${vi}">
+    <div class="variety-card" id="vc-${vi}" style="padding:${cardOpen?'12px':'0'};overflow:hidden">
+      <!-- 카드 헤더 (항상 표시) -->
+      <div onclick="toggleCard(${vi})" style="display:flex;align-items:center;gap:10px;cursor:pointer;${cardOpen?'margin-bottom:10px;':'background:#185FA5;padding:12px 14px;border-radius:10px;'}">
+        <div class="variety-num" style="flex-shrink:0;${!cardOpen?'background:rgba(255,255,255,0.2);color:#fff;border:none;':''}">${vi+1}</div>
+        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div id="card-name-${vi}" style="font-size:14px;font-weight:700;color:${cardOpen?'var(--text)':'#fff'};white-space:nowrap">${displayName}${v.age>0?` ${v.age}년`:''}</div>
+          <div id="card-summary-${vi}" style="font-size:14px;display:${cardOpen?'none':'flex'};align-items:center;gap:5px">${_sampleOk?`<span style="color:#A8F0D8;font-weight:700">표본 ${_validS.length}/${properN>0?properN:0}주 ✅</span>`:`<span style="color:#FFD0A0;font-weight:700">표본 ${_validS.length}/${properN>0?properN:0}주 ⚠️</span>`}<span style="color:rgba(255,255,255,0.35)">|</span><span style="color:#fff;font-weight:800">${_fruitStatus}</span></div>
+        </div>
+        <span id="card-icon-${vi}" style="font-size:14px;color:${cardOpen?'var(--sub)':'rgba(255,255,255,0.8)'};flex-shrink:0">${cardOpen?'▼':'▶'}</span>
+      </div>
+      <!-- 카드 본문 (접기/펼치기) -->
+      <div id="card-body-${vi}" style="display:${cardOpen?'block':'none'}">
       <!-- 1열: 번호 / 품종명 / 수령 / 초기화버튼 -->
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <div class="variety-num" style="flex-shrink:0">${vi+1}</div>
@@ -1000,9 +1028,9 @@ function renderVarieties(totalSurvey, totalProper) {
           <input type="number" id="vi-actual-${vi}" class="inp${v.actual>0?' filled':''}" value="${v.actual||''}" inputmode="decimal" placeholder="0주"
             enterkeyhint="done"
             onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
-            onblur="varieties[${vi}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'actual',this.value);saveState()"
+            onblur="varieties[${vi}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'actual',this.value);onInput();saveState()"
             oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].actual=+this.value||0;resetCalcBtn()"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].actual=+this.value||0;this.blur();}">
+            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'actual',this.value);onInput();saveState();}">
         </div>
         <div class="field">
           <label>조사대상주수</label>
@@ -1047,11 +1075,89 @@ function renderVarieties(totalSurvey, totalProper) {
         다음 품종 →
       </button>` : ''}
       ` : `<div id="ss-${vi}"></div>`}
+      </div><!-- /card-body -->
     </div>`;
   }).join('');
 }
 
 // ── 품종별 자동계산 업데이트 (표본입력 시) ────────
+function toggleCard(vi) {
+  const cardOpen = varieties[vi].cardOpen !== false;
+  varieties[vi].cardOpen = !cardOpen;
+  const body = document.getElementById(`card-body-${vi}`);
+  const card = document.getElementById(`vc-${vi}`);
+  const header = document.querySelector(`#vc-${vi} > div:first-child`);
+  const nameEl = document.getElementById(`card-name-${vi}`);
+  const iconEl = document.getElementById(`card-icon-${vi}`);
+  if(body) body.style.display = cardOpen ? 'none' : 'block';
+  if(card){ card.style.padding = cardOpen ? '0' : '14px'; }
+  if(header){
+    header.style.background = cardOpen ? '#185FA5' : 'transparent';
+    header.style.padding = cardOpen ? '12px 14px' : '0';
+    header.style.borderRadius = cardOpen ? '10px' : '0';
+    header.style.marginBottom = cardOpen ? '0' : '10px';
+  }
+  if(nameEl) nameEl.style.color = cardOpen ? '#fff' : 'var(--text)';
+  if(iconEl){ iconEl.style.color = cardOpen ? 'rgba(255,255,255,0.8)' : 'var(--sub)'; }
+  updateCardSummary(vi);
+  saveState();
+}
+
+function collapseCard(vi) {
+  varieties[vi].cardOpen = false;
+  const body = document.getElementById(`card-body-${vi}`);
+  const card = document.getElementById(`vc-${vi}`);
+  const header = document.querySelector(`#vc-${vi} > div:first-child`);
+  const nameEl = document.getElementById(`card-name-${vi}`);
+  const iconEl = document.getElementById(`card-icon-${vi}`);
+  if(body) body.style.display = 'none';
+  if(card){ card.style.padding = '0'; }
+  if(header){
+    header.style.background = '#185FA5';
+    header.style.padding = '12px 14px';
+    header.style.borderRadius = '10px';
+    header.style.marginBottom = '0';
+  }
+  if(nameEl) nameEl.style.color = '#fff';
+  if(iconEl) iconEl.style.color = 'rgba(255,255,255,0.8)';
+  updateCardSummary(vi);
+  saveState();
+}
+
+function updateCardSummary(vi) {
+  const v = varieties[vi];
+  const header = document.querySelector(`#vc-${vi} > div:first-child`);
+  if(!header) return;
+  const surveyTarget = getSurveyTarget(v);
+  const totalSurvey = varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);
+  const totalProper = getProperSample(totalSurvey);
+  const properN = surveyTarget>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
+  const validS = v.samples.filter(s=>s!==''&&!isNaN(parseFloat(s)));
+  const sampleSum = validS.reduce((a,x)=>a+parseFloat(x),0);
+  const perTree = validS.length>0 ? sampleSum/validS.length : 0;
+  const afterFruit = perTree>0&&surveyTarget>0 ? Math.round(perTree*surveyTarget) : 0;
+  const sampleOk = properN>0 && validS.length>=properN;
+  const sampleStatus = properN>0 ? `표본 ${validS.length}/${properN}주 ${sampleOk?'✅':'⚠️'}` : '표본주 미설정';
+  const fruitStatus = afterFruit>0 ? `${afterFruit.toLocaleString()}개` : '-';
+  const cardOpen = v.cardOpen !== false;
+  const summaryEl = document.getElementById(`card-summary-${vi}`);
+  const iconEl = document.getElementById(`card-icon-${vi}`);
+  const nameEl = document.getElementById(`card-name-${vi}`);
+  const displayName = v.name || `품종${vi+1}`;
+  if(nameEl) nameEl.textContent = `${displayName}${v.age>0?` ${v.age}년`:''}`;
+  if(summaryEl){
+    summaryEl.style.display = cardOpen ? 'none' : 'flex';
+    summaryEl.style.fontSize = '14px';
+    const sOk = properN>0 && validS.length>=properN;
+    const sSpan = sOk
+      ? `<span style="color:#A8F0D8;font-weight:700">표본 ${validS.length}/${properN}주 ✅</span>`
+      : `<span style="color:#FFD0A0;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ⚠️</span>`;
+    const fSpan = `<span style="color:#fff;font-weight:800">${afterFruit>0?afterFruit.toLocaleString()+'개':'-'}</span>`;
+    summaryEl.innerHTML = `${sSpan}<span style="color:rgba(255,255,255,0.35);margin:0 5px">|</span>${fSpan}`;
+  }
+  if(iconEl) iconEl.textContent = cardOpen ? '▼' : '▶';
+}
+
 function calcVariety(vi) {
   const v = varieties[vi];
   const surveyTarget = getSurveyTarget(v);
