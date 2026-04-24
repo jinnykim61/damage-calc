@@ -45,8 +45,8 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
 .field{display:flex;flex-direction:column;gap:3px}
 .field label{font-size:11px;color:var(--sub);font-weight:500}
-input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center}
-select.inp{text-align:left}
+input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;transition:background 0.15s,border-color 0.15s;text-align:center}
+select.inp{text-align:left;-webkit-appearance:auto;appearance:auto;}
 input.inp:focus,
 input.inp:focus-visible,
 input.inp:active,
@@ -116,7 +116,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 .print-header { display:none; }
 </style>
 </head>
-<body>
+<body style="visibility:hidden">
 <div class="header">
   <button class="back-btn" onclick="location.href='./index.html'">‹</button>
   <div class="header-icon">🌾</div>
@@ -657,12 +657,12 @@ function calc(){
 
     // 유효중량 = ROUNDDOWN((표본수확량합/1000 × 0.93 × (1-함수율)/(1-기준함수율)) / 표본구간면적합, 2)
     let effWeight = 0;
-    if(totalSampleArea > 0 && moisture > 0 && sampleTotal > 0){
+    if(totalSampleArea > 0 && moisture >= 0 && sampleTotal > 0){
       effWeight = Math.floor(((sampleTotal/1000) * 0.93 * (1-moisture)/(1-stdMoisture)) / totalSampleArea * 100) / 100;
     }
     document.getElementById('effWeight').value = effWeight > 0 ? effWeight + ' kg/㎡' : '';
 
-    if(!avgYield || !surveyArea || inputted === 0 || !moisture){
+    if(!avgYield || !surveyArea || inputted === 0){
       resultBox.className = 'result-box pending';
       pctEl.textContent = '- -'; pctEl.style.color='white';
       const pb=document.getElementById('pdf-btn'); if(pb){pb.style.opacity='0.5';pb.style.pointerEvents='none';}
@@ -960,6 +960,11 @@ function setEditMode(){
 function lockInputs(){ setCalcMode(); }
 function unlockInputs(){ setEditMode(); }
 
+let _touchStartY = 0;
+let _touchMoved = false;
+document.addEventListener('touchstart', e=>{ _touchStartY=e.touches[0].clientY; _touchMoved=false; },{passive:true});
+document.addEventListener('touchmove', ()=>{ _touchMoved=true; },{passive:true});
+
 function bindMobileFocusHandlers(){
   document.querySelectorAll('input.inp, select.inp, input[type=number]').forEach(el=>{
     if(el.dataset.mobileFocusBound==='1') return;
@@ -971,8 +976,10 @@ function bindMobileFocusHandlers(){
     },{passive:true});
     el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
     const isDate=el.type==='date';
-    if(!isDate){
+    const isSelect=el.tagName==='SELECT';
+    if(!isDate && !isSelect){
       el.addEventListener('touchend',(e)=>{
+        if(_touchMoved) return; // 스크롤 중이면 무시
         if(e.cancelable) e.preventDefault();
         const wasFilled=el.classList.contains('filled');
         el.focus();
@@ -1040,9 +1047,13 @@ document.addEventListener('DOMContentLoaded', function(){
         const raw2 = localStorage.getItem('rice_state');
         if(raw2){ const s2=JSON.parse(raw2); if(s2.isLocked) setCalcMode(); }
       }catch(e){}
+      document.body.style.visibility = 'visible';
     }, 50);
   }, 0);
 });
+
+// 안전망: 1초 후에도 hidden이면 강제 표시
+setTimeout(function(){ document.body.style.visibility = 'visible'; }, 1000);
 </script>
 </body>
 </html>
