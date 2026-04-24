@@ -852,7 +852,11 @@ function updateSummaryOnly() {
   const totalReg = varieties.reduce((s,v) => s+(v.reg||0), 0);
   const totalActual = varieties.reduce((s,v) => s+(v.actual||0), 0);
   const totalSurvey = varieties.reduce((s,v) => s+getSurveyTarget(v), 0);
-  const properSample = getProperSample(totalSurvey);
+  const properSample = varieties.reduce((s,v) => {
+    const sv = getSurveyTarget(v);
+    const tp = getProperSample(totalSurvey);
+    return s + (sv>0&&totalSurvey>0 ? Math.max(1,Math.ceil(tp*sv/totalSurvey)) : 0);
+  }, 0);
   const totalDead = varieties.reduce((s,v) => s+(v.dead||0), 0);
   const totalUnable = varieties.reduce((s,v) => s+(v.unable||0), 0);
   const totalUninsDead = varieties.reduce((s,v) => s+(v.uninsDead||0), 0);
@@ -1424,7 +1428,11 @@ function updateSummary() {
   const totalReg = varieties.reduce((s,v) => s + (v.reg||0), 0);
   const totalActual = varieties.reduce((s,v) => s + (v.actual||0), 0);
   const totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
-  const properSample = getProperSample(totalSurvey);
+  const properSample = varieties.reduce((s,v) => {
+    const sv = getSurveyTarget(v);
+    const tp = getProperSample(totalSurvey);
+    return s + (sv>0&&totalSurvey>0 ? Math.max(1,Math.ceil(tp*sv/totalSurvey)) : 0);
+  }, 0);
   const avgFruit = toNum(document.getElementById('avg_fruit'));
 
   const ttEl = document.getElementById('total_trees');
@@ -1459,7 +1467,11 @@ function onInput() {
   const totalReg = varieties.reduce((s,v) => s + (v.reg||0), 0);
   // 전체 조사대상주 합산
   const totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
-  const properSample = getProperSample(totalSurvey);
+  const properSample = varieties.reduce((s,v) => {
+    const sv = getSurveyTarget(v);
+    const tp = getProperSample(totalSurvey);
+    return s + (sv>0&&totalSurvey>0 ? Math.max(1,Math.ceil(tp*sv/totalSurvey)) : 0);
+  }, 0);
 
   const totalActual = varieties.reduce((s,v) => s + (v.actual||0), 0);
   document.getElementById('total_trees').value = totalReg > 0 ? totalReg.toLocaleString()+'주' : '';
