@@ -780,18 +780,18 @@ function checkNeedReview() {
 
 // ── 상수 ──────────────────────────────────────────
 // 표본주수 기준표 (조사대상주 합계 기준)
-// 품종별 단독 적정표본주수 (조사대상주수 기준)
-function getProperSample(surveyTarget) {
-  if (!surveyTarget || surveyTarget <= 0) return 0;
-  if (surveyTarget <= 10)  return 1;
-  if (surveyTarget <= 20)  return 2;
-  if (surveyTarget <= 30)  return 3;
-  if (surveyTarget <= 50)  return 4;
-  if (surveyTarget <= 80)  return 5;
-  if (surveyTarget <= 100) return 6;
-  if (surveyTarget <= 150) return 7;
-  if (surveyTarget <= 200) return 8;
-  if (surveyTarget <= 300) return 9;
+// 전체 합계 기준 적정표본주수
+function getProperSample(total) {
+  if (!total || total <= 0) return 0;
+  if (total <= 10)  return 1;
+  if (total <= 20)  return 2;
+  if (total <= 30)  return 3;
+  if (total <= 50)  return 4;
+  if (total <= 80)  return 5;
+  if (total <= 100) return 6;
+  if (total <= 150) return 7;
+  if (total <= 200) return 8;
+  if (total <= 300) return 9;
   return 10;
 }
 
@@ -819,8 +819,10 @@ function getSurveyTarget(v){
 // ── 즉시 자동계산칸 업데이트 (리렌더 없이) ────────
 function quickUpdate(vi, field, val){
   varieties[vi] = {...varieties[vi], [field]: +val||0};
+  const totalSurvey = varieties.reduce((s,vv) => s+getSurveyTarget(vv), 0);
+  const totalProper = getProperSample(totalSurvey);
   const surveyTarget = getSurveyTarget(varieties[vi]);
-  const properN = getProperSample(surveyTarget);
+  const properN = surveyTarget>0 && totalSurvey>0 ? Math.max(1, Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
 
   const sEl = document.getElementById(`vi-survey-${vi}`);
   const pEl = document.getElementById(`vi-proper-${vi}`);
@@ -847,7 +849,7 @@ function updateSummaryOnly() {
   const totalReg = varieties.reduce((s,v) => s+(v.reg||0), 0);
   const totalActual = varieties.reduce((s,v) => s+(v.actual||0), 0);
   const totalSurvey = varieties.reduce((s,v) => s+getSurveyTarget(v), 0);
-  const properSample = varieties.reduce((s,v) => s+getProperSample(getSurveyTarget(v)), 0);
+  const properSample = getProperSample(totalSurvey);
   const totalDead = varieties.reduce((s,v) => s+(v.dead||0), 0);
   const totalUnable = varieties.reduce((s,v) => s+(v.unable||0), 0);
   const totalUninsDead = varieties.reduce((s,v) => s+(v.uninsDead||0), 0);
@@ -885,7 +887,7 @@ function updateTreeSummary(showZero) {
 }
 
 // ── 표본주수 계산 ─────────────────────────────────
-// getProperSample은 위에 정의됨
+
 
 // ── 품목 전환 ─────────────────────────────────────
 function setCrop(crop, idx) {
@@ -914,7 +916,10 @@ function renderVarieties(totalSurvey) {
   badge.textContent = `(${varieties.length}품종)`;
 
   const surveyTargets = varieties.map(v => getSurveyTarget(v));
-  const properNs = surveyTargets.map(st => getProperSample(st));
+  const totalProper = getProperSample(totalSurvey);
+  const properNs = surveyTargets.map(st =>
+    st>0 && totalSurvey>0 ? Math.max(1, Math.ceil(totalProper*st/totalSurvey)) : 0
+  );
 
   container.innerHTML = varieties.map((v, vi) => {
     const surveyTarget = surveyTargets[vi];
@@ -1163,7 +1168,9 @@ function updateCardSummary(vi) {
   const header = document.querySelector(`#vc-${vi} > div:first-child`);
   if(!header) return;
   const surveyTarget = getSurveyTarget(v);
-  const properN = getProperSample(surveyTarget);
+  const totalSurvey = varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);
+  const totalProper = getProperSample(totalSurvey);
+  const properN = surveyTarget>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
   const validS = v.samples.filter(s=>s!==''&&!isNaN(parseFloat(s)));
   const sampleSum = validS.reduce((a,x)=>a+parseFloat(x),0);
   const perTree = validS.length>0 ? sampleSum/validS.length : 0;
@@ -1209,7 +1216,7 @@ function renderSamplesOnly(vi) {
   if(!ss) return;
   const v = varieties[vi];
   const totalSurvey = varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);
-  // totalProper removed - using per-variety getProperSample
+  const totalProper = getProperSample(totalSurvey);
   const surveyTarget = getSurveyTarget(v);
   const properN = surveyTarget>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
   while(v.samples.length < properN) v.samples.push('');
@@ -1343,7 +1350,7 @@ function confirmSampleDel(vi) {
 
   // 적정 표본주수 계산
   const totalSurvey = varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);
-  // totalProper removed - using per-variety getProperSample
+  const totalProper = getProperSample(totalSurvey);
   const surveyTarget = getSurveyTarget(v);
   const properN = surveyTarget > 0 && totalSurvey > 0
     ? Math.max(1, Math.ceil(totalProper * surveyTarget / totalSurvey)) : 0;
@@ -1407,7 +1414,7 @@ function updateSummary() {
   const totalReg = varieties.reduce((s,v) => s + (v.reg||0), 0);
   const totalActual = varieties.reduce((s,v) => s + (v.actual||0), 0);
   const totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
-  const properSample = varieties.reduce((s,v) => s+getProperSample(getSurveyTarget(v)), 0);
+  const properSample = getProperSample(totalSurvey);
   const avgFruit = toNum(document.getElementById('avg_fruit'));
 
   const ttEl = document.getElementById('total_trees');
@@ -1442,7 +1449,7 @@ function onInput() {
   const totalReg = varieties.reduce((s,v) => s + (v.reg||0), 0);
   // 전체 조사대상주 합산
   const totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
-  const properSample = varieties.reduce((s,v) => s+getProperSample(getSurveyTarget(v)), 0);
+  const properSample = getProperSample(totalSurvey);
 
   const totalActual = varieties.reduce((s,v) => s + (v.actual||0), 0);
   document.getElementById('total_trees').value = totalReg > 0 ? totalReg.toLocaleString()+'주' : '';
@@ -1715,7 +1722,7 @@ async function saveImage() {
     const cropName    = CROP_KO[currentCrop]||'과수';
     const totalReg    = varieties.reduce((s,v)=>s+(v.reg||0),0);
     const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
-    // totalProper removed
+    const totalProper = getProperSample(totalSurvey);
     const vCount      = varieties.length;
 
     // ── 품종 수별 세팅
