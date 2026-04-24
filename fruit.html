@@ -13,6 +13,46 @@
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function bindMobileFocusHandlers(){
+  document.querySelectorAll('input.inp, select.inp, input.sg-inp, input[type=number], #setup-rows input').forEach(el=>{
+    if(el.dataset.mobileFocusBound==='1') return;
+    el.dataset.mobileFocusBound='1';
+    el.addEventListener('focus',()=>{
+      el.classList.add('mobile-focus');
+      const len=el.value.length;
+      try{ el.setSelectionRange(len,len); }catch(_){}
+    },{passive:true});
+    el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
+    const isDate = el.type==='date';
+    if(!isDate){
+      el.addEventListener('touchend',(e)=>{
+        if(e.cancelable) e.preventDefault();
+        const wasFilled = el.classList.contains('filled');
+        el.focus();
+        el.classList.add('mobile-focus');
+        if(wasFilled){
+          el.value='';
+          el.classList.remove('filled');
+        } else {
+          const len=el.value.length;
+          try{ el.setSelectionRange(len,len); }catch(_){}
+        }
+      },{passive:false});
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  bindMobileFocusHandlers();
+  document.addEventListener('click',()=>setTimeout(bindMobileFocusHandlers,0),{passive:true});
+  // 입력칸 탭 시 calc-done 해제
+  document.addEventListener('touchstart', e=>{
+    if(e.target.tagName==='INPUT'){
+      document.querySelector('.content')?.classList.remove('calc-done');
+    }
+  }, {passive:true});
+});
+</script>
 <style>
 :root{
   --blue:#185FA5;--blue2:#378ADD;
@@ -36,12 +76,13 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .legend{display:flex;gap:12px;padding:8px 16px;background:var(--card);border-bottom:0.5px solid var(--border)}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
 .dot-inp{width:10px;height:10px;border-radius:2px;background:white;border:1.5px solid var(--binp)}
+.dot-filled{width:10px;height:10px;border-radius:2px;background:#e8faf3;border:1.5px solid var(--green)}
 .dot-auto{width:10px;height:10px;border-radius:2px;background:var(--auto);border:0.5px solid var(--border)}
 
 /* 품목 선택 탭 */
 .crop-tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);padding:0 12px;gap:4px}
-.crop-tab{flex:1;padding:10px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer}
-.crop-tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.crop-tab{flex:1;padding:10px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer;opacity:0.45;transition:opacity 0.15s}
+.crop-tab.on{color:var(--blue);border-bottom-color:var(--blue);opacity:1}
 
 /* 컨텐츠 */
 .content{padding:12px 12px 40px}
@@ -53,17 +94,47 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .field{display:flex;flex-direction:column;gap:3px}
 .field label{font-size:11px;color:var(--sub);font-weight:500}
+.field label.sm{font-size:9px}
 
-input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none}
-input.inp:focus,select.inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(55,138,221,0.15)}
-input.inp::placeholder{color:var(--hint)}
+input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s;text-align:center}
+input.inp::placeholder{color:var(--hint);text-align:center}
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
-input.inp.filled:focus{box-shadow:0 0 0 3px rgba(29,158,117,0.15)}
-input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none}
+select.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
+input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:center}
 input.auto.warn{background:#FFF3CD;color:#856404;border-color:#ffc107}
 input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
+/* mobile focus */
+input.inp.mobile-focus,select.inp.mobile-focus,input.sg-inp.mobile-focus,
+input.inp:focus,input.inp:focus-visible,input.inp:active,
+select.inp:focus,select.inp:focus-visible,select.inp:active,
+input.sg-inp:focus,input.sg-inp:focus-visible,input.sg-inp:active{
+  outline:none !important;border-color:#185FA5 !important;
+  box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
+  background:#DCEEFF !important;color:#185FA5 !important;
+}
+input.inp.filled.mobile-focus,select.inp.filled.mobile-focus,
+input.inp.filled:focus,input.inp.filled:focus-visible,input.inp.filled:active,
+select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active{
+  outline:none !important;border-color:#185FA5 !important;
+  box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
+  background:#DCEEFF !important;color:#185FA5 !important;
+}
 
-/* 품종 카드 */
+/* 기본정보 요약바 */
+.info-summary{background:var(--blue);padding:10px 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;border-radius:var(--r) var(--r) 0 0}
+.sum-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sum-lbl{font-size:9px;color:rgba(255,255,255,0.7);font-weight:500;text-align:center}
+.sum-val{font-size:16px;font-weight:700;color:#fff;line-height:1}
+.sum-val.warn{color:#FFE082}
+.sum-unit{font-size:9px;color:rgba(255,255,255,0.6);margin-left:1px}
+/* 접기/펼치기 */
+.collapse-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;cursor:pointer;border-top:0.5px solid var(--border);background:var(--card)}
+.collapse-lbl{font-size:11px;color:var(--sub);font-weight:600}
+.collapse-toggle{font-size:11px;color:var(--blue);font-weight:600;display:flex;align-items:center;gap:4px}
+.collapse-icon{font-size:10px;color:var(--hint);transition:transform 0.2s;display:inline-block}
+.collapse-icon.open{transform:rotate(180deg)}
+.collapse-body{overflow:hidden;transition:max-height 0.25s ease;max-height:0}
+.collapse-body.open{max-height:600px}
 .variety-card{background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:10px;border:0.5px solid var(--border);overflow:hidden}
 .variety-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .variety-num{width:24px;height:24px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
@@ -86,8 +157,10 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
 .sample-row input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 .sample-row input.filled:focus{box-shadow:0 0 0 3px rgba(29,158,117,0.15)}
 
-.add-variety-btn{width:100%;height:38px;border:1.5px dashed var(--blue2);background:#EBF4FF;border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;margin-top:4px}
+.add-variety-btn{width:100%;height:38px;border:1.5px dashed var(--blue2);background:#EBF4FF;border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--blue);cursor:pointer}
 .add-variety-btn:active{background:var(--auto)}
+.cnt-btn{height:52px;border:1.5px solid var(--border);border-radius:10px;background:#fff;font-size:20px;font-weight:700;color:var(--text);cursor:pointer}
+.cnt-btn:active{background:var(--blue);color:#fff;border-color:var(--blue)}
 
 /* 계산 버튼 */
 .calc-btn{width:100%;height:52px;background:var(--blue);color:white;border:none;border-radius:var(--r);font-size:17px;font-weight:700;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -95,19 +168,16 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
 .calc-btn.done{background:var(--green)}
 
 /* 결과 */
-.result-box{display:none;background:var(--blue);border-radius:var(--r);padding:18px 16px;margin-bottom:10px;color:white}
+.result-box{display:none;background:var(--blue);border-radius:var(--r);padding:0 16px;margin-bottom:6px;color:white;border:1.5px solid rgba(255,255,255,0.2)}
 .result-box.show{display:block}
-.result-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.result-label{font-size:13px;opacity:0.8;margin-bottom:4px}
-.result-main-val{font-size:44px;font-weight:700;line-height:1}
-.result-main-val.danger{color:#FFD0D0}
-.result-main-val.safe{color:#A8F0D8}
-.result-main-val.warn{color:#FFE082}
-
-.save-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;border-radius:var(--rs);padding:10px 14px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap}
+.result-box.pending{background:#888;border:1.5px solid rgba(255,255,255,0.15)}
+.result-detail-box{display:none;background:var(--card);border-radius:var(--r);margin-bottom:10px;border:0.5px solid var(--border);overflow:hidden}
+.result-detail-box.show{display:block}
+.save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 .save-btn:active{background:rgba(255,255,255,0.35)}
 /* 입력 잠금 상태 */
-.locked input, .locked select{ pointer-events:none; opacity:0.72; }
+.locked input.inp:not([type=date]), .locked select.inp, .locked input.sg-inp, .locked input[type=number]{ pointer-events:none; opacity:0.72; }
+.locked input[type=date].inp{ pointer-events:none; opacity:0.72; }
 /* 계산하기/수정하기 버튼 */
 .calc-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .btn-calc{height:46px;border:none;border-radius:12px;background:var(--blue);color:white;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
@@ -117,28 +187,14 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
 .btn-calc.active{background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);box-shadow:0 4px 14px rgba(24,95,165,0.35)}
 .btn-edit.active{background:var(--green);color:white;box-shadow:0 4px 14px rgba(29,158,117,0.35)}
 
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.metric{background:rgba(255,255,255,0.15);border-radius:var(--rs);padding:10px 8px}
-.metric .ml{font-size:10px;opacity:0.75;margin-bottom:4px}
-.metric .mv{font-size:13px;font-weight:600}
-
-.drow{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:0.5px solid rgba(255,255,255,0.15)}
-.drow:last-child{border-bottom:none}
-.drow span:first-child{opacity:0.75}
-.drow span:last-child{font-weight:600}
-
-.variety-result-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px}
-.variety-result-table th{background:rgba(255,255,255,0.15);padding:5px 4px;text-align:center;font-weight:600;font-size:10px}
-.variety-result-table td{padding:5px 4px;text-align:center;border-top:0.5px solid rgba(255,255,255,0.1)}
-
-/* 표본주 그리드 */
+/* 계산 완료 후 스크롤 중 입력 방지 */
+/* 계산 완료 후 스크롤 중 입력 방지 - 제거 */
 .sg-wrap{display:grid;gap:6px;width:100%;overflow:hidden}
 .sg-col{display:flex;flex-direction:column;gap:6px;min-width:0;overflow:hidden}
 .sg-cell{display:flex;flex-direction:row;align-items:center;gap:4px}
 .sg-no{font-size:13px;font-weight:700;color:var(--sub);min-width:18px;text-align:right;flex-shrink:0}
-.sg-inp{flex:1;height:40px;border:1.5px solid var(--binp);border-radius:6px;font-size:15px;font-weight:600;background:white;color:var(--text);text-align:center;-webkit-appearance:none;box-sizing:border-box;min-width:0}
+.sg-inp{flex:1;height:40px;border:1.5px solid var(--binp);border-radius:6px;font-size:15px;font-weight:600;background:white;color:var(--text);text-align:center;-webkit-appearance:none;box-sizing:border-box;min-width:0;transition:background 0.15s,border-color 0.15s}
 .sg-inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
-.sg-inp:focus{outline:none;border-color:var(--blue)}
 
 /* 팝업 */
 #save-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center}
@@ -148,19 +204,20 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
 .save-modal .btn-ok{width:100%;height:42px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
 </style>
 </head>
-<body>
+<body style="visibility:hidden">
 
 <div class="header">
   <button class="back-btn" onclick="location.href='./index.html'">‹</button>
-  <div class="header-icon">🍑</div>
+  <div class="header-icon">🍎</div>
   <div>
     <h1>종합과수 착과수 계산기</h1>
-    <div class="header-sub">적과후 착과수 조사</div>
+    <div class="header-sub">포도 · 복숭아 · 자두</div>
   </div>
 </div>
 
 <div class="legend">
   <div class="legend-item"><div class="dot-inp"></div>직접 입력</div>
+  <div class="legend-item"><div class="dot-filled"></div>입력 완료</div>
   <div class="legend-item"><div class="dot-auto"></div>자동 계산</div>
 </div>
 
@@ -170,55 +227,129 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
   <div class="crop-tab" onclick="setCrop('peach',1)">🍑 복숭아</div>
   <div class="crop-tab" onclick="setCrop('plum',2)">🫐 자두</div>
 </div>
+<div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
+  <button onclick="openResetModal()" style="height:28px;padding:0 14px;background:#FFF5F5;border:1.5px solid var(--red);border-radius:var(--rs);font-size:12px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
+</div>
 
 <div class="content">
 
   <!-- 기본 정보 -->
-  <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">기본 정보</div>
-      <button class="reset-btn" onclick="resetAll()">전체 초기화</button>
+  <div class="section" style="padding:0;overflow:hidden">
+    <!-- 항상 보이는 요약 바 -->
+    <div class="info-summary">
+      <div class="sum-item">
+        <div class="sum-lbl">가입주수</div>
+        <div style="display:flex;align-items:baseline;gap:1px">
+          <span class="sum-val" id="sv-reg">-</span>
+          <span class="sum-unit">주</span>
+        </div>
+      </div>
+      <div class="sum-item">
+        <div class="sum-lbl">조사대상</div>
+        <div style="display:flex;align-items:baseline;gap:1px">
+          <span class="sum-val" id="sv-survey">-</span>
+          <span class="sum-unit">주</span>
+        </div>
+      </div>
+      <div class="sum-item">
+        <div class="sum-lbl">표본주수</div>
+        <div style="display:flex;align-items:baseline;gap:1px">
+          <span class="sum-val" id="sv-sample">-</span>
+          <span class="sum-unit">주</span>
+        </div>
+      </div>
+      <div class="sum-item">
+        <div class="sum-lbl">적정표본</div>
+        <div style="display:flex;align-items:baseline;gap:1px">
+          <span class="sum-val" id="sv-proper">-</span>
+          <span class="sum-unit">주</span>
+        </div>
+      </div>
     </div>
-    <div class="g2">
-      <div class="field">
-        <label>평년착과수 (개)</label>
-        <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="예) 44,040"
-          oninput="onCommaInput(this);onInput()">
-      </div>
-      <div class="field">
-        <label>가입주수</label>
-        <input type="text" id="total_trees" class="auto" readonly>
-      </div>
-    </div>
-    <div class="g2">
-      <div class="field">
-        <label>실제결과주수</label>
-        <input type="text" id="total_actual" class="auto" readonly>
-      </div>
-      <div class="field">
-        <label>조사대상주수</label>
-        <input type="text" id="total_survey_disp" class="auto" readonly>
+
+    <!-- 평년착과수 입력 -->
+    <div style="padding:10px 14px;background:var(--card);border-top:0.5px solid var(--border)">
+      <div class="field" style="max-width:33%">
+        <label>평년착과수</label>
+        <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
+          enterkeyhint="next"
+          oninput="onCommaInput(this);onInput();resetCalcBtn()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();if(this.value)openSetupPopup()}">
       </div>
     </div>
-    <div class="g2">
-      <div class="field">
-        <label>적정 표본주수</label>
-        <input type="text" id="proper_sample" class="auto" readonly>
+
+    <!-- 접기/펼치기 헤더 -->
+    <div class="collapse-head" onclick="toggleBasicInfo()">
+      <span class="collapse-lbl">① 기본정보 상세</span>
+      <div class="collapse-toggle">
+        <span id="info-toggle-lbl">상세보기</span>
+        <span class="collapse-icon" id="info-toggle-icon">▼</span>
       </div>
-      <div class="field">
-        <label>계약변경 여부</label>
-        <input type="text" id="contract_yn" class="auto" readonly>
+    </div>
+
+    <!-- 접히는 상세 내용 -->
+    <div class="collapse-body" id="basic-info-body">
+      <div style="padding:12px 14px 14px">
+        <!-- 1열: 고사주수 / 수확불능주수 / 미보상고사 / 미보상미고사 -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
+          <div class="field">
+            <label>고사주수</label>
+            <input type="text" id="total_dead" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label>수확불능주수</label>
+            <input type="text" id="total_unable" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label>미보상고사</label>
+            <input type="text" id="total_uninsDead" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label>미보상미고사</label>
+            <input type="text" id="total_uninsAlive" class="auto" readonly>
+          </div>
+        </div>
+        <!-- 2열: 표본착과수합 / 1주당착과수 / 착과수 / 계약변경여부 -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+          <div class="field">
+            <label class="sm">표본착과수합</label>
+            <input type="text" id="total_sampleSum" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label class="sm">1주당착과수</label>
+            <input type="text" id="total_perTree" class="auto" readonly>
+          </div>
+          <div class="field">
+            <label class="sm">착과수</label>
+            <input type="text" id="total_afterFruit" class="auto ok" readonly>
+          </div>
+          <div class="field">
+            <label class="sm">계약변경여부</label>
+            <input type="text" id="contract_yn" class="auto" readonly>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- 품종별 조사 -->
+  <!-- hidden: JS 계산용 (요약바로 이동된 항목) -->
+  <div style="display:none">
+    <input type="text" id="total_trees">
+    <input type="text" id="total_actual">
+    <input type="text" id="total_survey_disp">
+    <input type="text" id="total_sampleN">
+    <input type="text" id="proper_sample">
+  </div>
   <div class="section">
     <div class="sec-head">
-      <div class="sec-title">품종별 조사 <span id="variety-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+      <div class="sec-title">② 품종별 조사 <span id="variety-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
     </div>
     <div id="variety-list"></div>
-    <button class="add-variety-btn" onclick="addVariety()">+ 품종 추가</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <button class="add-variety-btn" onclick="addVariety()">+ 품종 추가</button>
+      <button onclick="delVariety(varieties.length-1)"
+        style="width:100%;height:38px;border:1.5px solid var(--red);background:transparent;border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--red);cursor:pointer">− 품종 삭제</button>
+    </div>
   </div>
 
   <!-- 계산하기 / 수정하기 버튼 -->
@@ -227,49 +358,402 @@ input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
     <button class="btn-calc" id="btn-calc" onclick="setCalcMode()">🧮 착과수 계산하기</button>
   </div>
 
-  <!-- 결과 -->
+  <!-- 결과 메인 박스 (마늘 스타일) -->
   <div class="result-box" id="result-section">
-    <div class="result-top">
-      <div>
-        <div class="result-label">착과율</div>
-        <div class="result-main-val" id="result-rate">-</div>
+    <div style="display:flex;align-items:center;padding:14px 0">
+      <div style="padding-right:12px;flex-shrink:0">
+        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">착과율</span>
       </div>
-      <button class="save-btn" onclick="saveImage()">
-        <span style="font-size:20px">📷</span>
-        <span>갤러리 저장</span>
-      </button>
+      <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
+      <div style="padding:0 12px;flex:1;min-width:0">
+        <span id="result-rate" style="font-size:26px;font-weight:700;color:#FFD0D0;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</span>
+      </div>
+      <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
+      <div style="padding-left:12px;flex-shrink:0">
+        <button class="save-btn" onclick="saveImage()"><span style="font-size:14px">📷</span><span>갤러리 저장</span></button>
+      </div>
     </div>
-    <div class="metrics">
-      <div class="metric"><div class="ml">평년착과수</div><div class="mv" id="r-avg">-</div></div>
-      <div class="metric"><div class="ml">적과후착과수</div><div class="mv" id="r-total">-</div></div>
-      <div class="metric"><div class="ml">표본주수</div><div class="mv" id="r-samples">-</div></div>
+  </div>
+
+  <!-- 간이 결과 박스 -->
+  <div class="result-detail-box" id="result-detail-section">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
+      <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">평년착과수</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)" id="r-avg">-</div>
+      </div>
+      <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">적과후착과수</div>
+        <div style="font-size:15px;font-weight:700;color:var(--blue)" id="r-total">-</div>
+      </div>
+      <div style="padding:10px 8px;text-align:center">
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">계약변경여부</div>
+        <div style="font-size:13px;font-weight:700" id="r-contract">-</div>
+      </div>
     </div>
-    <table class="variety-result-table" id="result-table">
-      <thead>
-        <tr>
-          <th>품종</th>
-          <th>조사대상주</th>
-          <th>표본주수</th>
-          <th>표본착과수합</th>
-          <th>1주당착과수</th>
-          <th>적과후착과수</th>
-        </tr>
-      </thead>
-      <tbody id="result-tbody"></tbody>
-    </table>
   </div>
 
 </div>
 
-<div id="save-overlay">
-  <div class="save-modal">
-    <div style="font-size:36px;margin-bottom:10px">✅</div>
-    <p>결과가 갤러리에 저장됐어요!</p>
-    <button class="btn-ok" onclick="document.getElementById('save-overlay').classList.remove('show')">확인</button>
+<!-- 갤러리 저장용 캡처 템플릿 -->
+<div id="capture-template" style="position:fixed;left:-99999px;top:0;width:900px;background:#f3f4f6;padding:0;z-index:-1">
+  <div style="background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 8%,#f3f4f6 8%,#f3f4f6 100%);padding:0 20px 20px;box-sizing:border-box">
+    <div style="height:18px"></div>
+    <div style="text-align:center;color:#fff;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:800;letter-spacing:0.04em" id="cap-title">포도 적과후착과수 조사결과</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+
+      <!-- 요약 헤더바 -->
+      <div style="background:#185FA5;border-radius:12px;padding:10px 16px;display:flex;gap:0;justify-content:space-around">
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">평년착과수</div>
+          <div style="font-size:16px;font-weight:800;color:#fff" id="cap-avg">-</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">가입주수</div>
+          <div style="font-size:16px;font-weight:800;color:#fff" id="cap-reg">-</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">조사대상</div>
+          <div style="font-size:16px;font-weight:800;color:#fff" id="cap-survey">-</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">착과율</div>
+          <div style="font-size:16px;font-weight:800;color:#FFE082" id="cap-rate">-</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">적과후착과수</div>
+          <div style="font-size:16px;font-weight:800;color:#A8F0D8" id="cap-total">-</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">계약변경</div>
+          <div style="font-size:14px;font-weight:800;color:#fff" id="cap-contract">-</div>
+        </div>
+      </div>
+
+      <!-- 나무조사 테이블 -->
+      <div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:11px;font-weight:800;color:#185FA5;margin-bottom:8px;letter-spacing:0.04em">■ 나무조사</div>
+        <table style="width:100%;border-collapse:collapse;font-size:9px">
+          <thead>
+            <tr style="background:#4a7aad;color:#fff">
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">품종</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">수령</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">가입<br>주수</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">실제결과<br>주수(A)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#5a6aad">고사<br>(B)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#5a6aad">수확불능<br>(B)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#6a7aad">미보상<br>고사(E)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#6a7aad">미보상<br>미고사(E)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">조사대상<br>주수(F)</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">표본<br>주수</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">적정<br>표본</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">표본착과수<br>합계</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700">1주당<br>착과수</th>
+              <th style="padding:5px 3px;border:1px solid #d1d5db;text-align:center;font-weight:700;background:#1a6a4a;color:#fff">착과수</th>
+            </tr>
+          </thead>
+          <tbody id="cap-tree-tbody"></tbody>
+          <tfoot id="cap-tree-tfoot"></tfoot>
+        </table>
+      </div>
+
+      <!-- 적과후착과수 (표본주별) -->
+      <div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
+        <div style="font-size:11px;font-weight:800;color:#185FA5;margin-bottom:8px;letter-spacing:0.04em">■ 적과후착과수 (표본주별)</div>
+        <div id="cap-samples-wrap"></div>
+      </div>
+
+    </div>
   </div>
 </div>
+
+
+</div>
+
+
+<div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div style="font-size:18px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">전체 초기화</div>
+    <div style="font-size:14px;line-height:1.65;color:#666;text-align:center;margin-bottom:20px">입력한 모든 값을 초기화할까요?<br>초기화 후에는 되돌릴 수 없습니다.</div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('reset-overlay').style.display='none'" style="flex:1;height:46px;border:1.5px solid #d9d9d9;border-radius:12px;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
+      <button onclick="document.getElementById('reset-overlay').style.display='none';resetAll()" style="flex:1;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">초기화</button>
+    </div>
+  </div>
+</div>
+
+<div id="variety-reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div style="font-size:22px;text-align:center;margin-bottom:8px">🌿</div>
+    <div style="font-size:17px;font-weight:800;color:#333;text-align:center;margin-bottom:8px" id="variety-reset-title">품종 초기화</div>
+    <div style="font-size:14px;line-height:1.65;color:#666;text-align:center;margin-bottom:20px" id="variety-reset-desc">입력값을 모두 초기화할까요?<br>초기화 후에는 되돌릴 수 없습니다.</div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('variety-reset-overlay').style.display='none'" style="flex:1;height:46px;border:1.5px solid #d9d9d9;border-radius:12px;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
+      <button id="variety-reset-confirm-btn" style="flex:1;height:46px;border:none;border-radius:12px;background:#e24b4a;color:#fff;font-size:15px;font-weight:700;cursor:pointer">초기화</button>
+    </div>
+  </div>
+</div>
+
+<!-- 표본주 추가/삭제 공용 팝업 -->
+<div id="sample-add-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
+    <div class="modal-icon" style="font-size:22px;text-align:center;margin-bottom:8px">➕</div>
+    <div class="modal-title" style="font-size:17px;font-weight:800;color:#333;text-align:center;margin-bottom:8px">표본주 추가</div>
+    <div style="font-size:14px;line-height:1.65;color:#666;text-align:center;margin-bottom:20px" id="sample-add-desc">표본주 1개를 추가할까요?</div>
+    <div style="display:flex;gap:10px">
+      <button onclick="closeAddOverlay()" style="flex:1;height:46px;border:1.5px solid #d9d9d9;border-radius:12px;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
+      <button id="sample-add-btn" style="flex:1;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">추가</button>
+    </div>
+  </div>
+</div>
+
+<!-- 표본주 삭제 선택 팝업 -->
+<div id="sample-del-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px 20px 32px;max-height:70vh;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-shrink:0">
+      <div style="font-size:17px;font-weight:800;color:#1a1a1a">➖ 표본주 삭제</div>
+      <button onclick="document.getElementById('sample-del-overlay').style.display='none'" style="width:32px;height:32px;border:none;background:#f0f0f0;border-radius:50%;font-size:18px;color:#666;cursor:pointer">✕</button>
+    </div>
+    <div style="font-size:12px;color:#888;margin-bottom:16px;flex-shrink:0" id="sample-del-subtitle">삭제할 표본주 번호를 선택하세요</div>
+    <div id="sample-del-list" style="overflow-y:auto;flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-content:start"></div>
+  </div>
+</div>
+
+<!-- (레거시 호환용 빈 overlay — 사용 안 함) -->
+<div id="sample-confirm-overlay" style="display:none"></div>
+
+<!-- 품종 수 선택 팝업 -->
+<div id="count-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:375;align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;padding:24px 20px 32px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:17px;font-weight:800;color:#1a1a1a">품종이 몇 개인가요?</div>
+      <button onclick="document.getElementById('count-overlay').style.display='none'" style="width:32px;height:32px;border:none;background:#f0f0f0;border-radius:50%;font-size:18px;color:#666;cursor:pointer">✕</button>
+    </div>
+    <div style="font-size:12px;color:#888;margin-bottom:20px">평년착과수 <strong id="count-avg-disp" style="color:#185FA5"></strong></div>
+    <!-- 숫자 버튼 1~10 -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+      <button onclick="selectCount(1)"  class="cnt-btn">1</button>
+      <button onclick="selectCount(2)"  class="cnt-btn">2</button>
+      <button onclick="selectCount(3)"  class="cnt-btn">3</button>
+      <button onclick="selectCount(4)"  class="cnt-btn">4</button>
+      <button onclick="selectCount(5)"  class="cnt-btn">5</button>
+      <button onclick="selectCount(6)"  class="cnt-btn">6</button>
+      <button onclick="selectCount(7)"  class="cnt-btn">7</button>
+      <button onclick="selectCount(8)"  class="cnt-btn">8</button>
+      <button onclick="selectCount(9)"  class="cnt-btn">9</button>
+      <button onclick="selectCount(10)" class="cnt-btn">10</button>
+    </div>
+  </div>
+</div>
+
+<!-- 품종 주수 입력 팝업 -->
+<div id="setup-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:370;align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:85vh;display:flex;flex-direction:column">
+    <!-- 팝업 헤더 -->
+    <div style="padding:18px 20px 12px;border-bottom:0.5px solid #E8E6DF;flex-shrink:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:17px;font-weight:800;color:#1a1a1a">품종별 주수 입력</div>
+        <button onclick="closeSetupPopup()" style="width:32px;height:32px;border:none;background:#f0f0f0;border-radius:50%;font-size:18px;color:#666;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+      </div>
+      <div style="font-size:12px;color:#888">평년착과수 <strong id="setup-avg-disp" style="color:#185FA5"></strong> · 모든 품종 입력 후 완료를 누르세요</div>
+    </div>
+    <!-- 컬럼 헤더 -->
+    <div style="display:grid;grid-template-columns:28px 1fr 60px 60px 60px;gap:5px;padding:8px 16px;background:#F5F4F0;font-size:10px;font-weight:600;color:#888;flex-shrink:0">
+      <div></div>
+      <div>품종명</div>
+      <div style="text-align:center">수령</div>
+      <div style="text-align:center">가입주수</div>
+      <div style="text-align:center">실결주수</div>
+    </div>
+    <!-- 품종 행 목록 -->
+    <div id="setup-rows" style="overflow-y:auto;flex:1;padding:8px 16px"></div>
+    <!-- 하단 버튼 -->
+    <div style="padding:12px 16px;border-top:0.5px solid #E8E6DF;flex-shrink:0;display:flex;gap:8px">
+      <button onclick="addSetupRow()" style="height:40px;padding:0 14px;border:1.5px dashed #378ADD;background:#EBF4FF;border-radius:10px;font-size:13px;font-weight:700;color:#185FA5;cursor:pointer">+ 품종 추가</button>
+      <button onclick="applySetupPopup()" style="flex:1;height:40px;border:none;background:#185FA5;border-radius:10px;font-size:15px;font-weight:700;color:#fff;cursor:pointer">완료 →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- 표본주수 감소 알림 팝업 -->
+<div id="sample-reduce-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:28px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18);text-align:center">
+    <div style="font-size:28px;margin-bottom:10px">⚠️</div>
+    <div style="font-size:16px;font-weight:800;color:#e24b4a;margin-bottom:12px">표본주수 변경</div>
+    <div style="font-size:14px;line-height:1.8;color:#444;margin-bottom:20px" id="sample-reduce-desc"></div>
+    <button onclick="document.getElementById('sample-reduce-overlay').style.display='none'"
+      style="width:100%;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
+  </div>
+</div>
+
+<div id="toast-msg" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(30,30,30,0.88);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:400;white-space:nowrap;pointer-events:none"></div>
 
 <script>
+// ── 품종 주수 입력 팝업 ───────────────────────────
+let setupRows = [];
+
+function openSetupPopup() {
+  const avg = document.getElementById('avg_fruit').value;
+  document.getElementById('count-avg-disp').textContent = avg ? avg+'개' : '';
+  document.getElementById('count-overlay').style.display = 'flex';
+}
+
+function selectCount(n) {
+  document.getElementById('count-overlay').style.display = 'none';
+  // 기존 데이터 유지하면서 n개 행 생성
+  setupRows = [];
+  for(let i = 0; i < n; i++) {
+    const v = varieties[i];
+    setupRows.push({
+      name: v?.name || '',
+      age:  v?.age  || '',
+      reg:  v?.reg  || '',
+      actual: v?.actual || '',
+    });
+  }
+  const avg = document.getElementById('avg_fruit').value;
+  document.getElementById('setup-avg-disp').textContent = avg ? avg+'개' : '';
+  renderSetupRows();
+  document.getElementById('setup-overlay').style.display = 'flex';
+  setTimeout(()=>{ document.querySelector('#setup-rows input')?.focus(); }, 100);
+}
+
+function closeSetupPopup() {
+  document.getElementById('setup-overlay').style.display = 'none';
+}
+
+function renderSetupRows() {
+  const container = document.getElementById('setup-rows');
+  container.innerHTML = setupRows.map((r, i) => `
+    <div style="display:grid;grid-template-columns:28px 1fr 72px 72px 72px;gap:5px;align-items:center;margin-bottom:8px">
+      <div style="width:22px;height:22px;background:#185FA5;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${i+1}</div>
+      <input type="text" value="${r.name||''}" placeholder="품종${i+1}"
+        enterkeyhint="next"
+        style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 8px;font-size:13px;background:${r.name?'#e8faf3':'white'};color:${r.name?'#0d5c35':'#1a1a1a'};-webkit-appearance:none;box-sizing:border-box;width:100%"
+        oninput="setupRows[${i}].name=this.value;this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[1]?.focus()}">
+      <input type="number" value="${r.age||''}" placeholder="0년" inputmode="decimal"
+        enterkeyhint="next"
+        style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 4px;font-size:13px;text-align:center;background:${r.age?'#e8faf3':'white'};-webkit-appearance:none;box-sizing:border-box;width:100%"
+        oninput="setupRows[${i}].age=+this.value||'';this.style.background=this.value?'#e8faf3':'white'"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[2]?.focus()}">
+      <input type="number" value="${r.reg||''}" placeholder="0주" inputmode="decimal"
+        enterkeyhint="next"
+        style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 4px;font-size:13px;text-align:center;background:${r.reg?'#e8faf3':'white'};-webkit-appearance:none;box-sizing:border-box;width:100%"
+        oninput="setupRows[${i}].reg=+this.value||0;this.style.background=this.value?'#e8faf3':'white'"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[3]?.focus()}">
+      <input type="number" value="${r.actual||''}" placeholder="0주" inputmode="decimal"
+        enterkeyhint="next"
+        style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 4px;font-size:13px;text-align:center;background:${r.actual?'#e8faf3':'white'};-webkit-appearance:none;box-sizing:border-box;width:100%"
+        oninput="setupRows[${i}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white'"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[4]?.focus()}">
+    </div>`).join('');
+}
+
+function addSetupRow() {
+  if(setupRows.length >= 10){ showToast('품종은 최대 10개까지 입력 가능해요'); return; }
+  setupRows.push({name:'', age:'', reg:'', actual:''});
+  renderSetupRows();
+  setTimeout(()=>{
+    const rows = document.querySelectorAll('#setup-rows > div');
+    rows[rows.length-1]?.querySelector('input')?.focus();
+  }, 50);
+}
+
+function applySetupPopup() {
+  // 유효한 행만 적용 (실결주수 있는 것)
+  const valid = setupRows.filter(r => r.actual > 0 || r.reg > 0);
+  if(valid.length === 0){ showToast('가입주수 또는 실결주수를 입력해 주세요'); return; }
+  // varieties에 반영 (기존 샘플 데이터 유지)
+  valid.forEach((r, i) => {
+    if(!varieties[i]) varieties.push(EMPTY_VARIETY());
+    varieties[i].name = r.name || '';
+    varieties[i].age = +r.age || 0;
+    varieties[i].reg = +r.reg || 0;
+    varieties[i].actual = +r.actual || 0;
+  });
+  // 초과 품종 제거
+  varieties.splice(valid.length);
+  closeSetupPopup();
+  onInput();
+  saveState();
+  // 품종1 착과수 입력칸으로 이동 — onInput 렌더링 완료 후
+  setTimeout(()=>{
+    varieties[0].open = true;
+    const ss = document.getElementById('ss-0');
+    const icon = document.getElementById('toggle-icon-0');
+    const nextBtn = document.getElementById('next-btn-0');
+    if(ss) ss.classList.add('open');
+    if(icon) icon.textContent = '▼';
+    if(nextBtn) nextBtn.style.display = 'block';
+    setTimeout(()=>{
+      const firstInput = document.getElementById('ss-0')?.querySelector('input');
+      if(firstInput){
+        firstInput.focus();
+        const rect = firstInput.getBoundingClientRect();
+        window.scrollTo({top: window.pageYOffset + rect.top - 260, behavior:'smooth'});
+      }
+    }, 50);
+  }, 100);
+}
+
+function showSampleReduceAlert(name, prevN, newN) {
+  const overlay = document.getElementById('sample-reduce-overlay');
+  document.getElementById('sample-reduce-desc').innerHTML =
+    `<strong>${name}</strong> 의 적정 표본주수가<br>` +
+    `<span style="font-size:22px;font-weight:900;color:#e24b4a">${prevN}주 → ${newN}주</span><br>` +
+    `로 줄었습니다.<br><span style="font-size:12px;color:#888">초과 입력된 표본주는 계산에서 제외되지 않으니<br>필요시 직접 삭제해 주세요.</span>`;
+  overlay.style.display = 'flex';
+}
+
+function resetCalcBtn(){
+  const btn = document.getElementById('calc-btn');
+  if(btn){ btn.classList.remove('done'); btn.innerHTML='<span>🧮</span><span>착과수 계산</span>'; }
+  window._lastCalcResults = null;
+}
+
+function toggleBasicInfo(){
+  const body = document.getElementById('basic-info-body');
+  const icon = document.getElementById('info-toggle-icon');
+  const lbl = document.getElementById('info-toggle-lbl');
+  const isOpen = body.classList.toggle('open');
+  icon.classList.toggle('open', isOpen);
+  lbl.textContent = isOpen ? '접기' : '상세보기';
+}
+
+function updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample){
+  const set = (id, val, unit) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.textContent = val > 0 ? val.toLocaleString() : '-';
+  };
+  const sEl = document.getElementById('sv-reg');
+  const svEl = document.getElementById('sv-survey');
+  const snEl = document.getElementById('sv-sample');
+  const spEl = document.getElementById('sv-proper');
+  if(sEl) sEl.textContent = totalReg > 0 ? totalReg.toLocaleString() : '-';
+  if(svEl) svEl.textContent = totalSurvey > 0 ? totalSurvey.toLocaleString() : '-';
+  if(snEl){
+    snEl.textContent = totalSampleN >= 0 && (totalSurvey > 0) ? totalSampleN : '-';
+    snEl.className = 'sum-val' + (totalSampleN > 0 && properSample > 0 && totalSampleN < properSample ? ' warn' : '');
+  }
+  if(spEl) spEl.textContent = properSample > 0 ? properSample : '-';
+}
+function showToast(msg, duration=2200){
+  const t=document.getElementById('toast-msg');
+  t.textContent=msg; t.style.display='block';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.style.display='none', duration);
+}
+function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
 // 천단위 구분 입력
 function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
 function onCommaInput(el){
@@ -278,6 +762,11 @@ function onCommaInput(el){
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
   el.value = parts.join('.');
   el.classList.toggle('filled', el.value !== '' && el.value !== '0');
+}
+
+// ── 계약변경 여부 공통 함수 ────────────────────────
+function checkNeedReview() {
+  return varieties.some(v => v.reg > 0 && v.actual > 0 && Math.abs(v.actual - v.reg) / v.reg > 0.05);
 }
 
 // ── 상수 ──────────────────────────────────────────
@@ -291,33 +780,86 @@ const SAMPLE_TABLE = [
 const CROP_NAMES = {grape:'포도', peach:'복숭아', plum:'자두'};
 let currentCrop = 'grape';
 
-// ── 품종 데이터 ──────────────────────────────────
-let varieties = [
-  {name:'A', reg:0, actual:0, dead:0, unins:0, samples:[], open:false},
-  {name:'B', reg:0, actual:0, dead:0, unins:0, samples:[], open:false}
-];
+const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false});
+
+// ── 작물별 독립 데이터 ────────────────────────────
+const allData = {
+  grape:  { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
+  peach:  { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
+  plum:   { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
+};
+
+// 현재 작물 데이터 참조
+let varieties = allData[currentCrop].varieties;
+
+// ── 조사대상주 계산 ─────────────────────────────
+function getSurveyTarget(v){
+  return Math.max(0, (v.actual||0) - (v.dead||0) - (v.unable||0) - (v.uninsDead||0) - (v.uninsAlive||0));
+}
 
 // ── 즉시 자동계산칸 업데이트 (리렌더 없이) ────────
 function quickUpdate(vi, field, val){
-  const v = varieties[vi];
-  const tmp = {...v, [field]: +val||0};
+  const tmp = {...varieties[vi], [field]: +val||0};
   const totalSurvey = varieties.reduce((s,vv,i) => {
-    const sv = i===vi ? Math.max(0,tmp.actual-tmp.dead-tmp.unins) : Math.max(0,(vv.actual||0)-(vv.dead||0)-(vv.unins||0));
+    const sv = i===vi ? getSurveyTarget(tmp) : getSurveyTarget(vv);
     return s+sv;
   }, 0);
   const totalProper = getProperSample(totalSurvey);
-  const surveyTarget = Math.max(0, tmp.actual - tmp.dead - tmp.unins);
+  const surveyTarget = getSurveyTarget(tmp);
   const properN = surveyTarget > 0 && totalSurvey > 0
-    ? Math.max(1, Math.ceil(totalProper * surveyTarget / totalSurvey))
-    : 0;
+    ? Math.max(1, Math.ceil(totalProper * surveyTarget / totalSurvey)) : 0;
 
   const sEl = document.getElementById(`vi-survey-${vi}`);
   const pEl = document.getElementById(`vi-proper-${vi}`);
-  const iEl = document.getElementById(`vi-interval-${vi}`);
-
-  if(sEl) sEl.value = surveyTarget > 0 ? surveyTarget.toLocaleString() : '';
+  const pnEl = document.getElementById(`vi-proper-num-${vi}`);
+  const ivEl = document.getElementById(`vi-interval-${vi}`);
+  if(sEl) sEl.value = surveyTarget > 0 ? surveyTarget.toLocaleString()+'주' : '';
   if(pEl) pEl.value = properN > 0 ? properN+'주' : '';
-  if(iEl) iEl.value = surveyTarget > 0 && properN > 0 ? Math.floor(surveyTarget/properN)+'주' : '';
+  if(pnEl) pnEl.textContent = properN > 0 ? properN : 0;
+  if(ivEl) ivEl.textContent = (surveyTarget>0&&properN>0) ? Math.round(surveyTarget/properN) : 0;
+  // 기본정보 합계만 업데이트 (리렌더 없이)
+  updateSummaryOnly();
+}
+
+function updateSummaryOnly() {
+  const totalReg = varieties.reduce((s,v) => s+(v.reg||0), 0);
+  const totalActual = varieties.reduce((s,v) => s+(v.actual||0), 0);
+  const totalSurvey = varieties.reduce((s,v) => s+getSurveyTarget(v), 0);
+  const properSample = getProperSample(totalSurvey);
+  const totalDead = varieties.reduce((s,v) => s+(v.dead||0), 0);
+  const totalUnable = varieties.reduce((s,v) => s+(v.unable||0), 0);
+  const totalUninsDead = varieties.reduce((s,v) => s+(v.uninsDead||0), 0);
+  const totalUninsAlive = varieties.reduce((s,v) => s+(v.uninsAlive||0), 0);
+  const totalSampleN = varieties.reduce((s,v) => s+v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x))).length, 0);
+  const set = (id,val,unit='주') => { const el=document.getElementById(id); if(el) el.value=val>0?val.toLocaleString()+unit:''; };
+  set('total_trees', totalReg);
+  set('total_actual', totalActual);
+  set('total_survey_disp', totalSurvey);
+  set('proper_sample', properSample, '주');
+  set('total_sampleN', totalSampleN, '주');
+  updateTreeSummary(false);
+  const needReview = checkNeedReview();
+  const cEl = document.getElementById('contract_yn');
+  if(cEl){ cEl.value=totalReg>0?(needReview?'계약변경 대상':'이상무'):''; cEl.className='auto'+(needReview?' warn':(totalReg>0?' ok':'')); }
+  updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample);
+}
+
+// ── 나무조사 합계 상세정보 표시 ──────────────────────
+// showZero: true이면 0도 '0주'로 표시 (계산 후), false이면 0은 빈칸
+function updateTreeSummary(showZero) {
+  const totalDead      = varieties.reduce((s,v)=>s+(v.dead||0),0);
+  const totalUnable    = varieties.reduce((s,v)=>s+(v.unable||0),0);
+  const totalUninsDead = varieties.reduce((s,v)=>s+(v.uninsDead||0),0);
+  const totalUninsAlive= varieties.reduce((s,v)=>s+(v.uninsAlive||0),0);
+  const fmt = (id, val) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.value = (showZero || val > 0) ? val.toLocaleString()+'주' : '';
+  };
+  fmt('total_dead',      totalDead);
+  fmt('total_unable',    totalUnable);
+  fmt('total_uninsDead', totalUninsDead);
+  fmt('total_uninsAlive',totalUninsAlive);
 }
 
 // ── 표본주수 계산 ─────────────────────────────────
@@ -330,35 +872,31 @@ function getProperSample(total) {
 // ── 품목 전환 ─────────────────────────────────────
 function setCrop(crop, idx) {
   // 현재 작물 avgFruit 저장
-  const state = JSON.parse(localStorage.getItem('fruit_state')||'{}');
-  if(!state.avgFruitMap) state.avgFruitMap = {};
-  state.avgFruitMap[currentCrop] = document.getElementById('avg_fruit').value;
-  try{ localStorage.setItem('fruit_state', JSON.stringify(state)); }catch(e){}
-
+  allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
   currentCrop = crop;
-  varieties = state['varieties_'+crop] ? state['varieties_'+crop] : varieties;
+  varieties = allData[currentCrop].varieties;
   document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===idx));
-
-  // 새 작물 avgFruit 복원
+  // 해당 작물 avgFruit 복원
   const af = document.getElementById('avg_fruit');
-  af.value = (state.avgFruitMap && state.avgFruitMap[crop]) || '';
+  af.value = allData[currentCrop].avgFruit;
   af.classList.toggle('filled', !!af.value);
+  document.getElementById('result-section').classList.remove('show');
+  document.getElementById('result-detail-section').classList.remove('show');
+  resetCalcBtn();
   onInput();
 }
 
 // ── 품종 렌더링 ───────────────────────────────────
 function renderVarieties(totalSurvey, totalProper) {
-  // 전체 합계 기준 표본주수 계산
   if (totalSurvey === undefined) {
-    totalSurvey = varieties.reduce((s,v) => s + Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)), 0);
+    totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
     totalProper = getProperSample(totalSurvey);
   }
   const container = document.getElementById('variety-list');
   const badge = document.getElementById('variety-count-badge');
   badge.textContent = `(${varieties.length}품종)`;
 
-  // 품종별 표본주수 = ceil(전체표본 × 품종별조사대상 / 전체조사대상), 최소 1주
-  const surveyTargets = varieties.map(v => Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)));
+  const surveyTargets = varieties.map(v => getSurveyTarget(v));
   const properNs = surveyTargets.map(st =>
     st > 0 && totalSurvey > 0 ? Math.max(1, Math.ceil(totalProper * st / totalSurvey)) : 0
   );
@@ -366,128 +904,289 @@ function renderVarieties(totalSurvey, totalProper) {
   container.innerHTML = varieties.map((v, vi) => {
     const surveyTarget = surveyTargets[vi];
     const properN = properNs[vi];
-    // 표본주 배열을 properN에 맞게 조정 (늘리기+줄이기)
+
+    // 샘플 배열 조정 — properN보다 적으면 채우고, 많으면 빈 칸만 제거
     if (properN > v.samples.length) {
       while (v.samples.length < properN) v.samples.push('');
     } else if (properN < v.samples.length) {
+      // 뒤에서부터 빈 칸만 제거 (수동 추가한 입력값은 유지)
       while (v.samples.length > properN && v.samples[v.samples.length-1] === '') {
         v.samples.pop();
       }
     }
-    const inputtedSamples = v.samples.filter(s => s !== '' && s !== null && !isNaN(parseFloat(s))).length;
 
-    // 표본주 N자형 그리드 (CSS 클래스 사용)
+    const inputtedSamples = v.samples.filter(s => s !== '' && !isNaN(parseFloat(s))).length;
+    const sampleSum = v.samples.reduce((s,x) => s + (parseFloat(x)||0), 0);
+    const perTree = inputtedSamples > 0 ? (sampleSum / inputtedSamples) : 0;
+    const afterFruit = perTree > 0 && surveyTarget > 0 ? Math.round(perTree * surveyTarget) : 0;
+
+    // 표본주 그리드 (4열) - 실제 samples 길이 기준
     const _total = v.samples.length;
-    const _cols = _total <= 2 ? _total : _total <= 4 ? 2 : _total <= 8 ? 2 : 4;
-    const _rpc = Math.ceil(_total / _cols);
-    const _colW = _cols === 1 ? '160px' : _cols === 2 ? '1fr 1fr' : 'repeat(4,1fr)';
-    let samplesHtml = `<div class="sg-wrap" style="grid-template-columns:${_colW};width:100%">`;
-    for(let _c=0; _c<_cols; _c++){
-      samplesHtml += '<div class="sg-col">';
-      for(let _r=0; _r<_rpc; _r++){
-        const si = _c * _rpc + _r;
-        if(si >= _total){ samplesHtml += `<div style="height:62px"></div>`; continue; }
-        const s = v.samples[si];
-        const filled = s!=='' && s!==null && !isNaN(parseFloat(s));
-        const _bc = filled ? '#1D9E75' : '#378ADD';
-        const _bg = filled ? '#e8faf3' : 'white';
-        const _fc = filled ? '#0d5c35' : '#1a1a1a';
-        samplesHtml += `<div style="display:flex;flex-direction:row;align-items:center;gap:4px">
-          <span style="font-size:13px;font-weight:700;color:#666;min-width:18px;text-align:right;flex-shrink:0">${si+1}</span>
-          <input type="number" value="${s}" inputmode="decimal" placeholder="-"
-            style="flex:1;height:40px;border:1.5px solid ${_bc};border-radius:6px;font-size:15px;font-weight:600;background:${_bg};color:${_fc};text-align:center;-webkit-appearance:none;min-width:0;box-sizing:border-box"
-            oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
-            onblur="varieties[${vi}].samples[${si}]=this.value;trimSamples(${vi})">
-        </div>`;
-      }
-      samplesHtml += '</div>';
+    let samplesHtml = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px">`;
+    for(let si=0; si<_total; si++){
+      const s = v.samples[si] || '';
+      const filled = s!=='' && !isNaN(parseFloat(s));
+      const isLast = si === _total - 1;
+      samplesHtml += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+        <span style="font-size:10px;font-weight:700;color:var(--hint)">${si+1}</span>
+        <input type="number" value="${s}" inputmode="decimal" placeholder=""
+          enterkeyhint="${isLast?'done':'next'}"
+          style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
+          oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi});resetCalcBtn()"
+          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
+          onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;${vi===varieties.length-1?'setTimeout(()=>doCalc(),50);':''}`:`const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
+      </div>`;
     }
     samplesHtml += '</div>';
 
-    const warnClass = inputtedSamples > 0 && inputtedSamples < properN ? 'warn' : (inputtedSamples >= properN ? 'ok' : '');
+    const inp = (field, val, label) => {
+      const filled = val > 0;
+      const ph = (field==='reg'||field==='actual'||field==='dead'||field==='unable'||field==='uninsDead'||field==='uninsAlive') ? '0주' : '0';
+      const isTreeField = field==='dead'||field==='unable'||field==='uninsDead'||field==='uninsAlive';
+      const treeFields = ['dead','unable','uninsDead','uninsAlive'];
+      const treeIdx = treeFields.indexOf(field);
+      const nextTreeField = treeIdx >= 0 && treeIdx < treeFields.length-1 ? `document.querySelector('#tree-row-${vi} input:nth-child(${(treeIdx+1)*3+1})')?.focus()` : '';
+      const keydown = isTreeField
+        ? (treeIdx < treeFields.length-1
+            ? `onkeydown="if(event.key==='Enter'){event.preventDefault();const _treeInputs=document.querySelectorAll('#tree-row-${vi} input');const _ti=Array.from(_treeInputs).indexOf(this);if(_treeInputs[_ti+1])_treeInputs[_ti+1].focus();}"`
+            : `onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"`)
+        : '';
+      return `<div class="field">
+        <label>${label}</label>
+        <input type="number" class="inp${filled?' filled':''}" value="${val||''}" inputmode="decimal" placeholder="${ph}"
+          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
+          onblur="varieties[${vi}].${field}=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'${field}',this.value);saveState();${isTreeField?'onInput();resetCalcBtn();':''}"
+          oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].${field}=+this.value||0"
+          ${keydown}>
+      </div>`;
+    };
+
+    const defaultName = `품종${vi+1}`;
+    const displayName = v.name || defaultName;
 
     return `
     <div class="variety-card" id="vc-${vi}">
-      <div class="variety-head">
-        <div class="variety-num">${vi+1}</div>
-        <div class="variety-name">
-          <input type="text" value="${v.name}" placeholder="품종명 입력" oninput="varieties[${vi}].name=this.value">
-        </div>
-        <button class="del-variety-btn" onclick="delVariety(${vi})">×</button>
+      <!-- 1열: 번호 / 품종명 / 수령 / 초기화버튼 -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div class="variety-num" style="flex-shrink:0">${vi+1}</div>
+        <input type="text" class="inp${v.name?' filled':''}" value="${v.name||''}" placeholder="${defaultName}"
+          style="flex:1.5;height:40px;font-size:13px" enterkeyhint="next"
+          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
+          onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
+          oninput="varieties[${vi}].name=this.value;saveState()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();document.querySelector('#vc-${vi} input[placeholder=수령]')?.focus()}">
+        <input type="number" class="inp${v.age>0?' filled':''}" value="${v.age||''}" inputmode="decimal" placeholder="0년"
+          style="flex:0.8;height:40px;font-size:13px" enterkeyhint="next"
+          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
+          onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a'"
+          oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].age=+this.value||0;saveState()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('vi-reg-${vi}')?.focus()}">
+        <button onclick="resetVariety(${vi})"
+          style="flex-shrink:0;width:64px;height:40px;padding:0;background:transparent;border:1.5px solid var(--red);border-radius:8px;font-size:12px;font-weight:600;color:var(--red);cursor:pointer">초기화</button>
       </div>
-      <div class="g4">
+
+      <!-- 2열: 가입/실결/조사대상 + 나무조사 버튼 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:end;margin-bottom:6px">
         <div class="field">
           <label>가입주수</label>
-          <input type="number" class="inp ${v.reg>0?'filled':''}" value="${v.reg||''}" inputmode="decimal"
-            oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].reg=+this.value||0"
-            onblur="varieties[${vi}].reg=+this.value||0;updateSummary();saveState()">
+          <input type="number" id="vi-reg-${vi}" class="inp${v.reg>0?' filled':''}" value="${v.reg||''}" inputmode="decimal" placeholder="0주"
+            enterkeyhint="next"
+            onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
+            onblur="varieties[${vi}].reg=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';updateSummaryOnly();saveState()"
+            oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].reg=+this.value||0;resetCalcBtn()"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].reg=+this.value||0;const next=document.getElementById('vi-actual-${vi}');if(next){this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';next.focus();}}">
         </div>
         <div class="field">
           <label>실제결과주수</label>
-          <input type="number" class="inp ${v.actual>0?'filled':''}" value="${v.actual||''}" inputmode="decimal"
-            oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].actual=+this.value||0;quickUpdate(${vi},'actual',this.value)"
-            onblur="
-      varieties[${vi}].actual=+this.value||0;
-      if(this.value && +this.value>0){
-        varieties[${vi}].open=true;
-        // 샘플 배열 미리 확보
-        const _ts=varieties.reduce((s,vv,i)=>s+Math.max(0,(i===${vi}?+this.value||0:vv.actual||0)-(vv.dead||0)-(vv.unins||0)),0);
-        const _tp=getProperSample(_ts);
-        const _st=Math.max(0,(+this.value||0)-(varieties[${vi}].dead||0)-(varieties[${vi}].unins||0));
-        const _pn=_st>0&&_ts>0?Math.max(1,Math.ceil(_tp*_st/_ts)):0;
-        while(varieties[${vi}].samples.length<_pn) varieties[${vi}].samples.push('');
-      }
-      onInput();">
+          <input type="number" id="vi-actual-${vi}" class="inp${v.actual>0?' filled':''}" value="${v.actual||''}" inputmode="decimal" placeholder="0주"
+            enterkeyhint="done"
+            onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
+            onblur="varieties[${vi}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'actual',this.value);saveState()"
+            oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].actual=+this.value||0;resetCalcBtn()"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].actual=+this.value||0;this.blur();}">
         </div>
         <div class="field">
-          <label>고사주</label>
-          <input type="number" class="inp ${v.dead>0?'filled':''}" value="${v.dead||''}" inputmode="decimal"
-            oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].dead=+this.value||0;quickUpdate(${vi},'dead',this.value)"
-            onblur="varieties[${vi}].dead=+this.value||0;quickUpdate(${vi},'dead',this.value);saveState()">
+          <label>조사대상주수</label>
+          <input type="text" class="auto" id="vi-survey-${vi}" value="${surveyTarget>0?surveyTarget.toLocaleString()+'주':''}" readonly>
         </div>
-        <div class="field">
-          <label>미보상주수</label>
-          <input type="number" class="inp ${v.unins>0?'filled':''}" value="${v.unins||''}" inputmode="decimal"
-            oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].unins=+this.value||0;quickUpdate(${vi},'unins',this.value)"
-            onblur="varieties[${vi}].unins=+this.value||0;quickUpdate(${vi},'unins',this.value);saveState()">
+        <button onclick="toggleTreeInspect(${vi})" id="tree-btn-${vi}"
+            style="width:64px;height:40px;padding:0;border:1.5px solid ${v.treeOpen?'#0F6E56':'#1D9E75'};border-radius:8px;font-size:12px;font-weight:600;color:${v.treeOpen?'#fff':'#1D9E75'};background:${v.treeOpen?'#1D9E75':'transparent'};cursor:pointer;white-space:nowrap;flex-shrink:0">나무조사</button>
+      </div>
+      <!-- 3열: 고사/수확불능/미보상고사/미보상미고사 (접기/펼치기) -->
+      <div id="tree-row-${vi}" style="display:${v.treeOpen?'grid':'none'};grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;padding:10px;background:#F5F4F0;border-radius:8px;border:0.5px solid var(--border)">
+        ${inp('dead', v.dead, '고사주수')}
+        ${inp('unable', v.unable, '수확불능')}
+        ${inp('uninsDead', v.uninsDead, '미보상고사')}
+        ${inp('uninsAlive', v.uninsAlive, '미보상미고사')}
+      </div>
+
+
+      <!-- 표본주 입력 토글 -->
+      ${surveyTarget > 0 ? `
+      <div class="sample-toggle" onclick="toggleSamples(${vi})" style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span id="toggle-icon-${vi}">${v.open?'▼':'▶'}</span>
+          <span>표본주 착과수</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="font-size:12px;font-weight:600;color:var(--sub);white-space:nowrap">
+            표본주 <span style="font-size:14px;color:#e24b4a;font-weight:800" id="vi-proper-num-${vi}">${properN}</span>
+            &nbsp;·&nbsp;
+            간격 <span style="font-size:14px;color:#e24b4a;font-weight:800" id="vi-interval-${vi}">${properN>0?Math.round(surveyTarget/properN):0}</span>
+          </div>
+          <button onclick="event.stopPropagation();confirmSampleDel(${vi})"
+            style="width:26px;height:26px;border:1.5px solid var(--border);border-radius:6px;background:transparent;font-size:15px;color:var(--sub);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">－</button>
+          <button onclick="event.stopPropagation();confirmSampleAdd(${vi})"
+            style="width:26px;height:26px;border:1.5px solid var(--binp);border-radius:6px;background:transparent;font-size:15px;color:var(--blue);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">＋</button>
         </div>
       </div>
-      <div class="g3">
-        <div class="field">
-          <label>조사대상주</label>
-          <input type="text" class="auto" id="vi-survey-${vi}" value="${surveyTarget > 0 ? surveyTarget.toLocaleString() : ''}" readonly>
-        </div>
-        <div class="field">
-          <label>적정 표본주수</label>
-          <input type="text" class="auto" id="vi-proper-${vi}" value="${properN > 0 ? properN+'주' : ''}" readonly>
-        </div>
-        <div class="field">
-          <label>표본주 간격</label>
-          <input type="text" class="auto" id="vi-interval-${vi}" value="${surveyTarget > 0 && properN > 0 ? Math.floor(surveyTarget/properN)+'주' : ''}" readonly>
-        </div>
+      <div class="sample-section ${v.open?'open':''}" id="ss-${vi}">
+        ${samplesHtml}
       </div>
-      <div class="sample-toggle" onclick="toggleSamples(${vi})">
-        <span id="toggle-icon-${vi}">${v.open ? '▼' : '▶'}</span>
-        표본주 착과수 입력
-        <span style="font-size:11px;color:var(--hint);margin-left:4px" id="sample-status-${vi}">
-          ${inputtedSamples > 0 ? `(${inputtedSamples}/${properN}주 입력됨)` : ''}
-        </span>
-      </div>
-      <div class="sample-section ${v.open ? 'open' : ''}" id="ss-${vi}">
-        <div class="sample-grid">${samplesHtml}</div>
-        <button style="margin-top:8px;width:100%;height:32px;border:1px dashed var(--border);background:transparent;border-radius:6px;font-size:12px;color:var(--sub);cursor:pointer"
-          onclick="addSampleRow(${vi})">+ 표본주 추가</button>
-      </div>
+      ${vi < varieties.length-1 ? `<button id="next-btn-${vi}" onclick="moveToNextVariety(${vi})"
+        style="display:${v.open?'block':'none'};margin-top:10px;width:100%;height:46px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">
+        다음 품종 →
+      </button>` : ''}
+      ` : `<div id="ss-${vi}"></div>`}
     </div>`;
   }).join('');
+}
+
+// ── 품종별 자동계산 업데이트 (표본입력 시) ────────
+function calcVariety(vi) {
+  const v = varieties[vi];
+  const surveyTarget = getSurveyTarget(v);
+  const inputted = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s)));
+  const sampleSum = inputted.reduce((s,x) => s+(parseFloat(x)||0), 0);
+  const perTree = inputted.length > 0 ? sampleSum / inputted.length : 0;
+  const afterFruit = perTree > 0 && surveyTarget > 0 ? Math.round(perTree * surveyTarget) : 0;
+
+  const sumEl = document.getElementById(`vi-sum-${vi}`);
+  const perEl = document.getElementById(`vi-per-${vi}`);
+  const afterEl = document.getElementById(`vi-after-${vi}`);
+  if(sumEl) sumEl.value = sampleSum > 0 ? Math.round(sampleSum).toLocaleString() : '';
+  if(perEl) perEl.value = perTree > 0 ? perTree.toFixed(1) : '';
+  if(afterEl){
+    afterEl.value = afterFruit > 0 ? afterFruit.toLocaleString() : '';
+    afterEl.className = 'auto' + (afterFruit > 0 ? ' ok' : '');
+  }
+  saveState();
+}
+
+function toggleTreeInspect(vi) {
+  varieties[vi].treeOpen = !varieties[vi].treeOpen;
+  const row = document.getElementById(`tree-row-${vi}`);
+  const btn = document.getElementById(`tree-btn-${vi}`);
+  const isOpen = varieties[vi].treeOpen;
+  if(row) row.style.display = isOpen ? 'grid' : 'none';
+  if(btn) {
+    btn.style.borderColor = isOpen ? '#0F6E56' : '#1D9E75';
+    btn.style.color = isOpen ? '#fff' : '#1D9E75';
+    btn.style.background = isOpen ? '#1D9E75' : 'transparent';
+  }
+  saveState();
+}
+
+// ── 착과수 칸만 교체 (전체 재렌더 없이) ────────────
+function renderSamplesOnly(vi) {
+  const ss = document.getElementById(`ss-${vi}`);
+  if(!ss) return;
+  const v = varieties[vi];
+  const totalSurvey = varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);
+  const totalProper = getProperSample(totalSurvey);
+  const surveyTarget = getSurveyTarget(v);
+  const properN = surveyTarget>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
+  while(v.samples.length < properN) v.samples.push('');
+  const _total = Math.max(v.samples.length, properN);
+  let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px">`;
+  for(let si=0; si<_total; si++){
+    const s = v.samples[si]||'';
+    const filled = s!==''&&!isNaN(parseFloat(s));
+    const isLast = si===_total-1;
+    html += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+      <span style="font-size:10px;font-weight:700;color:var(--hint)">${si+1}</span>
+      <input type="number" value="${s}" inputmode="decimal" placeholder=""
+        enterkeyhint="${isLast?'done':'next'}"
+        style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
+        oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi});resetCalcBtn()"
+        onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
+        onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;`:`const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
+    </div>`;
+  }
+  html += '</div>';
+  ss.innerHTML = html;
+  // 표본주수/간격 업데이트
+  const pnEl = document.getElementById(`vi-proper-num-${vi}`);
+  const ivEl = document.getElementById(`vi-interval-${vi}`);
+  if(pnEl) pnEl.textContent = properN;
+  if(ivEl) ivEl.textContent = surveyTarget>0&&properN>0 ? Math.round(surveyTarget/properN) : 0;
+}
+
+function moveToNextVariety(vi) {
+  document.activeElement?.blur();
+  const curBtn = document.getElementById(`next-btn-${vi}`);
+  if(curBtn) curBtn.style.display = 'none';
+
+  const nextVi = vi + 1;
+  if(nextVi >= varieties.length) {
+    doCalc();
+    return;
+  }
+
+  varieties[nextVi].open = true;
+  const ss = document.getElementById(`ss-${nextVi}`);
+  const icon = document.getElementById(`toggle-icon-${nextVi}`);
+  const nextBtn = document.getElementById(`next-btn-${nextVi}`);
+
+  if(ss){
+    ss.style.removeProperty('display'); // 인라인 display:none 제거
+    ss.classList.add('open');
+  }
+  if(icon) icon.textContent = '▼';
+  if(nextBtn) nextBtn.style.display = 'block';
+
+  setTimeout(()=>{
+    if(ss){
+      const rect = ss.getBoundingClientRect();
+      window.scrollTo({top: window.pageYOffset + rect.top - 160, behavior:'smooth'});
+    }
+  }, 50);
+}
+
+function autoOpenSamples(vi) {
+  varieties[vi].actual = +document.getElementById(`vi-actual-${vi}`)?.value || varieties[vi].actual;
+  quickUpdate(vi, 'actual', varieties[vi].actual);
+  setTimeout(() => {
+    onInput();
+    setTimeout(() => {
+      const surveyTarget = getSurveyTarget(varieties[vi]);
+      if(surveyTarget <= 0) return;
+      varieties[vi].open = true;
+      const ss = document.getElementById(`ss-${vi}`);
+      const icon = document.getElementById(`toggle-icon-${vi}`);
+      if(ss) ss.classList.add('open');
+      if(icon) icon.textContent = '▼';
+      const firstInput = ss?.querySelector('input[type=number]');
+      if(firstInput) {
+        firstInput.focus();
+        const rect = firstInput.getBoundingClientRect();
+        const scrollY = window.pageYOffset + rect.top - 260;
+        window.scrollTo({top: scrollY, behavior:'smooth'});
+      }
+    }, 50);
+  }, 0);
 }
 
 function toggleSamples(vi) {
   varieties[vi].open = !varieties[vi].open;
   const ss = document.getElementById(`ss-${vi}`);
   const icon = document.getElementById(`toggle-icon-${vi}`);
+  const btn = document.getElementById(`next-btn-${vi}`);
   ss.classList.toggle('open', varieties[vi].open);
   icon.textContent = varieties[vi].open ? '▼' : '▶';
+  if(btn) btn.style.display = varieties[vi].open ? 'block' : 'none';
 }
 
 function trimSamples(vi) {
@@ -498,31 +1197,101 @@ function trimSamples(vi) {
   saveState();
 }
 
+function closeAddOverlay() {
+  document.getElementById('sample-add-overlay').style.display = 'none';
+  // 팝업 상태 추가 기본값으로 원복
+  document.querySelector('#sample-add-overlay .modal-icon').textContent = '➕';
+  document.querySelector('#sample-add-overlay .modal-title').textContent = '표본주 추가';
+  document.getElementById('sample-add-btn').textContent = '추가';
+  document.getElementById('sample-add-btn').style.background = '#185FA5';
+}
+
+function confirmSampleAdd(vi) {
+  const name = varieties[vi].name || `품종${vi+1}`;
+  const cur = varieties[vi].samples.length;
+  document.querySelector('#sample-add-overlay .modal-icon').textContent = '➕';
+  document.querySelector('#sample-add-overlay .modal-title').textContent = '표본주 추가';
+  document.getElementById('sample-add-btn').textContent = '추가';
+  document.getElementById('sample-add-btn').style.background = '#185FA5';
+  document.getElementById('sample-add-desc').textContent = `${name} 표본주 1개를 추가할까요? (현재 ${cur}주 → ${cur+1}주)`;
+  document.getElementById('sample-add-overlay').style.display = 'flex';
+  document.getElementById('sample-add-btn').onclick = () => {
+    closeAddOverlay();
+    addSampleRow(vi);
+  };
+}
+
+function confirmSampleDel(vi) {
+  const v = varieties[vi];
+  const name = v.name || `품종${vi+1}`;
+  if(v.samples.length === 0) { showToast('삭제할 표본주가 없어요'); return; }
+
+  // 적정 표본주수 계산
+  const totalSurvey = varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);
+  const totalProper = getProperSample(totalSurvey);
+  const surveyTarget = getSurveyTarget(v);
+  const properN = surveyTarget > 0 && totalSurvey > 0
+    ? Math.max(1, Math.ceil(totalProper * surveyTarget / totalSurvey)) : 0;
+
+  if(v.samples.length <= properN) {
+    showToast(`적정 표본주(${properN}주) 이하라 삭제할 수 없어요`);
+    return;
+  }
+
+  const lastIdx = v.samples.length;
+  document.getElementById('sample-add-desc').textContent = `${name} ${lastIdx}번 표본주를 삭제할까요?`;
+  document.querySelector('#sample-add-overlay .modal-title').textContent = '표본주 삭제';
+  document.querySelector('#sample-add-overlay .modal-icon').textContent = '➖';
+  document.getElementById('sample-add-btn').textContent = '삭제';
+  document.getElementById('sample-add-btn').style.background = '#e24b4a';
+  document.getElementById('sample-add-overlay').style.display = 'flex';
+  document.getElementById('sample-add-btn').onclick = () => {
+    closeAddOverlay();
+    varieties[vi].samples.pop();
+    onInput();
+    saveState();
+  };
+}
+
 function addSampleRow(vi) {
   varieties[vi].samples.push('');
   varieties[vi].open = true;
   onInput();
 }
 
+function resetVariety(vi) {
+  const name = varieties[vi].name || `품종${vi+1}`;
+  const overlay = document.getElementById('variety-reset-overlay');
+  document.getElementById('variety-reset-title').textContent = `${name} 초기화`;
+  document.getElementById('variety-reset-desc').textContent = `${name} 입력값을 모두 초기화할까요?\n초기화 후에는 되돌릴 수 없습니다.`;
+  overlay.style.display = 'flex';
+  document.getElementById('variety-reset-confirm-btn').onclick = () => {
+    overlay.style.display = 'none';
+    varieties[vi] = EMPTY_VARIETY();
+    onInput();
+    saveState();
+  };
+}
+
 function addVariety() {
-  if (varieties.length >= 6) { alert('품종은 최대 6개까지 입력 가능해요'); return; }
-  const _alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const _nextName = _alpha[varieties.length] || String(varieties.length+1);
-  varieties.push({name:_nextName, reg:0, actual:0, dead:0, unins:0, samples:[], open:true});
+  if (varieties.length >= 10) { showToast('품종은 최대 10개까지 입력 가능해요'); return; }
+  varieties.push({...EMPTY_VARIETY(), open:true});
   onInput();
+  saveState();
 }
 
 function delVariety(vi) {
-  if (varieties.length <= 1) { alert('최소 1개 품종은 있어야 해요'); return; }
+  if (varieties.length <= 1) { showToast('최소 1개 품종은 있어야 해요'); return; }
   varieties.splice(vi, 1);
   onInput();
+  saveState();
 }
 
 // ── 기본정보 요약만 업데이트 (리렌더링 없이) ────────
 function updateSummary() {
   const totalReg = varieties.reduce((s,v) => s + (v.reg||0), 0);
   const totalActual = varieties.reduce((s,v) => s + (v.actual||0), 0);
-  const totalSurvey = varieties.reduce((s,v) => s + Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)), 0);
+  const totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
   const properSample = getProperSample(totalSurvey);
   const avgFruit = toNum(document.getElementById('avg_fruit'));
 
@@ -540,12 +1309,7 @@ function updateSummary() {
     if(apEl) apEl.value = (avgFruit / totalReg).toFixed(4)+'개';
   }
 
-  let needReview = false;
-  for (const v of varieties) {
-    if (v.reg > 0 && v.actual > 0) {
-      if (Math.abs(v.actual - v.reg) / v.reg > 0.05) { needReview = true; break; }
-    }
-  }
+  const needReview = checkNeedReview();
   const contractEl = document.getElementById('contract_yn');
   if(contractEl) {
     contractEl.value = totalReg > 0 ? (needReview ? '계약변경 대상' : '이상무') : '';
@@ -562,7 +1326,7 @@ function onInput() {
   // 전체 가입주수 합산
   const totalReg = varieties.reduce((s,v) => s + (v.reg||0), 0);
   // 전체 조사대상주 합산
-  const totalSurvey = varieties.reduce((s,v) => s + Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)), 0);
+  const totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
   const properSample = getProperSample(totalSurvey);
 
   const totalActual = varieties.reduce((s,v) => s + (v.actual||0), 0);
@@ -570,15 +1334,33 @@ function onInput() {
   document.getElementById('total_actual').value = totalActual > 0 ? totalActual.toLocaleString()+'주' : '';
   document.getElementById('total_survey_disp').value = totalSurvey > 0 ? totalSurvey.toLocaleString()+'주' : '';
   document.getElementById('proper_sample').value = properSample > 0 ? properSample+'주' : '';
+  updateSummaryBar(totalReg, totalSurvey, 0, properSample);
+
+  // 2열: 고사/수확불능/미보상고사/미보상미고사 합계
+  const totalDead = varieties.reduce((s,v) => s+(v.dead||0), 0);
+  const totalUnable = varieties.reduce((s,v) => s+(v.unable||0), 0);
+  const totalUninsDead = varieties.reduce((s,v) => s+(v.uninsDead||0), 0);
+  const totalUninsAlive = varieties.reduce((s,v) => s+(v.uninsAlive||0), 0);
+  const set = (id, val) => { const el=document.getElementById(id); if(el) el.value = val>0 ? val.toLocaleString()+'주' : ''; };
+  updateTreeSummary(false);  // 나무조사: 값 있으면 표시, 0은 빈칸
+
+  // 3열: 표본주수/합계/1주당/착과수 합계
+  const totalSampleN = varieties.reduce((s,v) => s + v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x))).length, 0);
+  const totalSampleSum = varieties.reduce((s,v) => s + v.samples.reduce((ss,x)=>ss+(parseFloat(x)||0),0), 0);
+  const totalPerTree = totalSampleN > 0 ? totalSampleSum / totalSampleN : 0;
+  const totalAfterFruit = totalPerTree > 0 && totalSurvey > 0 ? Math.round(totalPerTree * totalSurvey) : 0;
+  updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample);
+  const snEl = document.getElementById('total_sampleN');
+  const ssEl = document.getElementById('total_sampleSum');
+  const spEl = document.getElementById('total_perTree');
+  const afEl = document.getElementById('total_afterFruit');
+  if(snEl) snEl.value = totalSampleN > 0 ? totalSampleN+'주' : '';
+  if(ssEl) ssEl.value = totalSampleSum > 0 ? Math.round(totalSampleSum).toLocaleString() : '';
+  if(spEl) spEl.value = totalPerTree > 0 ? totalPerTree.toFixed(1) : '';
+  if(afEl){ afEl.value = totalAfterFruit > 0 ? totalAfterFruit.toLocaleString() : ''; afEl.className = 'auto' + (totalAfterFruit>0?' ok':''); }
 
   // 계약변경 여부 (품종별 주수 오차 ±5% 초과)
-  let needReview = false;
-  for (const v of varieties) {
-    if (v.reg > 0 && v.actual > 0) {
-      const ratio = Math.abs(v.actual - v.reg) / v.reg;
-      if (ratio > 0.05) { needReview = true; break; }
-    }
-  }
+  const needReview = checkNeedReview();
   const contractEl = document.getElementById('contract_yn');
   contractEl.value = totalReg > 0 ? (needReview ? '계약변경 대상' : '이상무') : '';
   contractEl.className = 'auto' + (needReview ? ' warn' : (totalReg > 0 ? ' ok' : ''));
@@ -589,7 +1371,7 @@ function onInput() {
 }
 
 // ── 계산 실행 ─────────────────────────────────────
-function doCalc() {
+function doCalc(manual = false) {
   const avgFruit = toNum(document.getElementById('avg_fruit'));
 
   // 필수값 체크
@@ -597,26 +1379,39 @@ function doCalc() {
   if (!avgFruit) missing.push('평년착과수');
   const hasActual = varieties.some(v => v.actual > 0);
   if (!hasActual) missing.push('실제결과주수');
-  const hasSamples = varieties.some(v => v.samples.some(s => parseFloat(s) > 0));
+  const hasSamples = varieties.some(v => v.samples.some(s => s !== '' && !isNaN(parseFloat(s))));
   if (!hasSamples) missing.push('표본주 착과수');
   if (missing.length > 0) {
-    alert('아래 항목을 입력해주세요:\n\n• ' + missing.join('\n• '));
-    return;
+    showToast('입력 필요: ' + missing.join(', ')); return;
+  }
+
+  // 빈 칸 체크 — 착과수 0인 경우 0을 입력해야 함
+  const emptySlots = [];
+  for (const v of varieties) {
+    const st = getSurveyTarget(v);
+    if (st <= 0) continue;
+    const emptyCount = v.samples.filter(s => s === '').length;
+    if (emptyCount > 0) {
+      emptySlots.push(`${v.name || ('품종'+(varieties.indexOf(v)+1))} (${emptyCount}칸 미입력)`);
+    }
+  }
+  if (emptySlots.length > 0) {
+    showToast('착과수 0인 경우 0을 입력하세요: ' + emptySlots.join(', '), 3000); return;
   }
 
   // 표본주 부족 경고 - ceil 방식
-  const _totalSurvey = varieties.reduce((s,v) => s + Math.max(0,(v.actual||0)-(v.dead||0)-(v.unins||0)), 0);
+  const _totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
   const _totalProper = getProperSample(_totalSurvey);
   const shortVarieties = [];
   for (const v of varieties) {
-    const _st = Math.max(0, (v.actual||0)-(v.dead||0)-(v.unins||0));
+    const _st = getSurveyTarget(v);
     if (_st <= 0) continue;
     const _pn = Math.max(1, Math.ceil(_totalProper * _st / _totalSurvey));
     const inputted = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s))).length;
     if (inputted < _pn) shortVarieties.push(`${v.name||'미입력'} (${inputted}/${_pn}주)`);
   }
   if (shortVarieties.length > 0) {
-    if (!confirm(`표본주수가 부족한 품종이 있어요:\n${shortVarieties.join('\n')}\n\n그래도 계산할까요?`)) return;
+    showToast('표본 부족: ' + shortVarieties.join(', '), 3500);
   }
 
   // 품종별 계산
@@ -625,7 +1420,7 @@ function doCalc() {
   const results = [];
 
   for (const v of varieties) {
-    const surveyTarget = Math.max(0, (v.actual||0)-(v.dead||0)-(v.unins||0));
+    const surveyTarget = getSurveyTarget(v);
     if (surveyTarget <= 0) continue;
 
     const validSamples = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s)));
@@ -634,13 +1429,13 @@ function doCalc() {
     if (sampleCount === 0) continue;
 
     const perTree = sampleSum / sampleCount;
-    const afterFruit = Math.round(perTree * surveyTarget * 10) / 10;
+    const afterFruit = Math.round(perTree * surveyTarget);
 
     totalAfterFruit += afterFruit;
     totalSampleUsed += sampleCount;
 
     results.push({
-      name: v.name || '-',
+      name: v.name || `품종${varieties.indexOf(v)+1}`,
       surveyTarget,
       sampleCount,
       sampleSum,
@@ -650,45 +1445,65 @@ function doCalc() {
   }
 
   const rate = avgFruit > 0 ? totalAfterFruit / avgFruit : 0;
+  const needReview = checkNeedReview();
 
-  // 결과 표시
-  document.getElementById('r-avg').textContent = avgFruit.toLocaleString()+'개';
-  document.getElementById('r-total').textContent = Math.round(totalAfterFruit).toLocaleString()+'개';
-  document.getElementById('r-samples').textContent = totalSampleUsed+'주';
+  // 결과 저장 (갤러리 저장용)
+  window._lastCalcResults = { results, totalAfterFruit, rate, needReview, avgFruit };
 
+  // 메인 결과 박스
   const rateEl = document.getElementById('result-rate');
   rateEl.textContent = (rate * 100).toFixed(2)+'%';
-  rateEl.className = 'result-main-val' + (rate >= 1 ? ' safe' : rate >= 0.8 ? ' warn' : ' danger');
+  rateEl.style.color = rate >= 1 ? '#A8F0D8' : rate >= 0.8 ? '#FFE082' : '#FFD0D0';
 
-  // 품종별 결과 테이블
-  document.getElementById('result-tbody').innerHTML = results.map(r => `
-    <tr>
-      <td>${r.name}</td>
-      <td>${r.surveyTarget.toLocaleString()}</td>
-      <td>${r.sampleCount}</td>
-      <td>${Math.round(r.sampleSum).toLocaleString()}</td>
-      <td>${r.perTree.toFixed(4)}</td>
-      <td>${Math.round(r.afterFruit).toLocaleString()}</td>
-    </tr>`).join('') + `
-    <tr style="font-weight:700;border-top:1px solid rgba(255,255,255,0.4)">
-      <td>합계</td>
-      <td>${results.reduce((s,r)=>s+r.surveyTarget,0).toLocaleString()}</td>
-      <td>${totalSampleUsed}</td>
-      <td>-</td>
-      <td>${Math.round(totalAfterFruit).toLocaleString()}</td>
-    </tr>`;
+  // 간이 결과 박스
+  document.getElementById('r-avg').textContent = avgFruit.toLocaleString()+'개';
+  const rTotal = document.getElementById('r-total');
+  rTotal.textContent = Math.round(totalAfterFruit).toLocaleString()+'개';
+  rTotal.style.color = rate >= 1 ? '#1D9E75' : rate >= 0.8 ? '#E8860A' : '#e24b4a';
+  const rContract = document.getElementById('r-contract');
+  rContract.textContent = needReview ? '계약변경대상' : '이상무';
+  rContract.style.color = needReview ? '#e24b4a' : '#1D9E75';
+
+  document.getElementById('result-section').classList.add('show');
+  document.getElementById('result-detail-section').classList.add('show');
+  // 스크롤 중 입력 방지
+  document.querySelector('.content').classList.add('calc-done');
+
+  // 착과수 계산 완료 후 상세정보 전체 표시
+  updateTreeSummary(true);
+
+  // 표본착과수합 / 1주당착과수 / 착과수 상세정보에 표시
+  const totalSampleSumCalc = results.reduce((s,r)=>s+r.sampleSum, 0);
+  const totalSampleCntCalc = results.reduce((s,r)=>s+r.sampleCount, 0);
+  const totalPerTreeCalc   = totalSampleCntCalc > 0 ? totalSampleSumCalc / totalSampleCntCalc : 0;
+  const ssEl2 = document.getElementById('total_sampleSum');
+  const spEl2 = document.getElementById('total_perTree');
+  const afEl2 = document.getElementById('total_afterFruit');
+  if(ssEl2) ssEl2.value = totalSampleSumCalc > 0 ? Math.round(totalSampleSumCalc).toLocaleString() : '0';
+  if(spEl2) spEl2.value = totalPerTreeCalc > 0 ? totalPerTreeCalc.toFixed(1) : '0';
+  if(afEl2){ afEl2.value = totalAfterFruit > 0 ? Math.round(totalAfterFruit).toLocaleString() : '0'; afEl2.className = 'auto ok'; }
+
+  // 상단 요약바 표본주수 업데이트
+  const _totalSurveyBar = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
+  const _properBar = getProperSample(_totalSurveyBar);
+  const _sampleNBar = varieties.reduce((s,v)=>s+v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x))).length,0);
+  updateSummaryBar(varieties.reduce((s,v)=>s+(v.reg||0),0), _totalSurveyBar, _sampleNBar, _properBar);
 
   document.getElementById('result-section').classList.add('show');
 
   const btn = document.getElementById('calc-btn');
   if(btn){
-    btn.classList.add('done');
-    btn.innerHTML = '<span>✅</span><span>계산 완료!</span>';
-    setTimeout(() => {
+    if(manual){
+      btn.classList.add('done');
+      btn.innerHTML = '<span>✅</span><span>계산 완료!</span>';
+    } else {
       btn.classList.remove('done');
-      btn.innerHTML = '<span>🧮</span><span>착과율 계산하기</span>';
-    }, 2000);
+      btn.innerHTML = '<span>🧮</span><span>착과수 계산</span>';
+    }
   }
+  if(manual) allData[currentCrop].calcDone = true;
+  else allData[currentCrop].calcDone = false;
+  saveState();
   document.getElementById('result-section').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
@@ -696,58 +1511,59 @@ function doCalc() {
 // ── localStorage 저장/불러오기 ────────────────────
 function saveState(){
   try{
-    const prev = JSON.parse(localStorage.getItem('fruit_state')||'{}');
-    const avgFruitMap = prev.avgFruitMap || {};
-    avgFruitMap[currentCrop] = document.getElementById('avg_fruit').value;
-    const state={
-      crop: currentCrop,
-      avgFruit: document.getElementById('avg_fruit').value,
-      avgFruitMap,
-      varieties: varieties,
-      ['varieties_'+currentCrop]: varieties,
+    allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
+    allData[currentCrop].varieties = varieties;
+    localStorage.setItem('fruit_multi_state', JSON.stringify({
+      currentCrop,
+      allData,
       isLocked: _isLocked
-    };
-    localStorage.setItem('fruit_state', JSON.stringify(state));
+    }));
   }catch(e){}
 }
 
 function loadState(){
   try{
-    const raw = localStorage.getItem('fruit_state');
+    const raw = localStorage.getItem('fruit_multi_state');
     if(!raw) return false;
     const s = JSON.parse(raw);
-    if(s.crop) {
-      currentCrop = s.crop;
-      const idx = {'grape':0,'peach':1,'plum':2}[s.crop]||0;
+    if(s.allData) {
+      for(const crop of Object.keys(allData)){
+        if(s.allData[crop]){
+          if(s.allData[crop].avgFruit !== undefined) allData[crop].avgFruit = s.allData[crop].avgFruit;
+          if(s.allData[crop].varieties?.length > 0) allData[crop].varieties = s.allData[crop].varieties;
+          if(s.allData[crop].calcDone !== undefined) allData[crop].calcDone = s.allData[crop].calcDone;
+        }
+      }
+    }
+    if(s.currentCrop) {
+      currentCrop = s.currentCrop;
+      const idx = {'grape':0,'peach':1,'plum':2}[currentCrop]||0;
       document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===idx));
     }
-    // 현재 작물 avgFruit 복원 (avgFruitMap 우선, 없으면 avgFruit)
-    const afVal = (s.avgFruitMap && s.avgFruitMap[currentCrop]) || s.avgFruit || '';
-    if(afVal) {
-      const el = document.getElementById('avg_fruit');
-      el.value = afVal;
-      el.classList.add('filled');
-    }
-    // 현재 작물 품종 복원
-    if(s['varieties_'+currentCrop] && s['varieties_'+currentCrop].length > 0){
-      varieties = s['varieties_'+currentCrop];
-    } else if(s.varieties && s.varieties.length > 0){
-      varieties = s.varieties;
-    }
+    varieties = allData[currentCrop].varieties;
+    const af = document.getElementById('avg_fruit');
+    af.value = allData[currentCrop].avgFruit || '';
+    if(af.value) af.classList.add('filled');
     if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
     return true;
   }catch(e){ return false; }
 }
 
 function resetAll() {
-  if (!confirm('모든 입력값을 초기화할까요?')) return;
-  try{ localStorage.removeItem('fruit_state'); }catch(e){}
+  for(const crop of Object.keys(allData)){
+    allData[crop].avgFruit = '';
+    allData[crop].varieties = [EMPTY_VARIETY()];
+    allData[crop].calcDone = false;
+  }
+  currentCrop = 'grape';
+  varieties = allData[currentCrop].varieties;
+  document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===0));
   document.getElementById('avg_fruit').value = '';
-  varieties = [
-    {name:'A', reg:0, actual:0, dead:0, unins:0, samples:[], open:false},
-    {name:'B', reg:0, actual:0, dead:0, unins:0, samples:[], open:false}
-  ];
+  document.getElementById('avg_fruit').classList.remove('filled');
   document.getElementById('result-section').classList.remove('show');
+  document.getElementById('result-detail-section').classList.remove('show');
+  resetCalcBtn();
+  localStorage.removeItem('fruit_multi_state');
   unlockInputs();
   onInput();
   window.scrollTo({top:0, behavior:'smooth'});
@@ -760,7 +1576,7 @@ function setCalcMode(){
   document.querySelector('.content').classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
   document.getElementById('btn-edit').classList.remove('active');
-  doCalc();
+  doCalc(true);
   saveState();
 }
 function setEditMode(){
@@ -773,49 +1589,147 @@ function setEditMode(){
 function lockInputs(){ setCalcMode(); }
 function unlockInputs(){ setEditMode(); }
 
-function bindMobileFocusHandlers(){
-  document.querySelectorAll('input.inp, select.inp, input[type=number]').forEach(el=>{
-    if(el.dataset.mobileFocusBound==='1') return;
-    el.dataset.mobileFocusBound='1';
-    el.addEventListener('focus',()=>{
-      el.classList.add('mobile-focus');
-      const len=el.value.length;
-      try{ el.setSelectionRange(len,len); }catch(_){}
-    },{passive:true});
-    el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
-    const isDate=el.type==='date';
-    if(!isDate){
-      el.addEventListener('touchend',(e)=>{
-        if(e.cancelable) e.preventDefault();
-        const wasFilled=el.classList.contains('filled');
-        el.focus();
-        el.classList.add('mobile-focus');
-        if(wasFilled){
-          el.value='';
-          el.classList.remove('filled');
-        } else {
-          const len=el.value.length;
-          try{ el.setSelectionRange(len,len); }catch(_){}
-        }
-      },{passive:false});
-    }
-  });
-}
-
 // ── 갤러리 저장 ───────────────────────────────────
 async function saveImage() {
   try {
-    const el = document.querySelector('.content');
-    const canvas = await html2canvas(el, {backgroundColor:'#F5F4F0', scale:2, useCORS:true, windowWidth:420});
+    const saved = window._lastCalcResults;
+    if(!saved){ showToast('먼저 착과수 계산을 실행해 주세요'); return; }
+    const { totalAfterFruit, rate, needReview, avgFruit } = saved;
+
+    const CROP_KO = {grape:'포도', peach:'복숭아', plum:'자두'};
+    const cropName    = CROP_KO[currentCrop]||'종합과수';
+    const totalReg    = varieties.reduce((s,v)=>s+(v.reg||0),0);
+    const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
+    const totalProper = getProperSample(totalSurvey);
+    const vCount      = varieties.length;
+
+    // ── 품종 수별 세팅
+    // sampleCols: 표본주를 몇 열로 배치할지 (세로로 읽힘: 번호/착과수 2행 한 세트)
+    const cfg = vCount <= 3
+      ? { canvasW:900, tdFs:10, tdPad:'5px 4px', thPad:'6px 4px', sampleCols:6,  sampleCellW:80 }
+      : vCount <= 6
+      ? { canvasW:900, tdFs:9,  tdPad:'4px 3px', thPad:'5px 3px', sampleCols:9,  sampleCellW:60 }
+      : { canvasW:960, tdFs:8,  tdPad:'3px 2px', thPad:'4px 2px', sampleCols:12, sampleCellW:50 };
+
+    // ── 헤더바
+    document.getElementById('cap-title').textContent  = `${cropName} 적과후착과수 조사결과`;
+    document.getElementById('cap-avg').textContent    = avgFruit>0 ? avgFruit.toLocaleString()+'개' : '-';
+    document.getElementById('cap-reg').textContent    = totalReg>0 ? totalReg.toLocaleString()+'주' : '-';
+    document.getElementById('cap-survey').textContent = totalSurvey>0 ? totalSurvey.toLocaleString()+'주' : '-';
+    document.getElementById('cap-rate').textContent   = avgFruit>0 ? (rate*100).toFixed(2)+'%' : '-';
+    document.getElementById('cap-total').textContent  = totalAfterFruit>0 ? Math.round(totalAfterFruit).toLocaleString()+'개' : '-';
+    const contractEl = document.getElementById('cap-contract');
+    contractEl.textContent = needReview ? '계약변경' : '이상무';
+    contractEl.style.color = needReview ? '#FFD0D0' : '#A8F0D8';
+
+    // ── td 헬퍼
+    const td = (txt, bg='#fff', bold=false, color='#111') =>
+      `<td style="padding:${cfg.tdPad};border:1px solid #d1d5db;text-align:center;background:${bg};font-weight:${bold?700:400};color:${color};font-size:${cfg.tdFs}px;white-space:nowrap">${txt??''}</td>`;
+
+    // ── 나무조사: 입력된 품종만 표시 (빈 행 없이)
+    let totalSampleN=0, totalSampleSum=0, totalAfterSum=0, totalProperSum=0;
+    const treeRows = varieties.map((v,vi) => {
+      const st      = getSurveyTarget(v);
+      const properN = st>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*st/totalSurvey)) : 0;
+      const validS  = v.samples.filter(s=>s!==''&&!isNaN(parseFloat(s)));
+      const sN      = validS.length;
+      const sSum    = validS.reduce((a,x)=>a+parseFloat(x),0);
+      const perTree = sN>0 ? sSum/sN : 0;
+      const after   = perTree>0&&st>0 ? Math.round(perTree*st) : 0;
+      totalSampleN  += sN; totalSampleSum += sSum; totalAfterSum += after;
+      totalProperSum += properN;  // 품종별 적정표본 합산
+      const bg = vi%2?'#f8f9fa':'#fff';
+      return `<tr style="background:${bg}">
+        ${td(v.name||`품종${vi+1}`,bg,true)}
+        ${td(v.age||'-')}
+        ${td(v.reg>0?v.reg.toLocaleString():'-')}
+        ${td(v.actual>0?v.actual.toLocaleString():'-')}
+        ${td(v.dead||0)}${td(v.unable||0)}${td(v.uninsDead||0)}${td(v.uninsAlive||0)}
+        ${td(st>0?st.toLocaleString():'-','#EBF4FF',true,'#185FA5')}
+        ${td(sN>0?sN:'-')}
+        ${td(properN>0?properN:'-')}
+        ${td(sSum>0?Math.round(sSum).toLocaleString():'-')}
+        ${td(perTree>0?perTree.toFixed(1):'-')}
+        ${td(after>0?after.toLocaleString():'-','#e8faf3',true,'#0d5c35')}
+      </tr>`;
+    }).join('');
+
+    const totalPerTree = totalSampleN>0 ? totalSampleSum/totalSampleN : 0;
+    const tfootRow = `<tr style="background:#e8edf2">
+      ${td('합 계','#e8edf2',true)}
+      ${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}
+      ${td(totalSurvey>0?totalSurvey.toLocaleString():'-','#dbeafe',true,'#185FA5')}
+      ${td(totalSampleN>0?totalSampleN:'-','#e8edf2',true)}
+      ${td(totalProperSum>0?totalProperSum:'-')}
+      ${td(totalSampleSum>0?Math.round(totalSampleSum).toLocaleString():'-','#e8edf2',true)}
+      ${td(totalPerTree>0?totalPerTree.toFixed(1):'-')}
+      ${td(totalAfterSum>0?totalAfterSum.toLocaleString():'-','#d1fae5',true,'#0d5c35')}
+    </tr>`;
+
+    document.getElementById('cap-tree-tbody').innerHTML = treeRows;
+    document.getElementById('cap-tree-tfoot').innerHTML = tfootRow;
+
+    // ── 적과후착과수: 세로 방향 읽기, 입력된 표본주만 표시
+    // 1~6품종: 3줄, 7~10품종: 2줄
+    const COLS  = vCount <= 6 ? 3 : 2;
+    let samplesHtml = '';
+    varieties.forEach((v, vi) => {
+      const name = v.name || `품종${vi+1}`;
+      const fs   = cfg.tdFs;
+
+      // 입력된 표본주만
+      const slots = v.samples
+        .map((raw, si) => ({ no: si+1, val: (raw!==''&&!isNaN(parseFloat(raw))) ? parseFloat(raw) : null }))
+        .filter(s => s.val !== null);
+
+      if(slots.length === 0) return;
+
+      const FIXED = slots.length;
+      const ROWS  = Math.ceil(FIXED / COLS);
+
+      let tableHtml = `<table style="border-collapse:collapse;table-layout:fixed">`;
+      const cellW = COLS === 3 ? 60 : 52;
+      const noW   = COLS === 3 ? 40 : 36;
+      for(let r=0; r<ROWS; r++){
+        tableHtml += `<tr>`;
+        for(let c=0; c<COLS; c++){
+          const idx = c * ROWS + r;
+          if(idx >= FIXED){
+            // 마지막 줄 남는 칸 — 번호+착과수 빈 셀
+            tableHtml += `<td style="width:${noW}px;border:none;background:transparent"></td>`;
+            tableHtml += `<td style="width:${cellW}px;border:none;background:transparent"></td>`;
+          } else {
+            const s = slots[idx];
+            tableHtml += `<td style="width:${noW}px;border:1px solid #2563EB;background:#185FA5;text-align:center;padding:3px 2px;font-size:${fs-1}px;font-weight:700;color:#fff">${s.no}번</td>`;
+            tableHtml += `<td style="width:${cellW}px;border:1px solid #bbb;background:#fff;text-align:center;padding:4px 2px;font-size:${fs}px;font-weight:700;color:#111">${s.val.toLocaleString()}</td>`;
+          }
+          if(c < COLS-1) tableHtml += `<td style="width:10px;background:transparent;border:none"></td>`;
+        }
+        tableHtml += `</tr>`;
+      }
+      tableHtml += `</table>`;
+
+      const inputted = v.samples.filter(s=>s!==''&&!isNaN(parseFloat(s))).length;
+      samplesHtml += `<div style="margin-bottom:10px">
+        <div style="font-size:${fs+1}px;font-weight:800;color:#185FA5;margin-bottom:4px">${name}
+          <span style="font-size:${fs-1}px;font-weight:400;color:#888;margin-left:6px">${inputted}개 입력</span>
+        </div>
+        ${tableHtml}
+      </div>`;
+    });  // varieties.forEach 닫기
+    document.getElementById('cap-samples-wrap').innerHTML = samplesHtml;
+
+    const canvas = await html2canvas(document.getElementById('capture-template'), {
+      backgroundColor:'#f3f4f6', scale:2, useCORS:true, windowWidth:cfg.canvasW
+    });
     const link = document.createElement('a');
     const now = new Date();
     const stamp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
-    link.download = `종합착과율_${stamp}.png`;
+    link.download = `${cropName}착과수_${stamp}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-    document.getElementById('save-overlay').classList.add('show');
   } catch(e) {
-    alert('저장 중 오류가 발생했어요. 스크린샷을 이용해주세요.');
+    showToast('저장 중 오류가 발생했어요');
   }
 }
 
@@ -826,13 +1740,14 @@ if ('serviceWorker' in navigator) {
 }
 
 // ── 초기 실행 ─────────────────────────────────────
-// 저장된 상태 불러오기
-const _loaded = loadState();
-document.addEventListener('DOMContentLoaded',()=>{
-  bindMobileFocusHandlers();
-  document.addEventListener('click',()=>setTimeout(bindMobileFocusHandlers,0),{passive:true});
+document.addEventListener('DOMContentLoaded', ()=>{
+  const _loaded = loadState();
+  onInput();
+  if(allData[currentCrop].calcDone){
+    doCalc(true);
+  }
+  document.body.style.visibility = 'visible';
 });
-onInput();
 </script>
 </body>
 </html>
