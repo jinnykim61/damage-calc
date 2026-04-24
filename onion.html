@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"><!-- build:1777073249 -->
+<meta charset="UTF-8"><!-- build:1777073945 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#185FA5">
 <meta name="mobile-web-app-capable" content="yes">
@@ -120,9 +120,9 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
 /* 표본 테이블 */
 .tbl-wrap{overflow-x:auto;width:100%}
-table{width:100%;border-collapse:collapse;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 thead th{font-size:12px!important;font-weight:600;color:var(--sub);text-align:center;padding:6px 2px 8px;border-bottom:1px solid var(--border);white-space:pre-line;line-height:1.4}
-tbody td{padding:3px 2px;vertical-align:middle}
+tbody td{padding:3px 2px;vertical-align:middle;border-bottom:0.5px solid #eee;text-align:center}
 tbody td.no{text-align:center;color:var(--sub);font-size:12px;font-weight:600;width:20px}
 tbody td input{height:36px;border:1.5px solid var(--binp);border-radius:6px;padding:0 2px;font-size:13px;background:white;color:var(--text);text-align:center;width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s}
 tbody td input:focus{outline:none !important;border-color:#185FA5 !important;box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;background:#dceeff !important;color:#185FA5 !important}
@@ -397,7 +397,7 @@ tbody td input.filled:active{
           <tr>
             <th>No.</th>
             <th>길이</th>
-            <th>이랑폭</th>
+            <th>폭</th>
             <th>정상</th>
             <th id="th-d80">80%형</th>
             
@@ -519,7 +519,7 @@ tbody td input.filled:active{
           <thead><tr>
             <th style="padding:7px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">No</th>
             <th style="padding:7px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">길이</th>
-            <th style="padding:7px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">이랑폭</th>
+            <th style="padding:7px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">폭</th>
             <th style="padding:7px 4px;background:#4a7aad;color:#fff;border-right:1px solid #d1d5db;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">정상(g)</th>
             <th style="padding:7px 4px;background:#4a7aad;color:#fff;border-bottom:1px solid #d1d5db;font-size:12px;font-weight:700;text-align:center">80%형</th>
           </tr></thead>

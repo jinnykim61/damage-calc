@@ -44,9 +44,9 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 .tbl-wrap{overflow-x:hidden;width:100%;margin-bottom:8px}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-thead th{background:#f8f8f8;padding:6px 2px;text-align:center;font-weight:600;color:var(--sub);border-bottom:1.5px solid var(--border);line-height:1.4}
+thead th{background:#f8f8f8;padding:6px 2px;text-align:center;font-weight:600;color:var(--sub);font-size:10px!important;border-bottom:1.5px solid var(--border);line-height:1.4;white-space:pre-line}
 tbody td{padding:3px 2px;border-bottom:0.5px solid #eee;text-align:center}
-tfoot td{padding:5px 2px;background:#f0f0f0;font-weight:700;font-size:11px;text-align:center;border-top:1.5px solid var(--border)}
+tfoot td{padding:6px 1px;background:#f0f0f0;font-weight:700;font-size:10px;text-align:center;border-top:1.5px solid var(--border)}
 tbody td input{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:13px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text);transition:background 0.15s,border-color 0.15s}
 tbody td input:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.22)!important;background:#DCEEFF!important;color:#185FA5!important}
 tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
@@ -166,17 +166,17 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
     <div class="section">
       <div class="sec-head">
         <div class="sec-title">② 표본구간 조사 <span id="sample-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
-        <div style="font-size:11px;color:var(--hint)">길이·폭:m / 중량:g / 함수율:%</div>
+        <span style="font-size:10px;color:var(--hint);font-weight:400">길이·폭(m) / 중량(g) / 함수율(%)</span>
       </div>
       <div class="tbl-wrap">
         <table>
           <colgroup>
-            <col style="width:8%"><col style="width:22%"><col style="width:20%">
-            <col style="width:27%"><col style="width:23%">
+            <col style="width:10%"><col style="width:22%"><col style="width:22%">
+            <col style="width:23%"><col style="width:23%">
           </colgroup>
           <thead>
             <tr>
-              <th>No.</th><th>4주길이</th><th>이랑폭</th><th>중량(g)</th><th>함수율(%)</th>
+              <th>No.</th><th>길이</th><th>이랑폭</th><th>중량</th><th>함수율</th>
             </tr>
           </thead>
           <tbody id="sample-body"></tbody>
@@ -463,7 +463,7 @@ function calc(){
   const {effAvg, surveyArea, uninsRate} = calcCommon();
 
   const proper = surveyArea>0 ? getProper(surveyArea) : 0;
-  document.getElementById('sample-badge').textContent = '';
+  document.getElementById('sample-badge').textContent = samples.length>0 ? `(${samples.length}구간)` : '';
 
   if(proper>0 && samples.length===0){
     for(let i=0;i<proper;i++) samples.push({len:'',wid:'',weight:'',moist:''});
@@ -481,7 +481,7 @@ function calc(){
     }
   });
 
-  if(inputted>0) document.getElementById('sample-badge').textContent = `(${inputted}/${samples.length}구간 입력)`;
+  // badge는 위에서 이미 설정
 
   const resultBox = document.getElementById('result-section');
   const pctEl = document.getElementById('result-pct');
@@ -566,7 +566,7 @@ function unlockInputs(){ setEditMode(); }
 function renderSamples(){
   document.getElementById('sample-body').innerHTML = samples.map((s,i)=>`
     <tr>
-      <td style="font-weight:700;color:var(--sub);font-size:11px">${i+1}</td>
+      <td style="font-weight:600;color:var(--sub);font-size:10px">${i+1}</td>
       <td><input type="number" value="${s.len||''}" inputmode="decimal" step="0.1"
         class="${s.len?'filled':''}"
         oninput="samples[${i}].len=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
@@ -653,7 +653,7 @@ function resetAll(){
   });
   samples=[];
   document.getElementById('sample-body').innerHTML='';
-  document.getElementById('sample-badge').textContent='';
+  document.getElementById('sample-badge').textContent = samples.length>0 ? `(${samples.length}구간)` : '';
   document.getElementById('s-area').textContent='-';
   document.getElementById('s-unit').textContent='-';
   document.getElementById('result-section').className='result-box pending';
