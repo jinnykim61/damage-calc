@@ -275,7 +275,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
         <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
           enterkeyhint="next"
           oninput="onCommaInput(this);onInput();resetCalcBtn()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();if(this.value)openSetupPopup()}">
+          onkeydown="if(event.key==='Enter'){event.preventDefault();if(this.value){this.blur();setTimeout(()=>openSetupPopup(),150)}}">
       </div>
     </div>
 
@@ -819,8 +819,19 @@ function quickUpdate(vi, field, val){
   if(pEl) pEl.value = properN > 0 ? properN+'주' : '';
   if(pnEl) pnEl.textContent = properN > 0 ? properN : 0;
   if(ivEl) ivEl.textContent = (surveyTarget>0&&properN>0) ? Math.round(surveyTarget/properN) : 0;
+
+  // samples 배열 크기 조정 (실제결과주수 수정 시 표본주 재설정)
+  varieties[vi] = {...varieties[vi], [field]: +val||0};
+  if(properN > varieties[vi].samples.length){
+    while(varieties[vi].samples.length < properN) varieties[vi].samples.push('');
+  } else if(properN < varieties[vi].samples.length){
+    while(varieties[vi].samples.length > properN && varieties[vi].samples[varieties[vi].samples.length-1] === '')
+      varieties[vi].samples.pop();
+  }
+
   // 기본정보 합계만 업데이트 (리렌더 없이)
   updateSummaryOnly();
+  updateCardSummary(vi);
 }
 
 function updateSummaryOnly() {
@@ -985,10 +996,10 @@ function renderVarieties(totalSurvey, totalProper) {
       <div onclick="toggleCard(${vi})" style="display:flex;align-items:center;gap:8px;cursor:pointer;${cardOpen?'margin-bottom:10px':''}">
         <div class="variety-num" style="flex-shrink:0">${vi+1}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:14px;font-weight:700;color:var(--text)">${displayName}${v.age>0?` ${v.age}년`:''}</div>
-          ${!cardOpen?`<div style="font-size:11px;color:var(--sub);margin-top:2px">${sampleStatus} &nbsp;·&nbsp; ${fruitStatus}</div>`:''}
+          <div id="card-name-${vi}" style="font-size:14px;font-weight:700;color:var(--text)">${displayName}${v.age>0?` ${v.age}년`:''}</div>
+          <div id="card-summary-${vi}" style="font-size:11px;color:var(--sub);margin-top:2px;display:${cardOpen?'none':'block'}">${sampleOk?`표본 ${validS.length}/${properN>0?properN:0}주 ✅`:`표본 ${validS.length}/${properN>0?properN:0}주 ⚠️`}  ·  ${fruitStatus}</div>
         </div>
-        <span style="font-size:16px;color:var(--sub);flex-shrink:0">${cardOpen?'▼':'▶'}</span>
+        <span id="card-icon-${vi}" style="font-size:16px;color:var(--sub);flex-shrink:0">${cardOpen?'▼':'▶'}</span>
       </div>
       <!-- 카드 본문 (접기/펼치기) -->
       <div id="card-body-${vi}" style="display:${cardOpen?'block':'none'}">
@@ -1114,9 +1125,7 @@ function toggleCard(vi) {
   const body = document.getElementById(`card-body-${vi}`);
   const header = document.querySelector(`#vc-${vi} > div:first-child`);
   if(body) body.style.display = cardOpen ? 'none' : 'block';
-  // 헤더 마진 업데이트
   if(header) header.style.marginBottom = cardOpen ? '0' : '10px';
-  // 요약 텍스트 업데이트
   updateCardSummary(vi);
   saveState();
 }
@@ -1147,9 +1156,9 @@ function updateCardSummary(vi) {
   const sampleStatus = properN>0 ? `표본 ${validS.length}/${properN}주 ${sampleOk?'✅':'⚠️'}` : '표본주 미설정';
   const fruitStatus = afterFruit>0 ? `${afterFruit.toLocaleString()}개` : '-';
   const cardOpen = v.cardOpen !== false;
-  const nameEl = header.querySelector('div:first-child > div:first-child');
-  const summaryEl = header.querySelector('div:first-child > div:last-child');
-  const iconEl = header.querySelector('span:last-child');
+  const summaryEl = document.getElementById(`card-summary-${vi}`);
+  const iconEl = document.getElementById(`card-icon-${vi}`);
+  const nameEl = document.getElementById(`card-name-${vi}`);
   const displayName = v.name || `품종${vi+1}`;
   if(nameEl) nameEl.textContent = `${displayName}${v.age>0?` ${v.age}년`:''}`;
   if(summaryEl){
