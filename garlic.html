@@ -429,7 +429,7 @@ tbody td input.filled:active{
     <div id="sample-tbl-wrap" class="tbl-wrap" style="display:none">
       <table style="width:100%;table-layout:fixed">
         <colgroup>
-          <col style="width:6%">
+          <col style="width:10%">
           <col id="col-len">
           <col id="col-wid">
           <col id="col-norm">
@@ -440,7 +440,7 @@ tbody td input.filled:active{
           <tr>
             <th>No.</th>
             <th>길이</th>
-            <th>이랑폭</th>
+            <th>폭</th>
             <th>정상</th>
             <th id="th-d80">80%</th>
             <th id="th-d50">벌마늘</th>
@@ -771,11 +771,11 @@ function updateGarlicCols(){
   // 칸 너비: No(6%) 벌마늘(12%) 나머지 균등
   const colCount = isGarlic ? 5 : 4;
   const noCol = document.querySelector('colgroup col:first-child');
-  if(noCol) noCol.style.width = '6%';
+  if(noCol) noCol.style.width = '10%';
 
   if(isGarlic){
     // 길이/폭/정상/80% 균등, 벌마늘 12%
-    const rest = 94; // 100-6
+    const rest = 90; // 100-10
     const eachPct = Math.floor(rest / 5);
     const lastPct2 = rest - eachPct * 4;
     const colMap = {
