@@ -1040,9 +1040,9 @@ function renderVarieties(totalSurvey) {
           <input type="number" id="vi-actual-${vi}" class="inp${v.actual>0?' filled':''}" value="${v.actual||''}" inputmode="decimal" placeholder="0주"
             enterkeyhint="done"
             onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
-            onblur="varieties[${vi}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'actual',this.value);saveState()"
+            onblur="varieties[${vi}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'actual',this.value);onInput();saveState()"
             oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].actual=+this.value||0;resetCalcBtn()"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].actual=+this.value||0;this.blur();}">
+            onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'actual',this.value);onInput();saveState();}">
         </div>
         <div class="field">
           <label>조사대상주수</label>
