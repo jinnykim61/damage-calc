@@ -621,7 +621,7 @@ function calc(){
     const rowWid = parseFloat(document.getElementById('rowWid').value)||0;
     const moisture = (parseFloat(document.getElementById('moisture').value)||0)/100;
 
-    // 표본구간면적 = ROUND(이랑길이×이랑폭, 2)
+    // 표본구간면적 = ROUND(이랑길이×이랑폭, 2) with EPSILON 보정
     const unitArea = Math.round((rowLen * rowWid + Number.EPSILON) * 100) / 100;
     document.getElementById('sampleArea').value = unitArea > 0 ? unitArea + ' ㎡/구간' : '';
 
