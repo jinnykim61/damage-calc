@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"><!-- build:1777072755 -->
+<meta charset="UTF-8"><!-- build:1777073021 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#185FA5">
 <meta name="mobile-web-app-capable" content="yes">
@@ -399,7 +399,7 @@ tbody td input.filled:active{
             <th>길이</th>
             <th>이랑폭</th>
             <th>정상</th>
-            <th id="th-d80">80%</th>
+            <th id="th-d80">80%형</th>
             
           </tr>
         </thead>
@@ -695,12 +695,10 @@ function updateGarlicCols(){
   // 양파: No(14%) + 4칸 균등(86%)
   const noCol = document.querySelector('colgroup col:first-child');
   if(noCol) noCol.style.width = '14%';
-  const rest = 86;
-  const each = Math.floor(rest/4);
-  const last = rest - each*3;
-  ['col-len','col-wid','col-norm','col-d80'].forEach((id,i)=>{
+  const each4 = Math.round(86/4);
+  ['col-len','col-wid','col-norm','col-d80'].forEach((id)=>{
     const el = document.getElementById(id);
-    if(el) el.style.width = (i===3?last:each)+'%';
+    if(el) el.style.width = each4+'%';
   });
 }
 
