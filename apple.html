@@ -221,6 +221,36 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div class="legend-item"><div class="dot-auto"></div>자동 계산</div>
 </div>
 
+<!-- 모드 탭 -->
+<div style="display:flex;background:var(--card);border-bottom:0.5px solid var(--border);position:sticky;top:57px;z-index:99">
+  <div id="mode-tab-0" onclick="setMode(0)" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--blue);border-bottom:2.5px solid var(--blue);cursor:pointer">📋 표본간격</div>
+  <div id="mode-tab-1" onclick="setMode(1)" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer">🧮 착과수 입력</div>
+</div>
+
+<!-- 표본간격 탭 화면 -->
+<div id="mode-section-0" class="content">
+  <div class="section">
+    <div style="font-size:12px;color:var(--sub);font-weight:600;margin-bottom:10px">품종 수 선택</div>
+    <div style="display:flex;gap:6px">
+      ${[1,2,3,4,5,6].map(n=>`<div onclick="setIntervalCount(${n})" id="icnt-${n}" style="flex:1;padding:8px 0;text-align:center;border:1.5px solid var(--border);border-radius:var(--rs);font-size:14px;font-weight:600;color:var(--sub);cursor:pointer">${n}</div>`).join('')}
+    </div>
+  </div>
+  <div class="section" id="interval-section" style="padding:0;overflow:hidden">
+    <div style="display:grid;grid-template-columns:1fr 80px 110px;background:var(--bg);padding:8px 12px;font-size:11px;font-weight:600;color:var(--sub);border-bottom:0.5px solid var(--border)">
+      <div>품종</div><div style="text-align:center">조사대상</div><div style="text-align:center">표본 · 간격</div>
+    </div>
+    <div id="interval-rows"></div>
+    <div style="padding:10px 12px;background:var(--bg);border-top:0.5px solid var(--border);font-size:12px;color:var(--sub);display:flex;justify-content:space-between">
+      <span>합계 <b id="iv-total">0</b>주</span>
+      <span>적정표본 <b id="iv-proper">0</b>주</span>
+    </div>
+  </div>
+  <button onclick="setMode(1)" style="width:100%;margin-top:4px;height:48px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer">착과수 입력으로 →</button>
+</div>
+
+<!-- 착과수 입력 탭 화면 -->
+<div id="mode-section-1" style="display:none">
+
 <!-- 품목 선택 탭 -->
 <div class="crop-tabs">
   <div class="crop-tab on" onclick="setCrop('apple',0)">🍎 사과</div>
@@ -803,7 +833,65 @@ let currentCrop = 'apple';
 
 const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false, cardOpen:true});
 
-// ── 작물별 독립 데이터 ────────────────────────────
+// ── 모드 탭 (표본간격 / 착과수 입력) ──────────────────
+let currentMode = 0;
+let intervalCount = 3;
+let intervalSurveys = [0,0,0,0,0,0]; // 품종별 조사대상주수
+
+function setMode(m) {
+  currentMode = m;
+  document.getElementById('mode-section-0').style.display = m===0 ? 'block' : 'none';
+  document.getElementById('mode-section-1').style.display = m===1 ? 'block' : 'none';
+  document.getElementById('mode-tab-0').style.color = m===0 ? 'var(--blue)' : 'var(--hint)';
+  document.getElementById('mode-tab-0').style.borderBottomColor = m===0 ? 'var(--blue)' : 'transparent';
+  document.getElementById('mode-tab-1').style.color = m===1 ? 'var(--blue)' : 'var(--hint)';
+  document.getElementById('mode-tab-1').style.borderBottomColor = m===1 ? 'var(--blue)' : 'transparent';
+}
+
+function setIntervalCount(n) {
+  intervalCount = n;
+  for(let i=1;i<=6;i++){
+    const el = document.getElementById(`icnt-${i}`);
+    if(el){
+      el.style.borderColor = i===n ? 'var(--blue)' : 'var(--border)';
+      el.style.color = i===n ? 'var(--blue)' : 'var(--sub)';
+      el.style.background = i===n ? '#EBF4FF' : '';
+    }
+  }
+  renderIntervalRows();
+}
+
+function renderIntervalRows() {
+  const container = document.getElementById('interval-rows');
+  if(!container) return;
+  const total = intervalSurveys.slice(0,intervalCount).reduce((s,v)=>s+v,0);
+  const tp = getProperSample(total);
+
+  let html = '';
+  for(let i=0;i<intervalCount;i++){
+    const sv = intervalSurveys[i]||0;
+    const pn = (sv>0&&total>0) ? Math.max(1,Math.ceil(tp*sv/total)) : 0;
+    const gap = (pn>0&&sv>0) ? Math.round(sv/pn) : 0;
+    const filled = sv > 0;
+    html += `<div style="display:grid;grid-template-columns:1fr 80px 110px;padding:10px 12px;border-bottom:0.5px solid var(--border);align-items:center">
+      <div style="font-size:13px;color:var(--sub)">품종 ${i+1}</div>
+      <div>
+        <input type="number" value="${sv||''}" inputmode="decimal" placeholder="0주"
+          style="width:100%;text-align:center;font-size:14px;font-weight:600;height:36px;border:1.5px solid ${filled?'#1D9E75':'var(--binp)'};background:${filled?'#e8faf3':'white'};border-radius:var(--rs);color:${filled?'#0d5c35':'var(--text)'}"
+          oninput="intervalSurveys[${i}]=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)';renderIntervalRows()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();const next=document.querySelectorAll('#interval-rows input')[${i+1}];if(next)next.focus();}">
+      </div>
+      <div style="text-align:center">
+        ${pn>0 ? `<span style="font-size:15px;font-weight:700;color:var(--blue)">${pn}주</span><span style="color:var(--hint);margin:0 3px">·</span><span style="font-size:15px;font-weight:700;color:var(--blue)">${gap}칸</span>` : '<span style="font-size:13px;color:var(--hint)">-</span>'}
+      </div>
+    </div>`;
+  }
+  container.innerHTML = html;
+
+  document.getElementById('iv-total').textContent = total.toLocaleString();
+  document.getElementById('iv-proper').textContent = total>0 ? tp : 0;
+  bindMobileFocusHandlers();
+}
 const allData = {
   apple:          { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
   pear:           { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
@@ -1892,7 +1980,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
     doCalc(true);
   }
   document.body.style.visibility = 'visible';
+  setIntervalCount(3);
 });
 </script>
+</div><!-- /mode-section-1 -->
+
 </body>
 </html>
