@@ -121,7 +121,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 }
 
 /* 기본정보 요약바 */
-.info-summary{background:var(--blue);padding:10px 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;border-radius:var(--r) var(--r) 0 0}
+.info-summary{background:var(--blue);padding:10px 14px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;border-radius:var(--r) var(--r) 0 0}
 .sum-item{display:flex;flex-direction:column;align-items:center;gap:2px}
 .sum-lbl{font-size:9px;color:rgba(255,255,255,0.7);font-weight:500;text-align:center}
 .sum-val{font-size:16px;font-weight:700;color:#fff;line-height:1}
@@ -229,6 +229,9 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 
 <!-- 표본간격 탭 화면 -->
 <div id="mode-section-0" class="content">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+    <button onclick="openResetModal()" style="height:28px;padding:0 14px;background:#FFF5F5;border:1.5px solid var(--red);border-radius:var(--rs);font-size:12px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
+  </div>
   <div class="section">
     <div style="font-size:12px;color:var(--sub);font-weight:600;margin-bottom:10px">품종 수 선택</div>
     <div style="display:flex;gap:5px;margin-bottom:6px">
@@ -270,10 +273,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 <!-- 착과수 입력 탭 화면 -->
 <div id="mode-section-1" style="display:none">
 
-<!-- 전체 초기화 버튼만 -->
-<div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
-  <button onclick="openResetModal()" style="height:28px;padding:0 14px;background:#FFF5F5;border:1.5px solid var(--red);border-radius:var(--rs);font-size:12px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
-</div>
+
 
 <div class="content">
 
@@ -308,6 +308,10 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
           <span class="sum-val" id="sv-proper">-</span>
           <span class="sum-unit">주</span>
         </div>
+      </div>
+      <div class="sum-item">
+        <div class="sum-lbl">원장변경</div>
+        <span class="sum-val" id="sv-contract" style="font-size:13px;font-weight:700">-</span>
       </div>
     </div>
 
@@ -794,6 +798,15 @@ function updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample){
     snEl.className = 'sum-val' + (totalSampleN > 0 && properSample > 0 && totalSampleN < properSample ? ' warn' : '');
   }
   if(spEl) spEl.textContent = properSample > 0 ? properSample : '-';
+  const scEl = document.getElementById('sv-contract');
+  if(scEl && totalReg > 0){
+    const nr = checkNeedReview();
+    scEl.textContent = nr ? '필요' : '이상무';
+    scEl.style.color = nr ? '#FFD0D0' : '#A8F0D8';
+  } else if(scEl){
+    scEl.textContent = '-';
+    scEl.style.color = '#fff';
+  }
 }
 function showToast(msg, duration=2200){
   const t=document.getElementById('toast-msg');
@@ -1866,6 +1879,7 @@ let _isLocked = false;
 function setCalcMode(){
   _isLocked = true;
   document.querySelector('.content').classList.add('locked');
+  document.getElementById('mode-section-0')?.classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
   document.getElementById('btn-edit').classList.remove('active');
   doCalc(true);
@@ -1874,6 +1888,7 @@ function setCalcMode(){
 function setEditMode(){
   _isLocked = false;
   document.querySelector('.content').classList.remove('locked');
+  document.getElementById('mode-section-0')?.classList.remove('locked');
   document.getElementById('btn-edit').classList.add('active');
   document.getElementById('btn-calc').classList.remove('active');
   saveState();
