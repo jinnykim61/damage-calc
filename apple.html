@@ -780,19 +780,22 @@ function checkNeedReview() {
 
 // ── 상수 ──────────────────────────────────────────
 // 표본주수 기준표 (조사대상주 합계 기준)
-// 전체 합계 기준 적정표본주수
+// 전체 합계 기준 적정표본주수 (업무방법서 별표1)
 function getProperSample(total) {
   if (!total || total <= 0) return 0;
-  if (total <= 10)  return 1;
-  if (total <= 20)  return 2;
-  if (total <= 30)  return 3;
-  if (total <= 50)  return 4;
-  if (total <= 80)  return 5;
-  if (total <= 100) return 6;
-  if (total <= 150) return 7;
-  if (total <= 200) return 8;
-  if (total <= 300) return 9;
-  return 10;
+  if (total < 50)   return 5;
+  if (total < 100)  return 6;
+  if (total < 150)  return 7;
+  if (total < 200)  return 8;
+  if (total < 300)  return 9;
+  if (total < 400)  return 10;
+  if (total < 500)  return 11;
+  if (total < 600)  return 12;
+  if (total < 700)  return 13;
+  if (total < 800)  return 14;
+  if (total < 900)  return 15;
+  if (total < 1000) return 16;
+  return 17;
 }
 
 const CROP_NAMES = {apple:'사과', pear:'배', sweetpersimmon:'단감', persimmon:'떫은감'};

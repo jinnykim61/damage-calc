@@ -762,11 +762,7 @@ function checkNeedReview() {
 
 // ── 상수 ──────────────────────────────────────────
 // 표본주수 기준표 (조사대상주 합계 기준)
-const SAMPLE_TABLE = [
-  [1,49,5],[50,99,6],[100,149,7],[150,199,8],
-  [200,299,9],[300,399,10],[400,499,11],[500,599,12],
-  [600,699,13],[700,799,14],[800,899,15],[900,999,16],[1000,1e9,17]
-];
+
 
 const CROP_NAMES = {grape:'포도', peach:'복숭아', plum:'자두'};
 let currentCrop = 'grape';
@@ -856,7 +852,18 @@ function updateTreeSummary(showZero) {
 // ── 표본주수 계산 ─────────────────────────────────
 function getProperSample(total) {
   if (!total || total <= 0) return 0;
-  for (const [lo,hi,n] of SAMPLE_TABLE) if (total>=lo && total<=hi) return n;
+  if (total < 50)   return 5;
+  if (total < 100)  return 6;
+  if (total < 150)  return 7;
+  if (total < 200)  return 8;
+  if (total < 300)  return 9;
+  if (total < 400)  return 10;
+  if (total < 500)  return 11;
+  if (total < 600)  return 12;
+  if (total < 700)  return 13;
+  if (total < 800)  return 14;
+  if (total < 900)  return 15;
+  if (total < 1000) return 16;
   return 17;
 }
 
