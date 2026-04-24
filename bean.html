@@ -407,12 +407,15 @@ function setMode(m){
   document.getElementById('tab-full').className = 'mode-tab'+(m==='full'?' on':'');
   document.getElementById('sec-sample').style.display = m==='sample' ? '' : 'none';
   document.getElementById('sec-full').style.display = m==='full' ? '' : 'none';
-  // 탭 전환 시 결과 초기화 + 잠금 해제
+  // 탭 전환 시 결과 초기화 + 잠금 해제 (저장은 하지 않음)
   document.getElementById('result-section').className='result-box pending';
   document.getElementById('result-pct').textContent='- -';
   document.getElementById('result-pct').style.color='white';
   document.getElementById('commonSurvey').value='';
-  _isLocked = false; unlockInputs();
+  _isLocked = false;
+  document.querySelector('.content').classList.remove('locked');
+  document.getElementById('btn-edit')?.classList.add('active');
+  document.getElementById('btn-calc')?.classList.remove('active');
 }
 
 function getProper(area){
@@ -656,6 +659,7 @@ function resetAll(){
   document.getElementById('result-pct').textContent='입력 대기중';
   _isLocked = false; unlockInputs();
   setMode('sample');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 if('serviceWorker' in navigator){
