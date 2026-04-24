@@ -116,7 +116,7 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 .print-header { display:none; }
 </style>
 </head>
-<body style="visibility:hidden">
+<body>
 <div class="header">
   <button class="back-btn" onclick="location.href='./index.html'">‹</button>
   <div class="header-icon">🌾</div>
@@ -1040,7 +1040,6 @@ document.addEventListener('DOMContentLoaded', function(){
         const raw2 = localStorage.getItem('rice_state');
         if(raw2){ const s2=JSON.parse(raw2); if(s2.isLocked) setCalcMode(); }
       }catch(e){}
-      document.body.style.visibility = 'visible';
     }, 50);
   }, 0);
 });
