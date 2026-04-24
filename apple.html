@@ -252,11 +252,12 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 
   <!-- 품종 목록 (1~10 단일 섹션) -->
   <div class="section" style="padding:0;overflow:hidden">
-    <div style="display:grid;grid-template-columns:26px 1fr 76px 74px;background:var(--bg);padding:6px 8px;font-size:10px;font-weight:600;color:var(--sub);border-bottom:0.5px solid var(--border)">
+    <div style="display:grid;grid-template-columns:24px 2fr 1fr 1fr 1fr 64px 62px;background:var(--bg);padding:6px 8px;font-size:10px;font-weight:600;color:var(--sub);border-bottom:0.5px solid var(--border);gap:3px">
       <div></div>
-      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3px;padding-left:2px">
-        <div>품종명</div><div style="text-align:center">수령</div><div style="text-align:center">가입</div><div style="text-align:center">실결</div>
-      </div>
+      <div>품종명</div>
+      <div style="text-align:center">수령</div>
+      <div style="text-align:center">가입</div>
+      <div style="text-align:center">실결</div>
       <div style="text-align:center">표본·간격</div>
       <div></div>
     </div>
@@ -914,24 +915,22 @@ function renderIntervalRows() {
       const hasTree = d.dead>0||d.unable>0||d.uninsDead>0||d.uninsAlive>0;
 
       html += `<div style="border-bottom:0.5px solid var(--border)">
-        <div style="display:grid;grid-template-columns:26px 1fr 76px 74px;padding:7px 8px;align-items:center;gap:3px">
+        <div style="display:grid;grid-template-columns:24px 2fr 1fr 1fr 1fr 64px 62px;padding:6px 8px;align-items:center;gap:3px">
           <div style="font-size:11px;color:var(--sub);font-weight:600;text-align:center">품${i+1}</div>
-          <div style="display:flex;gap:3px">
-            <input type="text" value="${d.name||''}" placeholder="품종${i+1}" maxlength="5"
-              style="flex:1.8;text-align:left;padding:0 4px;font-size:11px;height:32px;border:1.5px solid ${d.name?'#1D9E75':'var(--binp)'};background:${d.name?'#e8faf3':'white'};border-radius:var(--rs);color:${d.name?'#0d5c35':'var(--text)'};min-width:0"
-              oninput="intervalData[${i}].name=this.value;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'">
-            <input type="number" value="${d.age||''}" placeholder="수령" inputmode="decimal"
-              style="flex:0.8;text-align:center;font-size:11px;height:32px;border:1.5px solid ${d.age?'#1D9E75':'var(--binp)'};background:${d.age?'#e8faf3':'white'};border-radius:var(--rs);color:${d.age?'#0d5c35':'var(--text)'};min-width:0"
-              oninput="intervalData[${i}].age=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'">
-            <input type="number" value="${d.reg||''}" placeholder="가입" inputmode="decimal"
-              style="flex:1.5;text-align:center;font-size:11px;height:32px;border:1.5px solid ${d.reg?'#1D9E75':'var(--binp)'};background:${d.reg?'#e8faf3':'white'};border-radius:var(--rs);color:${d.reg?'#0d5c35':'var(--text)'};min-width:0"
-              oninput="intervalData[${i}].reg=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)';renderIntervalRows()">
-            <input type="number" value="${d.actual||''}" placeholder="실결" inputmode="decimal"
-              style="flex:1.5;text-align:center;font-size:11px;height:32px;border:1.5px solid ${d.actual?'#1D9E75':'var(--binp)'};background:${d.actual?'#e8faf3':'white'};border-radius:var(--rs);color:${d.actual?'#0d5c35':'var(--text)'};min-width:0"
-              oninput="intervalData[${i}].actual=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)';renderIntervalRows()">
-          </div>
+          <input type="text" value="${d.name||''}" placeholder="품종${i+1}" maxlength="5"
+            style="text-align:left;padding:0 4px;font-size:11px;height:32px;border:1.5px solid ${d.name?'#1D9E75':'var(--binp)'};background:${d.name?'#e8faf3':'white'};border-radius:var(--rs);color:${d.name?'#0d5c35':'var(--text)'};min-width:0;width:100%"
+            oninput="intervalData[${i}].name=this.value;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'">
+          <input type="number" value="${d.age||''}" placeholder="수령" inputmode="decimal"
+            style="text-align:center;font-size:11px;height:32px;border:1.5px solid ${d.age?'#1D9E75':'var(--binp)'};background:${d.age?'#e8faf3':'white'};border-radius:var(--rs);color:${d.age?'#0d5c35':'var(--text)'};min-width:0;width:100%"
+            oninput="intervalData[${i}].age=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'">
+          <input type="number" value="${d.reg||''}" placeholder="가입" inputmode="decimal"
+            style="text-align:center;font-size:11px;height:32px;border:1.5px solid ${d.reg?'#1D9E75':'var(--binp)'};background:${d.reg?'#e8faf3':'white'};border-radius:var(--rs);color:${d.reg?'#0d5c35':'var(--text)'};min-width:0;width:100%"
+            oninput="intervalData[${i}].reg=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)';renderIntervalRows()">
+          <input type="number" value="${d.actual||''}" placeholder="실결" inputmode="decimal"
+            style="text-align:center;font-size:11px;height:32px;border:1.5px solid ${d.actual?'#1D9E75':'var(--binp)'};background:${d.actual?'#e8faf3':'white'};border-radius:var(--rs);color:${d.actual?'#0d5c35':'var(--text)'};min-width:0;width:100%"
+            oninput="intervalData[${i}].actual=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)';renderIntervalRows()">
           <div style="text-align:center">
-            ${pn>0&&sv>0 ? `<span style="font-size:12px;font-weight:800;color:#e24b4a">${pn}주</span><span style="font-size:10px;color:var(--hint)">·</span><span style="font-size:12px;font-weight:800;color:#e24b4a">${gap}칸</span>` : '<span style="font-size:12px;color:var(--hint)">-</span>'}
+            ${pn>0&&sv>0 ? `<span style="font-size:11px;font-weight:800;color:#e24b4a">${pn}주·${gap}칸</span>` : '<span style="font-size:11px;color:var(--hint)">-</span>'}
           </div>
           <div style="text-align:center">
             <button onclick="toggleIntervalTree(${i})"
