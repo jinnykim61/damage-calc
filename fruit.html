@@ -270,7 +270,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     <!-- 평년착과수 입력 -->
     <div style="padding:10px 14px;background:var(--card);border-top:0.5px solid var(--border)">
       <div class="field" style="max-width:33%">
-        <label>평년착과수</label>
+        <label>평년착과량(개)</label>
         <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
           enterkeyhint="next"
           oninput="onCommaInput(this);onInput();resetCalcBtn()"
@@ -362,11 +362,11 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div class="result-box" id="result-section">
     <div style="display:flex;align-items:center;padding:14px 0">
       <div style="padding-right:12px;flex-shrink:0">
-        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">착과율</span>
+        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">착과수</span>
       </div>
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding:0 12px;flex:1;min-width:0">
-        <span id="result-rate" style="font-size:26px;font-weight:700;color:#FFD0D0;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</span>
+        <span id="result-rate" style="font-size:26px;font-weight:700;color:#A8F0D8;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</span>
       </div>
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding-left:12px;flex-shrink:0">
@@ -377,13 +377,9 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 
   <!-- 간이 결과 박스 -->
   <div class="result-detail-box" id="result-detail-section">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
       <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
-        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">평년착과수</div>
-        <div style="font-size:15px;font-weight:700;color:var(--text)" id="r-avg">-</div>
-      </div>
-      <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
-        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">적과후착과수</div>
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">착과수</div>
         <div style="font-size:15px;font-weight:700;color:var(--blue)" id="r-total">-</div>
       </div>
       <div style="padding:10px 8px;text-align:center">
@@ -407,7 +403,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
       <!-- 요약 헤더바 -->
       <div style="background:#185FA5;border-radius:12px;padding:10px 16px;display:flex;gap:0;justify-content:space-around">
         <div style="text-align:center">
-          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">평년착과수</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">평년착과량</div>
           <div style="font-size:16px;font-weight:800;color:#fff" id="cap-avg">-</div>
         </div>
         <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
@@ -422,12 +418,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
         </div>
         <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
         <div style="text-align:center">
-          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">착과율</div>
-          <div style="font-size:16px;font-weight:800;color:#FFE082" id="cap-rate">-</div>
-        </div>
-        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
-        <div style="text-align:center">
-          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">적과후착과수</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">착과수</div>
           <div style="font-size:16px;font-weight:800;color:#A8F0D8" id="cap-total">-</div>
         </div>
         <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
@@ -536,7 +527,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
       <div style="font-size:17px;font-weight:800;color:#1a1a1a">품종이 몇 개인가요?</div>
       <button onclick="document.getElementById('count-overlay').style.display='none'" style="width:32px;height:32px;border:none;background:#f0f0f0;border-radius:50%;font-size:18px;color:#666;cursor:pointer">✕</button>
     </div>
-    <div style="font-size:12px;color:#888;margin-bottom:20px">평년착과수 <strong id="count-avg-disp" style="color:#185FA5"></strong></div>
+    <div style="font-size:12px;color:#888;margin-bottom:20px">평년착과량 <strong id="count-avg-disp" style="color:#185FA5"></strong></div>
     <!-- 숫자 버튼 1~10 -->
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
       <button onclick="selectCount(1)"  class="cnt-btn">1</button>
@@ -562,7 +553,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
         <div style="font-size:17px;font-weight:800;color:#1a1a1a">품종별 주수 입력</div>
         <button onclick="closeSetupPopup()" style="width:32px;height:32px;border:none;background:#f0f0f0;border-radius:50%;font-size:18px;color:#666;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
       </div>
-      <div style="font-size:12px;color:#888">평년착과수 <strong id="setup-avg-disp" style="color:#185FA5"></strong> · 모든 품종 입력 후 완료를 누르세요</div>
+      <div style="font-size:12px;color:#888">평년착과량 <strong id="setup-avg-disp" style="color:#185FA5"></strong> · 모든 품종 입력 후 완료를 누르세요</div>
     </div>
     <!-- 컬럼 헤더 -->
     <div style="display:grid;grid-template-columns:28px 1fr 60px 60px 60px;gap:5px;padding:8px 16px;background:#F5F4F0;font-size:10px;font-weight:600;color:#888;flex-shrink:0">
@@ -1376,7 +1367,7 @@ function doCalc(manual = false) {
 
   // 필수값 체크
   const missing = [];
-  if (!avgFruit) missing.push('평년착과수');
+  if (!avgFruit) missing.push('평년착과량');
   const hasActual = varieties.some(v => v.actual > 0);
   if (!hasActual) missing.push('실제결과주수');
   const hasSamples = varieties.some(v => v.samples.some(s => s !== '' && !isNaN(parseFloat(s))));
@@ -1452,11 +1443,11 @@ function doCalc(manual = false) {
 
   // 메인 결과 박스
   const rateEl = document.getElementById('result-rate');
-  rateEl.textContent = (rate * 100).toFixed(2)+'%';
-  rateEl.style.color = rate >= 1 ? '#A8F0D8' : rate >= 0.8 ? '#FFE082' : '#FFD0D0';
+  rateEl.textContent = Math.round(totalAfterFruit).toLocaleString()+'개';
+  rateEl.style.color = '#A8F0D8';
 
   // 간이 결과 박스
-  document.getElementById('r-avg').textContent = avgFruit.toLocaleString()+'개';
+  // r-avg removed
   const rTotal = document.getElementById('r-total');
   rTotal.textContent = Math.round(totalAfterFruit).toLocaleString()+'개';
   rTotal.style.color = rate >= 1 ? '#1D9E75' : rate >= 0.8 ? '#E8860A' : '#e24b4a';
@@ -1616,7 +1607,7 @@ async function saveImage() {
     document.getElementById('cap-avg').textContent    = avgFruit>0 ? avgFruit.toLocaleString()+'개' : '-';
     document.getElementById('cap-reg').textContent    = totalReg>0 ? totalReg.toLocaleString()+'주' : '-';
     document.getElementById('cap-survey').textContent = totalSurvey>0 ? totalSurvey.toLocaleString()+'주' : '-';
-    document.getElementById('cap-rate').textContent   = avgFruit>0 ? (rate*100).toFixed(2)+'%' : '-';
+    document.getElementById('cap-rate').textContent   = totalAfterFruit>0 ? Math.round(totalAfterFruit).toLocaleString()+'개' : '-';
     document.getElementById('cap-total').textContent  = totalAfterFruit>0 ? Math.round(totalAfterFruit).toLocaleString()+'개' : '-';
     const contractEl = document.getElementById('cap-contract');
     contractEl.textContent = needReview ? '계약변경' : '이상무';
