@@ -422,13 +422,13 @@ tbody td input.filled:active{
 
   <div class="section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span id="sample-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span style="font-size:10px;color:var(--hint);font-weight:400;margin-left:4px">길이(m) · 폭(m) · 중량(g)</span> <span id="sample-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
     </div>
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
     <div id="sample-tbl-wrap" class="tbl-wrap" style="display:none">
       <table style="width:100%;table-layout:fixed">
         <colgroup>
-          <col style="width:8%">
+          <col style="width:6%">
           <col id="col-len">
           <col id="col-wid">
           <col id="col-norm">
@@ -438,17 +438,17 @@ tbody td input.filled:active{
         <thead>
           <tr>
             <th>No.</th>
-            <th>길이&#10;(m)</th>
-            <th>이랑폭&#10;(m)</th>
-            <th>정상&#10;(g)</th>
-            <th id="th-d80">80%형&#10;(g)</th>
-            <th id="th-d50">벌마늘&#10;(g)</th>
+            <th>길이</th>
+            <th>이랑폭</th>
+            <th>정상</th>
+            <th id="th-d80">80%</th>
+            <th id="th-d50">벌마늘</th>
           </tr>
         </thead>
         <tbody id="sample-body"></tbody>
         <tfoot>
           <tr>
-            <td>합계</td>
+            <td style="font-size:10px;letter-spacing:-1px;writing-mode:horizontal-tb">합계</td>
             <td class="v" id="t-len">-</td>
             <td class="v" id="t-wid">-</td>
             <td class="v" id="t-norm">-</td>
@@ -767,26 +767,38 @@ function updateGarlicCols(){
     el.style.display = isGarlic ? '' : 'none';
   });
 
-  // 균등 너비: No(8%) + 나머지 균등 분배
-  const colCount = isGarlic ? 5 : 4; // 이랑길이,이랑폭,정상,80%형,[벌마늘]
-  const restPct = Math.floor(92 / colCount);
-  const lastPct = 92 - restPct * (colCount - 1);
+  // 칸 너비: No(6%) 벌마늘(12%) 나머지 균등
+  const colCount = isGarlic ? 5 : 4;
+  const noCol = document.querySelector('colgroup col:first-child');
+  if(noCol) noCol.style.width = '6%';
 
-  const colIds = ['col-len','col-wid','col-norm','col-d80','col-d50'];
-  colIds.forEach((id, idx) => {
-    const el = document.getElementById(id);
-    if(!el) return;
-    if(id==='col-d50'){
-      el.style.width = isGarlic ? lastPct+'%' : '0%';
-    } else if(idx === colCount - 1){
-      el.style.width = lastPct+'%';
-    } else {
-      el.style.width = restPct+'%';
-    }
-  });
-
-  const lastCol = document.querySelector('colgroup col:last-child');
-  if(lastCol) lastCol.style.width = '0%';
+  if(isGarlic){
+    // 길이/폭/정상/80% 균등, 벌마늘 12%
+    const rest = 82; // 100-6-12
+    const eachPct = Math.floor(rest / 4);
+    const lastMain = rest - eachPct * 3;
+    const colMap = {
+      'col-len': eachPct+'%',
+      'col-wid': eachPct+'%',
+      'col-norm': eachPct+'%',
+      'col-d80': lastMain+'%',
+      'col-d50': '12%'
+    };
+    Object.entries(colMap).forEach(([id, w]) => {
+      const el = document.getElementById(id);
+      if(el) el.style.width = w;
+    });
+  } else {
+    const rest = 94;
+    const eachPct = Math.floor(rest / 4);
+    const lastPct = rest - eachPct * 3;
+    ['col-len','col-wid','col-norm','col-d80'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      if(el) el.style.width = (i===3 ? lastPct : eachPct)+'%';
+    });
+    const d50 = document.getElementById('col-d50');
+    if(d50) d50.style.width = '0%';
+  }
 }
 
 function updateSamplesAndCalc(){
