@@ -491,15 +491,16 @@ function calc(){
   }
 
   const m2 = totalEff/totalArea/1000;
-  const surveyYield = Math.floor(m2*surveyArea);
+  const m2r3 = Math.round(m2*1000)/1000;              // m2 소수3자리 ROUND
+  const surveyYield = Math.round(m2r3*surveyArea);     // 조사수확량 ROUND
   const uninsLoss = Math.round(Math.max(0,effAvg-surveyYield)*uninsRate);
   // ROUND 피해율 (소수4자리)
   const pihaeyul = Math.max(0, Math.round((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000);
 
   document.getElementById('s-area').textContent = totalArea>0 ? totalArea.toFixed(2)+' ㎡' : '-';
-  document.getElementById('s-unit').textContent = m2.toFixed(4)+' kg/㎡';
+  document.getElementById('s-unit').textContent = m2r3.toFixed(3)+' kg/㎡';
   document.getElementById('commonSurvey').value = surveyYield.toLocaleString()+' kg';
-  showResult(effAvg, surveyYield, m2.toFixed(4)+' kg/㎡', surveyArea, uninsLoss, pihaeyul);
+  showResult(effAvg, surveyYield, m2r3.toFixed(3)+' kg/㎡', surveyArea, uninsLoss, pihaeyul);
   saveState();
 }
 
