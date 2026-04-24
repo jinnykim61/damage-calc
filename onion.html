@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"><!-- build:1777072447 -->
+<meta charset="UTF-8"><!-- build:1777072755 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#185FA5">
 <meta name="mobile-web-app-capable" content="yes">
@@ -121,13 +121,13 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 /* 표본 테이블 */
 .tbl-wrap{overflow-x:auto;width:100%}
 table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{font-size:10px!important;font-weight:600;color:var(--sub);text-align:center;padding:6px 2px 8px;border-bottom:1px solid var(--border);white-space:pre-line;line-height:1.4}
+thead th{font-size:12px!important;font-weight:600;color:var(--sub);text-align:center;padding:6px 2px 8px;border-bottom:1px solid var(--border);white-space:pre-line;line-height:1.4}
 tbody td{padding:3px 2px;vertical-align:middle}
 tbody td.no{text-align:center;color:var(--hint);font-size:11px;width:20px}
 tbody td input{height:36px;border:1.5px solid var(--binp);border-radius:6px;padding:0 2px;font-size:13px;background:white;color:var(--text);text-align:center;width:100%;-webkit-appearance:none;transition:background 0.15s,border-color 0.15s}
 tbody td input:focus{outline:none !important;border-color:#185FA5 !important;box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;background:#dceeff !important;color:#185FA5 !important}
 tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
-tfoot td{padding:6px 1px;font-size:10px;font-weight:700;text-align:center;color:var(--sub);border-top:1px solid var(--border);background:var(--auto)}
+tfoot td{padding:6px 2px;font-size:12px;font-weight:700;text-align:center;color:var(--sub);border-top:1px solid var(--border);background:var(--auto)}
 tfoot td.v{color:var(--text)}
 .del-btn{height:36px;width:26px;border:none;background:transparent;color:var(--red);cursor:pointer;font-size:16px;border-radius:6px}
 .add-btn{width:100%;height:36px;border:1.5px dashed #378ADD;background:#EBF4FF;border-radius:var(--rs);font-size:12px;color:#185FA5;font-weight:600;cursor:pointer;margin-top:8px}
@@ -380,7 +380,7 @@ tbody td input.filled:active{
 
   <div class="section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span style="font-size:10px;color:var(--hint);font-weight:400;margin-left:4px">길이(m) · 폭(m) · 중량(g)</span> <span id="sample-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span id="sample-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
     <span style="font-size:10px;color:var(--hint);font-weight:400">길이·폭(m) / 중량(g)</span>
     </div>
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
@@ -390,8 +390,8 @@ tbody td input.filled:active{
           <col style="width:6%">
           <col id="col-len">
           <col id="col-wid">
-          <col id="col-norm" style="width:23%">
-          <col id="col-d80" style="width:23%">
+          <col id="col-norm">
+          <col id="col-d80">
         </colgroup>
         <thead>
           <tr>
@@ -692,9 +692,16 @@ function onCropChange(){
 }
 
 function updateGarlicCols(){
-  // 양파: 벌마늘 칸 없음, 균등 분배
-  const colD80 = document.getElementById('col-d80');
-  if(colD80) colD80.style.width = '23%';
+  // 양파: No(14%) + 4칸 균등(86%)
+  const noCol = document.querySelector('colgroup col:first-child');
+  if(noCol) noCol.style.width = '14%';
+  const rest = 86;
+  const each = Math.floor(rest/4);
+  const last = rest - each*3;
+  ['col-len','col-wid','col-norm','col-d80'].forEach((id,i)=>{
+    const el = document.getElementById(id);
+    if(el) el.style.width = (i===3?last:each)+'%';
+  });
 }
 
 function updateSamplesAndCalc(){
