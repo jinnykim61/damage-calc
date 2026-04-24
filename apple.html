@@ -884,9 +884,15 @@ function setIntervalCount(n) {
       el.style.background = i===n ? '#EBF4FF' : '';
     }
   }
+  // 착과수 탭 varieties 수 맞추기
+  while(allData[currentCrop].varieties.length < n) allData[currentCrop].varieties.push(EMPTY_VARIETY());
+  while(allData[currentCrop].varieties.length > n) allData[currentCrop].varieties.pop();
+  varieties = allData[currentCrop].varieties;
+
   const sec2 = document.getElementById('interval-section-2');
   if(sec2) sec2.style.display = 'none';
   renderIntervalRows();
+  onInput();
 }
 
 function toggleIntervalTree(i) {
