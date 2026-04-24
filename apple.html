@@ -781,7 +781,7 @@ const SAMPLE_TABLE = [
 const CROP_NAMES = {apple:'사과', pear:'배', sweetpersimmon:'단감', persimmon:'떫은감'};
 let currentCrop = 'apple';
 
-const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false});
+const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false, cardOpen:true});
 
 // ── 작물별 독립 데이터 ────────────────────────────
 const allData = {
@@ -967,11 +967,33 @@ function renderVarieties(totalSurvey, totalProper) {
     const defaultName = `품종${vi+1}`;
     const displayName = v.name || defaultName;
 
+    // 요약 정보 계산
+    const validS = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s)));
+    const _sumS = validS.reduce((a,x)=>a+parseFloat(x),0);
+    const _perS = validS.length>0 ? _sumS/validS.length : 0;
+    const _afterS = _perS>0&&surveyTarget>0 ? Math.round(_perS*surveyTarget) : 0;
+    const sampleOk = properN>0 && validS.length>=properN;
+    const sampleStatus = properN>0
+      ? `표본 ${validS.length}/${properN}주 ${sampleOk?'✅':'⚠️'}`
+      : '표본주 미설정';
+    const fruitStatus = _afterS>0 ? `${_afterS.toLocaleString()}개` : '-';
+    const cardOpen = v.cardOpen !== false;
+
     return `
     <div class="variety-card" id="vc-${vi}">
-      <!-- 1열: 번호 / 품종명 / 수령 / 초기화버튼 -->
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <!-- 카드 헤더 (항상 표시) -->
+      <div onclick="toggleCard(${vi})" style="display:flex;align-items:center;gap:8px;cursor:pointer;${cardOpen?'margin-bottom:10px':''}">
         <div class="variety-num" style="flex-shrink:0">${vi+1}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:var(--text)">${displayName}${v.age>0?` ${v.age}년`:''}</div>
+          ${!cardOpen?`<div style="font-size:11px;color:var(--sub);margin-top:2px">${sampleStatus} &nbsp;·&nbsp; ${fruitStatus}</div>`:''}
+        </div>
+        <span style="font-size:16px;color:var(--sub);flex-shrink:0">${cardOpen?'▼':'▶'}</span>
+      </div>
+      <!-- 카드 본문 (접기/펼치기) -->
+      <div id="card-body-${vi}" style="display:${cardOpen?'block':'none'}">
+      <!-- 1열: 품종명 / 수령 / 초기화버튼 -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <input type="text" class="inp${v.name?' filled':''}" value="${v.name||''}" placeholder="${defaultName}"
           style="flex:1.5;height:40px;font-size:13px" enterkeyhint="next"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
@@ -1051,6 +1073,7 @@ function renderVarieties(totalSurvey, totalProper) {
         다음 품종 →
       </button>` : ''}
       ` : `<div id="ss-${vi}"></div>`}
+      </div><!-- /card-body -->
     </div>`;
   }).join('');
 }
@@ -1073,7 +1096,67 @@ function calcVariety(vi) {
     afterEl.value = afterFruit > 0 ? afterFruit.toLocaleString() : '';
     afterEl.className = 'auto' + (afterFruit > 0 ? ' ok' : '');
   }
+
+  // 표본 입력 완료 시 자동 접힘
+  const totalSurvey = varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);
+  const totalProper = getProperSample(totalSurvey);
+  const properN = surveyTarget>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
+  if(properN > 0 && inputted.length >= properN && v.cardOpen !== false){
+    setTimeout(()=>collapseCard(vi), 400);
+  }
+
   saveState();
+}
+
+function toggleCard(vi) {
+  const cardOpen = varieties[vi].cardOpen !== false;
+  varieties[vi].cardOpen = !cardOpen;
+  const body = document.getElementById(`card-body-${vi}`);
+  const header = document.querySelector(`#vc-${vi} > div:first-child`);
+  if(body) body.style.display = cardOpen ? 'none' : 'block';
+  // 헤더 마진 업데이트
+  if(header) header.style.marginBottom = cardOpen ? '0' : '10px';
+  // 요약 텍스트 업데이트
+  updateCardSummary(vi);
+  saveState();
+}
+
+function collapseCard(vi) {
+  varieties[vi].cardOpen = false;
+  const body = document.getElementById(`card-body-${vi}`);
+  const header = document.querySelector(`#vc-${vi} > div:first-child`);
+  if(body) body.style.display = 'none';
+  if(header) header.style.marginBottom = '0';
+  updateCardSummary(vi);
+  saveState();
+}
+
+function updateCardSummary(vi) {
+  const v = varieties[vi];
+  const header = document.querySelector(`#vc-${vi} > div:first-child`);
+  if(!header) return;
+  const surveyTarget = getSurveyTarget(v);
+  const totalSurvey = varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);
+  const totalProper = getProperSample(totalSurvey);
+  const properN = surveyTarget>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
+  const validS = v.samples.filter(s=>s!==''&&!isNaN(parseFloat(s)));
+  const sampleSum = validS.reduce((a,x)=>a+parseFloat(x),0);
+  const perTree = validS.length>0 ? sampleSum/validS.length : 0;
+  const afterFruit = perTree>0&&surveyTarget>0 ? Math.round(perTree*surveyTarget) : 0;
+  const sampleOk = properN>0 && validS.length>=properN;
+  const sampleStatus = properN>0 ? `표본 ${validS.length}/${properN}주 ${sampleOk?'✅':'⚠️'}` : '표본주 미설정';
+  const fruitStatus = afterFruit>0 ? `${afterFruit.toLocaleString()}개` : '-';
+  const cardOpen = v.cardOpen !== false;
+  const nameEl = header.querySelector('div:first-child > div:first-child');
+  const summaryEl = header.querySelector('div:first-child > div:last-child');
+  const iconEl = header.querySelector('span:last-child');
+  const displayName = v.name || `품종${vi+1}`;
+  if(nameEl) nameEl.textContent = `${displayName}${v.age>0?` ${v.age}년`:''}`;
+  if(summaryEl){
+    summaryEl.style.display = cardOpen ? 'none' : 'block';
+    summaryEl.textContent = `${sampleStatus}  ·  ${fruitStatus}`;
+  }
+  if(iconEl) iconEl.textContent = cardOpen ? '▼' : '▶';
 }
 
 function toggleTreeInspect(vi) {
@@ -1431,7 +1514,7 @@ function doCalc(manual = false) {
     if (sampleCount === 0) continue;
 
     const perTree = sampleSum / sampleCount;
-    const afterFruit = Math.round(perTree * surveyTarget * 10) / 10;
+    const afterFruit = Math.round(perTree * surveyTarget);
 
     totalAfterFruit += afterFruit;
     totalSampleUsed += sampleCount;
