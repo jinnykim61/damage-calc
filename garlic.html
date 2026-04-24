@@ -148,7 +148,7 @@ tbody td input:focus{
 }
 
 tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
-tfoot td{padding:7px 2px;font-size:12px;font-weight:700;text-align:center;color:var(--sub);border-top:1px solid var(--border);background:var(--auto)}
+tfoot td{padding:6px 1px;font-size:10px;font-weight:700;text-align:center;color:var(--sub);border-top:1px solid var(--border);background:var(--auto)}
 tfoot td.v{color:var(--text)}
 .del-btn{height:36px;width:26px;border:none;background:transparent;color:var(--red);cursor:pointer;font-size:16px;border-radius:6px}
 .add-btn{width:100%;height:36px;border:1.5px dashed #378ADD;background:#EBF4FF;border-radius:var(--rs);font-size:12px;color:#185FA5;font-weight:600;cursor:pointer;margin-top:8px}
@@ -324,7 +324,7 @@ tbody td input.filled:active{
 <div class="content">
 
   <div class="section">
-    <div class="sec-head">
+    <div class="sec-head" style="display:flex;align-items:center;justify-content:space-between">
       <div class="sec-title">품종</div>
       <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
     </div>
@@ -422,7 +422,8 @@ tbody td input.filled:active{
 
   <div class="section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span style="font-size:10px;color:var(--hint);font-weight:400;margin-left:4px">길이(m) · 폭(m) · 중량(g)</span> <span id="sample-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span id="sample-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+    <span style="font-size:10px;color:var(--hint);font-weight:400">길이·폭(m) / 중량(g)</span>
     </div>
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
     <div id="sample-tbl-wrap" class="tbl-wrap" style="display:none">
@@ -448,7 +449,7 @@ tbody td input.filled:active{
         <tbody id="sample-body"></tbody>
         <tfoot>
           <tr>
-            <td style="font-size:10px;letter-spacing:-1px;writing-mode:horizontal-tb">합계</td>
+            <td>합계</td>
             <td class="v" id="t-len">-</td>
             <td class="v" id="t-wid">-</td>
             <td class="v" id="t-norm">-</td>
@@ -774,15 +775,15 @@ function updateGarlicCols(){
 
   if(isGarlic){
     // 길이/폭/정상/80% 균등, 벌마늘 12%
-    const rest = 82; // 100-6-12
-    const eachPct = Math.floor(rest / 4);
-    const lastMain = rest - eachPct * 3;
+    const rest = 94; // 100-6
+    const eachPct = Math.floor(rest / 5);
+    const lastPct2 = rest - eachPct * 4;
     const colMap = {
       'col-len': eachPct+'%',
       'col-wid': eachPct+'%',
       'col-norm': eachPct+'%',
-      'col-d80': lastMain+'%',
-      'col-d50': '12%'
+      'col-d80': eachPct+'%',
+      'col-d50': lastPct2+'%'
     };
     Object.entries(colMap).forEach(([id, w]) => {
       const el = document.getElementById(id);
