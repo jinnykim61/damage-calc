@@ -956,7 +956,11 @@ function renderVarieties(totalSurvey, totalProper) {
           oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi});resetCalcBtn()"
           onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
           onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;${vi===varieties.length-1?'setTimeout(()=>doCalc(),50);':''}`:`const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
+          onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].samples[${si}]=this.value;calcVariety(${vi});${isLast
+            ? (vi < varieties.length-1
+                ? `const _nextSS=document.getElementById('ss-${vi+1}');if(_nextSS){const _ni=_nextSS.querySelector('input[type=number]');if(_ni){if(varieties[${vi+1}].open===false){varieties[${vi+1}].open=true;onInput();}setTimeout(()=>{const _ni2=document.querySelector('#ss-${vi+1} input[type=number]');if(_ni2)_ni2.focus();},100);}}`
+                : `setTimeout(()=>doCalc(),50);`)
+            : `const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
       </div>`;
     }
     samplesHtml += '</div>';
@@ -1005,7 +1009,7 @@ function renderVarieties(totalSurvey, totalProper) {
         <div class="variety-num" style="flex-shrink:0">${vi+1}</div>
         <div style="flex:1;min-width:0">
           <div id="card-name-${vi}" style="font-size:14px;font-weight:700;color:var(--text)">${displayName}${v.age>0?` ${v.age}년`:''}</div>
-          <div id="card-summary-${vi}" style="font-size:11px;color:var(--sub);margin-top:2px;display:${cardOpen?'none':'block'}">${sampleOk?`표본 ${validS.length}/${properN>0?properN:0}주 ✅`:`표본 ${validS.length}/${properN>0?properN:0}주 ⚠️`}  ·  ${fruitStatus}</div>
+          <div id="card-summary-${vi}" style="font-size:12px;color:#185FA5;margin-top:3px;display:${cardOpen?'none':'block'};font-weight:600">${sampleOk?`표본 ${validS.length}/${properN>0?properN:0}주 ✅`:`표본 ${validS.length}/${properN>0?properN:0}주 ⚠️`}&nbsp;&nbsp;<span style="color:#0d5c35">${fruitStatus}</span></div>
         </div>
         <span id="card-icon-${vi}" style="font-size:16px;color:var(--sub);flex-shrink:0">${cardOpen?'▼':'▶'}</span>
       </div>
@@ -1171,7 +1175,11 @@ function updateCardSummary(vi) {
   if(nameEl) nameEl.textContent = `${displayName}${v.age>0?` ${v.age}년`:''}`;
   if(summaryEl){
     summaryEl.style.display = cardOpen ? 'none' : 'block';
-    summaryEl.textContent = `${sampleStatus}  ·  ${fruitStatus}`;
+    summaryEl.style.color = '#185FA5';
+    summaryEl.style.fontWeight = '600';
+    summaryEl.style.fontSize = '12px';
+    const fruitSpan = afterFruit>0 ? `<span style="color:#0d5c35">${afterFruit.toLocaleString()}개</span>` : `<span style="color:#0d5c35">-</span>`;
+    summaryEl.innerHTML = `${sampleStatus}&nbsp;&nbsp;${fruitSpan}`;
   }
   if(iconEl) iconEl.textContent = cardOpen ? '▼' : '▶';
 }
