@@ -2082,6 +2082,7 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', ()=>{
   const _loaded = loadState();
   setIntervalCount(intervalCount || 3);
+  renderIntervalRows();
   onInput();
   if(allData[currentCrop].calcDone){
     doCalc(true);
