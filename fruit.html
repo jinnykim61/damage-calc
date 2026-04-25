@@ -1612,7 +1612,7 @@ function onInput() {
   contractEl.style.color = needReview ? '#e24b4a' : '';
   contractEl.style.fontWeight = needReview ? '700' : '';
 
-  renderVarieties(totalSurvey, properSample);
+  renderVarieties(totalSurvey, getProperSample(totalSurvey));
 }
 
 // ── 계산 실행 ─────────────────────────────────────
