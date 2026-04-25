@@ -1337,23 +1337,10 @@ function toggleCard(vi) {
 
 function collapseCard(vi) {
   varieties[vi].cardOpen = false;
-  const body = document.getElementById(`card-body-${vi}`);
-  const card = document.getElementById(`vc-${vi}`);
-  const header = document.querySelector(`#vc-${vi} > div:first-child`);
-  const nameEl = document.getElementById(`card-name-${vi}`);
-  const iconEl = document.getElementById(`card-icon-${vi}`);
-  if(body) body.style.display = 'none';
-  if(card){ card.style.padding = '0'; }
-  if(header){
-    header.style.background = '#185FA5';
-    header.style.padding = '12px 14px';
-    header.style.borderRadius = '10px';
-    header.style.marginBottom = '0';
-  }
-  if(nameEl) nameEl.style.color = '#fff';
-  if(iconEl) iconEl.style.color = 'rgba(255,255,255,0.8)';
-  updateCardSummary(vi);
   saveState();
+  // DOM 직접 조작 대신 renderVarieties로 재렌더 — card-summary 위치 정확하게 보장
+  const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
+  renderVarieties(totalSurvey);
 }
 
 function updateCardSummary(vi) {
