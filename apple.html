@@ -227,11 +227,14 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div id="mode-tab-1" onclick="if(!canMoveToFruitTab()){showToast('실제결과주수를 먼저 입력해 주세요');return;}applyIntervalToVarieties();" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer">🍎 착과수 입력</div>
 </div>
 <div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
-  <button onclick="openResetModal()" style="height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
+
 </div>
 
 <!-- 표본간격 탭 화면 -->
 <div id="mode-section-0">
+  <div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
+    <button onclick="openResetModal()" style="height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
+  </div>
   <div class="section">
     <div style="font-size:12px;color:var(--sub);font-weight:600;margin-bottom:10px">품종 수 선택</div>
     <div style="display:flex;gap:5px;margin-bottom:6px">
@@ -1161,15 +1164,12 @@ function renderVarieties(totalSurvey) {
     const surveyTarget = surveyTargets[vi];
     const properN = properNs[vi];
 
-    // 샘플 배열 조정 — properN보다 적으면 채우고, 많으면 빈 칸만 제거
-    if (properN > v.samples.length) {
-      while (v.samples.length < properN) v.samples.push('');
-    } else if (properN < v.samples.length) {
-      // 뒤에서부터 빈 칸만 제거 (수동 추가한 입력값은 유지)
-      while (v.samples.length > properN && v.samples[v.samples.length-1] === '') {
-        v.samples.pop();
-      }
+    // 샘플 배열 조정 — properN보다 적으면 채우고, 수동 추가가 아닌 경우만 초과 빈칸 제거
+    while (v.samples.length < properN) v.samples.push('');
+    if (!v.__addedSample) {
+      while (v.samples.length > properN && v.samples[v.samples.length-1] === '') v.samples.pop();
     }
+    v.__addedSample = false;
 
     const inputtedSamples = v.samples.filter(s => s !== '' && !isNaN(parseFloat(s))).length;
     const sampleSum = v.samples.reduce((s,x) => s + (parseFloat(x)||0), 0);
@@ -1190,7 +1190,7 @@ function renderVarieties(totalSurvey) {
           enterkeyhint="${isLast?'done':'next'}"
           style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
           oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi});resetCalcBtn();saveState()"
-          onfocus="this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
+          onfocus="const _af=document.getElementById('avg_fruit');if(!_af||!_af.value){showToast('평년착과량(개)을 먼저 입력해 주세요');setTimeout(()=>{_af&&_af.focus();},100);this.blur();return;}this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
           onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState();${isLast?`if(varieties[${vi}].cardOpen!==false){const _ts=varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);const _tp=getProperSample(_ts);const _st=getSurveyTarget(varieties[${vi}]);const _pn=_st>0&&_ts>0?Math.max(1,Math.ceil(_tp*_st/_ts)):0;const _done=varieties[${vi}].samples.filter(s=>s!==''&&!isNaN(parseFloat(s))).length;if(_pn>0&&_done>=_pn)setTimeout(()=>collapseCard(${vi}),300);}`:''}"
           onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].samples[${si}]=this.value;calcVariety(${vi});${isLast
             ? (vi < varieties.length-1
@@ -1528,6 +1528,7 @@ function confirmSampleDel(vi) {
 
 function addSampleRow(vi) {
   varieties[vi].samples.push('');
+  varieties[vi].__addedSample = true;
   varieties[vi].open = true;
   onInput();
 }
@@ -1621,8 +1622,6 @@ function onInput() {
   document.getElementById('total_actual').value = totalActual > 0 ? totalActual.toLocaleString()+'주' : '';
   document.getElementById('total_survey_disp').value = totalSurvey > 0 ? totalSurvey.toLocaleString()+'주' : '';
   document.getElementById('proper_sample').value = properSample > 0 ? properSample+'주' : '';
-  updateSummaryBar(totalReg, totalSurvey, 0, properSample);
-
   // 2열: 고사/수확불능/미보상고사/미보상미고사 합계
   const totalDead = varieties.reduce((s,v) => s+(v.dead||0), 0);
   const totalUnable = varieties.reduce((s,v) => s+(v.unable||0), 0);
@@ -1772,7 +1771,8 @@ function doCalc(manual = false) {
 
   // 상단 요약바 표본주수 업데이트
   const _totalSurveyBar = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
-  const _properBar = getProperSample(_totalSurveyBar);
+  const _tpBar = getProperSample(_totalSurveyBar);
+  const _properBar = varieties.reduce((s,v)=>{const sv=getSurveyTarget(v);return s+(sv>0&&_totalSurveyBar>0?Math.max(1,Math.ceil(_tpBar*sv/_totalSurveyBar)):0);},0);
   const _sampleNBar = varieties.reduce((s,v)=>s+v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x))).length,0);
   updateSummaryBar(varieties.reduce((s,v)=>s+(v.reg||0),0), _totalSurveyBar, _sampleNBar, _properBar);
 
@@ -1840,7 +1840,7 @@ function loadState(){
     varieties.forEach(v => {
       const sv = Math.max(0,(v.actual||0)-(v.dead||0)-(v.unable||0)-(v.uninsDead||0)-(v.uninsAlive||0));
       const pn = sv>0&&_totalSurvey>0 ? Math.max(1, Math.ceil(_tp*sv/_totalSurvey)) : 0;
-      if(pn > 0 && v.samples.length > pn) v.samples.splice(pn);
+      if(pn > 0) { while(v.samples.length > pn && v.samples[v.samples.length-1]==='') v.samples.pop(); }
     });
     const af = document.getElementById('avg_fruit');
     af.value = allData[currentCrop].avgFruit || '';
