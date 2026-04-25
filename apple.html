@@ -321,7 +321,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
         <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
           enterkeyhint="next"
           oninput="onCommaInput(this);onInput();resetCalcBtn()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();setTimeout(()=>{const first=document.querySelector('#variety-list .sample-section input[type=number]');if(first)first.focus();},150)}">
+          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();setTimeout(()=>{if(!canMoveToFruitTab()){showToast('실제결과주수를 먼저 입력해 주세요');return;}applyIntervalToVarieties();setTimeout(()=>{const first=document.querySelector('#variety-list .sample-section.open input[type=number]');if(first)first.focus();},200);},150)}">
       </div>
     </div>
 
@@ -919,14 +919,14 @@ function renderIntervalRows() {
             style="text-align:center;font-size:10px;height:34px;border:1.5px solid ${d.reg?'#1D9E75':'var(--binp)'};background:${d.reg?'#e8faf3':'white'};border-radius:var(--rs);color:${d.reg?'#0d5c35':'var(--text)'};min-width:0;width:100%"
             onfocus="this.select()"
             oninput="intervalData[${i}].reg=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].reg=+this.value||0;const rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const arr=Array.from(rows);const idx=arr.indexOf(this);if(arr[idx+1]){arr[idx+1].focus();}}"
-            onblur="intervalData[${i}].reg=+this.value||0;renderIntervalRows()">
+            onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].reg=+this.value||0;const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _arr=Array.from(_rows);const _idx=_arr.indexOf(this);if(_arr[_idx+1]){_arr[_idx+1].focus();}}"
+            onblur="intervalData[${i}].reg=+this.value||0;if(!event.relatedTarget||!event.relatedTarget.closest('#interval-rows-1'))renderIntervalRows()">
           <input type="number" value="${d.actual||''}" placeholder="실제결과주수" inputmode="decimal"
             style="text-align:center;font-size:10px;height:34px;border:1.5px solid ${d.actual?'#1D9E75':'var(--binp)'};background:${d.actual?'#e8faf3':'white'};border-radius:var(--rs);color:${d.actual?'#0d5c35':'var(--text)'};min-width:0;width:100%"
             onfocus="this.select()"
             oninput="intervalData[${i}].actual=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].actual=+this.value||0;const rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const arr=Array.from(rows);const idx=arr.indexOf(this);if(arr[idx+1]){arr[idx+1].focus();}else{renderIntervalRows();}}"
-            onblur="intervalData[${i}].actual=+this.value||0;renderIntervalRows()">
+            onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].actual=+this.value||0;const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _arr=Array.from(_rows);const _idx=_arr.indexOf(this);if(_arr[_idx+1]){_arr[_idx+1].focus();}else{renderIntervalRows();}}"
+            onblur="intervalData[${i}].actual=+this.value||0;if(!event.relatedTarget||!event.relatedTarget.closest('#interval-rows-1'))renderIntervalRows()">
           <div style="text-align:center">
             ${pn>0&&sv>0 ? `<span style="font-size:11px;font-weight:800;color:#e24b4a">${pn}주·${gap}칸</span>` : '<span style="font-size:11px;color:var(--hint)">-</span>'}
           </div>
@@ -983,7 +983,12 @@ function renderIntervalRows() {
   const tv = document.getElementById('iv-total');
   const pv = document.getElementById('iv-proper');
   if(tv) tv.textContent = total.toLocaleString();
-  if(pv) pv.textContent = total>0 ? tp : 0;
+  // 적정표본 = 품종별 배분 합계
+  const properSum = intervalData.slice(0,intervalCount).reduce((s,d)=>{
+    const sv = getSurveyFromInterval(d);
+    return s + (sv>0&&total>0 ? Math.max(1,Math.ceil(tp*sv/total)) : 0);
+  }, 0);
+  if(pv) pv.textContent = total>0 ? properSum : 0;
   bindMobileFocusHandlers();
 }
 
@@ -1013,6 +1018,7 @@ function applyIntervalToVarieties() {
     varieties[i].uninsDead  = d.uninsDead || 0;
     varieties[i].uninsAlive = d.uninsAlive || 0;
     varieties[i].cardOpen   = true;
+    varieties[i].open      = true;
     while(varieties[i].samples.length < properN) varieties[i].samples.push('');
     while(varieties[i].samples.length > properN && varieties[i].samples[varieties[i].samples.length-1]==='')
       varieties[i].samples.pop();
