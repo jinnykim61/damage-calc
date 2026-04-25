@@ -923,7 +923,7 @@ function renderIntervalRows() {
               <label style="font-size:11px">미보상미고사</label>
               <input type="number" id="tree-uninsAlive-${i}" class="inp${d.uninsAlive>0?' filled':''}" value="${d.uninsAlive||''}" inputmode="decimal" placeholder="0주"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;intervalData[${i}].treeOpen=false;renderIntervalRows();}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}">
+                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;intervalData[${i}].treeOpen=false;renderIntervalRows();setTimeout(()=>{const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _regInputs=Array.from(_rows).filter(el=>!el.id||!el.id.startsWith('tree-'));if(_regInputs[${i}*2+2])_regInputs[${i}*2+2].focus();else if(_regInputs[${i}*2+3])_regInputs[${i}*2+3].focus();},50);}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}">
             </div>
           </div>
           <div style="margin-top:8px;font-size:12px;color:var(--sub)">
@@ -1822,8 +1822,8 @@ function resetAll() {
   allData.fruit.varieties = [EMPTY_VARIETY()];
   allData.fruit.calcDone = false;
   varieties = allData[currentCrop].varieties;
-  document.getElementById('avg_fruit').value = '';
-  document.getElementById('avg_fruit').classList.remove('filled');
+  const _afEl = document.getElementById('avg_fruit');
+  if(_afEl){ _afEl.value = ''; _afEl.classList.remove('filled'); }
   document.getElementById('result-section').classList.remove('show');
   document.getElementById('result-detail-section').classList.remove('show');
   resetCalcBtn();
