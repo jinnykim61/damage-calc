@@ -269,7 +269,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
       <div><div style="font-size:10px;margin-bottom:2px">표본주</div><b id="iv-total" style="color:#e24b4a">-</b></div>
       <div><div style="font-size:10px;margin-bottom:2px">적정표본</div><b id="iv-proper" style="color:var(--blue)">-</b></div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;border-top:0.5px solid rgba(255,255,255,0.15);margin-top:6px;padding-top:6px">
+    <div style="padding:10px 12px;background:var(--bg);border-top:0.5px solid var(--border);font-size:12px;color:var(--sub);display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;text-align:center">
       <div><div style="font-size:10px;margin-bottom:2px">고사</div><b id="iv-dead" style="color:var(--text)">-</b></div>
       <div><div style="font-size:10px;margin-bottom:2px">수확불능</div><b id="iv-unable" style="color:var(--text)">-</b></div>
       <div><div style="font-size:10px;margin-bottom:2px">미보상고사</div><b id="iv-uninsDead" style="color:var(--text)">-</b></div>
@@ -332,7 +332,12 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
           placeholder="0" enterkeyhint="done"
           style="width:160px;height:42px;border:2px solid var(--binp);border-radius:var(--rs);font-size:18px;font-weight:700;text-align:center;background:white;color:var(--text);-webkit-appearance:none;box-sizing:border-box"
           oninput="this.classList.toggle('filled',!!this.value);this.style.borderColor=this.value?'var(--green)':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)';calcSummary();saveState()"
-          onfocus="this.select()" onblur="saveState()">
+          onfocus="this.select()" onblur="saveState()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();
+            setTimeout(()=>{
+              const _first=document.querySelector('#variety-list input[type=number]');
+              if(_first)_first.focus();
+            },50);}">
       </div>
     </div>
   </div>
@@ -946,7 +951,7 @@ function renderIntervalRows() {
               <label style="font-size:11px">미보상미고사</label>
               <input type="number" id="tree-uninsAlive-${i}" class="inp${d.uninsAlive>0?' filled':''}" value="${d.uninsAlive||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;intervalData[${i}].treeOpen=false;renderIntervalRows();setTimeout(()=>{const _next=document.getElementById('reg-${i+1}');if(_next)_next.focus();},50);}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&((_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}'))||_rt.id==='reg-${i+1}'||_rt.id==='actual-${i+1}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}">
+                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;intervalData[${i}].treeOpen=false;saveState();renderIntervalRows();setTimeout(()=>{const _next=document.getElementById('reg-${i+1}');if(_next)_next.focus();},80);}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}">
             </div>
           </div>
           <div style="margin-top:8px;font-size:12px;color:var(--sub)">
