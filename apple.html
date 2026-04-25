@@ -1988,14 +1988,16 @@ async function saveImage() {
     // 1~6품종: 3줄, 7~10품종: 2줄
     const COLS  = vCount <= 6 ? 3 : 2;
     let samplesHtml = '';
+    let _globalSampleOffset = 0;
     varieties.forEach((v, vi) => {
       const name = v.name || `품종${vi+1}`;
       const fs   = cfg.tdFs;
 
-      // 입력된 표본주만
+      // 입력된 표본주만 (누적 번호 적용)
       const slots = v.samples
-        .map((raw, si) => ({ no: si+1, val: (raw!==''&&!isNaN(parseFloat(raw))) ? parseFloat(raw) : null }))
+        .map((raw, si) => ({ no: _globalSampleOffset + si + 1, val: (raw!==''&&!isNaN(parseFloat(raw))) ? parseFloat(raw) : null }))
         .filter(s => s.val !== null);
+      _globalSampleOffset += v.samples.length;
 
       if(slots.length === 0) return;
 

@@ -1910,9 +1910,18 @@ async function saveImage() {
     }).join('');
 
     const totalPerTree = totalSampleN>0 ? totalSampleSum/totalSampleN : 0;
+    const totalRegSum    = varieties.reduce((s,v)=>s+(v.reg||0),0);
+    const totalActualSum = varieties.reduce((s,v)=>s+(v.actual||0),0);
+    const totalDeadSum   = varieties.reduce((s,v)=>s+(v.dead||0),0);
+    const totalUnableSum = varieties.reduce((s,v)=>s+(v.unable||0),0);
+    const totalUninsDeadSum  = varieties.reduce((s,v)=>s+(v.uninsDead||0),0);
+    const totalUninsAliveSum = varieties.reduce((s,v)=>s+(v.uninsAlive||0),0);
     const tfootRow = `<tr style="background:#e8edf2">
       ${td('합 계','#e8edf2',true)}
-      ${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}
+      ${td('')}
+      ${td(totalRegSum>0?totalRegSum.toLocaleString():'-','#e8edf2',true)}
+      ${td(totalActualSum>0?totalActualSum.toLocaleString():'-','#e8edf2',true)}
+      ${td(totalDeadSum>0?totalDeadSum:'-')}${td(totalUnableSum>0?totalUnableSum:'-')}${td(totalUninsDeadSum>0?totalUninsDeadSum:'-')}${td(totalUninsAliveSum>0?totalUninsAliveSum:'-')}
       ${td(totalSurvey>0?totalSurvey.toLocaleString():'-','#dbeafe',true,'#185FA5')}
       ${td(totalSampleN>0?totalSampleN:'-','#e8edf2',true)}
       ${td(totalProperSum>0?totalProperSum:'-')}
@@ -1928,14 +1937,16 @@ async function saveImage() {
     // 1~6품종: 3줄, 7~10품종: 2줄
     const COLS  = vCount <= 6 ? 3 : 2;
     let samplesHtml = '';
+    let _globalSampleOffset = 0;
     varieties.forEach((v, vi) => {
       const name = v.name || `품종${vi+1}`;
       const fs   = cfg.tdFs;
 
-      // 입력된 표본주만
+      // 입력된 표본주만 (누적 번호 적용)
       const slots = v.samples
-        .map((raw, si) => ({ no: si+1, val: (raw!==''&&!isNaN(parseFloat(raw))) ? parseFloat(raw) : null }))
+        .map((raw, si) => ({ no: _globalSampleOffset + si + 1, val: (raw!==''&&!isNaN(parseFloat(raw))) ? parseFloat(raw) : null }))
         .filter(s => s.val !== null);
+      _globalSampleOffset += v.samples.length;
 
       if(slots.length === 0) return;
 
@@ -1983,6 +1994,7 @@ async function saveImage() {
     link.download = `${cropName}착과수_${stamp}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
+    document.getElementById('save-overlay').classList.add('show');
   } catch(e) {
     showToast('저장 중 오류가 발생했어요');
   }
