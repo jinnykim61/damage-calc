@@ -1984,9 +1984,18 @@ async function saveImage() {
     }).join('');
 
     const totalPerTree = totalSampleN>0 ? totalSampleSum/totalSampleN : 0;
+    const totalDead = varieties.reduce((s,v)=>s+(v.dead||0),0);
+    const totalUnable = varieties.reduce((s,v)=>s+(v.unable||0),0);
+    const totalUninsDead = varieties.reduce((s,v)=>s+(v.uninsDead||0),0);
+    const totalUninsAlive = varieties.reduce((s,v)=>s+(v.uninsAlive||0),0);
+    const totalReg2 = varieties.reduce((s,v)=>s+(v.reg||0),0);
+    const totalActual2 = varieties.reduce((s,v)=>s+(v.actual||0),0);
     const tfootRow = `<tr style="background:#e8edf2">
       ${td('합 계','#e8edf2',true)}
-      ${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}${td('')}
+      ${td('')}
+      ${td(totalReg2>0?totalReg2.toLocaleString():'-')}
+      ${td(totalActual2>0?totalActual2.toLocaleString():'-')}
+      ${td(totalDead)}${td(totalUnable)}${td(totalUninsDead)}${td(totalUninsAlive)}
       ${td(totalSurvey>0?totalSurvey.toLocaleString():'-','#dbeafe',true,'#185FA5')}
       ${td(totalSampleN>0?totalSampleN:'-','#e8edf2',true)}
       ${td(totalProperSum>0?totalProperSum:'-')}
