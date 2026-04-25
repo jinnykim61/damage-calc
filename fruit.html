@@ -316,7 +316,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     <div style="padding:10px 14px;background:var(--card);border-top:0.5px solid var(--border)">
       <div class="field" style="max-width:33%">
         <label>평년착과량(개)</label>
-        <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
+        <input type="text" id="avg_fruit" autocomplete="off" class="inp" inputmode="decimal" placeholder="0"
           enterkeyhint="next"
           oninput="onCommaInput(this);onInput();resetCalcBtn()"
           onblur="saveState()"
@@ -831,6 +831,11 @@ function setMode(m) {
   document.getElementById('mode-tab-0').style.borderBottomColor = m===0 ? 'var(--blue)' : 'transparent';
   document.getElementById('mode-tab-1').style.color = m===1 ? 'var(--blue)' : 'var(--hint)';
   document.getElementById('mode-tab-1').style.borderBottomColor = m===1 ? 'var(--blue)' : 'transparent';
+  // 착과수탭 진입 시 평년착과수 미입력이면 자동 포커스
+  if(m === 1) setTimeout(()=>{
+    const _af = document.getElementById('avg_fruit');
+    if(_af && !_af.value) _af.focus();
+  }, 150);
 }
 
 function setIntervalCount(n) {
@@ -903,25 +908,25 @@ function renderIntervalRows() {
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
             <div class="field">
               <label style="font-size:11px">고사주수</label>
-              <input type="number" id="tree-dead-${i}" class="inp${d.dead>0?' filled':''}" value="${d.dead||''}" inputmode="decimal" placeholder="0주"
+              <input type="number" id="tree-dead-${i}" class="inp${d.dead>0?' filled':''}" value="${d.dead||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
                 oninput="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].dead=+this.value||0;document.getElementById('tree-unable-${i}')?.focus();}" onblur="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">수확불능</label>
-              <input type="number" id="tree-unable-${i}" class="inp${d.unable>0?' filled':''}" value="${d.unable||''}" inputmode="decimal" placeholder="0주"
+              <input type="number" id="tree-unable-${i}" class="inp${d.unable>0?' filled':''}" value="${d.unable||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
                 oninput="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].unable=+this.value||0;document.getElementById('tree-uninsDead-${i}')?.focus();}" onblur="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">미보상고사</label>
-              <input type="number" id="tree-uninsDead-${i}" class="inp${d.uninsDead>0?' filled':''}" value="${d.uninsDead||''}" inputmode="decimal" placeholder="0주"
+              <input type="number" id="tree-uninsDead-${i}" class="inp${d.uninsDead>0?' filled':''}" value="${d.uninsDead||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
                 oninput="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsDead=+this.value||0;document.getElementById('tree-uninsAlive-${i}')?.focus();}" onblur="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">미보상미고사</label>
-              <input type="number" id="tree-uninsAlive-${i}" class="inp${d.uninsAlive>0?' filled':''}" value="${d.uninsAlive||''}" inputmode="decimal" placeholder="0주"
+              <input type="number" id="tree-uninsAlive-${i}" class="inp${d.uninsAlive>0?' filled':''}" value="${d.uninsAlive||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
                 oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;intervalData[${i}].treeOpen=false;renderIntervalRows();setTimeout(()=>{const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _regInputs=Array.from(_rows).filter(el=>!el.id||!el.id.startsWith('tree-'));if(_regInputs[${i}*2+2])_regInputs[${i}*2+2].focus();else if(_regInputs[${i}*2+3])_regInputs[${i}*2+3].focus();},50);}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}">
             </div>
@@ -1149,7 +1154,7 @@ function renderVarieties(totalSurvey, totalProper) {
       const isLast = si === _total - 1;
       samplesHtml += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
         <span style="font-size:13px;font-weight:800;color:var(--sub)">${_offset+si+1}</span>
-        <input type="number" value="${s}" inputmode="decimal" placeholder=""
+        <input type="number" value="${s}" inputmode="decimal" placeholder="" autocomplete="off"
           enterkeyhint="${isLast?'done':'next'}"
           style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
           oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi});resetCalcBtn();saveState()"
@@ -1379,7 +1384,7 @@ function renderSamplesOnly(vi) {
     const isLast = si===_total-1;
     html += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
       <span style="font-size:13px;font-weight:800;color:var(--sub)">${_offset+si+1}</span>
-      <input type="number" value="${s}" inputmode="decimal" placeholder=""
+      <input type="number" value="${s}" inputmode="decimal" placeholder="" autocomplete="off"
         enterkeyhint="${isLast?'done':'next'}"
         style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
         oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi});resetCalcBtn();saveState()"
