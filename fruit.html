@@ -1005,8 +1005,7 @@ function applyIntervalToVarieties() {
     varieties[i].cardOpen   = alreadyVisited ? varieties[i].cardOpen : true;
     varieties[i].open       = alreadyVisited ? varieties[i].open : true;
     while(varieties[i].samples.length < properN) varieties[i].samples.push('');
-    while(varieties[i].samples.length > properN && varieties[i].samples[varieties[i].samples.length-1]==='')
-      varieties[i].samples.pop();
+    if(varieties[i].samples.length > properN) varieties[i].samples.splice(properN);
   });
 
   saveState();
