@@ -1361,9 +1361,12 @@ function renderSamplesOnly(vi) {
   const totalProper = getProperSample(totalSurvey);
   const surveyTarget = getSurveyTarget(v);
   const properN = surveyTarget>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
-  // 버그2 수정: properN에 맞게 양방향 조정 (초과 시 빈칸만 제거)
+  // properN보다 적으면 채우고, 수동 추가(__addedSample)가 아닌 경우만 초과 빈칸 제거
   while(v.samples.length < properN) v.samples.push('');
-  while(v.samples.length > properN && v.samples[v.samples.length-1] === '') v.samples.pop();
+  if(!v.__addedSample) {
+    while(v.samples.length > properN && v.samples[v.samples.length-1] === '') v.samples.pop();
+  }
+  v.__addedSample = false;
   const _total = v.samples.length;
   const _offset = varieties.slice(0, vi).reduce((s, vv) => s + vv.samples.length, 0);
   let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px">`;
@@ -1494,7 +1497,14 @@ function confirmSampleDel(vi) {
 function addSampleRow(vi) {
   varieties[vi].samples.push('');
   varieties[vi].open = true;
-  onInput();
+  // onInput 대신 직접 렌더 — onInput→renderSamplesOnly가 빈칸을 즉시 pop하는 문제 방지
+  const ss = document.getElementById(`ss-${vi}`);
+  if(ss) {
+    // renderSamplesOnly 내부 pop 로직이 새 빈칸 삭제하지 않도록 임시 마커
+    varieties[vi].__addedSample = true;
+    renderSamplesOnly(vi);
+  }
+  saveState();
 }
 
 function resetVariety(vi) {
