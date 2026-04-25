@@ -1012,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.addEventListener('click',()=>setTimeout(bindMobileFocusHandlers,0),{passive:true});
   clearOldCache();
   loadState();
-  setMode(mode); // 저장된 모드로 복원 (loadState에서 mode 변수 설정됨)
+  setMode(mode); // 저장된 모드로 복원
   lastProper = -1;
 
   // 기본값 설정 (저장값 없을 때만)
@@ -1037,26 +1037,30 @@ document.addEventListener('DOMContentLoaded', function(){
     setTimeout(function(){
       try{
         const raw = localStorage.getItem('rice_state');
-        if(!raw) return;
+        if(!raw){ document.body.style.visibility='visible'; return; }
         const s = JSON.parse(raw);
-        if(!s.spVals || !s.spVals.some(function(v){return v;})) return;
-        let restored = false;
-        s.spVals.forEach(function(v,i){
-          const el = document.getElementById('sp'+i);
-          if(el && v){
-            el.value = v;
-            el.style.background='#e8faf3';
-            el.style.borderColor='#1D9E75';
-            el.style.color='#0d5c35';
-            restored = true;
-          }
-        });
-        if(restored) calc();
-      }catch(e){}
-      // 잠금 상태 복원
-      try{
-        const raw2 = localStorage.getItem('rice_state');
-        if(raw2){ const s2=JSON.parse(raw2); if(s2.isLocked) setCalcMode(); }
+        // 표본값 복원
+        if(s.spVals && s.spVals.some(function(v){return v;})){
+          let restored = false;
+          s.spVals.forEach(function(v,i){
+            const el = document.getElementById('sp'+i);
+            if(el && v){
+              el.value = v;
+              el.style.background='#e8faf3';
+              el.style.borderColor='#1D9E75';
+              el.style.color='#0d5c35';
+              restored = true;
+            }
+          });
+          if(restored) calc();
+        }
+        // 잠금 상태 복원 — 반드시 마지막에, saveState 호출 없이
+        if(s.isLocked){
+          _isLocked = true;
+          document.querySelector('.content').classList.add('locked');
+          document.getElementById('btn-calc').classList.add('active');
+          document.getElementById('btn-edit').classList.remove('active');
+        }
       }catch(e){}
       document.body.style.visibility = 'visible';
     }, 50);
