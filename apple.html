@@ -255,14 +255,16 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     <div style="display:grid;grid-template-columns:44px 1fr 1fr 72px 68px;background:var(--bg);padding:6px 8px;font-size:10px;font-weight:600;color:var(--sub);border-bottom:0.5px solid var(--border);gap:4px">
       <div></div>
       <div style="text-align:center">가입주수</div>
-      <div style="text-align:center">실제결과주수</div>
+      <div style="text-align:center">실제결과</div>
       <div style="text-align:center">표본·간격</div>
       <div></div>
     </div>
     <div id="interval-rows-1"></div>
-    <div style="padding:10px 12px;background:var(--bg);border-top:0.5px solid var(--border);font-size:12px;color:var(--sub);display:flex;justify-content:space-between">
-      <span>합계 <b id="iv-total">0</b>주</span>
-      <span>적정표본 <b id="iv-proper">0</b>주</span>
+    <div style="padding:10px 12px;background:var(--bg);border-top:0.5px solid var(--border);font-size:12px;color:var(--sub);display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;text-align:center">
+      <div><div style="font-size:10px;margin-bottom:2px">가입주수</div><b id="iv-reg-total" style="color:var(--text)">-</b></div>
+      <div><div style="font-size:10px;margin-bottom:2px">실제결과</div><b id="iv-actual-total" style="color:var(--text)">-</b></div>
+      <div><div style="font-size:10px;margin-bottom:2px">표본주</div><b id="iv-total" style="color:#e24b4a">-</b></div>
+      <div><div style="font-size:10px;margin-bottom:2px">적정표본</div><b id="iv-proper" style="color:var(--blue)">-</b></div>
     </div>
   </div>
 
@@ -915,20 +917,20 @@ function renderIntervalRows() {
       html += `<div style="border-bottom:0.5px solid var(--border)">
         <div style="display:grid;grid-template-columns:44px 1fr 1fr 72px 68px;padding:6px 8px;align-items:center;gap:4px">
           <div style="font-size:11px;color:var(--blue);font-weight:700;text-align:center">품종${i+1}</div>
-          <input type="number" value="${d.reg||''}" placeholder="가입주수" inputmode="decimal"
-            style="text-align:center;font-size:10px;height:34px;border:1.5px solid ${d.reg?'#1D9E75':'var(--binp)'};background:${d.reg?'#e8faf3':'white'};border-radius:var(--rs);color:${d.reg?'#0d5c35':'var(--text)'};min-width:0;width:100%"
+          <input type="number" value="${d.reg||''}" placeholder="" inputmode="decimal"
+            style="text-align:center;font-size:14px;height:34px;border:1.5px solid ${d.reg?'#1D9E75':'var(--binp)'};background:${d.reg?'#e8faf3':'white'};border-radius:var(--rs);color:${d.reg?'#0d5c35':'var(--text)'};min-width:0;width:100%"
             onfocus="this.select()"
             oninput="intervalData[${i}].reg=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'"
             onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].reg=+this.value||0;const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _arr=Array.from(_rows);const _idx=_arr.indexOf(this);if(_arr[_idx+1]){_arr[_idx+1].focus();}}"
             onblur="intervalData[${i}].reg=+this.value||0;if(!event.relatedTarget||!event.relatedTarget.closest('#interval-rows-1'))renderIntervalRows()">
-          <input type="number" value="${d.actual||''}" placeholder="실제결과주수" inputmode="decimal"
-            style="text-align:center;font-size:10px;height:34px;border:1.5px solid ${d.actual?'#1D9E75':'var(--binp)'};background:${d.actual?'#e8faf3':'white'};border-radius:var(--rs);color:${d.actual?'#0d5c35':'var(--text)'};min-width:0;width:100%"
+          <input type="number" value="${d.actual||''}" placeholder="" inputmode="decimal"
+            style="text-align:center;font-size:14px;height:34px;border:1.5px solid ${d.actual?'#1D9E75':'var(--binp)'};background:${d.actual?'#e8faf3':'white'};border-radius:var(--rs);color:${d.actual?'#0d5c35':'var(--text)'};min-width:0;width:100%"
             onfocus="this.select()"
             oninput="intervalData[${i}].actual=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'"
             onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].actual=+this.value||0;const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _arr=Array.from(_rows);const _idx=_arr.indexOf(this);if(_arr[_idx+1]){_arr[_idx+1].focus();}else{renderIntervalRows();}}"
             onblur="intervalData[${i}].actual=+this.value||0;if(!event.relatedTarget||!event.relatedTarget.closest('#interval-rows-1'))renderIntervalRows()">
           <div style="text-align:center">
-            ${pn>0&&sv>0 ? `<span style="font-size:11px;font-weight:800;color:#e24b4a">${pn}주·${gap}칸</span>` : '<span style="font-size:11px;color:var(--hint)">-</span>'}
+            ${pn>0&&sv>0 ? `<span style="font-size:13px;font-weight:800;color:#e24b4a">${pn}주</span><span style="font-size:11px;color:var(--hint);margin:0 2px">·</span><span style="font-size:13px;font-weight:800;color:#185FA5">${gap}칸</span>` : '<span style="font-size:12px;color:var(--hint)">-</span>'}
           </div>
           <div style="text-align:center">
             <button onclick="toggleIntervalTree(${i})"
@@ -982,13 +984,19 @@ function renderIntervalRows() {
 
   const tv = document.getElementById('iv-total');
   const pv = document.getElementById('iv-proper');
-  if(tv) tv.textContent = total.toLocaleString();
+  const rv = document.getElementById('iv-reg-total');
+  const av = document.getElementById('iv-actual-total');
+  const regTotal = intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.reg||0),0);
+  const actualTotal = intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.actual||0),0);
+  if(rv) rv.textContent = regTotal > 0 ? regTotal.toLocaleString()+'주' : '-';
+  if(av) av.textContent = actualTotal > 0 ? actualTotal.toLocaleString()+'주' : '-';
   // 적정표본 = 품종별 배분 합계
   const properSum = intervalData.slice(0,intervalCount).reduce((s,d)=>{
     const sv = getSurveyFromInterval(d);
     return s + (sv>0&&total>0 ? Math.max(1,Math.ceil(tp*sv/total)) : 0);
   }, 0);
-  if(pv) pv.textContent = total>0 ? properSum : 0;
+  if(tv) tv.textContent = properSum > 0 ? properSum+'주' : '-';
+  if(pv) pv.textContent = properSum > 0 ? properSum+'주' : '-';
   bindMobileFocusHandlers();
 }
 
