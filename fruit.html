@@ -1127,9 +1127,9 @@ function renderVarieties(totalSurvey, totalProper) {
     const surveyTarget = surveyTargets[vi];
     const properN = properNs[vi];
 
-    // 샘플 배열 조정 — properN에 맞게 엄격히 조정 (초과 시 무조건 splice)
+    // 샘플 배열 조정 — 부족하면 채우고, 초과 시 빈칸만 제거 (수동 추가 값 보호)
     while (v.samples.length < properN) v.samples.push('');
-    if (v.samples.length > properN) v.samples.splice(properN);
+    while (v.samples.length > properN && v.samples[v.samples.length-1] === '') v.samples.pop();
 
     const inputtedSamples = v.samples.filter(s => s !== '' && !isNaN(parseFloat(s))).length;
     const sampleSum = v.samples.reduce((s,x) => s + (parseFloat(x)||0), 0);
