@@ -1735,7 +1735,8 @@ function doCalc(manual = false) {
 
   // 상단 요약바 표본주수 업데이트
   const _totalSurveyBar = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
-  const _properBar = getProperSample(_totalSurveyBar);
+  const _tpBar = getProperSample(_totalSurveyBar);
+  const _properBar = varieties.reduce((s,v)=>{const sv=getSurveyTarget(v);return s+(sv>0&&_totalSurveyBar>0?Math.max(1,Math.ceil(_tpBar*sv/_totalSurveyBar)):0);},0);
   const _sampleNBar = varieties.reduce((s,v)=>s+v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x))).length,0);
   updateSummaryBar(varieties.reduce((s,v)=>s+(v.reg||0),0), _totalSurveyBar, _sampleNBar, _properBar);
 
