@@ -226,12 +226,12 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div id="mode-tab-0" onclick="setMode(0)" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--blue);border-bottom:2.5px solid var(--blue);cursor:pointer">🌿 나무조사</div>
   <div id="mode-tab-1" onclick="if(!canMoveToFruitTab()){showToast('실제결과주수를 먼저 입력해 주세요');return;}applyIntervalToVarieties();" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer">🍎 착과수 입력</div>
 </div>
+<div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
+  <button onclick="openResetModal()" style="height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
+</div>
 
 <!-- 표본간격 탭 화면 -->
 <div id="mode-section-0">
-  <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
-    <button onclick="openResetModal()" style="height:28px;padding:0 14px;background:#FFF5F5;border:1.5px solid var(--red);border-radius:var(--rs);font-size:12px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
-  </div>
   <div class="section">
     <div style="font-size:12px;color:var(--sub);font-weight:600;margin-bottom:10px">품종 수 선택</div>
     <div style="display:flex;gap:5px;margin-bottom:6px">
