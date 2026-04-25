@@ -1802,6 +1802,7 @@ function saveState(){
     allData[currentCrop].varieties = varieties;
     localStorage.setItem('apple_multi_state', JSON.stringify({
       currentCrop,
+      currentMode,
       allData,
       isLocked: _isLocked,
       intervalData,
@@ -1831,6 +1832,7 @@ function loadState(){
     }
     if(s.intervalData) intervalData = s.intervalData;
     if(s.intervalCount) intervalCount = s.intervalCount;
+    if(s.currentMode !== undefined) currentMode = s.currentMode;
     varieties = allData[currentCrop].varieties;
     // 로드 후 samples를 올바른 properN으로 강제 조정 (버그 데이터 복원 방지)
     const _totalSurvey = varieties.reduce((s,v) => s + Math.max(0,(v.actual||0)-(v.dead||0)-(v.unable||0)-(v.uninsDead||0)-(v.uninsAlive||0)), 0);
@@ -2059,6 +2061,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
   setIntervalCount(intervalCount || 3);
   renderIntervalRows();
   onInput();
+  if(currentMode === 1){
+    document.getElementById('mode-section-0').style.display = 'none';
+    document.getElementById('mode-section-1').style.display = 'block';
+    document.getElementById('mode-tab-0').style.color = 'var(--hint)';
+    document.getElementById('mode-tab-0').style.borderBottomColor = 'transparent';
+    document.getElementById('mode-tab-1').style.color = 'var(--blue)';
+    document.getElementById('mode-tab-1').style.borderBottomColor = 'var(--blue)';
+  }
   if(allData[currentCrop].calcDone){
     doCalc(true);
   }
