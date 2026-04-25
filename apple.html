@@ -791,6 +791,13 @@ function showToast(msg, duration=2200){
   clearTimeout(t._timer);
   t._timer=setTimeout(()=>t.style.display='none', duration);
 }
+
+function closeTree(i) {
+  intervalData[i].treeOpen = false;
+  const body = document.getElementById('tree-body-' + i);
+  if(body) body.style.display = 'none';
+  saveState();
+}
 function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
 function setEditModeFromTree(){
   // 나무조사탭 잠금 해제 — 탭 이동 없이 수정 가능하게
@@ -909,13 +916,13 @@ function renderIntervalRows() {
             id="reg-${i}" onfocus="this.select()"
             oninput="intervalData[${i}].reg=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'"
             onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].reg=+this.value||0;const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _arr=Array.from(_rows);const _idx=_arr.indexOf(this);if(_arr[_idx+1]){_arr[_idx+1].focus();}}"
-            onblur="intervalData[${i}].reg=+this.value||0;if(!event.relatedTarget||!event.relatedTarget.closest('#interval-rows-1'))renderIntervalRows()">
+            onblur="intervalData[${i}].reg=+this.value||0;onInput();saveState()">
           <input type="number" value="${d.actual||''}" placeholder="" inputmode="decimal"
             style="text-align:center;font-size:14px;height:34px;border:1.5px solid ${d.actual?'#1D9E75':'var(--binp)'};background:${d.actual?'#e8faf3':'white'};border-radius:var(--rs);color:${d.actual?'#0d5c35':'var(--text)'};min-width:0;width:100%"
             id="actual-${i}" onfocus="this.select()"
             oninput="intervalData[${i}].actual=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].actual=+this.value||0;const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _arr=Array.from(_rows);const _idx=_arr.indexOf(this);if(_arr[_idx+1]){_arr[_idx+1].focus();}else{renderIntervalRows();}}"
-            onblur="intervalData[${i}].actual=+this.value||0;if(!event.relatedTarget||!event.relatedTarget.closest('#interval-rows-1'))renderIntervalRows()">
+            onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].actual=+this.value||0;const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _arr=Array.from(_rows);const _idx=_arr.indexOf(this);if(_arr[_idx+1]){_arr[_idx+1].focus();}else{onInput();saveState();}}"
+            onblur="intervalData[${i}].actual=+this.value||0;onInput();saveState()">
           <div style="text-align:center">
             ${pn>0&&sv>0 ? `<span style="font-size:13px;font-weight:800;color:#e24b4a">${pn}주</span><span style="font-size:11px;color:var(--hint);margin:0 2px">·</span><span style="font-size:13px;font-weight:800;color:#185FA5">${gap}칸</span>` : '<span style="font-size:12px;color:var(--hint)">-</span>'}
           </div>
@@ -926,38 +933,37 @@ function renderIntervalRows() {
             </button>
           </div>
         </div>
-        ${d.treeOpen ? `
-        <div style="background:#F5F4F0;padding:8px 10px 10px;border-top:0.5px solid var(--border)">
+        <div id="tree-body-${i}" style="display:${d.treeOpen?'block':'none'};background:#F5F4F0;padding:8px 10px 10px;border-top:0.5px solid var(--border)">
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
             <div class="field">
               <label style="font-size:11px">고사주수</label>
               <input type="number" id="tree-dead-${i}" class="inp${d.dead>0?' filled':''}" value="${d.dead||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].dead=+this.value||0;document.getElementById('tree-unable-${i}')?.focus();}" onblur="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&((_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}'))||_rt.id==='reg-${i}'||_rt.id==='actual-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
+                oninput="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].dead=+this.value||0;document.getElementById('tree-unable-${i}')?.focus();}" onblur="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&((_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}'))||_rt.id==='reg-${i}'||_rt.id==='actual-${i}');if(!_inTree){closeTree(${i});}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">수확불능</label>
               <input type="number" id="tree-unable-${i}" class="inp${d.unable>0?' filled':''}" value="${d.unable||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].unable=+this.value||0;document.getElementById('tree-uninsDead-${i}')?.focus();}" onblur="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&((_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}'))||_rt.id==='reg-${i}'||_rt.id==='actual-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
+                oninput="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].unable=+this.value||0;document.getElementById('tree-uninsDead-${i}')?.focus();}" onblur="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&((_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}'))||_rt.id==='reg-${i}'||_rt.id==='actual-${i}');if(!_inTree){closeTree(${i});}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">미보상고사</label>
               <input type="number" id="tree-uninsDead-${i}" class="inp${d.uninsDead>0?' filled':''}" value="${d.uninsDead||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsDead=+this.value||0;document.getElementById('tree-uninsAlive-${i}')?.focus();}" onblur="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&((_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}'))||_rt.id==='reg-${i}'||_rt.id==='actual-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
+                oninput="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsDead=+this.value||0;document.getElementById('tree-uninsAlive-${i}')?.focus();}" onblur="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&((_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}'))||_rt.id==='reg-${i}'||_rt.id==='actual-${i}');if(!_inTree){closeTree(${i});}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">미보상미고사</label>
               <input type="number" id="tree-uninsAlive-${i}" class="inp${d.uninsAlive>0?' filled':''}" value="${d.uninsAlive||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;intervalData[${i}].treeOpen=false;saveState();renderIntervalRows();setTimeout(()=>{const _next=document.getElementById('reg-${i+1}');if(_next)_next.focus();},80);}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}">
+                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;saveState();closeTree(${i});setTimeout(()=>{const _next=document.getElementById('reg-${i+1}');if(_next)_next.focus();},50);}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){closeTree(${i});}">
             </div>
           </div>
           <div style="margin-top:8px;font-size:12px;color:var(--sub)">
             조사대상: <b style="color:var(--text)">${sv}주</b>
           </div>
-        </div>` : ''}
+        </div>
       </div>`;
     }
     return html;
