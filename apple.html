@@ -271,7 +271,10 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     </div>
   </div>
 
-  <button onclick="applyIntervalToVarieties()" style="width:100%;margin-top:4px;height:48px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer">착과수 입력으로 →</button>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+    <button onclick="setEditModeFromTree()" id="btn-edit-tree" style="height:48px;border:2px solid var(--green);border-radius:var(--rs);background:white;color:var(--green);font-size:15px;font-weight:700;cursor:pointer">✏️ 수정하기</button>
+    <button onclick="applyIntervalToVarieties()" style="height:48px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer">착과수 입력으로 →</button>
+  </div>
 </div>
 
 <!-- 착과수 입력 탭 화면 -->
@@ -813,6 +816,12 @@ function showToast(msg, duration=2200){
   t._timer=setTimeout(()=>t.style.display='none', duration);
 }
 function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
+function setEditModeFromTree(){
+  // 착과수탭으로 이동 후 수정하기 모드 진입
+  if(!canMoveToFruitTab()){ showToast('실제결과주수를 먼저 입력해 주세요'); return; }
+  applyIntervalToVarieties();
+  setTimeout(()=>{ if(typeof setEditMode==='function') setEditMode(); }, 100);
+}
 // 천단위 구분 입력
 function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
 function onCommaInput(el){
@@ -1024,8 +1033,12 @@ function applyIntervalToVarieties() {
     varieties[i].unable     = d.unable || 0;
     varieties[i].uninsDead  = d.uninsDead || 0;
     varieties[i].uninsAlive = d.uninsAlive || 0;
-    varieties[i].cardOpen   = true;
-    varieties[i].open      = true;
+    // 이미 입력된 데이터 있으면 cardOpen/open 기존 상태 유지
+    const _alreadyHasData = varieties[i].samples.some(s=>s!=='');
+    if(!_alreadyHasData){
+      varieties[i].cardOpen = true;
+      varieties[i].open     = true;
+    }
     while(varieties[i].samples.length < properN) varieties[i].samples.push('');
     while(varieties[i].samples.length > properN && varieties[i].samples[varieties[i].samples.length-1]==='')
       varieties[i].samples.pop();
