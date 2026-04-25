@@ -1330,7 +1330,7 @@ function calcVariety(vi) {
   const perEl = document.getElementById(`vi-per-${vi}`);
   const afterEl = document.getElementById(`vi-after-${vi}`);
   if(sumEl) sumEl.value = sampleSum > 0 ? Math.round(sampleSum).toLocaleString() : '';
-  if(perEl) perEl.value = perTree > 0 ? Math.round(perTree) : '';
+  if(perEl) perEl.value = perTree > 0 ? perTree.toFixed(4) : '';
   if(afterEl){
     afterEl.value = afterFruit > 0 ? afterFruit.toLocaleString() : '';
     afterEl.className = 'auto' + (afterFruit > 0 ? ' ok' : '');
@@ -1606,7 +1606,7 @@ function onInput() {
   const afEl = document.getElementById('total_afterFruit');
   if(snEl) snEl.value = totalSampleN > 0 ? totalSampleN+'주' : '';
   if(ssEl) ssEl.value = totalSampleSum > 0 ? Math.round(totalSampleSum).toLocaleString() : '';
-  if(spEl) spEl.value = totalPerTree > 0 ? Math.round(totalPerTree) : '';
+  if(spEl) spEl.value = totalPerTree > 0 ? totalPerTree.toFixed(4) : '';
   if(afEl){ afEl.value = totalAfterFruit > 0 ? totalAfterFruit.toLocaleString() : ''; afEl.className = 'auto' + (totalAfterFruit>0?' ok':''); }
 
   // 계약변경 여부 (품종별 주수 오차 ±5% 초과)
@@ -1730,7 +1730,7 @@ function doCalc(manual = false) {
   const spEl2 = document.getElementById('total_perTree');
   const afEl2 = document.getElementById('total_afterFruit');
   if(ssEl2) ssEl2.value = totalSampleSumCalc > 0 ? Math.round(totalSampleSumCalc).toLocaleString() : '0';
-  if(spEl2) spEl2.value = totalPerTreeCalc > 0 ? Math.round(totalPerTreeCalc) : '0';
+  if(spEl2) spEl2.value = totalPerTreeCalc > 0 ? totalPerTreeCalc.toFixed(4) : '0';
   if(afEl2){ afEl2.value = totalAfterFruit > 0 ? Math.round(totalAfterFruit).toLocaleString() : '0'; afEl2.className = 'auto ok'; }
 
   // 상단 요약바 표본주수 업데이트
@@ -1903,7 +1903,7 @@ async function saveImage() {
         ${td(sN>0?sN:'-')}
         ${td(properN>0?properN:'-')}
         ${td(sSum>0?Math.round(sSum).toLocaleString():'-')}
-        ${td(perTree>0?perTree.toFixed(1):'-')}
+        ${td(perTree>0?perTree.toFixed(4):'-')}
         ${td(after>0?after.toLocaleString():'-','#e8faf3',true,'#0d5c35')}
       </tr>`;
     }).join('');
@@ -1931,7 +1931,7 @@ async function saveImage() {
       ${td(totalSampleN>0?totalSampleN:'-','#e8edf2',true)}
       ${td(totalProperSum>0?totalProperSum:'-')}
       ${td(totalSampleSum>0?Math.round(totalSampleSum).toLocaleString():'-','#e8edf2',true)}
-      ${td(totalPerTree>0?totalPerTree.toFixed(1):'-')}
+      ${td(totalPerTree>0?totalPerTree.toFixed(4):'-')}
       ${td(totalAfterSum>0?totalAfterSum.toLocaleString():'-','#d1fae5',true,'#0d5c35')}
     </tr>`;
 
