@@ -223,7 +223,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 
 <!-- 모드 탭 -->
 <div style="display:flex;background:var(--card);border-bottom:0.5px solid var(--border);position:sticky;top:57px;z-index:99">
-  <div id="mode-tab-0" onclick="setMode(0)" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--blue);border-bottom:2.5px solid var(--blue);cursor:pointer">🌿 나무조사</div>
+  <div id="mode-tab-0" onclick="event.preventDefault();setMode(0)" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--blue);border-bottom:2.5px solid var(--blue);cursor:pointer">🌿 나무조사</div>
   <div id="mode-tab-1" onclick="if(!canMoveToFruitTab()){showToast('실제결과주수를 먼저 입력해 주세요');return;}applyIntervalToVarieties();" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer">🍎 착과수 입력</div>
 </div>
 <div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
@@ -272,10 +272,6 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 </div>
 
 
-<div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
-  <button onclick="openResetModal()" style="height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
-</div>
-
 <!-- 착과수 입력 탭 화면 -->
 <div id="mode-section-1" style="display:none">
 
@@ -284,9 +280,6 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div class="crop-tab on" onclick="setCrop('grape',0)">🍇 포도</div>
   <div class="crop-tab" onclick="setCrop('peach',1)">🍑 복숭아</div>
   <div class="crop-tab" onclick="setCrop('plum',2)">🫐 자두</div>
-</div>
-<div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
-  <button onclick="openResetModal()" style="height:28px;padding:0 14px;background:#FFF5F5;border:1.5px solid var(--red);border-radius:var(--rs);font-size:12px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
 </div>
 
 <div class="content">
