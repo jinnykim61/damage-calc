@@ -1127,9 +1127,12 @@ function renderVarieties(totalSurvey, totalProper) {
     const surveyTarget = surveyTargets[vi];
     const properN = properNs[vi];
 
-    // 샘플 배열 조정 — 부족하면 채우고, 초과 시 빈칸만 제거 (수동 추가 값 보호)
+    // 샘플 배열 조정 — 부족하면 채우고, 수동 추가(__addedSample)가 아닌 경우만 초과 빈칸 제거
     while (v.samples.length < properN) v.samples.push('');
-    while (v.samples.length > properN && v.samples[v.samples.length-1] === '') v.samples.pop();
+    if (!v.__addedSample) {
+      while (v.samples.length > properN && v.samples[v.samples.length-1] === '') v.samples.pop();
+    }
+    v.__addedSample = false;
 
     const inputtedSamples = v.samples.filter(s => s !== '' && !isNaN(parseFloat(s))).length;
     const sampleSum = v.samples.reduce((s,x) => s + (parseFloat(x)||0), 0);
@@ -1804,7 +1807,7 @@ function loadState(){
     varieties.forEach(v => {
       const sv = Math.max(0,(v.actual||0)-(v.dead||0)-(v.unable||0)-(v.uninsDead||0)-(v.uninsAlive||0));
       const pn = sv>0&&_totalSurvey>0 ? Math.max(1, Math.ceil(_tp*sv/_totalSurvey)) : 0;
-      if(pn > 0 && v.samples.length > pn) v.samples.splice(pn);
+      if(pn > 0) { while(v.samples.length > pn && v.samples[v.samples.length-1]==='') v.samples.pop(); }
     });
     const af = document.getElementById('avg_fruit');
     af.value = allData[currentCrop].avgFruit || '';
