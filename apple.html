@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#185FA5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>과수 다품종 착과수 계산기</title>
+<title>과수4종 착과수 계산기</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -856,8 +856,7 @@ function getProperSample(total) {
   return 17;
 }
 
-const CROP_NAMES = {apple:'사과', pear:'배', sweetpersimmon:'단감', persimmon:'떫은감'};
-let currentCrop = 'apple';
+const currentCrop = 'apple';
 
 const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false, cardOpen:true});
 
@@ -1049,10 +1048,7 @@ function applyIntervalToVarieties() {
 }
 
 const allData = {
-  apple:          { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
-  pear:           { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
-  sweetpersimmon: { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
-  persimmon:      { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
+  apple: { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
 };
 
 // 현재 작물 데이터 참조
@@ -1141,21 +1137,6 @@ function updateTreeSummary(showZero) {
 
 
 // ── 품목 전환 ─────────────────────────────────────
-function setCrop(crop, idx) {
-  // 현재 작물 avgFruit 저장
-  allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
-  currentCrop = crop;
-  varieties = allData[currentCrop].varieties;
-  document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===idx));
-  // 해당 작물 avgFruit 복원
-  const af = document.getElementById('avg_fruit');
-  af.value = allData[currentCrop].avgFruit;
-  af.classList.toggle('filled', !!af.value);
-  document.getElementById('result-section').classList.remove('show');
-  document.getElementById('result-detail-section').classList.remove('show');
-  resetCalcBtn();
-  onInput();
-}
 
 // ── 품종 렌더링 ───────────────────────────────────
 function renderVarieties(totalSurvey) {
@@ -1800,7 +1781,6 @@ function saveState(){
     allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
     allData[currentCrop].varieties = varieties;
     localStorage.setItem('apple_multi_state', JSON.stringify({
-      currentCrop,
       currentMode,
       allData,
       isLocked: _isLocked,
@@ -1823,11 +1803,6 @@ function loadState(){
           if(s.allData[crop].calcDone !== undefined) allData[crop].calcDone = s.allData[crop].calcDone;
         }
       }
-    }
-    if(s.currentCrop) {
-      currentCrop = s.currentCrop;
-      const idx = {'apple':0,'pear':1,'sweetpersimmon':2,'persimmon':3}[currentCrop]||0;
-      document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===idx));
     }
     if(s.intervalData) intervalData = s.intervalData;
     if(s.intervalCount) intervalCount = s.intervalCount;
@@ -1860,7 +1835,6 @@ function resetAll() {
   }
   currentCrop = 'apple';
   varieties = allData[currentCrop].varieties;
-  document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===0));
   document.getElementById('avg_fruit').value = '';
   document.getElementById('avg_fruit').classList.remove('filled');
   document.getElementById('result-section').classList.remove('show');
@@ -1901,8 +1875,7 @@ async function saveImage() {
     if(!saved){ showToast('먼저 착과수 계산을 실행해 주세요'); return; }
     const { totalAfterFruit, rate, needReview, avgFruit } = saved;
 
-    const CROP_KO = {apple:'사과', pear:'배', sweetpersimmon:'단감', persimmon:'떫은감'};
-    const cropName    = CROP_KO[currentCrop]||'과수';
+    const cropName    = '과수4종';
     const totalReg    = varieties.reduce((s,v)=>s+(v.reg||0),0);
     const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
     const totalProper = getProperSample(totalSurvey);
