@@ -895,6 +895,7 @@ function setIntervalCount(n) {
 function toggleIntervalTree(i) {
   intervalData[i].treeOpen = !intervalData[i].treeOpen;
   renderIntervalRows();
+  saveState();
 }
 
 function renderIntervalRows() {
@@ -994,6 +995,7 @@ function renderIntervalRows() {
   if(tv) tv.textContent = properSum > 0 ? properSum+'주' : '-';
   if(pv) pv.textContent = properSum > 0 ? properSum+'주' : '-';
   bindMobileFocusHandlers();
+  saveState();
 }
 
 
