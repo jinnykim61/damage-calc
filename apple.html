@@ -739,10 +739,8 @@ function applySetupPopup() {
     varieties[0].open = true;
     const ss = document.getElementById('ss-0');
     const icon = document.getElementById('toggle-icon-0');
-    const nextBtn = document.getElementById('next-btn-0');
     if(ss) ss.classList.add('open');
     if(icon) icon.textContent = '▼';
-    if(nextBtn) nextBtn.style.display = 'block';
     setTimeout(()=>{
       const firstInput = document.getElementById('ss-0')?.querySelector('input');
       if(firstInput){
@@ -1273,10 +1271,7 @@ function renderVarieties(totalSurvey) {
       <div class="sample-section ${v.open?'open':''}" id="ss-${vi}">
         ${samplesHtml}
       </div>
-      ${vi < varieties.length-1 ? `<button id="next-btn-${vi}" onclick="moveToNextVariety(${vi})"
-        style="display:${v.open?'block':'none'};margin-top:10px;width:100%;height:46px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">
-        다음 품종 →
-      </button>` : ''}
+
       ` : `<div id="ss-${vi}"></div>`}
       </div><!-- /card-body -->
     </div>`;
@@ -1434,36 +1429,7 @@ function renderSamplesOnly(vi) {
   if(ivEl) ivEl.textContent = surveyTarget>0&&properN>0 ? Math.round(surveyTarget/properN) : 0;
 }
 
-function moveToNextVariety(vi) {
-  document.activeElement?.blur();
-  const curBtn = document.getElementById(`next-btn-${vi}`);
-  if(curBtn) curBtn.style.display = 'none';
 
-  const nextVi = vi + 1;
-  if(nextVi >= varieties.length) {
-    doCalc();
-    return;
-  }
-
-  varieties[nextVi].open = true;
-  const ss = document.getElementById(`ss-${nextVi}`);
-  const icon = document.getElementById(`toggle-icon-${nextVi}`);
-  const nextBtn = document.getElementById(`next-btn-${nextVi}`);
-
-  if(ss){
-    ss.style.removeProperty('display'); // 인라인 display:none 제거
-    ss.classList.add('open');
-  }
-  if(icon) icon.textContent = '▼';
-  if(nextBtn) nextBtn.style.display = 'block';
-
-  setTimeout(()=>{
-    if(ss){
-      const rect = ss.getBoundingClientRect();
-      window.scrollTo({top: window.pageYOffset + rect.top - 160, behavior:'smooth'});
-    }
-  }, 50);
-}
 
 function autoOpenSamples(vi) {
   varieties[vi].actual = +document.getElementById(`vi-actual-${vi}`)?.value || varieties[vi].actual;
@@ -1493,10 +1459,8 @@ function toggleSamples(vi) {
   varieties[vi].open = !varieties[vi].open;
   const ss = document.getElementById(`ss-${vi}`);
   const icon = document.getElementById(`toggle-icon-${vi}`);
-  const btn = document.getElementById(`next-btn-${vi}`);
   ss.classList.toggle('open', varieties[vi].open);
   icon.textContent = varieties[vi].open ? '▼' : '▶';
-  if(btn) btn.style.display = varieties[vi].open ? 'block' : 'none';
 }
 
 function trimSamples(vi) {
