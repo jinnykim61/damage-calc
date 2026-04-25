@@ -211,7 +211,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div class="header-icon">🍎</div>
   <div>
     <h1>종합과수 착과수 계산기</h1>
-    <div class="header-sub">포도 · 복숭아 · 자두</div>
+    <div class="header-sub">종합과수 · 착과수조사</div>
   </div>
 </div>
 
@@ -226,12 +226,12 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div id="mode-tab-0" onclick="event.preventDefault();setMode(0)" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--blue);border-bottom:2.5px solid var(--blue);cursor:pointer">🌿 나무조사</div>
   <div id="mode-tab-1" onclick="if(!canMoveToFruitTab()){showToast('실제결과주수를 먼저 입력해 주세요');return;}applyIntervalToVarieties();" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer">🍎 착과수 입력</div>
 </div>
-<div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
-  <button onclick="openResetModal()" style="height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
-</div>
 
 <!-- 표본간격 탭 화면 -->
 <div id="mode-section-0">
+  <div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
+    <button onclick="openResetModal()" style="height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
+  </div>
   <div class="section">
     <div style="font-size:12px;color:var(--sub);font-weight:600;margin-bottom:10px">품종 수 선택</div>
     <div style="display:flex;gap:5px;margin-bottom:6px">
@@ -275,12 +275,6 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 <!-- 착과수 입력 탭 화면 -->
 <div id="mode-section-1" style="display:none">
 
-<!-- 품목 선택 탭 -->
-<div class="crop-tabs">
-  <div class="crop-tab on" onclick="setCrop('grape',0)">🍇 포도</div>
-  <div class="crop-tab" onclick="setCrop('peach',1)">🍑 복숭아</div>
-  <div class="crop-tab" onclick="setCrop('plum',2)">🫐 자두</div>
-</div>
 
 <div class="content">
 
@@ -444,7 +438,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div style="background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 8%,#f3f4f6 8%,#f3f4f6 100%);padding:0 20px 20px;box-sizing:border-box">
     <div style="height:18px"></div>
     <div style="text-align:center;color:#fff;margin-bottom:12px">
-      <div style="font-size:15px;font-weight:800;letter-spacing:0.04em" id="cap-title">포도 적과후착과수 조사결과</div>
+      <div style="font-size:15px;font-weight:800;letter-spacing:0.04em" id="cap-title">적과후착과수 조사결과</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px">
 
@@ -820,9 +814,6 @@ function checkNeedReview() {
 // 표본주수 기준표 (조사대상주 합계 기준)
 
 
-const CROP_NAMES = {grape:'포도', peach:'복숭아', plum:'자두'};
-let currentCrop = 'grape';
-
 const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false, cardOpen:true});
 
 // ── 모드 탭 (표본간격 / 착과수 입력) ──────────────────
@@ -1016,10 +1007,9 @@ function applyIntervalToVarieties() {
 
 // ── 작물별 독립 데이터 ────────────────────────────
 const allData = {
-  grape:  { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
-  peach:  { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
-  plum:   { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
+  fruit: { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
 };
+const currentCrop = 'fruit';
 
 // 현재 작물 데이터 참조
 let varieties = allData[currentCrop].varieties;
@@ -1117,22 +1107,6 @@ function getProperSample(total) {
 }
 
 // ── 품목 전환 ─────────────────────────────────────
-function setCrop(crop, idx) {
-  // 현재 작물 avgFruit 저장
-  allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
-  currentCrop = crop;
-  varieties = allData[currentCrop].varieties;
-  document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===idx));
-  // 해당 작물 avgFruit 복원
-  const af = document.getElementById('avg_fruit');
-  af.value = allData[currentCrop].avgFruit;
-  af.classList.toggle('filled', !!af.value);
-  document.getElementById('result-section').classList.remove('show');
-  document.getElementById('result-detail-section').classList.remove('show');
-  resetCalcBtn();
-  onInput();
-}
-
 // ── 품종 렌더링 ───────────────────────────────────
 function renderVarieties(totalSurvey, totalProper) {
   if (totalSurvey === undefined) {
@@ -1827,7 +1801,6 @@ function saveState(){
     allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
     allData[currentCrop].varieties = varieties;
     localStorage.setItem('fruit_multi_state', JSON.stringify({
-      currentCrop,
       currentMode,
       allData,
       isLocked: _isLocked,
@@ -1845,19 +1818,10 @@ function loadState(){
     if(s.intervalData) intervalData = s.intervalData;
     if(s.intervalCount) intervalCount = s.intervalCount;
     if(s.currentMode !== undefined) currentMode = s.currentMode;
-    if(s.allData) {
-      for(const crop of Object.keys(allData)){
-        if(s.allData[crop]){
-          if(s.allData[crop].avgFruit !== undefined) allData[crop].avgFruit = s.allData[crop].avgFruit;
-          if(s.allData[crop].varieties?.length > 0) allData[crop].varieties = s.allData[crop].varieties;
-          if(s.allData[crop].calcDone !== undefined) allData[crop].calcDone = s.allData[crop].calcDone;
-        }
-      }
-    }
-    if(s.currentCrop) {
-      currentCrop = s.currentCrop;
-      const idx = {'grape':0,'peach':1,'plum':2}[currentCrop]||0;
-      document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===idx));
+    if(s.allData?.fruit){
+      if(s.allData.fruit.avgFruit !== undefined) allData.fruit.avgFruit = s.allData.fruit.avgFruit;
+      if(s.allData.fruit.varieties?.length > 0) allData.fruit.varieties = s.allData.fruit.varieties;
+      if(s.allData.fruit.calcDone !== undefined) allData.fruit.calcDone = s.allData.fruit.calcDone;
     }
     varieties = allData[currentCrop].varieties;
     const af = document.getElementById('avg_fruit');
@@ -1872,14 +1836,10 @@ function resetAll() {
   intervalData = Array.from({length:10}, ()=>({reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, treeOpen:false}));
   intervalCount = 3;
   setIntervalCount(3);
-  for(const crop of Object.keys(allData)){
-    allData[crop].avgFruit = '';
-    allData[crop].varieties = [EMPTY_VARIETY()];
-    allData[crop].calcDone = false;
-  }
-  currentCrop = 'grape';
+  allData.fruit.avgFruit = '';
+  allData.fruit.varieties = [EMPTY_VARIETY()];
+  allData.fruit.calcDone = false;
   varieties = allData[currentCrop].varieties;
-  document.querySelectorAll('.crop-tab').forEach((t,i) => t.classList.toggle('on', i===0));
   document.getElementById('avg_fruit').value = '';
   document.getElementById('avg_fruit').classList.remove('filled');
   document.getElementById('result-section').classList.remove('show');
@@ -1920,8 +1880,7 @@ async function saveImage() {
     if(!saved){ showToast('먼저 착과수 계산을 실행해 주세요'); return; }
     const { totalAfterFruit, rate, needReview, avgFruit } = saved;
 
-    const CROP_KO = {grape:'포도', peach:'복숭아', plum:'자두'};
-    const cropName    = CROP_KO[currentCrop]||'종합과수';
+    const cropName    = '종합과수';
     const totalReg    = varieties.reduce((s,v)=>s+(v.reg||0),0);
     const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
     const totalProper = getProperSample(totalSurvey);
