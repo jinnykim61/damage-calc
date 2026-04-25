@@ -778,7 +778,7 @@ function loadState(){
     const raw = localStorage.getItem('rice_state');
     if(!raw) return;
     const s = JSON.parse(raw);
-    if(s.mode) {} // mode는 항상 sample로 시작
+    if(s.mode) { mode = s.mode; } // 저장된 모드 복원
     if(s.disease === 'y'){
       const dy = document.getElementById('dis-y');
       if(dy){ dy.checked = true; onDiseaseChk(); }
@@ -1012,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.addEventListener('click',()=>setTimeout(bindMobileFocusHandlers,0),{passive:true});
   clearOldCache();
   loadState();
-  setMode('sample');
+  setMode(mode); // 저장된 모드로 복원 (loadState에서 mode 변수 설정됨)
   lastProper = -1;
 
   // 기본값 설정 (저장값 없을 때만)
