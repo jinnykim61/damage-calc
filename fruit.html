@@ -1000,9 +1000,8 @@ function applyIntervalToVarieties() {
     varieties[i].unable     = d.unable || 0;
     varieties[i].uninsDead  = d.uninsDead || 0;
     varieties[i].uninsAlive = d.uninsAlive || 0;
-    const alreadyVisited = varieties[i].samples.some(s => s !== '');
-    varieties[i].cardOpen   = alreadyVisited ? varieties[i].cardOpen : true;
-    varieties[i].open       = alreadyVisited ? varieties[i].open : true;
+    varieties[i].cardOpen   = true;
+    varieties[i].open      = true;
     while(varieties[i].samples.length < properN) varieties[i].samples.push('');
     while(varieties[i].samples.length > properN && varieties[i].samples[varieties[i].samples.length-1]==='')
       varieties[i].samples.pop();
@@ -1820,6 +1819,7 @@ function saveState(){
     allData[currentCrop].varieties = varieties;
     localStorage.setItem('fruit_multi_state', JSON.stringify({
       currentCrop,
+      currentMode,
       allData,
       isLocked: _isLocked,
       intervalData,
@@ -1833,6 +1833,9 @@ function loadState(){
     const raw = localStorage.getItem('fruit_multi_state');
     if(!raw) return false;
     const s = JSON.parse(raw);
+    if(s.intervalData) intervalData = s.intervalData;
+    if(s.intervalCount) intervalCount = s.intervalCount;
+    if(s.currentMode !== undefined) currentMode = s.currentMode;
     if(s.allData) {
       for(const crop of Object.keys(allData)){
         if(s.allData[crop]){
@@ -2057,6 +2060,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
   setIntervalCount(intervalCount || 3);
   renderIntervalRows();
   onInput();
+  if(currentMode === 1){
+    document.getElementById('mode-section-0').style.display = 'none';
+    document.getElementById('mode-section-1').style.display = 'block';
+    document.getElementById('mode-tab-0').style.color = 'var(--hint)';
+    document.getElementById('mode-tab-0').style.borderBottomColor = 'transparent';
+    document.getElementById('mode-tab-1').style.color = 'var(--blue)';
+    document.getElementById('mode-tab-1').style.borderBottomColor = 'var(--blue)';
+  }
   if(allData[currentCrop].calcDone){
     doCalc(true);
   }
