@@ -905,25 +905,25 @@ function renderIntervalRows() {
               <label style="font-size:11px">고사주수</label>
               <input type="number" id="tree-dead-${i}" class="inp${d.dead>0?' filled':''}" value="${d.dead||''}" inputmode="decimal" placeholder="0주"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].dead=+this.value||0;document.getElementById('tree-unable-${i}')?.focus();}" onblur="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value);saveState()">
+                oninput="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].dead=+this.value||0;document.getElementById('tree-unable-${i}')?.focus();}" onblur="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">수확불능</label>
               <input type="number" id="tree-unable-${i}" class="inp${d.unable>0?' filled':''}" value="${d.unable||''}" inputmode="decimal" placeholder="0주"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].unable=+this.value||0;document.getElementById('tree-uninsDead-${i}')?.focus();}" onblur="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value);saveState()">
+                oninput="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].unable=+this.value||0;document.getElementById('tree-uninsDead-${i}')?.focus();}" onblur="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">미보상고사</label>
               <input type="number" id="tree-uninsDead-${i}" class="inp${d.uninsDead>0?' filled':''}" value="${d.uninsDead||''}" inputmode="decimal" placeholder="0주"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsDead=+this.value||0;document.getElementById('tree-uninsAlive-${i}')?.focus();}" onblur="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value);saveState()">
+                oninput="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsDead=+this.value||0;document.getElementById('tree-uninsAlive-${i}')?.focus();}" onblur="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">미보상미고사</label>
               <input type="number" id="tree-uninsAlive-${i}" class="inp${d.uninsAlive>0?' filled':''}" value="${d.uninsAlive||''}" inputmode="decimal" placeholder="0주"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;intervalData[${i}].treeOpen=false;this.blur();renderIntervalRows();}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);if(!event.relatedTarget||!event.relatedTarget.closest('#interval-rows-1')){intervalData[${i}].treeOpen=false;renderIntervalRows();}">
+                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;intervalData[${i}].treeOpen=false;renderIntervalRows();}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}">
             </div>
           </div>
           <div style="margin-top:8px;font-size:12px;color:var(--sub)">
