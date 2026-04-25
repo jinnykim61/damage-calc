@@ -266,9 +266,18 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
       <div><div style="font-size:10px;margin-bottom:2px">표본주</div><b id="iv-total" style="color:#e24b4a">-</b></div>
       <div><div style="font-size:10px;margin-bottom:2px">적정표본</div><b id="iv-proper" style="color:var(--blue)">-</b></div>
     </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;border-top:0.5px solid rgba(255,255,255,0.15);margin-top:6px;padding-top:6px">
+      <div><div style="font-size:10px;margin-bottom:2px">고사</div><b id="iv-dead" style="color:var(--text)">-</b></div>
+      <div><div style="font-size:10px;margin-bottom:2px">수확불능</div><b id="iv-unable" style="color:var(--text)">-</b></div>
+      <div><div style="font-size:10px;margin-bottom:2px">미보상고사</div><b id="iv-uninsDead" style="color:var(--text)">-</b></div>
+      <div><div style="font-size:10px;margin-bottom:2px">미보상미고사</div><b id="iv-uninsAlive" style="color:var(--text)">-</b></div>
+    </div>
   </div>
 
-  <button onclick="applyIntervalToVarieties()" style="width:100%;margin-top:4px;height:48px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer">착과수 입력으로 →</button>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+    <button onclick="setEditModeFromTree()" id="btn-edit-tree" style="height:48px;border:2px solid var(--green);border-radius:var(--rs);background:white;color:var(--green);font-size:15px;font-weight:700;cursor:pointer">✏️ 수정하기</button>
+    <button onclick="applyIntervalToVarieties()" style="height:48px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer">착과수 입력으로 →</button>
+  </div>
 </div>
 
 
@@ -314,81 +323,31 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 
     <!-- 평년착과수 입력 -->
     <div style="padding:10px 14px;background:var(--card);border-top:0.5px solid var(--border)">
-      <div class="field" style="max-width:33%">
-        <label>평년착과량(개)</label>
-        <input type="text" id="avg_fruit" autocomplete="off" class="inp" inputmode="decimal" placeholder="0"
-          enterkeyhint="next"
-          oninput="onCommaInput(this);onInput();resetCalcBtn()"
-          onblur="saveState()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();setTimeout(()=>{if(!canMoveToFruitTab()){showToast('실제결과주수를 먼저 입력해 주세요');return;}applyIntervalToVarieties();setTimeout(()=>{const first=document.querySelector('#variety-list .sample-section.open input[type=number]');if(first)first.focus();},200);},150)}">
-      </div>
-    </div>
-
-    <!-- 접기/펼치기 헤더 -->
-    <div class="collapse-head" onclick="toggleBasicInfo()">
-      <span class="collapse-lbl">① 기본정보 상세</span>
-      <div class="collapse-toggle">
-        <span id="info-toggle-lbl">상세보기</span>
-        <span class="collapse-icon" id="info-toggle-icon">▼</span>
-      </div>
-    </div>
-
-    <!-- 접히는 상세 내용 -->
-    <div class="collapse-body" id="basic-info-body">
-      <div style="padding:12px 14px 14px">
-        <!-- 1열: 고사주수 / 수확불능주수 / 미보상고사 / 미보상미고사 -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
-          <div class="field">
-            <label>고사주수</label>
-            <input type="text" id="total_dead" class="auto" readonly>
-          </div>
-          <div class="field">
-            <label>수확불능주수</label>
-            <input type="text" id="total_unable" class="auto" readonly>
-          </div>
-          <div class="field">
-            <label>미보상고사</label>
-            <input type="text" id="total_uninsDead" class="auto" readonly>
-          </div>
-          <div class="field">
-            <label>미보상미고사</label>
-            <input type="text" id="total_uninsAlive" class="auto" readonly>
-          </div>
-        </div>
-        <!-- 2열: 표본착과수합 / 1주당착과수 / 착과수 / 계약변경여부 -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
-          <div class="field">
-            <label class="sm">표본착과수합</label>
-            <input type="text" id="total_sampleSum" class="auto" readonly>
-          </div>
-          <div class="field">
-            <label class="sm">1주당착과수</label>
-            <input type="text" id="total_perTree" class="auto" readonly>
-          </div>
-          <div class="field">
-            <label class="sm">착과수</label>
-            <input type="text" id="total_afterFruit" class="auto ok" readonly>
-          </div>
-          <div class="field">
-            <label class="sm">계약변경여부</label>
-            <input type="text" id="contract_yn" class="auto" readonly>
-          </div>
-        </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--sub);margin-bottom:4px">평년착과수(개)</div>
+        <input type="number" id="avg_fruit" inputmode="decimal" autocomplete="off"
+          placeholder="0" enterkeyhint="done"
+          style="width:160px;height:42px;border:2px solid var(--binp);border-radius:var(--rs);font-size:18px;font-weight:700;text-align:center;background:white;color:var(--text);-webkit-appearance:none;box-sizing:border-box"
+          oninput="this.classList.toggle('filled',!!this.value);this.style.borderColor=this.value?'var(--green)':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)';calcSummary();saveState()"
+          onfocus="this.select()" onblur="saveState()">
       </div>
     </div>
   </div>
-
-  <!-- hidden: JS 계산용 (요약바로 이동된 항목) -->
+  <!-- hidden: JS 계산용 -->
   <div style="display:none">
+    <input type="text" id="total_sampleSum">
+    <input type="text" id="total_perTree">
+    <input type="text" id="total_afterFruit">
+    <input type="text" id="contract_yn">
     <input type="text" id="total_trees">
     <input type="text" id="total_actual">
     <input type="text" id="total_survey_disp">
     <input type="text" id="total_sampleN">
     <input type="text" id="proper_sample">
   </div>
-  <div class="section">
+  <div class="section" style="padding-top:4px;margin-top:0">
     <div class="sec-head">
-      <div class="sec-title">② 품종별 조사 <span id="variety-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+      <div class="sec-title">품종별 조사 <span id="variety-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
     </div>
     <div id="variety-list"></div>
 
@@ -642,7 +601,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 let setupRows = [];
 
 function openSetupPopup() {
-  const avg = document.getElementById('avg_fruit').value;
+  const avg = document.getElementById('avg_fruit')?.value || '';
   document.getElementById('count-avg-disp').textContent = avg ? avg+'개' : '';
   document.getElementById('count-overlay').style.display = 'flex';
 }
@@ -660,7 +619,7 @@ function selectCount(n) {
       actual: v?.actual || '',
     });
   }
-  const avg = document.getElementById('avg_fruit').value;
+  const avg = document.getElementById('avg_fruit')?.value || '';
   document.getElementById('setup-avg-disp').textContent = avg ? avg+'개' : '';
   renderSetupRows();
   document.getElementById('setup-overlay').style.display = 'flex';
@@ -785,7 +744,21 @@ function updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample){
     snEl.className = 'sum-val' + (totalSampleN > 0 && properSample > 0 && totalSampleN < properSample ? ' warn' : '');
   }
   if(spEl) spEl.textContent = properSample > 0 ? properSample : '-';
+  // 나무조사탭 하단 고사/수확불능 업데이트
+  // intervalData가 있으면 우선 사용 (나무조사탭), 없으면 varieties
+  const _src = (typeof intervalData !== 'undefined' && intervalData.some(d=>d.dead||d.unable||d.uninsDead||d.uninsAlive))
+    ? intervalData.slice(0, typeof intervalCount!=='undefined'?intervalCount:intervalData.length)
+    : varieties;
+  const _deadV = _src.reduce((s,v)=>s+(v.dead||0),0);
+  const _unableV = _src.reduce((s,v)=>s+(v.unable||0),0);
+  const _uninsDeadV = _src.reduce((s,v)=>s+(v.uninsDead||0),0);
+  const _uninsAliveV = _src.reduce((s,v)=>s+(v.uninsAlive||0),0);
+  set('sv-dead', _deadV>0?_deadV:'-', '주');
+  set('sv-unable', _unableV>0?_unableV:'-', '주');
+  set('sv-uninsDead', _uninsDeadV>0?_uninsDeadV:'-', '주');
+  set('sv-uninsAlive', _uninsAliveV>0?_uninsAliveV:'-', '주');
 }
+
 function showToast(msg, duration=2200){
   const t=document.getElementById('toast-msg');
   t.textContent=msg; t.style.display='block';
@@ -793,8 +766,12 @@ function showToast(msg, duration=2200){
   t._timer=setTimeout(()=>t.style.display='none', duration);
 }
 function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
+function setEditModeFromTree(){
+  setEditMode();
+  showToast('수정 가능합니다');
+}
 // 천단위 구분 입력
-function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
+function toNum(el){ return el ? parseFloat((el.value||'').replace(/,/g,''))||0 : 0; }
 function onCommaInput(el){
   const raw = el.value.replace(/,/g,'').replace(/[^0-9.]/g,'');
   const parts = raw.split('.');
@@ -831,6 +808,7 @@ function setMode(m) {
   document.getElementById('mode-tab-0').style.borderBottomColor = m===0 ? 'var(--blue)' : 'transparent';
   document.getElementById('mode-tab-1').style.color = m===1 ? 'var(--blue)' : 'var(--hint)';
   document.getElementById('mode-tab-1').style.borderBottomColor = m===1 ? 'var(--blue)' : 'transparent';
+  saveState();
   // 착과수탭 진입 시 평년착과수 미입력이면 자동 포커스
   if(m === 1) setTimeout(()=>{
     const _af = document.getElementById('avg_fruit');
@@ -883,13 +861,13 @@ function renderIntervalRows() {
           <div style="font-size:11px;color:var(--blue);font-weight:700;text-align:center">품종${i+1}</div>
           <input type="number" value="${d.reg||''}" placeholder="" inputmode="decimal"
             style="text-align:center;font-size:14px;height:34px;border:1.5px solid ${d.reg?'#1D9E75':'var(--binp)'};background:${d.reg?'#e8faf3':'white'};border-radius:var(--rs);color:${d.reg?'#0d5c35':'var(--text)'};min-width:0;width:100%"
-            onfocus="this.select()"
+            id="reg-${i}" onfocus="this.select()"
             oninput="intervalData[${i}].reg=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'"
             onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].reg=+this.value||0;const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _arr=Array.from(_rows);const _idx=_arr.indexOf(this);if(_arr[_idx+1]){_arr[_idx+1].focus();}}"
             onblur="intervalData[${i}].reg=+this.value||0;if(!event.relatedTarget||!event.relatedTarget.closest('#interval-rows-1'))renderIntervalRows()">
           <input type="number" value="${d.actual||''}" placeholder="" inputmode="decimal"
             style="text-align:center;font-size:14px;height:34px;border:1.5px solid ${d.actual?'#1D9E75':'var(--binp)'};background:${d.actual?'#e8faf3':'white'};border-radius:var(--rs);color:${d.actual?'#0d5c35':'var(--text)'};min-width:0;width:100%"
-            onfocus="this.select()"
+            id="actual-${i}" onfocus="this.select()"
             oninput="intervalData[${i}].actual=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'"
             onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].actual=+this.value||0;const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _arr=Array.from(_rows);const _idx=_arr.indexOf(this);if(_arr[_idx+1]){_arr[_idx+1].focus();}else{renderIntervalRows();}}"
             onblur="intervalData[${i}].actual=+this.value||0;if(!event.relatedTarget||!event.relatedTarget.closest('#interval-rows-1'))renderIntervalRows()">
@@ -910,25 +888,25 @@ function renderIntervalRows() {
               <label style="font-size:11px">고사주수</label>
               <input type="number" id="tree-dead-${i}" class="inp${d.dead>0?' filled':''}" value="${d.dead||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].dead=+this.value||0;document.getElementById('tree-unable-${i}')?.focus();}" onblur="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
+                oninput="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].dead=+this.value||0;document.getElementById('tree-unable-${i}')?.focus();}" onblur="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&((_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}'))||_rt.id==='reg-${i}'||_rt.id==='actual-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">수확불능</label>
               <input type="number" id="tree-unable-${i}" class="inp${d.unable>0?' filled':''}" value="${d.unable||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].unable=+this.value||0;document.getElementById('tree-uninsDead-${i}')?.focus();}" onblur="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
+                oninput="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].unable=+this.value||0;document.getElementById('tree-uninsDead-${i}')?.focus();}" onblur="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&((_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}'))||_rt.id==='reg-${i}'||_rt.id==='actual-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">미보상고사</label>
               <input type="number" id="tree-uninsDead-${i}" class="inp${d.uninsDead>0?' filled':''}" value="${d.uninsDead||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsDead=+this.value||0;document.getElementById('tree-uninsAlive-${i}')?.focus();}" onblur="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
+                oninput="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsDead=+this.value||0;document.getElementById('tree-uninsAlive-${i}')?.focus();}" onblur="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&((_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}'))||_rt.id==='reg-${i}'||_rt.id==='actual-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}saveState()">
             </div>
             <div class="field">
               <label style="font-size:11px">미보상미고사</label>
               <input type="number" id="tree-uninsAlive-${i}" class="inp${d.uninsAlive>0?' filled':''}" value="${d.uninsAlive||''}" inputmode="decimal" placeholder="0주" autocomplete="off"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;intervalData[${i}].treeOpen=false;renderIntervalRows();setTimeout(()=>{const _rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const _regInputs=Array.from(_rows).filter(el=>!el.id||!el.id.startsWith('tree-'));if(_regInputs[${i}*2+2])_regInputs[${i}*2+2].focus();else if(_regInputs[${i}*2+3])_regInputs[${i}*2+3].focus();},50);}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}">
+                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;intervalData[${i}].treeOpen=false;renderIntervalRows();setTimeout(()=>{const _next=document.getElementById('reg-${i+1}');if(_next)_next.focus();},50);}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);const _rt=event.relatedTarget;const _inTree=_rt&&_rt.id&&((_rt.id.startsWith('tree-')&&_rt.id.endsWith('-${i}'))||_rt.id==='reg-${i+1}'||_rt.id==='actual-${i+1}');if(!_inTree){intervalData[${i}].treeOpen=false;renderIntervalRows();}">
             </div>
           </div>
           <div style="margin-top:8px;font-size:12px;color:var(--sub)">
@@ -948,6 +926,20 @@ function renderIntervalRows() {
 
   const tv = document.getElementById('iv-total');
   const pv = document.getElementById('iv-proper');
+  // 고사/수확불능 표시
+  const _id = document.getElementById('iv-dead');
+  const _iu = document.getElementById('iv-unable');
+  const _iud = document.getElementById('iv-uninsDead');
+  const _iua = document.getElementById('iv-uninsAlive');
+  const _dead = intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.dead||0),0);
+  const _unable = intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.unable||0),0);
+  const _uninsDead = intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.uninsDead||0),0);
+  const _uninsAlive = intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.uninsAlive||0),0);
+  if(_id) _id.textContent = _dead > 0 ? _dead+'주' : '-';
+  if(_iu) _iu.textContent = _unable > 0 ? _unable+'주' : '-';
+  if(_iud) _iud.textContent = _uninsDead > 0 ? _uninsDead+'주' : '-';
+  if(_iua) _iua.textContent = _uninsAlive > 0 ? _uninsAlive+'주' : '-';
+
   const rv = document.getElementById('iv-reg-total');
   const av = document.getElementById('iv-actual-total');
   const regTotal = intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.reg||0),0);
@@ -1600,10 +1592,10 @@ function onInput() {
   }, 0);
 
   const totalActual = varieties.reduce((s,v) => s + (v.actual||0), 0);
-  document.getElementById('total_trees').value = totalReg > 0 ? totalReg.toLocaleString()+'주' : '';
-  document.getElementById('total_actual').value = totalActual > 0 ? totalActual.toLocaleString()+'주' : '';
-  document.getElementById('total_survey_disp').value = totalSurvey > 0 ? totalSurvey.toLocaleString()+'주' : '';
-  document.getElementById('proper_sample').value = properSample > 0 ? properSample+'주' : '';
+  {const _el=document.getElementById('total_trees'); if(_el) _el.value=totalReg > 0 ? totalReg.toLocaleString()+'주' : '';}
+  {const _el=document.getElementById('total_actual'); if(_el) _el.value=totalActual > 0 ? totalActual.toLocaleString()+'주' : '';}
+  {const _el=document.getElementById('total_survey_disp'); if(_el) _el.value=totalSurvey > 0 ? totalSurvey.toLocaleString()+'주' : '';}
+  {const _el=document.getElementById('proper_sample'); if(_el) _el.value=properSample > 0 ? properSample+'주' : '';}
   // 2열: 고사/수확불능/미보상고사/미보상미고사 합계
   const totalDead = varieties.reduce((s,v) => s+(v.dead||0), 0);
   const totalUnable = varieties.reduce((s,v) => s+(v.unable||0), 0);
@@ -1780,7 +1772,7 @@ function doCalc(manual = false) {
 // ── localStorage 저장/불러오기 ────────────────────
 function saveState(){
   try{
-    allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
+    allData[currentCrop].avgFruit = document.getElementById('avg_fruit')?.value ?? allData[currentCrop].avgFruit ?? '';
     allData[currentCrop].varieties = varieties;
     localStorage.setItem('fruit_multi_state', JSON.stringify({
       currentMode,
@@ -1815,8 +1807,10 @@ function loadState(){
       if(pn > 0) { while(v.samples.length > pn && v.samples[v.samples.length-1]==='') v.samples.pop(); }
     });
     const af = document.getElementById('avg_fruit');
-    af.value = allData[currentCrop].avgFruit || '';
-    if(af.value) af.classList.add('filled');
+    if(af){
+      af.value = allData[currentCrop].avgFruit || '';
+      if(af.value) af.classList.add('filled');
+    }
     if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
     return true;
   }catch(e){ return false; }
