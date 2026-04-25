@@ -1909,7 +1909,13 @@ async function saveImage() {
       </tr>`;
     }).join('');
 
-    const totalPerTree = totalSampleN>0 ? totalSampleSum/totalSampleN : 0;
+    // 전산 기준: 품종별 1주당 착과수 단순 합산
+    const totalPerTree = varieties.reduce((s,v) => {
+      const validS = v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x)));
+      const sN = validS.length;
+      const sSum = validS.reduce((a,x)=>a+parseFloat(x),0);
+      return s + (sN>0 ? Math.round(sSum/sN) : 0);
+    }, 0);
     const totalRegSum    = varieties.reduce((s,v)=>s+(v.reg||0),0);
     const totalActualSum = varieties.reduce((s,v)=>s+(v.actual||0),0);
     const totalDeadSum   = varieties.reduce((s,v)=>s+(v.dead||0),0);
