@@ -1023,9 +1023,8 @@ function applyIntervalToVarieties() {
     varieties[i].unable     = d.unable || 0;
     varieties[i].uninsDead  = d.uninsDead || 0;
     varieties[i].uninsAlive = d.uninsAlive || 0;
-    const alreadyVisited = varieties[i].samples.some(s => s !== '');
-    varieties[i].cardOpen   = alreadyVisited ? varieties[i].cardOpen : true;
-    varieties[i].open       = alreadyVisited ? varieties[i].open : true;
+    varieties[i].cardOpen   = true;
+    varieties[i].open      = true;
     while(varieties[i].samples.length < properN) varieties[i].samples.push('');
     while(varieties[i].samples.length > properN && varieties[i].samples[varieties[i].samples.length-1]==='')
       varieties[i].samples.pop();
@@ -1181,13 +1180,14 @@ function renderVarieties(totalSurvey) {
 
     // 표본주 그리드 (4열) - 실제 samples 길이 기준
     const _total = v.samples.length;
+    const _offset = varieties.slice(0, vi).reduce((s, vv) => s + vv.samples.length, 0);
     let samplesHtml = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px">`;
     for(let si=0; si<_total; si++){
       const s = v.samples[si] || '';
       const filled = s!=='' && !isNaN(parseFloat(s));
       const isLast = si === _total - 1;
       samplesHtml += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-        <span style="font-size:10px;font-weight:700;color:var(--hint)">${si+1}</span>
+        <span style="font-size:13px;font-weight:800;color:var(--sub)">${_offset+si+1}</span>
         <input type="number" value="${s}" inputmode="decimal" placeholder=""
           enterkeyhint="${isLast?'done':'next'}"
           style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
@@ -1408,13 +1408,14 @@ function renderSamplesOnly(vi) {
   const properN = surveyTarget>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
   while(v.samples.length < properN) v.samples.push('');
   const _total = Math.max(v.samples.length, properN);
+  const _offset = varieties.slice(0, vi).reduce((s, vv) => s + vv.samples.length, 0);
   let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px">`;
   for(let si=0; si<_total; si++){
     const s = v.samples[si]||'';
     const filled = s!==''&&!isNaN(parseFloat(s));
     const isLast = si===_total-1;
     html += `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-      <span style="font-size:10px;font-weight:700;color:var(--hint)">${si+1}</span>
+      <span style="font-size:13px;font-weight:800;color:var(--sub)">${_offset+si+1}</span>
       <input type="number" value="${s}" inputmode="decimal" placeholder=""
         enterkeyhint="${isLast?'done':'next'}"
         style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
