@@ -817,10 +817,9 @@ function showToast(msg, duration=2200){
 }
 function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
 function setEditModeFromTree(){
-  // 착과수탭으로 이동 후 수정하기 모드 진입
-  if(!canMoveToFruitTab()){ showToast('실제결과주수를 먼저 입력해 주세요'); return; }
-  applyIntervalToVarieties();
-  setTimeout(()=>{ if(typeof setEditMode==='function') setEditMode(); }, 100);
+  // 나무조사탭 잠금 해제 — 탭 이동 없이 수정 가능하게
+  setEditMode();
+  showToast('수정 가능합니다');
 }
 // 천단위 구분 입력
 function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
