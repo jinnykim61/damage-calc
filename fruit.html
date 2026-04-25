@@ -1111,8 +1111,9 @@ function getProperSample(total) {
 function renderVarieties(totalSurvey, totalProper) {
   if (totalSurvey === undefined) {
     totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
-    totalProper = getProperSample(totalSurvey);
   }
+  // 항상 totalSurvey 기준으로 재계산 — 외부 전달값 무시 (min:1 보정된 합산값 유입 방지)
+  totalProper = getProperSample(totalSurvey);
   const container = document.getElementById('variety-list');
   const badge = document.getElementById('variety-count-badge');
   badge.textContent = `(${varieties.length}품종)`;
@@ -1618,7 +1619,7 @@ function onInput() {
   contractEl.style.color = needReview ? '#e24b4a' : '';
   contractEl.style.fontWeight = needReview ? '700' : '';
 
-  renderVarieties(totalSurvey, properSample);
+  renderVarieties(totalSurvey, getProperSample(totalSurvey));
 }
 
 // ── 계산 실행 ─────────────────────────────────────
