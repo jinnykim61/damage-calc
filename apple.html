@@ -917,10 +917,16 @@ function renderIntervalRows() {
           <div style="font-size:11px;color:var(--blue);font-weight:700;text-align:center">품종${i+1}</div>
           <input type="number" value="${d.reg||''}" placeholder="가입주수" inputmode="decimal"
             style="text-align:center;font-size:10px;height:34px;border:1.5px solid ${d.reg?'#1D9E75':'var(--binp)'};background:${d.reg?'#e8faf3':'white'};border-radius:var(--rs);color:${d.reg?'#0d5c35':'var(--text)'};min-width:0;width:100%"
-            oninput="intervalData[${i}].reg=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'" onblur="renderIntervalRows()">
+            onfocus="this.select()"
+            oninput="intervalData[${i}].reg=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();const rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const arr=Array.from(rows);const idx=arr.indexOf(this);if(arr[idx+1])arr[idx+1].focus();}"
+            onblur="renderIntervalRows()">
           <input type="number" value="${d.actual||''}" placeholder="실제결과주수" inputmode="decimal"
             style="text-align:center;font-size:10px;height:34px;border:1.5px solid ${d.actual?'#1D9E75':'var(--binp)'};background:${d.actual?'#e8faf3':'white'};border-radius:var(--rs);color:${d.actual?'#0d5c35':'var(--text)'};min-width:0;width:100%"
-            oninput="intervalData[${i}].actual=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'" onblur="renderIntervalRows()">
+            onfocus="this.select()"
+            oninput="intervalData[${i}].actual=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();const rows=document.querySelectorAll('#interval-rows-1 input[type=number]');const arr=Array.from(rows);const idx=arr.indexOf(this);if(arr[idx+1])arr[idx+1].focus();}"
+            onblur="renderIntervalRows()">
           <div style="text-align:center">
             ${pn>0&&sv>0 ? `<span style="font-size:11px;font-weight:800;color:#e24b4a">${pn}주·${gap}칸</span>` : '<span style="font-size:11px;color:var(--hint)">-</span>'}
           </div>
