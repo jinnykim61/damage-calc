@@ -1080,7 +1080,7 @@ function updateTreeSummary(showZero) {
   const fmt = (id, val) => {
     const el = document.getElementById(id);
     if(!el) return;
-    el.value = (showZero || val > 0) ? val.toLocaleString()+'주' : '';
+    el.value = val > 0 ? val.toLocaleString()+'주' : '-';
   };
   fmt('total_dead',      totalDead);
   fmt('total_unable',    totalUnable);
@@ -1766,7 +1766,7 @@ function saveState(){
     allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
     allData[currentCrop].varieties = varieties;
     localStorage.setItem('fruit_multi_state', JSON.stringify({
-      currentMode: 0,
+      currentMode,
       allData,
       isLocked: _isLocked,
       intervalData,
@@ -1872,7 +1872,6 @@ async function saveImage() {
     document.getElementById('cap-avg').textContent    = avgFruit>0 ? avgFruit.toLocaleString()+'개' : '-';
     document.getElementById('cap-reg').textContent    = totalReg>0 ? totalReg.toLocaleString()+'주' : '-';
     document.getElementById('cap-survey').textContent = totalSurvey>0 ? totalSurvey.toLocaleString()+'주' : '-';
-    document.getElementById('cap-rate').textContent   = totalAfterFruit>0 ? Math.round(totalAfterFruit).toLocaleString()+'개' : '-';
     document.getElementById('cap-total').textContent  = totalAfterFruit>0 ? Math.round(totalAfterFruit).toLocaleString()+'개' : '-';
     const contractEl = document.getElementById('cap-contract');
     contractEl.textContent = needReview ? '계약변경' : '이상무';

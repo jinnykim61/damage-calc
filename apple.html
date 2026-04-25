@@ -1802,7 +1802,7 @@ function saveState(){
     allData[currentCrop].varieties = varieties;
     localStorage.setItem('apple_multi_state', JSON.stringify({
       currentCrop,
-      currentMode: 0,
+      currentMode,
       allData,
       isLocked: _isLocked,
       intervalData,
