@@ -1023,8 +1023,9 @@ function applyIntervalToVarieties() {
     varieties[i].unable     = d.unable || 0;
     varieties[i].uninsDead  = d.uninsDead || 0;
     varieties[i].uninsAlive = d.uninsAlive || 0;
-    varieties[i].cardOpen   = true;
-    varieties[i].open      = true;
+    const alreadyVisited = varieties[i].samples.some(s => s !== '');
+    varieties[i].cardOpen   = alreadyVisited ? varieties[i].cardOpen : true;
+    varieties[i].open       = alreadyVisited ? varieties[i].open : true;
     while(varieties[i].samples.length < properN) varieties[i].samples.push('');
     while(varieties[i].samples.length > properN && varieties[i].samples[varieties[i].samples.length-1]==='')
       varieties[i].samples.pop();
@@ -1241,9 +1242,9 @@ function renderVarieties(totalSurvey) {
       <!-- 카드 헤더 (항상 표시) -->
       <div onclick="toggleCard(${vi})" style="display:flex;align-items:center;gap:10px;cursor:pointer;${cardOpen?'margin-bottom:10px;':'background:#185FA5;padding:12px 14px;border-radius:10px;'}">
         <div class="variety-num" style="flex-shrink:0;${!cardOpen?'background:rgba(255,255,255,0.2);color:#fff;border:none;':''}">${vi+1}</div>
-        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:hidden">
-          <div id="card-name-${vi}" style="font-size:14px;font-weight:700;color:${cardOpen?'var(--text)':'#fff'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0">${displayName}${v.age>0?` ${v.age}년`:''}</div>
-          <div id="card-summary-${vi}" style="font-size:14px;display:${cardOpen?'none':'flex'};align-items:center;gap:5px;flex-shrink:0;white-space:nowrap">${sampleOk?`<span style="color:#A8F0D8;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ✅</span>`:`<span style="color:#FFD0A0;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ⚠️</span>`}<span style="color:rgba(255,255,255,0.35)">|</span><span style="color:#fff;font-weight:800">${fruitStatus}</span></div>
+        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div id="card-name-${vi}" style="font-size:14px;font-weight:700;color:${cardOpen?'var(--text)':'#fff'};white-space:nowrap">${displayName}${v.age>0?` ${v.age}년`:''}</div>
+          <div id="card-summary-${vi}" style="font-size:14px;display:${cardOpen?'none':'flex'};align-items:center;gap:5px">${sampleOk?`<span style="color:#A8F0D8;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ✅</span>`:`<span style="color:#FFD0A0;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ⚠️</span>`}<span style="color:rgba(255,255,255,0.35)">|</span><span style="color:#fff;font-weight:800">${fruitStatus}</span></div>
         </div>
         <span id="card-icon-${vi}" style="font-size:14px;color:${cardOpen?'var(--sub)':'rgba(255,255,255,0.8)'};flex-shrink:0">${cardOpen?'▼':'▶'}</span>
       </div>
@@ -1372,8 +1373,6 @@ function updateCardSummary(vi) {
   if(summaryEl){
     summaryEl.style.display = cardOpen ? 'none' : 'flex';
     summaryEl.style.fontSize = '14px';
-    summaryEl.style.flexShrink = '0';
-    summaryEl.style.whiteSpace = 'nowrap';
     const sOk = properN>0 && validS.length>=properN;
     const sSpan = sOk
       ? `<span style="color:#A8F0D8;font-weight:700">표본 ${validS.length}/${properN}주 ✅</span>`
