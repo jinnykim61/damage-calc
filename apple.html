@@ -952,25 +952,25 @@ function renderIntervalRows() {
               <label style="font-size:11px">고사주수</label>
               <input type="number" class="inp${d.dead>0?' filled':''}" value="${d.dead||''}" inputmode="decimal" placeholder="0주"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value)" onblur="renderIntervalRows()">
+                oninput="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].dead=+this.value||0;const _ti=this.closest('[style*=grid]').querySelectorAll('input[type=number]');const _idx=Array.from(_ti).indexOf(this);if(_ti[_idx+1])_ti[_idx+1].focus();}" onblur="intervalData[${i}].dead=+this.value||0;this.classList.toggle('filled',!!this.value);renderIntervalRows()">
             </div>
             <div class="field">
               <label style="font-size:11px">수확불능</label>
               <input type="number" class="inp${d.unable>0?' filled':''}" value="${d.unable||''}" inputmode="decimal" placeholder="0주"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value)" onblur="renderIntervalRows()">
+                oninput="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].unable=+this.value||0;const _ti=this.closest('[style*=grid]').querySelectorAll('input[type=number]');const _idx=Array.from(_ti).indexOf(this);if(_ti[_idx+1])_ti[_idx+1].focus();}" onblur="intervalData[${i}].unable=+this.value||0;this.classList.toggle('filled',!!this.value);renderIntervalRows()">
             </div>
             <div class="field">
               <label style="font-size:11px">미보상고사</label>
               <input type="number" class="inp${d.uninsDead>0?' filled':''}" value="${d.uninsDead||''}" inputmode="decimal" placeholder="0주"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value)" onblur="renderIntervalRows()">
+                oninput="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsDead=+this.value||0;const _ti=this.closest('[style*=grid]').querySelectorAll('input[type=number]');const _idx=Array.from(_ti).indexOf(this);if(_ti[_idx+1])_ti[_idx+1].focus();}" onblur="intervalData[${i}].uninsDead=+this.value||0;this.classList.toggle('filled',!!this.value);renderIntervalRows()">
             </div>
             <div class="field">
               <label style="font-size:11px">미보상미고사</label>
               <input type="number" class="inp${d.uninsAlive>0?' filled':''}" value="${d.uninsAlive||''}" inputmode="decimal" placeholder="0주"
                 style="height:34px;font-size:13px"
-                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onblur="renderIntervalRows()">
+                oninput="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].uninsAlive=+this.value||0;intervalData[${i}].treeOpen=false;this.blur();renderIntervalRows();}" onblur="intervalData[${i}].uninsAlive=+this.value||0;this.classList.toggle('filled',!!this.value);if(!event.relatedTarget||!event.relatedTarget.closest('#interval-rows-1')){intervalData[${i}].treeOpen=false;renderIntervalRows();}">
             </div>
           </div>
           <div style="margin-top:8px;font-size:12px;color:var(--sub)">
