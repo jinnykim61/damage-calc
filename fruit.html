@@ -1150,10 +1150,10 @@ function renderVarieties(totalSurvey, totalProper) {
           style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
           oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi});resetCalcBtn();saveState()"
           onfocus="this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';"
-          onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
+          onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState();${isLast?`if(varieties[${vi}].cardOpen!==false){const _ts=varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);const _tp=getProperSample(_ts);const _st=getSurveyTarget(varieties[${vi}]);const _pn=_st>0&&_ts>0?Math.max(1,Math.ceil(_tp*_st/_ts)):0;const _done=varieties[${vi}].samples.filter(s=>s!==''&&!isNaN(parseFloat(s))).length;if(_pn>0&&_done>=_pn)setTimeout(()=>collapseCard(${vi}),300);}`:''}"
           onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast
             ? (vi < varieties.length-1
-                ? `varieties[${vi}].samples[${si}]=this.value;const _nextSS=document.getElementById('ss-${vi+1}');if(_nextSS){if(varieties[${vi+1}].open===false){varieties[${vi+1}].open=true;onInput();}setTimeout(()=>{const _ni2=document.querySelector('#ss-${vi+1} input[type=number]');if(_ni2)_ni2.focus();},100);}`
+                ? `varieties[${vi}].samples[${si}]=this.value;const _ts2=varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);const _tp2=getProperSample(_ts2);const _st2=getSurveyTarget(varieties[${vi}]);const _pn2=_st2>0&&_ts2>0?Math.max(1,Math.ceil(_tp2*_st2/_ts2)):0;const _done2=varieties[${vi}].samples.filter(s=>s!==''&&!isNaN(parseFloat(s))).length;if(_pn2>0&&_done2>=_pn2)collapseCard(${vi});const _nextSS=document.getElementById('ss-${vi+1}');if(_nextSS){if(varieties[${vi+1}].open===false){varieties[${vi+1}].open=true;onInput();}setTimeout(()=>{const _ni2=document.querySelector('#ss-${vi+1} input[type=number]');if(_ni2)_ni2.focus();},100);}`
                 : `varieties[${vi}].samples[${si}]=this.value;setTimeout(()=>doCalc(),50);`)
             : `const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
       </div>`;
@@ -1612,7 +1612,7 @@ function onInput() {
   contractEl.style.color = needReview ? '#e24b4a' : '';
   contractEl.style.fontWeight = needReview ? '700' : '';
 
-  renderVarieties(totalSurvey, getProperSample(totalSurvey));
+  renderVarieties(totalSurvey, properSample);
 }
 
 // ── 계산 실행 ─────────────────────────────────────
@@ -1759,7 +1759,7 @@ function saveState(){
     allData[currentCrop].avgFruit = document.getElementById('avg_fruit').value;
     allData[currentCrop].varieties = varieties;
     localStorage.setItem('fruit_multi_state', JSON.stringify({
-      currentMode,
+      currentMode: 0,
       allData,
       isLocked: _isLocked,
       intervalData,
