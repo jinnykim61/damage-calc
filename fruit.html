@@ -325,7 +325,8 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
         <input type="text" id="avg_fruit" class="inp" inputmode="decimal" placeholder="0"
           enterkeyhint="next"
           oninput="onCommaInput(this);onInput();resetCalcBtn()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();if(this.value)openSetupPopup()}">
+          onblur="saveState()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();setTimeout(()=>{if(!canMoveToFruitTab()){showToast('실제결과주수를 먼저 입력해 주세요');return;}applyIntervalToVarieties();setTimeout(()=>{const first=document.querySelector('#variety-list .sample-section.open input[type=number]');if(first)first.focus();},200);},150)}">
       </div>
     </div>
 
@@ -1000,11 +1001,11 @@ function applyIntervalToVarieties() {
     varieties[i].unable     = d.unable || 0;
     varieties[i].uninsDead  = d.uninsDead || 0;
     varieties[i].uninsAlive = d.uninsAlive || 0;
-    varieties[i].cardOpen   = true;
-    varieties[i].open      = true;
+    const alreadyVisited = varieties[i].samples.some(s => s !== '');
+    varieties[i].cardOpen   = alreadyVisited ? varieties[i].cardOpen : true;
+    varieties[i].open       = alreadyVisited ? varieties[i].open : true;
     while(varieties[i].samples.length < properN) varieties[i].samples.push('');
-    while(varieties[i].samples.length > properN && varieties[i].samples[varieties[i].samples.length-1]==='')
-      varieties[i].samples.pop();
+    if(varieties[i].samples.length > properN) varieties[i].samples.splice(properN);
   });
 
   saveState();
@@ -1180,9 +1181,13 @@ function renderVarieties(totalSurvey, totalProper) {
           enterkeyhint="${isLast?'done':'next'}"
           style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
           oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi});resetCalcBtn()"
-          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
+          onfocus="this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';"
           onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;${vi===varieties.length-1?'setTimeout(()=>doCalc(),50);':''}`:`const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
+          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast
+            ? (vi < varieties.length-1
+                ? `varieties[${vi}].samples[${si}]=this.value;const _nextSS=document.getElementById('ss-${vi+1}');if(_nextSS){if(varieties[${vi+1}].open===false){varieties[${vi+1}].open=true;onInput();}setTimeout(()=>{const _ni2=document.querySelector('#ss-${vi+1} input[type=number]');if(_ni2)_ni2.focus();},100);}`
+                : `varieties[${vi}].samples[${si}]=this.value;setTimeout(()=>doCalc(),50);`)
+            : `const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
       </div>`;
     }
     samplesHtml += '</div>';
@@ -1202,7 +1207,7 @@ function renderVarieties(totalSurvey, totalProper) {
       return `<div class="field">
         <label>${label}</label>
         <input type="number" class="inp${filled?' filled':''}" value="${val||''}" inputmode="decimal" placeholder="${ph}"
-          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
+          onfocus="this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';"
           onblur="varieties[${vi}].${field}=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'${field}',this.value);saveState();${isTreeField?'onInput();resetCalcBtn();':''}"
           oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].${field}=+this.value||0"
           ${keydown}>
@@ -1226,9 +1231,9 @@ function renderVarieties(totalSurvey, totalProper) {
       <!-- 카드 헤더 (항상 표시) -->
       <div onclick="toggleCard(${vi})" style="display:flex;align-items:center;gap:10px;cursor:pointer;${cardOpen?'margin-bottom:10px;':'background:#185FA5;padding:12px 14px;border-radius:10px;'}">
         <div class="variety-num" style="flex-shrink:0;${!cardOpen?'background:rgba(255,255,255,0.2);color:#fff;border:none;':''}">${vi+1}</div>
-        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <div id="card-name-${vi}" style="font-size:14px;font-weight:700;color:${cardOpen?'var(--text)':'#fff'};white-space:nowrap">${displayName}${v.age>0?` ${v.age}년`:''}</div>
-          <div id="card-summary-${vi}" style="font-size:14px;display:${cardOpen?'none':'flex'};align-items:center;gap:5px">${_sampleOk?`<span style="color:#A8F0D8;font-weight:700">표본 ${_validS.length}/${properN>0?properN:0}주 ✅</span>`:`<span style="color:#FFD0A0;font-weight:700">표본 ${_validS.length}/${properN>0?properN:0}주 ⚠️</span>`}<span style="color:rgba(255,255,255,0.35)">|</span><span style="color:#fff;font-weight:800">${_fruitStatus}</span></div>
+        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:hidden">
+          <div id="card-name-${vi}" style="font-size:14px;font-weight:700;color:${cardOpen?'var(--text)':'#fff'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0">${displayName}${v.age>0?` ${v.age}년`:''}</div>
+          <div id="card-summary-${vi}" style="font-size:14px;display:${cardOpen?'none':'flex'};align-items:center;gap:5px;flex-shrink:0;white-space:nowrap">${_sampleOk?`<span style="color:#A8F0D8;font-weight:700">표본 ${_validS.length}/${properN>0?properN:0}주 ✅</span>`:`<span style="color:#FFD0A0;font-weight:700">표본 ${_validS.length}/${properN>0?properN:0}주 ⚠️</span>`}<span style="color:rgba(255,255,255,0.35)">|</span><span style="color:#fff;font-weight:800">${_fruitStatus}</span></div>
         </div>
         <span id="card-icon-${vi}" style="font-size:14px;color:${cardOpen?'var(--sub)':'rgba(255,255,255,0.8)'};flex-shrink:0">${cardOpen?'▼':'▶'}</span>
       </div>
@@ -1335,6 +1340,8 @@ function updateCardSummary(vi) {
   if(summaryEl){
     summaryEl.style.display = cardOpen ? 'none' : 'flex';
     summaryEl.style.fontSize = '14px';
+    summaryEl.style.flexShrink = '0';
+    summaryEl.style.whiteSpace = 'nowrap';
     const sOk = properN>0 && validS.length>=properN;
     const sSpan = sOk
       ? `<span style="color:#A8F0D8;font-weight:700">표본 ${validS.length}/${properN}주 ✅</span>`
@@ -1402,7 +1409,7 @@ function renderSamplesOnly(vi) {
         enterkeyhint="${isLast?'done':'next'}"
         style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
         oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi});resetCalcBtn()"
-        onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
+        onfocus="this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';"
         onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
         onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;`:`const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
     </div>`;
@@ -1821,6 +1828,7 @@ function saveState(){
     allData[currentCrop].varieties = varieties;
     localStorage.setItem('fruit_multi_state', JSON.stringify({
       currentCrop,
+      currentMode,
       allData,
       isLocked: _isLocked,
       intervalData,
@@ -1834,6 +1842,9 @@ function loadState(){
     const raw = localStorage.getItem('fruit_multi_state');
     if(!raw) return false;
     const s = JSON.parse(raw);
+    if(s.intervalData) intervalData = s.intervalData;
+    if(s.intervalCount) intervalCount = s.intervalCount;
+    if(s.currentMode !== undefined) currentMode = s.currentMode;
     if(s.allData) {
       for(const crop of Object.keys(allData)){
         if(s.allData[crop]){
@@ -2058,6 +2069,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
   setIntervalCount(intervalCount || 3);
   renderIntervalRows();
   onInput();
+  if(currentMode === 1){
+    document.getElementById('mode-section-0').style.display = 'none';
+    document.getElementById('mode-section-1').style.display = 'block';
+    document.getElementById('mode-tab-0').style.color = 'var(--hint)';
+    document.getElementById('mode-tab-0').style.borderBottomColor = 'transparent';
+    document.getElementById('mode-tab-1').style.color = 'var(--blue)';
+    document.getElementById('mode-tab-1').style.borderBottomColor = 'var(--blue)';
+  }
   if(allData[currentCrop].calcDone){
     doCalc(true);
   }
