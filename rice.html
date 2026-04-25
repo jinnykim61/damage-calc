@@ -744,6 +744,7 @@ function showResult(box, pctEl, avg, survey, eff, area, unins, pihaeyul, isDis){
 }
 
 function saveState(){
+  if(_isRestoring) return; // 복원 중에는 저장 차단
   const ids = ['avgYield','insArea','actArea','deadArea','uninsArea','preArea',
                'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture','surveyDate'];
   const state = {mode, disease: document.getElementById('dis-y')?.checked ? 'y' : 'n', isLocked: _isLocked};
@@ -954,6 +955,7 @@ if('serviceWorker' in navigator){
 
 // ── 계산하기 / 수정하기 모드 ─────────────────────
 let _isLocked = false;
+let _isRestoring = false; // 복원 중 saveState 차단용
 function setCalcMode(){
   _isLocked = true;
   document.querySelector('.content').classList.add('locked');
@@ -1036,8 +1038,9 @@ document.addEventListener('DOMContentLoaded', function(){
     // 저장된 표본값 복원 - calc 후 렌더링 완료 시점에 실행
     setTimeout(function(){
       try{
+        _isRestoring = true; // 복원 시작 — saveState 차단
         const raw = localStorage.getItem('rice_state');
-        if(!raw){ document.body.style.visibility='visible'; return; }
+        if(!raw){ _isRestoring = false; document.body.style.visibility='visible'; return; }
         const s = JSON.parse(raw);
         // 표본값 복원
         if(s.spVals && s.spVals.some(function(v){return v;})){
@@ -1062,6 +1065,7 @@ document.addEventListener('DOMContentLoaded', function(){
           document.getElementById('btn-edit').classList.remove('active');
         }
       }catch(e){}
+      _isRestoring = false; // 복원 완료 — saveState 허용
       document.body.style.visibility = 'visible';
     }, 50);
   }, 0);
