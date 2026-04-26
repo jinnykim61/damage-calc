@@ -333,7 +333,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
           style="width:160px;height:42px;border:2px solid var(--binp);border-radius:var(--rs);font-size:18px;font-weight:700;text-align:center;background:white;color:var(--text);box-sizing:border-box"
           oninput="const _raw=this.value.replace(/[^0-9]/g,'');this.value=_raw?Number(_raw).toLocaleString():'';
             this.classList.toggle('filled',!!_raw);this.style.borderColor=_raw?'var(--green)':'var(--binp)';this.style.background=_raw?'#e8faf3':'white';this.style.color=_raw?'#0d5c35':'var(--text)';onInput();saveState()"
-          onfocus="const _v=this.value.replace(/,/g,'');this.value=_v;this.select()"
+          onfocus="const _v=this.value.replace(/,/g,'');this.value=_v;this.select();this.style.borderColor='var(--blue)';this.style.background='#dceeff';this.style.color='#185FA5'"
           onblur="const _r=this.value.replace(/[^0-9]/g,'');this.value=_r?Number(_r).toLocaleString():'';saveState()"
           onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();
             setTimeout(()=>{
