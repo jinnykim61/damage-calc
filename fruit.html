@@ -799,17 +799,21 @@ function showToast(msg, duration=2200){
 }
 
 function closeTree(i) {
+  // tree 입력칸 현재 값 강제 저장 (blur 없이 닫힐 때 대비)
+  for(const f of ['dead','unable','uninsDead','uninsAlive']) {
+    const el = document.getElementById(`tree-${f}-${i}`);
+    if(el) intervalData[i][f] = +el.value || 0;
+  }
   intervalData[i].treeOpen = false;
   const body = document.getElementById('tree-body-' + i);
   if(body) body.style.display = 'none';
-  // 나무조사 버튼 색상 즉시 업데이트
+  // 나무조사 버튼 색상 즉시 업데이트 — id로 직접 찾기
   const d = intervalData[i];
   const hasTree = d.dead>0||d.unable>0||d.uninsDead>0||d.uninsAlive>0;
-  const btn = document.querySelector(`#interval-rows-1 .tree-btn-${i}`);
-  // 버튼은 row 내 button 태그로 직접 찾기
-  const rows = document.querySelectorAll('#interval-rows-1 > div');
-  if(rows[i]) {
-    const tBtn = rows[i].querySelector('button');
+  const treeBodyEl = document.getElementById(`tree-body-${i}`);
+  const rowEl = treeBodyEl ? treeBodyEl.parentElement : null;
+  if(rowEl) {
+    const tBtn = rowEl.querySelector('button');
     if(tBtn) {
       tBtn.style.borderColor = hasTree ? '#0F6E56' : 'var(--green)';
       tBtn.style.background  = hasTree ? 'var(--green)' : 'transparent';
