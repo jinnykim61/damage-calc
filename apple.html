@@ -828,6 +828,7 @@ function calcTreeResult() {
   const icntBtns = document.querySelectorAll('[id^="icnt-"]');
   if(rows1) rows1.style.pointerEvents = 'none';
   icntBtns.forEach(b => b.style.pointerEvents = 'none');
+  onInput();
   showToast('나무조사 완료 — 하단 요약을 확인하세요');
   saveState();
 }
