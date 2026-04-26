@@ -923,7 +923,7 @@ function renderIntervalRows() {
             style="text-align:center;font-size:14px;height:34px;border:1.5px solid ${d.actual?'#1D9E75':'var(--binp)'};background:${d.actual?'#e8faf3':'white'};border-radius:var(--rs);color:${d.actual?'#0d5c35':'var(--text)'};min-width:0;width:100%"
             id="actual-${i}" onfocus="this.select()"
             oninput="intervalData[${i}].actual=+this.value||0;this.style.borderColor=this.value?'#1D9E75':'var(--binp)';this.style.background=this.value?'#e8faf3':'white';this.style.color=this.value?'#0d5c35':'var(--text)'"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].actual=+this.value||0;onInput();saveState();setTimeout(()=>{const _next=document.getElementById('reg-${i+1}');if(_next)_next.focus();},30);}"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();intervalData[${i}].actual=+this.value||0;onInput();saveState();setTimeout(()=>{const _next=document.getElementById('reg-${i+1}');if(_next)_next.focus();else this.blur();},30);}"
             onblur="intervalData[${i}].actual=+this.value||0;onInput();saveState()">
           <div style="text-align:center">
             ${pn>0&&sv>0 ? `<span style="font-size:13px;font-weight:800;color:#e24b4a">${pn}주</span><span style="font-size:11px;color:var(--hint);margin:0 2px">·</span><span style="font-size:13px;font-weight:800;color:#185FA5">${gap}칸</span>` : '<span style="font-size:12px;color:var(--hint)">-</span>'}
