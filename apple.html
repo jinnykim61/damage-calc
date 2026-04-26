@@ -337,7 +337,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
           oninput="const _raw=this.value.replace(/[^0-9]/g,'');this.value=_raw?Number(_raw).toLocaleString():'';
             this.classList.toggle('filled',!!_raw);this.style.borderColor=_raw?'var(--green)':'var(--binp)';this.style.background=_raw?'#e8faf3':'white';this.style.color=_raw?'#0d5c35':'var(--text)';onInput();saveState()"
           onfocus="const _v=this.value.replace(/,/g,'');this.value=_v;this.select();this.style.borderColor='var(--blue)';this.style.background='#dceeff';this.style.color='#185FA5'"
-          onblur="const _r=this.value.replace(/[^0-9]/g,'');this.value=_r?Number(_r).toLocaleString():'';saveState()"
+          onblur="const _r=this.value.replace(/[^0-9]/g,'');this.value=_r?Number(_r).toLocaleString():'';this.style.borderColor=_r?'var(--green)':'var(--binp)';this.style.background=_r?'#e8faf3':'white';this.style.color=_r?'#0d5c35':'var(--text)';saveState()"
           onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();
             setTimeout(()=>{
               const _first=document.querySelector('#variety-list input[type=number]');
@@ -1195,7 +1195,7 @@ function renderVarieties(totalSurvey) {
           onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].samples[${si}]=this.value;calcVariety(${vi});${isLast
             ? (vi < varieties.length-1
                 ? `const _ts2=varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);const _tp2=getProperSample(_ts2);const _st2=getSurveyTarget(varieties[${vi}]);const _pn2=_st2>0&&_ts2>0?Math.max(1,Math.ceil(_tp2*_st2/_ts2)):0;const _done2=varieties[${vi}].samples.filter(s=>s!==''&&!isNaN(parseFloat(s))).length;if(_pn2>0&&_done2>=_pn2)collapseCard(${vi});const _nextSS=document.getElementById('ss-${vi+1}');if(_nextSS){const _ni=_nextSS.querySelector('input[type=number]');if(_ni){if(varieties[${vi+1}].open===false){varieties[${vi+1}].open=true;onInput();}setTimeout(()=>{const _ni2=document.querySelector('#ss-${vi+1} input[type=number]');if(_ni2)_ni2.focus();},100);}}`
-                : `setTimeout(()=>doCalc(),50);`)
+                : `this.blur();`)
             : `const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
       </div>`;
     }
