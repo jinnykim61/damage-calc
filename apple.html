@@ -844,8 +844,6 @@ function getProperSample(total) {
   return 17;
 }
 
-const currentCrop = 'apple';
-
 const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false, cardOpen:true});
 
 // ── 모드 탭 (표본간격 / 착과수 입력) ──────────────────
@@ -1053,6 +1051,8 @@ function applyIntervalToVarieties() {
   setMode(1);
   onInput();
 }
+
+const currentCrop = 'apple';
 
 const allData = {
   apple: { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
@@ -1812,7 +1812,7 @@ function loadState(){
       }
     }
     if(s.intervalData) intervalData = s.intervalData;
-    if(s.intervalCount) intervalCount = s.intervalCount;
+    // intervalCount는 기본값(2) 고정 — 복원하지 않음
     if(s.currentMode !== undefined) currentMode = s.currentMode;
     varieties = allData[currentCrop].varieties;
     // 로드 후 samples를 올바른 properN으로 강제 조정 (버그 데이터 복원 방지)

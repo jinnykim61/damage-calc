@@ -2,6 +2,9 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -210,8 +213,8 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <button class="back-btn" onclick="location.href='./index.html'">‹</button>
   <div class="header-icon">🍎</div>
   <div>
-    <h1>종합과수 착과수 계산기</h1>
-    <div class="header-sub">종합과수 · 착과수조사</div>
+    <h1>과수4종 착과수 계산기</h1>
+    <div class="header-sub">포도 · 복숭아 · 자두</div>
   </div>
 </div>
 
@@ -225,6 +228,9 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 <div style="display:flex;background:var(--card);border-bottom:0.5px solid var(--border);position:sticky;top:57px;z-index:99">
   <div id="mode-tab-0" onclick="event.preventDefault();setMode(0)" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--blue);border-bottom:2.5px solid var(--blue);cursor:pointer">🌿 나무조사</div>
   <div id="mode-tab-1" onclick="event.preventDefault();if(!canMoveToFruitTab()){showToast('실제결과주수를 먼저 입력해 주세요');return;}applyIntervalToVarieties();" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer">🍎 착과수 입력</div>
+</div>
+<div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
+
 </div>
 
 <!-- 표본간격 탭 화면 -->
@@ -274,15 +280,15 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     </div>
   </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
     <button onclick="setEditModeFromTree()" id="btn-edit-tree" style="height:48px;border:2px solid var(--green);border-radius:var(--rs);background:white;color:var(--green);font-size:15px;font-weight:700;cursor:pointer">✏️ 수정하기</button>
     <button onclick="applyIntervalToVarieties()" style="height:48px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer">착과수 입력으로 →</button>
   </div>
 </div>
 
-
 <!-- 착과수 입력 탭 화면 -->
 <div id="mode-section-1" style="display:none">
+
 
 
 <div class="content">
@@ -331,7 +337,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
           oninput="const _raw=this.value.replace(/[^0-9]/g,'');this.value=_raw?Number(_raw).toLocaleString():'';
             this.classList.toggle('filled',!!_raw);this.style.borderColor=_raw?'var(--green)':'var(--binp)';this.style.background=_raw?'#e8faf3':'white';this.style.color=_raw?'#0d5c35':'var(--text)';onInput();saveState()"
           onfocus="const _v=this.value.replace(/,/g,'');this.value=_v;this.select();this.style.borderColor='var(--blue)';this.style.background='#dceeff';this.style.color='#185FA5'"
-          onblur="const _r=this.value.replace(/[^0-9]/g,'');this.value=_r?Number(_r).toLocaleString():'';saveState()"
+          onblur="const _r=this.value.replace(/[^0-9]/g,'');this.value=_r?Number(_r).toLocaleString():'';this.style.borderColor=_r?'var(--green)':'var(--binp)';this.style.background=_r?'#e8faf3':'white';this.style.color=_r?'#0d5c35':'var(--text)';saveState()"
           onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();
             setTimeout(()=>{
               const _first=document.querySelector('#variety-list input[type=number]');
@@ -370,11 +376,11 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div class="result-box" id="result-section">
     <div style="display:flex;align-items:center;padding:14px 0">
       <div style="padding-right:12px;flex-shrink:0">
-        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">착과수</span>
+        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">착과율</span>
       </div>
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding:0 12px;flex:1;min-width:0">
-        <span id="result-rate" style="font-size:26px;font-weight:700;color:#A8F0D8;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</span>
+        <span id="result-rate" style="font-size:26px;font-weight:700;color:#FFD0D0;letter-spacing:-0.02em;line-height:1;white-space:nowrap">- -</span>
       </div>
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding-left:12px;flex-shrink:0">
@@ -385,9 +391,13 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 
   <!-- 간이 결과 박스 -->
   <div class="result-detail-box" id="result-detail-section">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
       <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
-        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">착과수</div>
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">평년착과수</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)" id="r-avg">-</div>
+      </div>
+      <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">적과후착과수</div>
         <div style="font-size:15px;font-weight:700;color:var(--blue)" id="r-total">-</div>
       </div>
       <div style="padding:10px 8px;text-align:center">
@@ -404,14 +414,14 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div style="background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 8%,#f3f4f6 8%,#f3f4f6 100%);padding:0 20px 20px;box-sizing:border-box">
     <div style="height:18px"></div>
     <div style="text-align:center;color:#fff;margin-bottom:12px">
-      <div style="font-size:15px;font-weight:800;letter-spacing:0.04em" id="cap-title">적과후착과수 조사결과</div>
+      <div style="font-size:15px;font-weight:800;letter-spacing:0.04em" id="cap-title">사과 적과후착과수 조사결과</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px">
 
       <!-- 요약 헤더바 -->
       <div style="background:#185FA5;border-radius:12px;padding:10px 16px;display:flex;gap:0;justify-content:space-around">
         <div style="text-align:center">
-          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">평년착과량</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">평년착과수</div>
           <div style="font-size:16px;font-weight:800;color:#fff" id="cap-avg">-</div>
         </div>
         <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
@@ -426,7 +436,12 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
         </div>
         <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
         <div style="text-align:center">
-          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">착과수</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">착과율</div>
+          <div style="font-size:16px;font-weight:800;color:#FFE082" id="cap-rate">-</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:2px">적과후착과수</div>
           <div style="font-size:16px;font-weight:800;color:#A8F0D8" id="cap-total">-</div>
         </div>
         <div style="width:1px;background:rgba(255,255,255,0.25)"></div>
@@ -543,7 +558,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
       <div style="font-size:17px;font-weight:800;color:#1a1a1a">품종이 몇 개인가요?</div>
       <button onclick="document.getElementById('count-overlay').style.display='none'" style="width:32px;height:32px;border:none;background:#f0f0f0;border-radius:50%;font-size:18px;color:#666;cursor:pointer">✕</button>
     </div>
-    <div style="font-size:12px;color:#888;margin-bottom:20px">평년착과량 <strong id="count-avg-disp" style="color:#185FA5"></strong></div>
+    <div style="font-size:12px;color:#888;margin-bottom:20px">평년착과수 <strong id="count-avg-disp" style="color:#185FA5"></strong></div>
     <!-- 숫자 버튼 1~10 -->
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
       <button onclick="selectCount(1)"  class="cnt-btn">1</button>
@@ -569,10 +584,10 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
         <div style="font-size:17px;font-weight:800;color:#1a1a1a">품종별 주수 입력</div>
         <button onclick="closeSetupPopup()" style="width:32px;height:32px;border:none;background:#f0f0f0;border-radius:50%;font-size:18px;color:#666;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
       </div>
-      <div style="font-size:12px;color:#888">평년착과량 <strong id="setup-avg-disp" style="color:#185FA5"></strong> · 모든 품종 입력 후 완료를 누르세요</div>
+      <div style="font-size:12px;color:#888">평년착과수 <strong id="setup-avg-disp" style="color:#185FA5"></strong> · 모든 품종 입력 후 완료를 누르세요</div>
     </div>
     <!-- 컬럼 헤더 -->
-    <div style="display:grid;grid-template-columns:28px 1fr 60px 60px 60px;gap:5px;padding:8px 16px;background:#F5F4F0;font-size:10px;font-weight:600;color:#888;flex-shrink:0">
+    <div style="display:grid;grid-template-columns:28px 1fr 72px 72px 72px;gap:5px;padding:8px 16px;background:#F5F4F0;font-size:10px;font-weight:600;color:#888;flex-shrink:0">
       <div></div>
       <div>품종명</div>
       <div style="text-align:center">수령</div>
@@ -623,7 +638,7 @@ function selectCount(n) {
       name: v?.name || '',
       age:  v?.age  || '',
       reg:  v?.reg  || '',
-      actual: v?.actual || '',
+      actual: v?.actual || ''
     });
   }
   const avg = document.getElementById('avg_fruit')?.value || '';
@@ -658,10 +673,10 @@ function renderSetupRows() {
         oninput="setupRows[${i}].reg=+this.value||0;this.style.background=this.value?'#e8faf3':'white'"
         onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[3]?.focus()}">
       <input type="number" value="${r.actual||''}" placeholder="0주" inputmode="decimal"
-        enterkeyhint="next"
+        enterkeyhint="${i===setupRows.length-1?'done':'next'}"
         style="height:38px;border:1.5px solid #378ADD;border-radius:8px;padding:0 4px;font-size:13px;text-align:center;background:${r.actual?'#e8faf3':'white'};-webkit-appearance:none;box-sizing:border-box;width:100%"
         oninput="setupRows[${i}].actual=+this.value||0;this.style.background=this.value?'#e8faf3':'white'"
-        onkeydown="if(event.key==='Enter'){event.preventDefault();this.closest('div').querySelectorAll('input')[4]?.focus()}">
+        onkeydown="if(event.key==='Enter'){event.preventDefault();${i<setupRows.length-1?`document.querySelectorAll('#setup-rows > div')[${i+1}]?.querySelectorAll('input')[0]?.focus()`:'applySetupPopup()'}}">
     </div>`).join('');
 }
 
@@ -751,6 +766,15 @@ function updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample){
     snEl.className = 'sum-val' + (totalSampleN > 0 && properSample > 0 && totalSampleN < properSample ? ' warn' : '');
   }
   if(spEl) spEl.textContent = properSample > 0 ? properSample : '-';
+  const scEl = document.getElementById('sv-contract');
+  if(scEl && totalReg > 0){
+    const nr = checkNeedReview();
+    scEl.textContent = nr ? '필요' : '이상무';
+    scEl.style.color = nr ? '#FFD0D0' : '#A8F0D8';
+  } else if(scEl){
+    scEl.textContent = '-';
+    scEl.style.color = '#fff';
+  }
   // 나무조사탭 하단 고사/수확불능 업데이트
   // intervalData가 있으면 우선 사용 (나무조사탭), 없으면 varieties
   const _src = (typeof intervalData !== 'undefined' && intervalData.some(d=>d.dead||d.unable||d.uninsDead||d.uninsAlive))
@@ -781,6 +805,7 @@ function closeTree(i) {
 }
 function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
 function setEditModeFromTree(){
+  // 나무조사탭 잠금 해제 — 탭 이동 없이 수정 가능하게
   setEditMode();
   showToast('수정 가능합니다');
 }
@@ -801,7 +826,23 @@ function checkNeedReview() {
 
 // ── 상수 ──────────────────────────────────────────
 // 표본주수 기준표 (조사대상주 합계 기준)
-
+// 전체 합계 기준 적정표본주수 (업무방법서 별표1)
+function getProperSample(total) {
+  if (!total || total <= 0) return 0;
+  if (total < 50)   return 5;
+  if (total < 100)  return 6;
+  if (total < 150)  return 7;
+  if (total < 200)  return 8;
+  if (total < 300)  return 9;
+  if (total < 400)  return 10;
+  if (total < 500)  return 11;
+  if (total < 600)  return 12;
+  if (total < 700)  return 13;
+  if (total < 800)  return 14;
+  if (total < 900)  return 15;
+  if (total < 1000) return 16;
+  return 17;
+}
 
 const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, samples:[], open:false, treeOpen:false, cardOpen:true});
 
@@ -974,11 +1015,6 @@ function renderIntervalRows() {
 function canMoveToFruitTab() {
   return intervalData.slice(0, intervalCount).every(d => d.actual > 0);
 }
-
-function canMoveToFruitTab() {
-  return intervalData.slice(0, intervalCount).every(d => d.actual > 0);
-}
-
 function applyIntervalToVarieties() {
   if(!canMoveToFruitTab()){ showToast('실제결과주수를 먼저 입력해 주세요'); return; }
   const validData = intervalData.slice(0, intervalCount);
@@ -1000,13 +1036,15 @@ function applyIntervalToVarieties() {
     varieties[i].unable     = d.unable || 0;
     varieties[i].uninsDead  = d.uninsDead || 0;
     varieties[i].uninsAlive = d.uninsAlive || 0;
-    const alreadyVisited = varieties[i].samples.some(s => s !== '');
-    varieties[i].cardOpen   = alreadyVisited ? varieties[i].cardOpen : true;
-    varieties[i].open       = alreadyVisited ? varieties[i].open : true;
-    // 표본주 배열을 properN에 맞게 엄격하게 조정
-    // 입력값은 앞에서부터 properN개만 유지, 나머지는 잘라냄
+    // 이미 입력된 데이터 있으면 cardOpen/open 기존 상태 유지
+    const _alreadyHasData = varieties[i].samples.some(s=>s!=='');
+    if(!_alreadyHasData){
+      varieties[i].cardOpen = true;
+      varieties[i].open     = true;
+    }
     while(varieties[i].samples.length < properN) varieties[i].samples.push('');
-    if(varieties[i].samples.length > properN) varieties[i].samples.splice(properN);
+    while(varieties[i].samples.length > properN && varieties[i].samples[varieties[i].samples.length-1]==='')
+      varieties[i].samples.pop();
   });
 
   saveState();
@@ -1014,12 +1052,11 @@ function applyIntervalToVarieties() {
   onInput();
 }
 
+const currentCrop = 'fruit';
 
-// ── 작물별 독립 데이터 ────────────────────────────
 const allData = {
   fruit: { avgFruit:'', varieties:[EMPTY_VARIETY()], calcDone:false },
 };
-const currentCrop = 'fruit';
 
 // 현재 작물 데이터 참조
 let varieties = allData[currentCrop].varieties;
@@ -1031,15 +1068,11 @@ function getSurveyTarget(v){
 
 // ── 즉시 자동계산칸 업데이트 (리렌더 없이) ────────
 function quickUpdate(vi, field, val){
-  const tmp = {...varieties[vi], [field]: +val||0};
-  const totalSurvey = varieties.reduce((s,vv,i) => {
-    const sv = i===vi ? getSurveyTarget(tmp) : getSurveyTarget(vv);
-    return s+sv;
-  }, 0);
+  varieties[vi] = {...varieties[vi], [field]: +val||0};
+  const totalSurvey = varieties.reduce((s,vv) => s+getSurveyTarget(vv), 0);
   const totalProper = getProperSample(totalSurvey);
-  const surveyTarget = getSurveyTarget(tmp);
-  const properN = surveyTarget > 0 && totalSurvey > 0
-    ? Math.max(1, Math.ceil(totalProper * surveyTarget / totalSurvey)) : 0;
+  const surveyTarget = getSurveyTarget(varieties[vi]);
+  const properN = surveyTarget>0 && totalSurvey>0 ? Math.max(1, Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
 
   const sEl = document.getElementById(`vi-survey-${vi}`);
   const pEl = document.getElementById(`vi-proper-${vi}`);
@@ -1049,8 +1082,17 @@ function quickUpdate(vi, field, val){
   if(pEl) pEl.value = properN > 0 ? properN+'주' : '';
   if(pnEl) pnEl.textContent = properN > 0 ? properN : 0;
   if(ivEl) ivEl.textContent = (surveyTarget>0&&properN>0) ? Math.round(surveyTarget/properN) : 0;
-  // 기본정보 합계만 업데이트 (리렌더 없이)
+
+  // samples 배열 크기 조정
+  if(properN > varieties[vi].samples.length){
+    while(varieties[vi].samples.length < properN) varieties[vi].samples.push('');
+  } else if(properN < varieties[vi].samples.length){
+    while(varieties[vi].samples.length > properN && varieties[vi].samples[varieties[vi].samples.length-1] === '')
+      varieties[vi].samples.pop();
+  }
+
   updateSummaryOnly();
+  updateCardSummary(vi);
 }
 
 function updateSummaryOnly() {
@@ -1090,7 +1132,7 @@ function updateTreeSummary(showZero) {
   const fmt = (id, val) => {
     const el = document.getElementById(id);
     if(!el) return;
-    el.value = val > 0 ? val.toLocaleString()+'주' : '-';
+    el.value = (showZero || val > 0) ? val.toLocaleString()+'주' : '';
   };
   fmt('total_dead',      totalDead);
   fmt('total_unable',    totalUnable);
@@ -1099,45 +1141,30 @@ function updateTreeSummary(showZero) {
 }
 
 // ── 표본주수 계산 ─────────────────────────────────
-function getProperSample(total) {
-  if (!total || total <= 0) return 0;
-  if (total < 50)   return 5;
-  if (total < 100)  return 6;
-  if (total < 150)  return 7;
-  if (total < 200)  return 8;
-  if (total < 300)  return 9;
-  if (total < 400)  return 10;
-  if (total < 500)  return 11;
-  if (total < 600)  return 12;
-  if (total < 700)  return 13;
-  if (total < 800)  return 14;
-  if (total < 900)  return 15;
-  if (total < 1000) return 16;
-  return 17;
-}
+
 
 // ── 품목 전환 ─────────────────────────────────────
+
 // ── 품종 렌더링 ───────────────────────────────────
-function renderVarieties(totalSurvey, totalProper) {
+function renderVarieties(totalSurvey) {
   if (totalSurvey === undefined) {
     totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
   }
-  // 항상 totalSurvey 기준으로 재계산 — 외부 전달값 무시 (min:1 보정된 합산값 유입 방지)
-  totalProper = getProperSample(totalSurvey);
   const container = document.getElementById('variety-list');
   const badge = document.getElementById('variety-count-badge');
   badge.textContent = `(${varieties.length}품종)`;
 
   const surveyTargets = varieties.map(v => getSurveyTarget(v));
+  const totalProper = getProperSample(totalSurvey);
   const properNs = surveyTargets.map(st =>
-    st > 0 && totalSurvey > 0 ? Math.max(1, Math.ceil(totalProper * st / totalSurvey)) : 0
+    st>0 && totalSurvey>0 ? Math.max(1, Math.ceil(totalProper*st/totalSurvey)) : 0
   );
 
   container.innerHTML = varieties.map((v, vi) => {
     const surveyTarget = surveyTargets[vi];
     const properN = properNs[vi];
 
-    // 샘플 배열 조정 — 부족하면 채우고, 수동 추가(__addedSample)가 아닌 경우만 초과 빈칸 제거
+    // 샘플 배열 조정 — properN보다 적으면 채우고, 수동 추가가 아닌 경우만 초과 빈칸 제거
     while (v.samples.length < properN) v.samples.push('');
     if (!v.__addedSample) {
       while (v.samples.length > properN && v.samples[v.samples.length-1] === '') v.samples.pop();
@@ -1163,12 +1190,12 @@ function renderVarieties(totalSurvey, totalProper) {
           enterkeyhint="${isLast?'done':'next'}"
           style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
           oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi});resetCalcBtn();saveState()"
-          onfocus="const _af=document.getElementById('avg_fruit');if(!_af||!_af.value){showToast('평년착과량(개)을 먼저 입력해 주세요');setTimeout(()=>{_af&&_af.focus();},100);this.blur();return;}this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';"
+          onfocus="const _af=document.getElementById('avg_fruit');if(!_af||!_af.value){showToast('평년착과량(개)을 먼저 입력해 주세요');setTimeout(()=>{_af&&_af.focus();},100);this.blur();return;}this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
           onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState();${isLast?`if(varieties[${vi}].cardOpen!==false){const _ts=varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);const _tp=getProperSample(_ts);const _st=getSurveyTarget(varieties[${vi}]);const _pn=_st>0&&_ts>0?Math.max(1,Math.ceil(_tp*_st/_ts)):0;const _done=varieties[${vi}].samples.filter(s=>s!==''&&!isNaN(parseFloat(s))).length;if(_pn>0&&_done>=_pn)setTimeout(()=>collapseCard(${vi}),300);}`:''}"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast
+          onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].samples[${si}]=this.value;calcVariety(${vi});${isLast
             ? (vi < varieties.length-1
-                ? `varieties[${vi}].samples[${si}]=this.value;const _ts2=varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);const _tp2=getProperSample(_ts2);const _st2=getSurveyTarget(varieties[${vi}]);const _pn2=_st2>0&&_ts2>0?Math.max(1,Math.ceil(_tp2*_st2/_ts2)):0;const _done2=varieties[${vi}].samples.filter(s=>s!==''&&!isNaN(parseFloat(s))).length;if(_pn2>0&&_done2>=_pn2)collapseCard(${vi});const _nextSS=document.getElementById('ss-${vi+1}');if(_nextSS){if(varieties[${vi+1}].open===false){varieties[${vi+1}].open=true;onInput();}setTimeout(()=>{const _ni2=document.querySelector('#ss-${vi+1} input[type=number]');if(_ni2)_ni2.focus();},100);}`
-                : `varieties[${vi}].samples[${si}]=this.value;setTimeout(()=>doCalc(),50);`)
+                ? `const _ts2=varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);const _tp2=getProperSample(_ts2);const _st2=getSurveyTarget(varieties[${vi}]);const _pn2=_st2>0&&_ts2>0?Math.max(1,Math.ceil(_tp2*_st2/_ts2)):0;const _done2=varieties[${vi}].samples.filter(s=>s!==''&&!isNaN(parseFloat(s))).length;if(_pn2>0&&_done2>=_pn2)collapseCard(${vi});const _nextSS=document.getElementById('ss-${vi+1}');if(_nextSS){const _ni=_nextSS.querySelector('input[type=number]');if(_ni){if(varieties[${vi+1}].open===false){varieties[${vi+1}].open=true;onInput();}setTimeout(()=>{const _ni2=document.querySelector('#ss-${vi+1} input[type=number]');if(_ni2)_ni2.focus();},100);}}`
+                : `this.blur();`)
             : `const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
       </div>`;
     }
@@ -1189,7 +1216,7 @@ function renderVarieties(totalSurvey, totalProper) {
       return `<div class="field">
         <label>${label}</label>
         <input type="number" class="inp${filled?' filled':''}" value="${val||''}" inputmode="decimal" placeholder="${ph}"
-          onfocus="const _af=document.getElementById('avg_fruit');if(!_af||!_af.value){showToast('평년착과량(개)을 먼저 입력해 주세요');setTimeout(()=>{_af&&_af.focus();},100);this.blur();return;}this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';"
+          onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const _v=this.value;this.value='';this.value=_v;"
           onblur="varieties[${vi}].${field}=+this.value||0;this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';quickUpdate(${vi},'${field}',this.value);saveState();${isTreeField?'onInput();resetCalcBtn();':''}"
           oninput="this.classList.toggle('filled',this.value!='');varieties[${vi}].${field}=+this.value||0"
           ${keydown}>
@@ -1198,24 +1225,24 @@ function renderVarieties(totalSurvey, totalProper) {
 
     const defaultName = `품종${vi+1}`;
     const displayName = v.name || defaultName;
-    const cardOpen = v.cardOpen !== false;
 
     // 요약 정보 계산
-    const _validS = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s)));
-    const _sumS = _validS.reduce((a,x)=>a+parseFloat(x),0);
-    const _perS = _validS.length>0 ? _sumS/_validS.length : 0;
+    const validS = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s)));
+    const _sumS = validS.reduce((a,x)=>a+parseFloat(x),0);
+    const _perS = validS.length>0 ? _sumS/validS.length : 0;
     const _afterS = _perS>0&&surveyTarget>0 ? Math.round(_perS*surveyTarget) : 0;
-    const _sampleOk = properN>0 && _validS.length>=properN;
-    const _fruitStatus = _afterS>0 ? `${_afterS.toLocaleString()}개` : '-';
+    const sampleOk = properN>0 && validS.length>=properN;
+    const fruitStatus = _afterS>0 ? `${_afterS.toLocaleString()}개` : '-';
+    const cardOpen = v.cardOpen !== false;
 
     return `
-    <div class="variety-card" id="vc-${vi}" style="padding:${cardOpen?'12px':'0'};overflow:hidden">
+    <div class="variety-card" id="vc-${vi}" style="padding:${cardOpen?'14px':'0'};overflow:hidden">
       <!-- 카드 헤더 (항상 표시) -->
       <div onclick="toggleCard(${vi})" style="display:flex;align-items:center;gap:10px;cursor:pointer;${cardOpen?'margin-bottom:10px;':'background:#185FA5;padding:12px 14px;border-radius:10px;'}">
         <div class="variety-num" style="flex-shrink:0;${!cardOpen?'background:rgba(255,255,255,0.2);color:#fff;border:none;':''}">${vi+1}</div>
-        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:hidden">
-          <div id="card-name-${vi}" style="font-size:14px;font-weight:700;color:${cardOpen?'var(--text)':'#fff'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0">${displayName}${v.age>0?` ${v.age}년`:''}</div>
-          <div id="card-summary-${vi}" style="font-size:14px;display:${cardOpen?'none':'flex'};align-items:center;gap:5px;flex-shrink:0;white-space:nowrap">${_sampleOk?`<span style="color:#A8F0D8;font-weight:700">표본 ${_validS.length}/${properN>0?properN:0}주 ✅</span>`:`<span style="color:#FFD0A0;font-weight:700">표본 ${_validS.length}/${properN>0?properN:0}주 ⚠️</span>`}<span style="color:rgba(255,255,255,0.35)">|</span><span style="color:#fff;font-weight:800">${_fruitStatus}</span></div>
+        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div id="card-name-${vi}" style="font-size:14px;font-weight:700;color:${cardOpen?'var(--text)':'#fff'};white-space:nowrap">${displayName}${v.age>0?` ${v.age}년`:''}</div>
+          <div id="card-summary-${vi}" style="font-size:14px;display:${cardOpen?'none':'flex'};align-items:center;gap:5px">${sampleOk?`<span style="color:#A8F0D8;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ✅</span>`:`<span style="color:#FFD0A0;font-weight:700">표본 ${validS.length}/${properN>0?properN:0}주 ⚠️</span>`}<span style="color:rgba(255,255,255,0.35)">|</span><span style="color:#fff;font-weight:800">${fruitStatus}</span></div>
         </div>
         <span id="card-icon-${vi}" style="font-size:14px;color:${cardOpen?'var(--sub)':'rgba(255,255,255,0.8)'};flex-shrink:0">${cardOpen?'▼':'▶'}</span>
       </div>
@@ -1252,6 +1279,28 @@ function renderVarieties(totalSurvey, totalProper) {
 }
 
 // ── 품종별 자동계산 업데이트 (표본입력 시) ────────
+function calcVariety(vi) {
+  const v = varieties[vi];
+  const surveyTarget = getSurveyTarget(v);
+  const inputted = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s)));
+  const sampleSum = inputted.reduce((s,x) => s+(parseFloat(x)||0), 0);
+  const perTree = inputted.length > 0 ? sampleSum / inputted.length : 0;
+  const afterFruit = perTree > 0 && surveyTarget > 0 ? Math.round(perTree * surveyTarget) : 0;
+
+  const sumEl = document.getElementById(`vi-sum-${vi}`);
+  const perEl = document.getElementById(`vi-per-${vi}`);
+  const afterEl = document.getElementById(`vi-after-${vi}`);
+  if(sumEl) sumEl.value = sampleSum > 0 ? Math.round(sampleSum).toLocaleString() : '';
+  if(perEl) perEl.value = perTree > 0 ? perTree.toFixed(1) : '';
+  if(afterEl){
+    afterEl.value = afterFruit > 0 ? afterFruit.toLocaleString() : '';
+    afterEl.className = 'auto' + (afterFruit > 0 ? ' ok' : '');
+  }
+
+  // 표본 입력 완료 시 자동 접힘 제거 (엔터 키에서만 처리)
+  saveState();
+}
+
 function toggleCard(vi) {
   const cardOpen = varieties[vi].cardOpen !== false;
   varieties[vi].cardOpen = !cardOpen;
@@ -1276,23 +1325,10 @@ function toggleCard(vi) {
 
 function collapseCard(vi) {
   varieties[vi].cardOpen = false;
-  const body = document.getElementById(`card-body-${vi}`);
-  const card = document.getElementById(`vc-${vi}`);
-  const header = document.querySelector(`#vc-${vi} > div:first-child`);
-  const nameEl = document.getElementById(`card-name-${vi}`);
-  const iconEl = document.getElementById(`card-icon-${vi}`);
-  if(body) body.style.display = 'none';
-  if(card){ card.style.padding = '0'; }
-  if(header){
-    header.style.background = '#185FA5';
-    header.style.padding = '12px 14px';
-    header.style.borderRadius = '10px';
-    header.style.marginBottom = '0';
-  }
-  if(nameEl) nameEl.style.color = '#fff';
-  if(iconEl) iconEl.style.color = 'rgba(255,255,255,0.8)';
-  updateCardSummary(vi);
   saveState();
+  // DOM 직접 조작 대신 renderVarieties로 재렌더 — card-summary 위치 정확하게 보장
+  const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
+  renderVarieties(totalSurvey);
 }
 
 function updateCardSummary(vi) {
@@ -1319,8 +1355,6 @@ function updateCardSummary(vi) {
   if(summaryEl){
     summaryEl.style.display = cardOpen ? 'none' : 'flex';
     summaryEl.style.fontSize = '14px';
-    summaryEl.style.flexShrink = '0';
-    summaryEl.style.whiteSpace = 'nowrap';
     const sOk = properN>0 && validS.length>=properN;
     const sSpan = sOk
       ? `<span style="color:#A8F0D8;font-weight:700">표본 ${validS.length}/${properN}주 ✅</span>`
@@ -1329,26 +1363,6 @@ function updateCardSummary(vi) {
     summaryEl.innerHTML = `${sSpan}<span style="color:rgba(255,255,255,0.35);margin:0 5px">|</span>${fSpan}`;
   }
   if(iconEl) iconEl.textContent = cardOpen ? '▼' : '▶';
-}
-
-function calcVariety(vi) {
-  const v = varieties[vi];
-  const surveyTarget = getSurveyTarget(v);
-  const inputted = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s)));
-  const sampleSum = inputted.reduce((s,x) => s+(parseFloat(x)||0), 0);
-  const perTree = inputted.length > 0 ? sampleSum / inputted.length : 0;
-  const afterFruit = perTree > 0 && surveyTarget > 0 ? Math.round(perTree * surveyTarget) : 0;
-
-  const sumEl = document.getElementById(`vi-sum-${vi}`);
-  const perEl = document.getElementById(`vi-per-${vi}`);
-  const afterEl = document.getElementById(`vi-after-${vi}`);
-  if(sumEl) sumEl.value = sampleSum > 0 ? Math.round(sampleSum).toLocaleString() : '';
-  if(perEl) perEl.value = perTree > 0 ? perTree.toFixed(4) : '';
-  if(afterEl){
-    afterEl.value = afterFruit > 0 ? afterFruit.toLocaleString() : '';
-    afterEl.className = 'auto' + (afterFruit > 0 ? ' ok' : '');
-  }
-  saveState();
 }
 
 function toggleTreeInspect(vi) {
@@ -1374,13 +1388,8 @@ function renderSamplesOnly(vi) {
   const totalProper = getProperSample(totalSurvey);
   const surveyTarget = getSurveyTarget(v);
   const properN = surveyTarget>0&&totalSurvey>0 ? Math.max(1,Math.ceil(totalProper*surveyTarget/totalSurvey)) : 0;
-  // properN보다 적으면 채우고, 수동 추가(__addedSample)가 아닌 경우만 초과 빈칸 제거
   while(v.samples.length < properN) v.samples.push('');
-  if(!v.__addedSample) {
-    while(v.samples.length > properN && v.samples[v.samples.length-1] === '') v.samples.pop();
-  }
-  v.__addedSample = false;
-  const _total = v.samples.length;
+  const _total = Math.max(v.samples.length, properN);
   const _offset = varieties.slice(0, vi).reduce((s, vv) => s + vv.samples.length, 0);
   let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px">`;
   for(let si=0; si<_total; si++){
@@ -1393,13 +1402,9 @@ function renderSamplesOnly(vi) {
         enterkeyhint="${isLast?'done':'next'}"
         style="width:100%;height:38px;border:1.5px solid ${filled?'#1D9E75':'#378ADD'};border-radius:6px;font-size:14px;font-weight:600;background:${filled?'#e8faf3':'white'};color:${filled?'#0d5c35':'#1a1a1a'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
         oninput="varieties[${vi}].samples[${si}]=this.value;const _f=this.value!=='';this.style.background=_f?'#e8faf3':'white';this.style.borderColor=_f?'#1D9E75':'#378ADD';this.style.color=_f?'#0d5c35':'#1a1a1a';calcVariety(${vi});resetCalcBtn();saveState()"
-        onfocus="const _af=document.getElementById('avg_fruit');if(!_af||!_af.value){showToast('평년착과량(개)을 먼저 입력해 주세요');setTimeout(()=>{_af&&_af.focus();},100);this.blur();return;}this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';"
-        onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState();${isLast?`const _ts=varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);const _tp=getProperSample(_ts);const _st=getSurveyTarget(varieties[${vi}]);const _pn=_st>0&&_ts>0?Math.max(1,Math.ceil(_tp*_st/_ts)):0;const _done=varieties[${vi}].samples.filter(s=>s!==''&&!isNaN(parseFloat(s))).length;if(_pn>0&&_done>=_pn)setTimeout(()=>collapseCard(${vi}),300);`:''}"
-        onkeydown="if(event.key==='Enter'){event.preventDefault();varieties[${vi}].samples[${si}]=this.value;calcVariety(${vi});${isLast
-          ? (vi < varieties.length-1
-              ? `const _ts2=varieties.reduce((s,vv)=>s+getSurveyTarget(vv),0);const _tp2=getProperSample(_ts2);const _st2=getSurveyTarget(varieties[${vi}]);const _pn2=_st2>0&&_ts2>0?Math.max(1,Math.ceil(_tp2*_st2/_ts2)):0;const _done2=varieties[${vi}].samples.filter(s=>s!==''&&!isNaN(parseFloat(s))).length;if(_pn2>0&&_done2>=_pn2)collapseCard(${vi});const _nextSS=document.getElementById('ss-${vi+1}');if(_nextSS){if(varieties[${vi+1}].open===false){varieties[${vi+1}].open=true;onInput();}setTimeout(()=>{const _ni2=document.querySelector('#ss-${vi+1} input[type=number]');if(_ni2)_ni2.focus();},100);}`
-              : `setTimeout(()=>doCalc(),50);`)
-          : `const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
+        onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5';const v=this.value;this.value='';this.value=v;"
+        onblur="varieties[${vi}].samples[${si}]=this.value;const _fb=this.value!=='';this.style.background=_fb?'#e8faf3':'white';this.style.borderColor=_fb?'#1D9E75':'#378ADD';this.style.color=_fb?'#0d5c35':'#1a1a1a';saveState()"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();${isLast?`varieties[${vi}].samples[${si}]=this.value;`:`const inputs=document.querySelectorAll('#ss-${vi} input[type=number]');const idx=Array.from(inputs).indexOf(this);if(inputs[idx+1])inputs[idx+1].focus();`}}">
     </div>`;
   }
   html += '</div>';
@@ -1410,6 +1415,7 @@ function renderSamplesOnly(vi) {
   if(pnEl) pnEl.textContent = properN;
   if(ivEl) ivEl.textContent = surveyTarget>0&&properN>0 ? Math.round(surveyTarget/properN) : 0;
 }
+
 
 function autoOpenSamples(vi) {
   varieties[vi].actual = +document.getElementById(`vi-actual-${vi}`)?.value || varieties[vi].actual;
@@ -1509,15 +1515,9 @@ function confirmSampleDel(vi) {
 
 function addSampleRow(vi) {
   varieties[vi].samples.push('');
+  varieties[vi].__addedSample = true;
   varieties[vi].open = true;
-  // onInput 대신 직접 렌더 — onInput→renderSamplesOnly가 빈칸을 즉시 pop하는 문제 방지
-  const ss = document.getElementById(`ss-${vi}`);
-  if(ss) {
-    // renderSamplesOnly 내부 pop 로직이 새 빈칸 삭제하지 않도록 임시 마커
-    varieties[vi].__addedSample = true;
-    renderSamplesOnly(vi);
-  }
-  saveState();
+  onInput();
 }
 
 function resetVariety(vi) {
@@ -1629,7 +1629,7 @@ function onInput() {
   const afEl = document.getElementById('total_afterFruit');
   if(snEl) snEl.value = totalSampleN > 0 ? totalSampleN+'주' : '';
   if(ssEl) ssEl.value = totalSampleSum > 0 ? Math.round(totalSampleSum).toLocaleString() : '';
-  if(spEl) spEl.value = totalPerTree > 0 ? totalPerTree.toFixed(4) : '';
+  if(spEl) spEl.value = totalPerTree > 0 ? totalPerTree.toFixed(1) : '';
   if(afEl){ afEl.value = totalAfterFruit > 0 ? totalAfterFruit.toLocaleString() : ''; afEl.className = 'auto' + (totalAfterFruit>0?' ok':''); }
 
   // 계약변경 여부 (품종별 주수 오차 ±5% 초과)
@@ -1640,7 +1640,7 @@ function onInput() {
   contractEl.style.color = needReview ? '#e24b4a' : '';
   contractEl.style.fontWeight = needReview ? '700' : '';
 
-  renderVarieties(totalSurvey, getProperSample(totalSurvey));
+  renderVarieties(totalSurvey);
 }
 
 // ── 계산 실행 ─────────────────────────────────────
@@ -1649,7 +1649,7 @@ function doCalc(manual = false) {
 
   // 필수값 체크
   const missing = [];
-  if (!avgFruit) missing.push('평년착과량');
+  if (!avgFruit) missing.push('평년착과수');
   const hasActual = varieties.some(v => v.actual > 0);
   if (!hasActual) missing.push('실제결과주수');
   const hasSamples = varieties.some(v => v.samples.some(s => s !== '' && !isNaN(parseFloat(s))));
@@ -1725,11 +1725,11 @@ function doCalc(manual = false) {
 
   // 메인 결과 박스
   const rateEl = document.getElementById('result-rate');
-  rateEl.textContent = Math.round(totalAfterFruit).toLocaleString()+'개';
-  rateEl.style.color = '#A8F0D8';
+  rateEl.textContent = (rate * 100).toFixed(2)+'%';
+  rateEl.style.color = rate >= 1 ? '#A8F0D8' : rate >= 0.8 ? '#FFE082' : '#FFD0D0';
 
   // 간이 결과 박스
-  // r-avg removed
+  document.getElementById('r-avg').textContent = avgFruit.toLocaleString()+'개';
   const rTotal = document.getElementById('r-total');
   rTotal.textContent = Math.round(totalAfterFruit).toLocaleString()+'개';
   rTotal.style.color = rate >= 1 ? '#1D9E75' : rate >= 0.8 ? '#E8860A' : '#e24b4a';
@@ -1753,7 +1753,7 @@ function doCalc(manual = false) {
   const spEl2 = document.getElementById('total_perTree');
   const afEl2 = document.getElementById('total_afterFruit');
   if(ssEl2) ssEl2.value = totalSampleSumCalc > 0 ? Math.round(totalSampleSumCalc).toLocaleString() : '0';
-  if(spEl2) spEl2.value = totalPerTreeCalc > 0 ? totalPerTreeCalc.toFixed(4) : '0';
+  if(spEl2) spEl2.value = totalPerTreeCalc > 0 ? totalPerTreeCalc.toFixed(1) : '0';
   if(afEl2){ afEl2.value = totalAfterFruit > 0 ? Math.round(totalAfterFruit).toLocaleString() : '0'; afEl2.className = 'auto ok'; }
 
   // 상단 요약바 표본주수 업데이트
@@ -1802,14 +1802,18 @@ function loadState(){
     const raw = localStorage.getItem('fruit_multi_v2');
     if(!raw) return false;
     const s = JSON.parse(raw);
-    if(s.intervalData) intervalData = s.intervalData;
-    if(s.intervalCount) intervalCount = s.intervalCount;
-    if(s.currentMode !== undefined) currentMode = s.currentMode;
-    if(s.allData?.fruit){
-      if(s.allData.fruit.avgFruit !== undefined) allData.fruit.avgFruit = s.allData.fruit.avgFruit;
-      if(s.allData.fruit.varieties?.length > 0) allData.fruit.varieties = s.allData.fruit.varieties;
-      if(s.allData.fruit.calcDone !== undefined) allData.fruit.calcDone = s.allData.fruit.calcDone;
+    if(s.allData) {
+      for(const crop of Object.keys(allData)){
+        if(s.allData[crop]){
+          if(s.allData[crop].avgFruit !== undefined) allData[crop].avgFruit = s.allData[crop].avgFruit;
+          if(s.allData[crop].varieties?.length > 0) allData[crop].varieties = s.allData[crop].varieties;
+          if(s.allData[crop].calcDone !== undefined) allData[crop].calcDone = s.allData[crop].calcDone;
+        }
+      }
     }
+    if(s.intervalData) intervalData = s.intervalData;
+    // intervalCount는 기본값(2) 고정 — 복원하지 않음
+    if(s.currentMode !== undefined) currentMode = s.currentMode;
     varieties = allData[currentCrop].varieties;
     // 로드 후 samples를 올바른 properN으로 강제 조정 (버그 데이터 복원 방지)
     const _totalSurvey = varieties.reduce((s,v) => s + Math.max(0,(v.actual||0)-(v.dead||0)-(v.unable||0)-(v.uninsDead||0)-(v.uninsAlive||0)), 0);
@@ -1833,9 +1837,11 @@ function resetAll() {
   intervalData = Array.from({length:10}, ()=>({reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, treeOpen:false}));
   intervalCount = 2;
   setIntervalCount(3);
-  allData.fruit.avgFruit = '';
-  allData.fruit.varieties = [EMPTY_VARIETY()];
-  allData.fruit.calcDone = false;
+  for(const crop of Object.keys(allData)){
+    allData[crop].avgFruit = '';
+    allData[crop].varieties = [EMPTY_VARIETY()];
+    allData[crop].calcDone = false;
+  }
   varieties = allData[currentCrop].varieties;
   const _afEl = document.getElementById('avg_fruit');
   if(_afEl){ _afEl.value = ''; _afEl.classList.remove('filled'); }
@@ -1896,6 +1902,7 @@ async function saveImage() {
     document.getElementById('cap-avg').textContent    = avgFruit>0 ? avgFruit.toLocaleString()+'개' : '-';
     document.getElementById('cap-reg').textContent    = totalReg>0 ? totalReg.toLocaleString()+'주' : '-';
     document.getElementById('cap-survey').textContent = totalSurvey>0 ? totalSurvey.toLocaleString()+'주' : '-';
+    document.getElementById('cap-rate').textContent   = avgFruit>0 ? (rate*100).toFixed(2)+'%' : '-';
     document.getElementById('cap-total').textContent  = totalAfterFruit>0 ? Math.round(totalAfterFruit).toLocaleString()+'개' : '-';
     const contractEl = document.getElementById('cap-contract');
     contractEl.textContent = needReview ? '계약변경' : '이상무';
@@ -1933,25 +1940,19 @@ async function saveImage() {
       </tr>`;
     }).join('');
 
-    // 전산 기준: 품종별 1주당 착과수 단순 합산
-    const totalPerTree = varieties.reduce((s,v) => {
-      const validS = v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x)));
-      const sN = validS.length;
-      const sSum = validS.reduce((a,x)=>a+parseFloat(x),0);
-      return s + (sN>0 ? Math.round(sSum/sN) : 0);
-    }, 0);
-    const totalRegSum    = varieties.reduce((s,v)=>s+(v.reg||0),0);
-    const totalActualSum = varieties.reduce((s,v)=>s+(v.actual||0),0);
-    const totalDeadSum   = varieties.reduce((s,v)=>s+(v.dead||0),0);
-    const totalUnableSum = varieties.reduce((s,v)=>s+(v.unable||0),0);
-    const totalUninsDeadSum  = varieties.reduce((s,v)=>s+(v.uninsDead||0),0);
-    const totalUninsAliveSum = varieties.reduce((s,v)=>s+(v.uninsAlive||0),0);
+    const totalPerTree = totalSampleN>0 ? totalSampleSum/totalSampleN : 0;
+    const totalDead = varieties.reduce((s,v)=>s+(v.dead||0),0);
+    const totalUnable = varieties.reduce((s,v)=>s+(v.unable||0),0);
+    const totalUninsDead = varieties.reduce((s,v)=>s+(v.uninsDead||0),0);
+    const totalUninsAlive = varieties.reduce((s,v)=>s+(v.uninsAlive||0),0);
+    const totalReg2 = varieties.reduce((s,v)=>s+(v.reg||0),0);
+    const totalActual2 = varieties.reduce((s,v)=>s+(v.actual||0),0);
     const tfootRow = `<tr style="background:#e8edf2">
       ${td('합 계','#e8edf2',true)}
       ${td('')}
-      ${td(totalRegSum>0?totalRegSum.toLocaleString():'-','#e8edf2',true)}
-      ${td(totalActualSum>0?totalActualSum.toLocaleString():'-','#e8edf2',true)}
-      ${td(totalDeadSum>0?totalDeadSum:'-')}${td(totalUnableSum>0?totalUnableSum:'-')}${td(totalUninsDeadSum>0?totalUninsDeadSum:'-')}${td(totalUninsAliveSum>0?totalUninsAliveSum:'-')}
+      ${td(totalReg2>0?totalReg2.toLocaleString():'-')}
+      ${td(totalActual2>0?totalActual2.toLocaleString():'-')}
+      ${td(totalDead)}${td(totalUnable)}${td(totalUninsDead)}${td(totalUninsAlive)}
       ${td(totalSurvey>0?totalSurvey.toLocaleString():'-','#dbeafe',true,'#185FA5')}
       ${td(totalSampleN>0?totalSampleN:'-','#e8edf2',true)}
       ${td(totalProperSum>0?totalProperSum:'-')}
