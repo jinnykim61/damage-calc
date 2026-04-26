@@ -239,8 +239,8 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     <div style="font-size:12px;color:var(--sub);font-weight:600;margin-bottom:10px">품종 수 선택</div>
     <div style="display:flex;gap:5px;margin-bottom:6px">
       <div onclick="setIntervalCount(1)" id="icnt-1" style="flex:1;padding:7px 0;text-align:center;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--sub);cursor:pointer">1</div>
-      <div onclick="setIntervalCount(2)" id="icnt-2" style="flex:1;padding:7px 0;text-align:center;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--sub);cursor:pointer">2</div>
-      <div onclick="setIntervalCount(3)" id="icnt-3" style="flex:1;padding:7px 0;text-align:center;border:1.5px solid var(--blue);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--blue);background:#EBF4FF;cursor:pointer">3</div>
+      <div onclick="setIntervalCount(2)" id="icnt-2" style="flex:1;padding:7px 0;text-align:center;border:1.5px solid var(--blue);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--blue);background:#EBF4FF;cursor:pointer">2</div>
+      <div onclick="setIntervalCount(3)" id="icnt-3" style="flex:1;padding:7px 0;text-align:center;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--sub);cursor:pointer">3</div>
       <div onclick="setIntervalCount(4)" id="icnt-4" style="flex:1;padding:7px 0;text-align:center;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--sub);cursor:pointer">4</div>
       <div onclick="setIntervalCount(5)" id="icnt-5" style="flex:1;padding:7px 0;text-align:center;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--sub);cursor:pointer">5</div>
     </div>
@@ -847,7 +847,7 @@ const EMPTY_VARIETY = () => ({name:'', age:0, reg:0, actual:0, dead:0, unable:0,
 
 // ── 모드 탭 (표본간격 / 착과수 입력) ──────────────────
 let currentMode = 0;
-let intervalCount = 3;
+let intervalCount = 2;
 let intervalData = Array.from({length:10}, ()=>({reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, treeOpen:false}));
 
 function getSurveyFromInterval(d) {
@@ -2037,7 +2037,7 @@ if ('serviceWorker' in navigator) {
 // ── 초기 실행 ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', ()=>{
   const _loaded = loadState();
-  setIntervalCount(intervalCount || 3);
+  setIntervalCount(intervalCount || 2);
   renderIntervalRows();
   onInput();
   if(currentMode === 1){
