@@ -1787,7 +1787,7 @@ function saveState(){
   try{
     allData[currentCrop].avgFruit = document.getElementById('avg_fruit')?.value ?? allData[currentCrop].avgFruit ?? '';
     allData[currentCrop].varieties = varieties;
-    localStorage.setItem('fruit_multi_state', JSON.stringify({
+    localStorage.setItem('fruit_multi_v2', JSON.stringify({
       currentMode,
       allData,
       isLocked: _isLocked,
@@ -1799,7 +1799,7 @@ function saveState(){
 
 function loadState(){
   try{
-    const raw = localStorage.getItem('fruit_multi_state');
+    const raw = localStorage.getItem('fruit_multi_v2');
     if(!raw) return false;
     const s = JSON.parse(raw);
     if(s.intervalData) intervalData = s.intervalData;
@@ -1842,7 +1842,7 @@ function resetAll() {
   document.getElementById('result-section').classList.remove('show');
   document.getElementById('result-detail-section').classList.remove('show');
   resetCalcBtn();
-  localStorage.removeItem('fruit_multi_state');
+  localStorage.removeItem('fruit_multi_v2');
   unlockInputs();
   onInput();
   window.scrollTo({top:0, behavior:'smooth'});
