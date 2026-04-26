@@ -378,7 +378,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div class="result-box" id="result-section">
     <div style="display:flex;align-items:center;padding:14px 0">
       <div style="padding-right:12px;flex-shrink:0">
-        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">착과율</span>
+        <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">착과수</span>
       </div>
       <div style="width:1px;height:34px;background:rgba(255,255,255,0.28);flex-shrink:0"></div>
       <div style="padding:0 12px;flex:1;min-width:0">
@@ -395,12 +395,12 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <div class="result-detail-box" id="result-detail-section">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0">
       <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
-        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">평년착과량(kg)</div>
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">평년수확량(kg)</div>
         <div style="font-size:15px;font-weight:700;color:var(--text)" id="r-avg">-</div>
       </div>
       <div style="padding:10px 8px;text-align:center;border-right:0.5px solid var(--border)">
-        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">적과후착과수</div>
-        <div style="font-size:15px;font-weight:700;color:var(--blue)" id="r-total">-</div>
+        <div style="font-size:10px;color:var(--sub);margin-bottom:4px">착과율</div>
+        <div style="font-size:15px;font-weight:700;color:var(--hint)" id="r-total">-</div>
       </div>
       <div style="padding:10px 8px;text-align:center">
         <div style="font-size:10px;color:var(--sub);margin-bottom:4px">계약변경여부</div>
@@ -901,7 +901,7 @@ function setMode(m) {
   document.getElementById('mode-tab-1').style.color = m===1 ? 'var(--blue)' : 'var(--hint)';
   document.getElementById('mode-tab-1').style.borderBottomColor = m===1 ? 'var(--blue)' : 'transparent';
   saveState();
-  // 착과수탭 진입 시 평년착과량 미입력이면 자동 포커스
+  // 착과수탭 진입 시 평년착과수 미입력이면 자동 포커스
   if(m === 1) setTimeout(()=>{
     const _af = document.getElementById('avg_fruit');
     if(_af && !_af.value) _af.focus();
@@ -1809,13 +1809,13 @@ function doCalc(manual = false) {
 
   // 메인 결과 박스
   const rateEl = document.getElementById('result-rate');
-  rateEl.textContent = (rate * 100).toFixed(2)+'%';
+  rateEl.textContent = Math.round(totalAfterFruit).toLocaleString()+'개';
   rateEl.style.color = rate >= 1 ? '#A8F0D8' : rate >= 0.8 ? '#FFE082' : '#FFD0D0';
 
   // 간이 결과 박스
-  document.getElementById('r-avg').textContent = avgFruit.toLocaleString()+'개';
+  document.getElementById('r-avg').textContent = avgFruit.toLocaleString()+'kg';
   const rTotal = document.getElementById('r-total');
-  rTotal.textContent = Math.round(totalAfterFruit).toLocaleString()+'개';
+  // 종합과수 착과율 미적용 — '-' 고정
   rTotal.style.color = rate >= 1 ? '#1D9E75' : rate >= 0.8 ? '#E8860A' : '#e24b4a';
   const rContract = document.getElementById('r-contract');
   rContract.textContent = needReview ? '계약변경대상' : '이상무';
