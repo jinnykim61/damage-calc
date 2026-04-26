@@ -284,15 +284,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     <button onclick="setEditModeFromTree()" id="btn-edit-tree" style="height:48px;border:2px solid var(--green);border-radius:var(--rs);background:white;color:var(--green);font-size:15px;font-weight:700;cursor:pointer">✏️ 수정하기</button>
     <button onclick="calcTreeResult()" style="height:48px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer">🌿 나무조사 계산하기</button>
   </div>
-  <button onclick="applyIntervalToVarieties()" style="width:100%;margin-top:6px;height:44px;background:#f0f4ff;color:var(--blue);border:1.5px solid var(--blue);border-radius:var(--rs);font-size:14px;font-weight:700;cursor:pointer">착과수 입력으로 →</button>
 
-  <!-- 나무조사 계산 결과 박스 -->
-  <div id="tree-result-box" style="display:none;margin-top:10px;background:var(--card);border-radius:var(--r);border:0.5px solid var(--border);overflow:hidden">
-    <div style="background:var(--blue);color:#fff;padding:10px 14px;font-size:13px;font-weight:700">🌿 나무조사 결과</div>
-    <div style="overflow-x:auto">
-      <table id="tree-result-table" style="width:100%;border-collapse:collapse;font-size:12px"></table>
-    </div>
-  </div>
 </div>
 
 <!-- 착과수 입력 탭 화면 -->
@@ -836,95 +828,7 @@ function calcTreeResult() {
   const icntBtns = document.querySelectorAll('[id^="icnt-"]');
   if(rows1) rows1.style.pointerEvents = 'none';
   icntBtns.forEach(b => b.style.pointerEvents = 'none');
-  document.getElementById('btn-edit-tree').style.display = 'inline-block';
-
-  // 데이터 계산
-  const data = intervalData.slice(0, intervalCount);
-  const total = data.reduce((s,d) => s + getSurveyFromInterval(d), 0);
-  const tp = getProperSample(total);
-
-  // 합계
-  let sumReg=0, sumActual=0, sumDead=0, sumUnable=0, sumUninsDead=0, sumUninsAlive=0;
-  let sumSurvey=0, sumSample=0;
-
-  // 테이블 생성
-  const thStyle = 'background:#f0f4ff;color:var(--blue);font-size:11px;font-weight:700;padding:7px 5px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap';
-  const tdStyle = 'padding:7px 5px;text-align:center;border-bottom:0.5px solid #eee;font-size:12px';
-  const tdBold  = tdStyle + ';font-weight:700;color:var(--text)';
-  const tdRed   = tdStyle + ';color:var(--red);font-weight:700';
-  const tdBlue  = tdStyle + ';color:var(--blue);font-weight:700';
-  const tdGreen = tdStyle + ';color:var(--green);font-weight:700';
-  const tdFoot  = 'padding:8px 5px;text-align:center;background:#f8f8f5;font-size:12px;font-weight:700;color:var(--text)';
-
-  let rows = '';
-  data.forEach((d, i) => {
-    const sv = getSurveyFromInterval(d);
-    const pn = sv>0&&total>0 ? Math.max(1, Math.ceil(tp*sv/total)) : 0;
-    const gap = pn>0&&sv>0 ? Math.round(sv/pn) : 0;
-    const hasTree = d.dead>0||d.unable>0||d.uninsDead>0||d.uninsAlive>0;
-    const treeFlag = hasTree
-      ? '<span style="color:var(--green);font-weight:700">✅</span>'
-      : '<span style="color:var(--hint)">-</span>';
-
-    sumReg      += d.reg||0;
-    sumActual   += d.actual||0;
-    sumDead     += d.dead||0;
-    sumUnable   += d.unable||0;
-    sumUninsDead+= d.uninsDead||0;
-    sumUninsAlive+=d.uninsAlive||0;
-    sumSurvey   += sv;
-    sumSample   += pn;
-
-    rows += `<tr>
-      <td style="${tdBold}">품종${i+1}</td>
-      <td style="${tdStyle}">${(d.reg||0).toLocaleString()}</td>
-      <td style="${tdStyle}">${(d.actual||0).toLocaleString()}</td>
-      <td style="${tdStyle}">${d.dead>0?'<span style=color:var(--red)>'+d.dead+'</span>':'-'}</td>
-      <td style="${tdStyle}">${d.unable>0?'<span style=color:var(--red)>'+d.unable+'</span>':'-'}</td>
-      <td style="${tdStyle}">${d.uninsDead>0?d.uninsDead:'-'}</td>
-      <td style="${tdStyle}">${d.uninsAlive>0?d.uninsAlive:'-'}</td>
-      <td style="${tdBlue}">${sv>0?sv:'-'}</td>
-      <td style="${tdRed}">${pn>0?pn+'주':'-'}</td>
-      <td style="${tdBlue}">${gap>0?gap+'칸':'-'}</td>
-      <td style="${tdStyle}">${treeFlag}</td>
-    </tr>`;
-  });
-
-  // 합계행
-  const foot = `<tr style="border-top:1.5px solid var(--border)">
-    <td style="${tdFoot}">합계</td>
-    <td style="${tdFoot}">${sumReg.toLocaleString()}</td>
-    <td style="${tdFoot}">${sumActual.toLocaleString()}</td>
-    <td style="${tdFoot};color:var(--red)">${sumDead>0?sumDead:'-'}</td>
-    <td style="${tdFoot};color:var(--red)">${sumUnable>0?sumUnable:'-'}</td>
-    <td style="${tdFoot}">${sumUninsDead>0?sumUninsDead:'-'}</td>
-    <td style="${tdFoot}">${sumUninsAlive>0?sumUninsAlive:'-'}</td>
-    <td style="${tdFoot};color:var(--blue)">${sumSurvey>0?sumSurvey:'-'}</td>
-    <td style="${tdFoot};color:var(--red)">${sumSample>0?sumSample+'주':'-'}</td>
-    <td style="${tdFoot}">-</td>
-    <td style="${tdFoot}">-</td>
-  </tr>`;
-
-  const header = `<thead><tr>
-    <th style="${thStyle}">품종</th>
-    <th style="${thStyle}">가입</th>
-    <th style="${thStyle}">실결</th>
-    <th style="${thStyle}">고사</th>
-    <th style="${thStyle}">불능</th>
-    <th style="${thStyle}">미보<br>고사</th>
-    <th style="${thStyle}">미보<br>미고</th>
-    <th style="${thStyle}">조사<br>대상</th>
-    <th style="${thStyle}">표본</th>
-    <th style="${thStyle}">간격</th>
-    <th style="${thStyle}">나무<br>조사</th>
-  </tr></thead>`;
-
-  const table = document.getElementById('tree-result-table');
-  table.innerHTML = header + '<tbody>' + rows + foot + '</tbody>';
-
-  const box = document.getElementById('tree-result-box');
-  box.style.display = 'block';
-  box.scrollIntoView({behavior:'smooth', block:'nearest'});
+  showToast('나무조사 완료 — 하단 요약을 확인하세요');
   saveState();
 }
 
@@ -934,7 +838,6 @@ function setEditModeFromTree() {
   const icntBtns = document.querySelectorAll('[id^="icnt-"]');
   if(rows1) rows1.style.pointerEvents = '';
   icntBtns.forEach(b => b.style.pointerEvents = '');
-  document.getElementById('tree-result-box').style.display = 'none';
   showToast('수정 가능합니다');
 }
 // 천단위 구분 입력
