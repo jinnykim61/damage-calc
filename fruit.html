@@ -816,6 +816,7 @@ function closeTree(i) {
     }
   }
   saveState();
+  onInput();
   // 계산 완료 상태에서 나무조사 수정 시 자동 재계산
   if(_isLocked) doCalc(true);
 }
