@@ -246,7 +246,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div style="display:flex;gap:10px;margin-bottom:14px">
       <div style="flex-shrink:0;width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">1</div>
       <div style="flex:1">
-        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">🌿 나무조사 탭</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">🌿 나무조사 탭 — 주수 입력</div>
         <div style="font-size:12px;color:var(--sub);line-height:1.9">
           품종 수 선택 후 품종별 <b style="color:var(--text)">가입주수 · 실제결과주수</b> 입력<br>
           나무조사 내역이 있는 경우 버튼 클릭하여 조사값 입력
@@ -270,15 +270,17 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div style="display:flex;gap:10px;margin-bottom:14px">
       <div style="flex-shrink:0;width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">2</div>
       <div style="flex:1">
-        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">🍎 착과수 입력 탭</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">🌿 나무조사 계산하기</div>
         <div style="font-size:12px;color:var(--sub);line-height:1.9">
-          <b style="color:var(--text)">평년착과수(개)</b> 입력 후 품종별 표본주 착과수 입력
+          나무조사 입력 완료 후 <b style="color:var(--text)">🌿 나무조사 계산하기</b> 버튼을 누르면<br>
+          입력칸이 잠기고 아래에 품종별 결과 테이블이 표시됩니다.<br><br>
+          <b style="color:var(--text)">결과 테이블 확인 항목</b><br>
+          가입주수 · 실제결과 · 고사 · 수확불능 · 미보상<br>
+          조사대상 · <b style="color:var(--red)">표본주수</b> · <b style="color:var(--blue)">조사간격(칸)</b> · 나무조사 완료여부(✅)
         </div>
-        <div style="background:#F5F4F0;border-radius:8px;padding:10px;margin-top:8px;font-size:12px;color:var(--sub);line-height:1.9">
-          <b style="color:var(--text)">표본주 추가 / 삭제</b><br>
-          품종 카드 우측 <b style="color:var(--text)">＋ / －</b> 버튼으로 조정합니다.<br>
-          적정 표본주수 이하이면 삭제가 제한됩니다.<br>
-          적정 표본주수 이상이면 자동계산에 반영됩니다.
+        <div class="warning-box" style="margin-top:8px">
+          💡 착과수 조사 전 표본주수와 간격을 미리 확인하세요.<br>
+          수정이 필요하면 <b>✏️ 수정하기</b>로 잠금 해제 후 재입력합니다.
         </div>
       </div>
     </div>
@@ -286,15 +288,34 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div style="height:1px;background:#f0f0f0;margin-bottom:14px"></div>
 
     <!-- STEP 3 -->
-    <div style="display:flex;gap:10px;margin-bottom:0">
+    <div style="display:flex;gap:10px;margin-bottom:14px">
       <div style="flex-shrink:0;width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">3</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">🍎 착과수 입력 탭</div>
+        <div style="font-size:12px;color:var(--sub);line-height:1.9">
+          상단 <b style="color:var(--text)">🍎 착과수 입력</b> 탭을 눌러 이동합니다.<br>
+          <b style="color:var(--text)">평년착과수(개)</b> 입력 후 품종별 표본주 착과수 입력
+        </div>
+        <div style="background:#F5F4F0;border-radius:8px;padding:10px;margin-top:8px;font-size:12px;color:var(--sub);line-height:1.9">
+          <b style="color:var(--text)">표본주 추가 / 삭제</b><br>
+          품종 카드 우측 <b style="color:var(--text)">＋ / －</b> 버튼으로 조정합니다.<br>
+          적정 표본주수 이하이면 삭제가 제한됩니다.
+        </div>
+      </div>
+    </div>
+
+    <div style="height:1px;background:#f0f0f0;margin-bottom:14px"></div>
+
+    <!-- STEP 4 -->
+    <div style="display:flex;gap:10px;margin-bottom:0">
+      <div style="flex-shrink:0;width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">4</div>
       <div style="flex:1">
         <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">🧮 착과수 계산하기</div>
         <div style="font-size:12px;color:var(--sub);line-height:1.9">
-          모든 입력 완료 후 <b style="color:var(--text)">착과수 계산하기</b> 버튼을 누르면<br>
-          입력 내용이 확정되고 <b style="color:var(--text)">🔒 보호 모드</b>로 전환됩니다.<br><br>
-          수정이 필요하면 <b style="color:var(--text)">✏️ 수정하기</b> 버튼으로 잠금 해제 후<br>
-          수정 완료 후 다시 <b style="color:var(--text)">착과수 계산하기</b>를 클릭하여 결과를 확정합니다.
+          모든 표본 입력 완료 후 <b style="color:var(--text)">착과수 계산하기</b> 버튼을 누르면<br>
+          착과율 · 적과후착과수가 확정되고 <b style="color:var(--text)">🔒 보호 모드</b>로 전환됩니다.<br><br>
+          수정이 필요하면 <b style="color:var(--text)">✏️ 수정하기</b>로 잠금 해제 후 재입력하고<br>
+          다시 <b style="color:var(--text)">착과수 계산하기</b>를 눌러 결과를 확정합니다.
         </div>
         <div class="warning-box" style="margin-top:8px">
           💡 계산하기 버튼을 눌러도 착과율이 바뀌지 않는다면,<br>
