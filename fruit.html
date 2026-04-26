@@ -1966,6 +1966,11 @@ function setEditMode(){
   document.getElementById('btn-edit').classList.add('active');
   document.getElementById('btn-calc').classList.remove('active');
   saveState();
+  // 수정하기 후 평년착과량 입력칸 포커스 + 전체선택
+  setTimeout(()=>{
+    const _af = document.getElementById('avg_fruit');
+    if(_af){ _af.focus(); _af.select(); }
+  }, 100);
 }
 function lockInputs(){ setCalcMode(); }
 function unlockInputs(){ setEditMode(); }
