@@ -1190,19 +1190,37 @@ function updateSummaryOnly() {
 // ── 나무조사 합계 상세정보 표시 ──────────────────────
 // showZero: true이면 0도 '0주'로 표시 (계산 후), false이면 0은 빈칸
 function updateTreeSummary(showZero) {
-  const totalDead      = varieties.reduce((s,v)=>s+(v.dead||0),0);
-  const totalUnable    = varieties.reduce((s,v)=>s+(v.unable||0),0);
-  const totalUninsDead = varieties.reduce((s,v)=>s+(v.uninsDead||0),0);
-  const totalUninsAlive= varieties.reduce((s,v)=>s+(v.uninsAlive||0),0);
-  const fmt = (id, val) => {
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.value = (showZero || val > 0) ? val.toLocaleString()+'주' : '';
-  };
-  fmt('total_dead',      totalDead);
-  fmt('total_unable',    totalUnable);
-  fmt('total_uninsDead', totalUninsDead);
-  fmt('total_uninsAlive',totalUninsAlive);
+  // intervalData 기반 (나무조사탭 입력값 반영)
+  const src = intervalData.slice(0, intervalCount);
+  const totalDead      = src.reduce((s,d)=>s+(d.dead||0),0);
+  const totalUnable    = src.reduce((s,d)=>s+(d.unable||0),0);
+  const totalUninsDead = src.reduce((s,d)=>s+(d.uninsDead||0),0);
+  const totalUninsAlive= src.reduce((s,d)=>s+(d.uninsAlive||0),0);
+  // 나무조사탭 하단 iv- 요약바 업데이트
+  const _rv = document.getElementById('iv-reg-total');
+  const _av = document.getElementById('iv-actual-total');
+  const _tv = document.getElementById('iv-total');
+  const _pv = document.getElementById('iv-proper');
+  const _regT = src.reduce((s,d)=>s+(d.reg||0),0);
+  const _actT = src.reduce((s,d)=>s+(d.actual||0),0);
+  const _totSv = src.reduce((s,d)=>s+getSurveyFromInterval(d),0);
+  const _tp2 = getProperSample(_totSv);
+  const _propSum = src.reduce((s,d)=>{
+    const _sv=getSurveyFromInterval(d);
+    return s+(_sv>0&&_totSv>0?Math.max(1,Math.ceil(_tp2*_sv/_totSv)):0);
+  },0);
+  if(_rv) _rv.textContent = _regT>0?_regT.toLocaleString()+'주':'-';
+  if(_av) _av.textContent = _actT>0?_actT.toLocaleString()+'주':'-';
+  if(_tv) _tv.textContent = _propSum>0?_propSum+'주':'-';
+  if(_pv) _pv.textContent = _propSum>0?_propSum+'주':'-';
+  const _did=document.getElementById('iv-dead');
+  const _diu=document.getElementById('iv-unable');
+  const _diud=document.getElementById('iv-uninsDead');
+  const _diua=document.getElementById('iv-uninsAlive');
+  if(_did) _did.textContent=totalDead>0?totalDead+'주':'-';
+  if(_diu) _diu.textContent=totalUnable>0?totalUnable+'주':'-';
+  if(_diud) _diud.textContent=totalUninsDead>0?totalUninsDead+'주':'-';
+  if(_diua) _diua.textContent=totalUninsAlive>0?totalUninsAlive+'주':'-';
 }
 
 // ── 표본주수 계산 ─────────────────────────────────
