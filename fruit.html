@@ -179,7 +179,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 .save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
 .save-btn:active{background:rgba(255,255,255,0.35)}
 /* 입력 잠금 상태 */
-.locked input.inp:not([type=date]), .locked select.inp, .locked input.sg-inp, .locked input[type=number]{ pointer-events:none; opacity:0.72; }
+.locked input.inp:not([type=date]):not([id^="tree-"]):not([id^="reg-"]):not([id^="actual-"]), .locked select.inp, .locked input.sg-inp, .locked input[type=number]:not([id^="tree-"]):not([id^="reg-"]):not([id^="actual-"]), .locked #avg_fruit{ pointer-events:none; opacity:0.72; }
 .locked input[type=date].inp{ pointer-events:none; opacity:0.72; }
 /* 계산하기/수정하기 버튼 */
 .calc-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
@@ -802,6 +802,8 @@ function closeTree(i) {
   const body = document.getElementById('tree-body-' + i);
   if(body) body.style.display = 'none';
   saveState();
+  // 계산 완료 상태에서 나무조사 수정 시 자동 재계산
+  if(_isLocked) doCalc(true);
 }
 function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
 function setEditModeFromTree(){
@@ -1121,6 +1123,33 @@ function updateSummaryOnly() {
   const needReview = checkNeedReview();
   const cEl = document.getElementById('contract_yn');
   if(cEl){ cEl.value=totalReg>0?(needReview?'계약변경 대상':'이상무'):''; cEl.className='auto'+(needReview?' warn':(totalReg>0?' ok':'')); }
+  // 나무조사탭 요약바(iv-) 업데이트
+  const _rv = document.getElementById('iv-reg-total');
+  const _av = document.getElementById('iv-actual-total');
+  const _tv = document.getElementById('iv-total');
+  const _pv = document.getElementById('iv-proper');
+  const _regT = intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.reg||0),0);
+  const _actT = intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.actual||0),0);
+  const _totSv = intervalData.slice(0,intervalCount).reduce((s,d)=>s+getSurveyFromInterval(d),0);
+  const _tp2 = getProperSample(_totSv);
+  const _propSum = intervalData.slice(0,intervalCount).reduce((s,d)=>{
+    const _sv=getSurveyFromInterval(d);
+    return s+(_sv>0&&_totSv>0?Math.max(1,Math.ceil(_tp2*_sv/_totSv)):0);
+  },0);
+  if(_rv) _rv.textContent = _regT>0 ? _regT.toLocaleString()+'주' : '-';
+  if(_av) _av.textContent = _actT>0 ? _actT.toLocaleString()+'주' : '-';
+  if(_tv) _tv.textContent = _propSum>0 ? _propSum+'주' : '-';
+  if(_pv) _pv.textContent = _propSum>0 ? _propSum+'주' : '-';
+  const _did=document.getElementById('iv-dead'),_diu=document.getElementById('iv-unable');
+  const _diud=document.getElementById('iv-uninsDead'),_diua=document.getElementById('iv-uninsAlive');
+  const _dD=intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.dead||0),0);
+  const _dU=intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.unable||0),0);
+  const _dUD=intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.uninsDead||0),0);
+  const _dUA=intervalData.slice(0,intervalCount).reduce((s,d)=>s+(d.uninsAlive||0),0);
+  if(_did) _did.textContent=_dD>0?_dD+'주':'-';
+  if(_diu) _diu.textContent=_dU>0?_dU+'주':'-';
+  if(_diud) _diud.textContent=_dUD>0?_dUD+'주':'-';
+  if(_diua) _diua.textContent=_dUA>0?_dUA+'주':'-';
   updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample);
 }
 
