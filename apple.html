@@ -801,6 +801,20 @@ function closeTree(i) {
   intervalData[i].treeOpen = false;
   const body = document.getElementById('tree-body-' + i);
   if(body) body.style.display = 'none';
+  // 나무조사 버튼 색상 즉시 업데이트
+  const d = intervalData[i];
+  const hasTree = d.dead>0||d.unable>0||d.uninsDead>0||d.uninsAlive>0;
+  const btn = document.querySelector(`#interval-rows-1 .tree-btn-${i}`);
+  // 버튼은 row 내 button 태그로 직접 찾기
+  const rows = document.querySelectorAll('#interval-rows-1 > div');
+  if(rows[i]) {
+    const tBtn = rows[i].querySelector('button');
+    if(tBtn) {
+      tBtn.style.borderColor = hasTree ? '#0F6E56' : 'var(--green)';
+      tBtn.style.background  = hasTree ? 'var(--green)' : 'transparent';
+      tBtn.style.color       = hasTree ? '#fff' : 'var(--green)';
+    }
+  }
   saveState();
   // 계산 완료 상태에서 나무조사 수정 시 자동 재계산
   if(_isLocked) doCalc(true);
