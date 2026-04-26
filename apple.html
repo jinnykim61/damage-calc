@@ -1909,8 +1909,17 @@ function resetAll() {
   resetCalcBtn();
   localStorage.removeItem('apple_multi_v2');
   unlockInputs();
+  // 나무조사 계산하기 잠금 해제
+  const _r1 = document.getElementById('interval-rows-1');
+  if(_r1) _r1.style.pointerEvents = '';
+  document.querySelectorAll('[id^="icnt-"]').forEach(b => b.style.pointerEvents = '');
   onInput();
   window.scrollTo({top:0, behavior:'smooth'});
+  // 첫 번째 가입주수 칸으로 포커스
+  setTimeout(() => {
+    const _first = document.getElementById('reg-0');
+    if(_first) _first.focus();
+  }, 300);
 }
 
 // ── 계산하기 / 수정하기 모드 ─────────────────────
