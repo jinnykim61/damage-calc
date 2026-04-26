@@ -1835,8 +1835,7 @@ function loadState(){
 
 function resetAll() {
   intervalData = Array.from({length:10}, ()=>({reg:0, actual:0, dead:0, unable:0, uninsDead:0, uninsAlive:0, treeOpen:false}));
-  intervalCount = 2;
-  setIntervalCount(3);
+  setIntervalCount(2);
   for(const crop of Object.keys(allData)){
     allData[crop].avgFruit = '';
     allData[crop].varieties = [EMPTY_VARIETY()];
