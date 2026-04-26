@@ -1810,6 +1810,8 @@ function doCalc(manual = false) {
   // 메인 결과 박스
   const rateEl = document.getElementById('result-rate');
   rateEl.textContent = Math.round(totalAfterFruit).toLocaleString()+'개';
+  const _len = rateEl.textContent.length;
+  rateEl.style.fontSize = _len > 9 ? '18px' : _len > 7 ? '22px' : '26px';
   rateEl.style.color = rate >= 1 ? '#A8F0D8' : rate >= 0.8 ? '#FFE082' : '#FFD0D0';
 
   // 간이 결과 박스
