@@ -677,6 +677,8 @@ function setCalcMode(){
   document.querySelector('.content').classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
   document.getElementById('btn-edit').classList.remove('active');
+  // 잠금 직전 계산 실행 — 결과값 반드시 표시
+  if(mode === 'sample') calc(); else calcFull();
   saveState();
 }
 function setEditMode(){
