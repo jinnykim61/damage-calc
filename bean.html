@@ -150,8 +150,13 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
 
   <!-- ② 보험가입사항 (공통) -->
   <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">② 보험가입사항</div>
+    <div class="g3" style="align-items:center;margin-bottom:8px">
+      <div class="field" style="justify-content:center">
+        <span class="sec-title" style="margin-bottom:0">② 보험가입사항</span>
+      </div>
+      <div class="field"></div>
+      <div class="field"><label>계약변경여부</label>
+        <input type="text" id="contractYn" class="auto" readonly></div>
     </div>
     <div class="g3">
       <div class="field"><label>평년수확량 (kg)</label>
@@ -166,16 +171,16 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
         <input type="number" id="deadArea" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
       <div class="field"><label>미보상면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="number" id="uninsArea" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
-      <div class="field"><label>미보상비율 <span style="font-size:10px;color:var(--hint)">%</span></label>
-        <input type="number" id="uninsRate" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
+      <div class="field"><label>기수확면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
+        <input type="number" id="harvArea" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
     </div>
     <div class="g3">
       <div class="field"><label>조사대상면적</label>
         <input type="text" id="surveyArea" class="auto" readonly></div>
       <div class="field"><label>조사수확량 (kg)</label>
         <input type="text" id="commonSurvey" class="auto" readonly></div>
-      <div class="field"><label>계약변경여부</label>
-        <input type="text" id="contractYn" class="auto" readonly></div>
+      <div class="field"><label>미보상비율 <span style="font-size:10px;color:var(--hint)">%</span></label>
+        <input type="number" id="uninsRate" class="inp" inputmode="decimal" placeholder="0" oninput="markFilled(this)" onblur="calc()"></div>
     </div>
   </div>
 
@@ -473,8 +478,9 @@ function calcCommon(){
   const actArea = toNum(document.getElementById('actArea'));
   const deadArea = parseFloat(document.getElementById('deadArea').value)||0;
   const uninsArea = parseFloat(document.getElementById('uninsArea').value)||0;
+  const harvArea = parseFloat(document.getElementById('harvArea').value)||0;
   const realArea = actArea||insArea;
-  const surveyArea = Math.max(0, realArea - deadArea - uninsArea);
+  const surveyArea = Math.max(0, realArea - deadArea - uninsArea - harvArea);
 
   document.getElementById('surveyArea').value = surveyArea>0 ? surveyArea.toLocaleString()+' ㎡' : '';
 
@@ -659,6 +665,7 @@ function saveState(){
       actArea:document.getElementById('actArea').value,
       deadArea:document.getElementById('deadArea').value,
       uninsArea:document.getElementById('uninsArea').value,
+      harvArea:document.getElementById('harvArea').value,
       uninsRate:document.getElementById('uninsRate').value,
       samples,
       fullWeight:document.getElementById('fullWeight').value,
@@ -674,7 +681,7 @@ function loadState(){
     const raw=localStorage.getItem('bean_state');
     if(!raw) return;
     const s=JSON.parse(raw);
-    ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate',
+    ['avgYield','insArea','actArea','deadArea','uninsArea','harvArea','uninsRate',
      'fullWeight','fullMoisture','fullUninsRate'].forEach(id=>{
       const el=document.getElementById(id);
       if(el&&s[id]!==undefined&&s[id]!==''){el.value=s[id];el.classList.add('filled');}
@@ -688,7 +695,7 @@ function loadState(){
 
 function resetAll(){
   try{localStorage.removeItem('bean_state');}catch(e){}
-  ['avgYield','insArea','actArea','deadArea','uninsArea','uninsRate',
+  ['avgYield','insArea','actArea','deadArea','uninsArea','harvArea','uninsRate',
    'fullWeight','fullMoisture','fullUninsRate',
    'fullSurvey','surveyArea','contractYn','commonSurvey'].forEach(id=>{
     const el=document.getElementById(id);
