@@ -426,13 +426,12 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 
 <!-- 갤러리 저장용 캡처 템플릿 -->
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:900px;background:#f3f4f6;padding:0;z-index:-1">
-  <div style="background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 8%,#f3f4f6 8%,#f3f4f6 100%);padding:0 20px 20px;box-sizing:border-box">
+  <div style="background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 12%,#f3f4f6 12%,#f3f4f6 100%);padding:0 20px 20px;box-sizing:border-box">
     <div style="height:18px"></div>
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;color:#fff;margin-bottom:12px">
       <div style="font-size:15px;font-weight:800;letter-spacing:0.04em" id="cap-title">사과 적과후착과수 조사결과</div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-        <span id="cap-date-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
-        <span id="cap-farmno-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
+      <div style="font-size:14px;font-weight:800;color:#fff;white-space:nowrap">
+        <span id="cap-date-disp"></span><span id="cap-farmno-disp" style="margin-left:10px"></span>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px">
@@ -2019,7 +2018,7 @@ async function saveImage() {
     const _capDate = document.getElementById('cap-date-disp');
     const _capFarm = document.getElementById('cap-farmno-disp');
     if(_capDate) _capDate.textContent = _survDate || '';
-    if(_capFarm) _capFarm.textContent = _farmNo ? '농지번호: ' + _farmNo : '';
+    if(_capFarm) _capFarm.textContent = _farmNo ? '| 농지번호 ' + _farmNo : '';
     document.getElementById('cap-avg').textContent    = avgFruit>0 ? avgFruit.toLocaleString()+'개' : '-';
     document.getElementById('cap-reg').textContent    = totalReg>0 ? totalReg.toLocaleString()+'주' : '-';
     document.getElementById('cap-survey').textContent = totalSurvey>0 ? totalSurvey.toLocaleString()+'주' : '-';
