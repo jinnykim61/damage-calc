@@ -285,13 +285,21 @@ tbody td input.filled:active{
 <div class="content">
 
   <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">기본 정보</div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
+      <div></div>
       <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
     </div>
     <select id="crop" style="display:none">
       <option value="onion" selected>양파</option>
     </select>
+    <div style="display:flex;gap:8px;align-items:flex-end">
+      <div class="field" style="width:50%">
+        <label>농지번호 4자리</label>
+        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호"
+          maxlength="4"
+          oninput="markFilled(this)" onchange="">
+      </div>
+    </div>
   </div>
 
   <div class="section">
@@ -458,7 +466,13 @@ tbody td input.filled:active{
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
   <div style="min-height:932px;background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
     <div style="height:26px"></div>
-    <div style="text-align:center;color:#fff;margin-bottom:14px"><div style="font-size:15px;font-weight:700">양파 피해율 계산결과</div></div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700">양파 피해율 계산결과</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span id="cap-date-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
+        <span id="cap-farmno-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
+      </div>
+    </div>
     <div style="display:flex;flex-direction:column;gap:12px">
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
@@ -590,6 +604,22 @@ tbody td input.filled:active{
 </div>
 
 <script>
+// ── 길이/폭 정규화: .9 → 0.9 ────────────────────
+function normalizeDim(val){
+  if(!val && val!==0) return '';
+  let v = String(val).trim();
+  if(/^\.\d/.test(v)) v = '0' + v;
+  const num = parseFloat(v);
+  if(isNaN(num)) return '';
+  return num.toString();
+}
+function formatDim(val){
+  if(val===''||val===undefined||val===null) return '';
+  const num = parseFloat(val);
+  if(isNaN(num)) return '';
+  return num.toString();
+}
+
 // 천단위 구분 입력
 function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
 function onCommaInput(el){
@@ -641,14 +671,14 @@ function renderSamples(){
   document.getElementById('sample-body').innerHTML=samples.map((s,i)=>`
     <tr>
       <td class="no">${i+1}</td>
-      <td><input type="number" value="${s.len}" step="0.01" inputmode="decimal"
+      <td><input type="text" value="${s.len?formatDim(s.len):''}" inputmode="decimal"
         class="${s.len?'filled':''}"
-        oninput="samples[${i}].len=this.value;this.classList.toggle('filled',this.value!='');debouncedCalcTotals()"
-        onblur="samples[${i}].len=this.value;calcTotals()"></td>
-      <td><input type="number" value="${s.wid}" step="0.01" inputmode="decimal"
+        oninput="this.classList.toggle('filled',this.value!='');debouncedCalcTotals()"
+        onblur="this.value=normalizeDim(this.value);samples[${i}].len=this.value;calcTotals()"></td>
+      <td><input type="text" value="${s.wid?formatDim(s.wid):''}" inputmode="decimal"
         class="${s.wid?'filled':''}"
-        oninput="samples[${i}].wid=this.value;this.classList.toggle('filled',this.value!='');debouncedCalcTotals()"
-        onblur="samples[${i}].wid=this.value;calcTotals()"></td>
+        oninput="this.classList.toggle('filled',this.value!='');debouncedCalcTotals()"
+        onblur="this.value=normalizeDim(this.value);samples[${i}].wid=this.value;calcTotals()"></td>
       <td><input type="text" value="${s.norm?Number(s.norm).toLocaleString():''}" inputmode="decimal"
         class="${s.norm?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'');debouncedCalcTotals()"
@@ -899,9 +929,13 @@ function resetAll(){
   document.getElementById('area_err_disp').value='';
   document.getElementById('remain_info').value='-';
   document.getElementById('crop').classList.remove('filled');
+  const farmEl=document.getElementById('farm_no');
+  if(farmEl){ farmEl.value=''; farmEl.classList.remove('filled'); }
   _isLocked = false; unlockInputs();
   samples=[];
   renderSamples();
+  document.getElementById('s-area').textContent='-';
+  document.getElementById('s-unit').textContent='-';
   calc();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -910,6 +944,13 @@ function resetAll(){
 function fillOnionCaptureTemplate(){
   const fmtShort = v => { if(!v) return '-'; const p=v.split('-'); return p.length===3?`${p[0].slice(2)}-${p[1]}-${p[2]}`:v; };
   const contractV = document.getElementById('contract_yn_disp').value || '-';
+  // 날짜 + 농지번호 캡처
+  const survDateVal = document.getElementById('survey_date').value || '';
+  const farmNoVal = (document.getElementById('farm_no').value || '').trim();
+  const capDateEl = document.getElementById('cap-date-disp');
+  const capFarmEl = document.getElementById('cap-farmno-disp');
+  if(capDateEl) capDateEl.textContent = survDateVal || '';
+  if(capFarmEl) capFarmEl.textContent = farmNoVal ? '농지번호: ' + farmNoVal : '';
   const contractColor = contractV.includes('변경') ? '#e24b4a' : '#111827';
 
   document.getElementById('cap-avg-yield').textContent = document.getElementById('avg_yield').value ? document.getElementById('avg_yield').value+' kg' : '-';
@@ -977,6 +1018,7 @@ async function saveImage(){
 function saveState(){
   const state={
     crop: document.getElementById('crop').value,
+    farm_no: document.getElementById('farm_no').value,
     avg_yield: document.getElementById('avg_yield').value,
     ins_area: document.getElementById('ins_area').value,
     act_area: document.getElementById('act_area').value,
@@ -1016,6 +1058,7 @@ function loadState(){
       }
     });
 
+    if(s.farm_no){ const farmEl=document.getElementById('farm_no'); if(farmEl){ farmEl.value=s.farm_no; farmEl.classList.add('filled'); } }
     if(s.samples && s.samples.length>0) samples=s.samples;
     if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
     return true;
@@ -1036,7 +1079,9 @@ document.getElementById('btn-install').addEventListener('click',async()=>{
 
 // ── 초기 실행 ─────────────────────────────────────
 const loaded = loadState();
-if(!loaded) document.getElementById('survey_date').value=fmt(new Date());
+// 조사일자는 항상 오늘 날짜
+document.getElementById('survey_date').value=fmt(new Date());
+document.getElementById('survey_date').classList.add('filled');
 
 window.addEventListener('beforeunload', saveState);
 
