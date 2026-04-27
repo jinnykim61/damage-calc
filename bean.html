@@ -129,11 +129,29 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
 </div>
 
 <div class="content">
-  <!-- ① 보험가입사항 (공통) -->
+  <!-- ① 기본정보 -->
+  <div class="section">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
+      <div class="sec-title" style="margin-bottom:0">① 기본정보</div>
+      <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label>농지번호 4자리</label>
+        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호"
+          maxlength="4" oninput="markFilled(this)">
+      </div>
+      <div class="field">
+        <label>조사일자</label>
+        <input type="date" id="survey_date" class="inp" onchange="markFilled(this)">
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 보험가입사항 (공통) -->
   <div class="section">
     <div class="sec-head">
-      <div class="sec-title">① 보험가입사항</div>
-      <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
+      <div class="sec-title">② 보험가입사항</div>
     </div>
     <div class="g3">
       <div class="field"><label>평년수확량 (kg)</label>
@@ -161,11 +179,11 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
     </div>
   </div>
 
-  <!-- ② 표본조사 -->
+  <!-- ③ 표본조사 -->
   <div id="sec-sample">
     <div class="section">
       <div class="sec-head">
-        <div class="sec-title">② 표본구간 조사 <span id="sample-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+        <div class="sec-title">③ 표본구간 조사 <span id="sample-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
         <span style="font-size:10px;color:var(--hint);font-weight:400">길이·폭(m) / 중량(g) / 함수율(%)</span>
       </div>
       <div class="tbl-wrap">
@@ -197,10 +215,10 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
     </div>
   </div>
 
-  <!-- ② 전수조사 -->
+  <!-- ③ 전수조사 -->
   <div id="sec-full" style="display:none">
     <div class="section">
-      <div class="sec-title">② 전수조사 수확량</div>
+      <div class="sec-title">③ 전수조사 수확량</div>
       <div class="g3">
         <div class="field"><label>계근중량 (kg)</label>
           <input type="text" id="fullWeight" class="inp" inputmode="decimal" oninput="onCommaInput(this)" onblur="calcFull()"></div>
@@ -238,7 +256,13 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
   <div style="min-height:932px;background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
     <div style="height:26px"></div>
-    <div style="text-align:center;color:#fff;margin-bottom:14px"><div style="font-size:15px;font-weight:700">콩 피해율 계산결과</div></div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700">콩 피해율 계산결과</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span id="cap-date-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
+        <span id="cap-farmno-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
+      </div>
+    </div>
 
     <div style="display:flex;flex-direction:column;gap:12px">
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
@@ -389,6 +413,22 @@ function removeSample(){
     return;
   }
   samples.pop(); renderSamples(); calc();
+}
+
+// ── 길이/폭 정규화: .9 → 0.9 ────────────────────
+function normalizeDim(val){
+  if(!val && val!==0) return '';
+  let v = String(val).trim();
+  if(/^\.\d/.test(v)) v = '0' + v;
+  const num = parseFloat(v);
+  if(isNaN(num)) return '';
+  return num.toString();
+}
+function formatDim(val){
+  if(val===''||val===undefined||val===null) return '';
+  const num = parseFloat(val);
+  if(isNaN(num)) return '';
+  return num.toString();
 }
 
 function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
@@ -567,14 +607,14 @@ function renderSamples(){
   document.getElementById('sample-body').innerHTML = samples.map((s,i)=>`
     <tr>
       <td style="font-weight:600;color:var(--sub);font-size:10px">${i+1}</td>
-      <td><input type="number" value="${s.len||''}" inputmode="decimal" step="0.1"
+      <td><input type="text" value="${s.len?formatDim(s.len):''}" inputmode="decimal"
         class="${s.len?'filled':''}"
-        oninput="samples[${i}].len=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
-        onblur="calc()"></td>
-      <td><input type="number" value="${s.wid||''}" inputmode="decimal" step="0.1"
+        oninput="this.classList.toggle('filled',!!this.value);calcTotals()"
+        onblur="this.value=normalizeDim(this.value);samples[${i}].len=this.value;calc()"></td>
+      <td><input type="text" value="${s.wid?formatDim(s.wid):''}" inputmode="decimal"
         class="${s.wid?'filled':''}"
-        oninput="samples[${i}].wid=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
-        onblur="calc()"></td>
+        oninput="this.classList.toggle('filled',!!this.value);calcTotals()"
+        onblur="this.value=normalizeDim(this.value);samples[${i}].wid=this.value;calc()"></td>
       <td><input type="number" value="${s.weight||''}" inputmode="decimal"
         class="${s.weight?'filled':''}"
         oninput="samples[${i}].weight=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
@@ -612,6 +652,8 @@ function saveState(){
   try{
     localStorage.setItem('bean_state', JSON.stringify({
       mode,
+      farm_no: document.getElementById('farm_no')?.value||'',
+      survey_date: document.getElementById('survey_date')?.value||'',
       avgYield:document.getElementById('avgYield').value,
       insArea:document.getElementById('insArea').value,
       actArea:document.getElementById('actArea').value,
@@ -637,6 +679,7 @@ function loadState(){
       const el=document.getElementById(id);
       if(el&&s[id]!==undefined&&s[id]!==''){el.value=s[id];el.classList.add('filled');}
     });
+    if(s.farm_no){const el=document.getElementById('farm_no');if(el){el.value=s.farm_no;el.classList.add('filled');}}
     if(s.samples&&s.samples.length>0){samples=s.samples;renderSamples();}
     if(s.mode) setMode(s.mode);
     if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
@@ -651,6 +694,7 @@ function resetAll(){
     const el=document.getElementById(id);
     if(el){el.value='';el.classList.remove('filled');el.style.color='';el.style.fontWeight='';}
   });
+  const farmEl=document.getElementById('farm_no');if(farmEl){farmEl.value='';farmEl.classList.remove('filled');}
   samples=[];
   document.getElementById('sample-body').innerHTML='';
   document.getElementById('sample-badge').textContent = samples.length>0 ? `(${samples.length}구간)` : '';
@@ -669,6 +713,13 @@ if('serviceWorker' in navigator){
 }
 
 function fillBeanCaptureTemplate(){
+  // 날짜 + 농지번호 캡처
+  const survDateVal = document.getElementById('survey_date')?.value || '';
+  const farmNoVal = (document.getElementById('farm_no')?.value || '').trim();
+  const capDateEl = document.getElementById('cap-date-disp');
+  const capFarmEl = document.getElementById('cap-farmno-disp');
+  if(capDateEl) capDateEl.textContent = survDateVal || '';
+  if(capFarmEl) capFarmEl.textContent = farmNoVal ? '농지번호: ' + farmNoVal : '';
   const avgYield = document.getElementById('avgYield')?.value ? document.getElementById('avgYield').value + ' kg' : '-';
   const insArea = document.getElementById('insArea')?.value ? document.getElementById('insArea').value + ' ㎡' : '-';
   const contract = document.getElementById('contractYn')?.value || '-';
@@ -725,6 +776,12 @@ async function saveImage(){
 
 setMode('sample');
 loadState();
+// 조사일자 항상 오늘 날짜
+document.getElementById('survey_date').value = (()=>{
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+})();
+document.getElementById('survey_date').classList.add('filled');
 setTimeout(()=>{ if(mode==='sample') calc(); else calcFull(); }, 50);
 window.addEventListener('beforeunload', saveState);
 
