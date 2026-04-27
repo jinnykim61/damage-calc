@@ -248,7 +248,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible{
       <div class="field">
         <label style="font-size:11px;color:var(--sub);font-weight:500">농지번호 4자리</label>
         <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호"
-          maxlength="4" oninput="this.classList.toggle('filled',this.value!=='');saveState()">
+          maxlength="4" autocomplete="off" oninput="this.classList.toggle('filled',this.value!=='');saveState()">
       </div>
       <div class="field">
         <label style="font-size:11px;color:var(--sub);font-weight:500">조사일자</label>
@@ -2209,6 +2209,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     doCalc(true);
   }
   document.body.style.visibility = 'visible';
+  // 첫 입력 커서를 농지번호로
+  setTimeout(()=>{ const el=document.getElementById('farm_no'); if(el&&!el.value) el.focus(); }, 300);
 });
 </script>
 </div><!-- /mode-section-1 -->
