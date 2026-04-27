@@ -407,10 +407,12 @@ function bindMobileFocusHandlers(){
         if(e.cancelable) e.preventDefault();
         el.focus();
         el.classList.add('mobile-focus');
-        try{ el.select(); }catch(_){
-          const len=el.value.length;
-          try{ el.setSelectionRange(0,len); }catch(_){}
-        }
+        setTimeout(()=>{
+          try{ el.select(); }catch(_){
+            const len=el.value.length;
+            try{ el.setSelectionRange(0,len); }catch(_){}
+          }
+        }, 50);
       },{passive:false});
     }
   });
@@ -671,9 +673,12 @@ function renderSamples(){
         oninput="samples[${i}].weight=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
         onblur="calc()" autocomplete="off"></td>
       <td><input type="number" value="${s.moist||''}" inputmode="decimal" step="0.1"
+        enterkeyhint="${i < samples.length-1 ? 'next' : 'done'}"
         class="${s.moist?'filled':''}"
         oninput="samples[${i}].moist=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
-        onblur="calc()" autocomplete="off"></td>
+        onblur="calc()"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();if(${i} < samples.length-1){const _rows=document.querySelectorAll('#sample-body tr');const _next=_rows[${i+1}]?.querySelector('input');if(_next)_next.focus();}else{this.setAttribute('readonly','');setTimeout(()=>{this.blur();this.removeAttribute('readonly');},10);}}"
+        autocomplete="off"></td>
     </tr>`).join('');
   calcTotals();
 }
