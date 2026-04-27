@@ -761,12 +761,12 @@ function renderSamples(){
         class="${s.wid?'filled':''}"
         oninput="this.classList.toggle('filled',this.value!='')"
         onblur="this.value=normalizeDim(this.value);samples[${i}].wid=this.value;calcTotals();saveState()"></td>
-      <td><input type="text" value="${s.norm?Number(s.norm).toLocaleString():''}" inputmode="decimal"
-        class="${s.norm?'filled':''}"
-        oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'')"
+      <td><input type="text" value="${s.norm!==''&&s.norm!==undefined&&s.norm!==null?Number(s.norm).toLocaleString():''}" inputmode="decimal"
+        class="${s.norm!==''&&s.norm!==undefined&&s.norm!==null?'filled':''}"
+        oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'');this.classList.toggle('filled',this.value!=='')"
         onblur="samples[${i}].norm=this.value.replace(/,/g,'');calcTotals();saveState()"></td>
-      <td><input type="text" value="${s.d80?Number(s.d80).toLocaleString():''}" inputmode="decimal"
-        class="${s.d80?'filled':''}"
+      <td><input type="text" value="${s.d80!==''&&s.d80!==undefined&&s.d80!==null&&s.d80!=='0'?Number(s.d80).toLocaleString():''}" inputmode="decimal"
+        class="${s.d80!==''&&s.d80!==undefined&&s.d80!==null&&s.d80!=='0'?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].d80=this.value.replace(/,/g,'')"
         onblur="samples[${i}].d80=this.value.replace(/,/g,'');calcTotals();saveState()"></td>
       <td class="col-d50"><input type="text" value="${s.d50?Number(s.d50).toLocaleString():''}" inputmode="decimal"
