@@ -1991,7 +1991,6 @@ let _isLocked = false;
 function setCalcMode(){
   _isLocked = true;
   document.querySelectorAll('.content').forEach(el => el.classList.add('locked'));
-  document.getElementById('mode-section-0')?.classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
   document.getElementById('btn-edit').classList.remove('active');
   doCalc(true);
@@ -2000,7 +1999,6 @@ function setCalcMode(){
 function setEditMode(){
   _isLocked = false;
   document.querySelectorAll('.content').forEach(el => el.classList.remove('locked'));
-  document.getElementById('mode-section-0')?.classList.remove('locked');
   document.getElementById('btn-edit').classList.add('active');
   document.getElementById('btn-calc').classList.remove('active');
   saveState();

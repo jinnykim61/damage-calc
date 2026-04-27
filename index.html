@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" translate="no" class="notranslate">
 <head>
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-392584711"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-392584711');
-</script>
 <meta charset="UTF-8">
 <meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -129,7 +121,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <div class="crop-card done" onclick="go('apple')">
       <span class="badge badge-done">완성</span>
       <div class="crop-icon">🍎🍐🟠🟤</div>
-      <div class="crop-name">착과수 조사</div>
+      <div class="crop-name">적과후착과수 조사</div>
       <div class="crop-desc">사과·배·단감·떫은감</div>
     </div>
   </div>
@@ -177,26 +169,6 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
   caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
 }
-</script>
-<script>
-// 서비스 만료일: 2027년 12월 31일
-(function(){
-  const expiry = new Date('2027-12-31T23:59:59');
-  if(new Date() > expiry){
-    document.body.innerHTML = `
-      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#F5F4F0;padding:24px">
-        <div style="background:#fff;border-radius:16px;padding:32px 24px;text-align:center;max-width:320px;box-shadow:0 4px 20px rgba(0,0,0,0.08)">
-          <div style="font-size:48px;margin-bottom:16px">🌾</div>
-          <div style="font-size:18px;font-weight:800;color:#1a1a1a;margin-bottom:12px">서비스가 종료되었습니다</div>
-          <div style="font-size:14px;color:#666;line-height:1.7;margin-bottom:20px">
-            무료 서비스 기간이 만료되었습니다.<br>
-            향후 업데이트 정보는 추후 안내드리겠습니다.
-          </div>
-          <div style="font-size:12px;color:#aaa">Cool Running · 손해평가 피해율계산기</div>
-        </div>
-      </div>`;
-  }
-})();
 </script>
 </body>
 </html>
