@@ -1978,10 +1978,10 @@ function resetAll() {
   document.querySelectorAll('[id^="icnt-"]').forEach(b => b.style.pointerEvents = '');
   onInput();
   window.scrollTo({top:0, behavior:'smooth'});
-  // 첫 번째 가입주수 칸으로 포커스
+  // 농지번호로 포커스
   setTimeout(() => {
-    const _first = document.getElementById('reg-0');
-    if(_first) _first.focus();
+    const _farm = document.getElementById('farm_no');
+    if(_farm) _farm.focus();
   }, 300);
 }
 
