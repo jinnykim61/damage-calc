@@ -324,15 +324,24 @@ tbody td input.filled:active{
 <div class="content">
 
   <div class="section">
-    <div class="sec-head" style="display:flex;align-items:center;justify-content:space-between">
-      <div class="sec-title">품종</div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
+      <div></div>
       <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
     </div>
-    <div style="width:50%">
-      <select id="crop" class="inp filled" onchange="markFilled(this);onCropChange()" style="text-align:left;text-align-last:left">
-        <option value="garlic_s">마늘 난지형</option>
-        <option value="garlic_n">마늘 한지형</option>
-      </select>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="field" style="width:50%">
+        <label>품종</label>
+        <select id="crop" class="inp filled" onchange="markFilled(this);onCropChange()" style="text-align:left;text-align-last:left">
+          <option value="garlic_s">마늘 난지형</option>
+          <option value="garlic_n">마늘 한지형</option>
+        </select>
+      </div>
+      <div class="field" style="flex:1">
+        <label>농지번호 4자리</label>
+        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호"
+          maxlength="4"
+          oninput="markFilled(this);updateFarmNoDisplay()" onchange="updateFarmNoDisplay()">
+      </div>
     </div>
   </div>
 
@@ -474,7 +483,11 @@ tbody td input.filled:active{
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
-    <div style="display:flex;align-items:center;padding:14px 0">
+    <div style="display:flex;justify-content:flex-end;padding:8px 0 0;gap:8px;font-size:11px;color:rgba(255,255,255,0.7);min-height:20px">
+      <span id="result-date-disp"></span>
+      <span id="result-farmno-disp"></span>
+    </div>
+    <div style="display:flex;align-items:center;padding:8px 0 14px">
       <div style="padding-right:12px;flex-shrink:0">
         <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">피해율</span>
       </div>
@@ -500,7 +513,13 @@ tbody td input.filled:active{
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
   <div style="min-height:932px;background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
     <div style="height:26px"></div>
-    <div style="text-align:center;color:#fff;margin-bottom:14px"><div style="font-size:15px;font-weight:700">마늘 피해율 계산결과</div></div>
+    <div style="color:#fff;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700;text-align:center">마늘 피해율 계산결과</div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;font-size:11px;opacity:0.8;margin-top:4px">
+        <span id="cap-date-disp"></span>
+        <span id="cap-farmno-disp"></span>
+      </div>
+    </div>
     <div style="display:flex;flex-direction:column;gap:12px">
 
       <div style="background:#fff;border-radius:18px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.05)">
@@ -651,6 +670,34 @@ tbody td input.filled:active{
 </div>
 
 <script>
+// ── 길이/폭 정규화: .9 → 0.9 ────────────────────
+function normalizeDim(val){
+  if(!val && val!==0) return '';
+  let v = String(val).trim();
+  // 앞에 점으로 시작하면 0 붙이기
+  if(/^\.\d/.test(v)) v = '0' + v;
+  const num = parseFloat(v);
+  if(isNaN(num)) return '';
+  return num.toString();
+}
+function formatDim(val){
+  if(val===''||val===undefined||val===null) return '';
+  const num = parseFloat(val);
+  if(isNaN(num)) return '';
+  return num.toString();
+}
+
+// ── 결과창 날짜/농지번호 업데이트 ────────────────
+function updateFarmNoDisplay(){
+  const farmNo = (document.getElementById('farm_no').value||'').trim();
+  const dateStr = document.getElementById('survey_date').value || '';
+  const fmtD = v => { if(!v) return ''; const p=v.split('-'); return p.length===3?`${p[0]}-${p[1]}-${p[2]}`:v; };
+  const dateDisp = document.getElementById('result-date-disp');
+  const farmDisp = document.getElementById('result-farmno-disp');
+  if(dateDisp) dateDisp.textContent = dateStr ? fmtD(dateStr) : '';
+  if(farmDisp) farmDisp.textContent = farmNo ? `농지번호: ${farmNo}` : '';
+}
+
 // 천단위 구분 입력
 function toNum(el){ return parseFloat((el.value||'').replace(/,/g,''))||0; }
 function onCommaInput(el){
@@ -697,14 +744,14 @@ function renderSamples(){
   document.getElementById('sample-body').innerHTML=samples.map((s,i)=>`
     <tr>
       <td class="no">${i+1}</td>
-      <td><input type="number" value="${s.len}" step="0.01" inputmode="decimal"
+      <td><input type="text" value="${s.len?formatDim(s.len):''}" inputmode="decimal"
         class="${s.len?'filled':''}"
         oninput="this.classList.toggle('filled',this.value!='')"
-        onblur="samples[${i}].len=this.value;calcTotals();saveState()"></td>
-      <td><input type="number" value="${s.wid}" step="0.01" inputmode="decimal"
+        onblur="this.value=normalizeDim(this.value);samples[${i}].len=this.value;calcTotals();saveState()"></td>
+      <td><input type="text" value="${s.wid?formatDim(s.wid):''}" inputmode="decimal"
         class="${s.wid?'filled':''}"
         oninput="this.classList.toggle('filled',this.value!='')"
-        onblur="samples[${i}].wid=this.value;calcTotals();saveState()"></td>
+        onblur="this.value=normalizeDim(this.value);samples[${i}].wid=this.value;calcTotals();saveState()"></td>
       <td><input type="text" value="${s.norm?Number(s.norm).toLocaleString():''}" inputmode="decimal"
         class="${s.norm?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'')"
@@ -848,6 +895,7 @@ function calcTotals(){
 
 // ── 메인 계산 ─────────────────────────────────────
 function calc(){
+  updateFarmNoDisplay();
   const crop=document.getElementById('crop').value;
   const avgYield=toNum(document.getElementById('avg_yield'));
   const insArea=toNum(document.getElementById('ins_area'));
@@ -1017,6 +1065,8 @@ function resetAll(){
     const el=document.getElementById(id);
     el.value=''; el.classList.remove('filled');
   });
+  const farmEl=document.getElementById('farm_no');
+  if(farmEl){ farmEl.value=''; farmEl.classList.remove('filled'); }
   document.getElementById('survey_date').value=fmt(new Date());
   document.getElementById('survey_area_disp').value='';
   document.getElementById('area_err_disp').value='';
@@ -1028,6 +1078,8 @@ function resetAll(){
   _isLocked = false; unlockInputs();
   samples=[];
   renderSamples();
+  document.getElementById('s-area').textContent='-';
+  document.getElementById('s-unit').textContent='-';
   updateGarlicCols();
   calc();
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1039,6 +1091,14 @@ function fillGarlicCaptureTemplate(){
   const cropTxt = cropEl.options[cropEl.selectedIndex].text;
   const contractV = document.getElementById('contract_yn_disp').value || '-';
   const contractColor = contractV.includes('변경') ? '#e24b4a' : '#111827';
+
+  // 날짜 + 농지번호 캡처
+  const survDateVal = document.getElementById('survey_date').value || '';
+  const farmNoVal = (document.getElementById('farm_no').value || '').trim();
+  const capDateEl = document.getElementById('cap-date-disp');
+  const capFarmEl = document.getElementById('cap-farmno-disp');
+  if(capDateEl) capDateEl.textContent = survDateVal || '';
+  if(capFarmEl) capFarmEl.textContent = farmNoVal ? `농지번호: ${farmNoVal}` : '';
 
   document.getElementById('cap-crop').textContent = cropTxt;
   document.getElementById('cap-avg-yield').textContent = document.getElementById('avg_yield').value ? document.getElementById('avg_yield').value+' kg' : '-';
@@ -1115,6 +1175,7 @@ async function saveImage(){
 function saveState(){
   const state={
     crop: document.getElementById('crop').value,
+    farm_no: document.getElementById('farm_no').value,
     avg_yield: document.getElementById('avg_yield').value,
     ins_area: document.getElementById('ins_area').value,
     act_area: document.getElementById('act_area').value,
@@ -1153,6 +1214,11 @@ function loadState(){
         el.classList.add('filled');
       }
     });
+    if(s.farm_no){
+      const farmEl=document.getElementById('farm_no');
+      farmEl.value=s.farm_no;
+      farmEl.classList.add('filled');
+    }
 
     if(s.samples && s.samples.length>0) samples=s.samples;
     if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
