@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8"><!-- build:1777075660 -->
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0"><!-- build:1777075660 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#185FA5">
 <meta name="mobile-web-app-capable" content="yes">
@@ -50,13 +53,13 @@ function bindMobileFocusHandlers(){
         if(e.cancelable) e.preventDefault();
         el.focus();
         el.classList.add('mobile-focus');
-        try{ el.select(); }catch(_){
-          const len=el.value.length;
-          try{ el.setSelectionRange(0,len); }catch(_){}
-        }
+        setTimeout(()=>{
+          try{ el.select(); }catch(_){
+            const len=el.value.length;
+            try{ el.setSelectionRange(0,len); }catch(_){}
+          }
+        }, 50);
       },{passive:false});
-    }
-      }, {passive:false});
     }
   });
 }
@@ -174,6 +177,7 @@ tfoot td.v{color:var(--text)}
   opacity:0.72;
 }
 .locked input[type=date].inp{ pointer-events:none; opacity:0.72; }
+.locked .reset-btn{ pointer-events:auto !important; }
 /* 계산하기/수정하기 버튼 */
 .calc-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .btn-calc{height:46px;border:none;border-radius:12px;background:var(--blue);color:white;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s}
@@ -280,15 +284,13 @@ tbody td input.filled:active{
   <div class="legend-item"><div class="dot-auto"></div>자동 계산</div>
 </div>
 
-<div style="display:flex;justify-content:flex-end;padding:8px 12px 0">
-  <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
-</div>
-
 <div class="content">
 
   <div class="section">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
       <div></div>
+      <button class="reset-btn" onclick="openResetModal()" style="pointer-events:auto;position:relative;z-index:10">전체 초기화</button>
+    </div>
     <select id="crop" style="display:none">
       <option value="onion" selected>양파</option>
     </select>
