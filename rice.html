@@ -154,11 +154,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="field">
         <label>농지번호 4자리</label>
         <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호"
-          maxlength="4" oninput="markFilled(this);saveState()">
+          maxlength="4" oninput="markFilled(this);saveState()" autocomplete="off">
       </div>
       <div class="field">
         <label>조사일자</label>
-        <input type="date" id="surveyDate" class="inp" onchange="markFilled(this);saveState()">
+        <input type="date" id="surveyDate" class="inp" onchange="markFilled(this);saveState()" autocomplete="off">
       </div>
     </div>
   </div>
@@ -179,11 +179,11 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <label>병충해단독사고</label>
         <div style="display:flex;height:40px;gap:6px">
           <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--border);border-radius:var(--rs);background:white;cursor:pointer" id="dis-y-label">
-            <input type="radio" name="disease" id="dis-y" value="y" onchange="onDiseaseChk()" style="accent-color:#e24b4a;cursor:pointer">
+            <input type="radio" name="disease" id="dis-y" value="y" onchange="onDiseaseChk()" style="accent-color:#e24b4a;cursor:pointer" autocomplete="off">
             <span style="font-size:14px;font-weight:600;color:var(--sub)">여</span>
           </label>
           <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--border);border-radius:var(--rs);background:white;cursor:pointer" id="dis-n-label">
-            <input type="radio" name="disease" id="dis-n" value="n" checked onchange="onDiseaseChk()" style="accent-color:var(--blue);cursor:pointer">
+            <input type="radio" name="disease" id="dis-n" value="n" checked onchange="onDiseaseChk()" style="accent-color:var(--blue);cursor:pointer" autocomplete="off">
             <span style="font-size:14px;font-weight:600;color:var(--sub)">부</span>
           </label>
         </div>
@@ -193,12 +193,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="field">
         <label>평년수확량 <span style="font-size:10px;color:var(--hint)">(kg)</span></label>
         <input type="text" id="avgYield" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
+          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
         <label>가입면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
         <input type="text" id="insArea" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
+          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
         <label>계약변경</label>
@@ -214,22 +214,22 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="field">
         <label style="display:flex;align-items:flex-start;gap:2px">실제경작면적<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
         <input type="text" id="actArea" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
+          oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
         <label style="display:flex;align-items:flex-start;gap:2px">고사면적<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
         <input type="number" id="deadArea" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
         <label style="display:flex;align-items:flex-start;gap:2px">타작물미보상<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
         <input type="text" id="uninsArea" class="inp" inputmode="decimal"
-          placeholder="0" oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
+          placeholder="0" oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
         <label style="display:flex;align-items:flex-start;gap:2px">기수확면적<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
         <input type="number" id="preArea" class="inp" inputmode="decimal"
-          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+          placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
     </div>
     <div class="g2">
@@ -258,12 +258,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>이랑길이 (m)</label>
           <input type="text" id="rowLen" class="inp" inputmode="decimal"
-            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value);markFilled(this);calc()">
+            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value);markFilled(this);calc()" autocomplete="off">
         </div>
         <div class="field">
           <label>이랑폭 (m)</label>
           <input type="text" id="rowWid" class="inp filled" inputmode="decimal" value="0.3"
-            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value)||'0.3';markFilled(this);calc()" data-default="0.3">
+            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value)||'0.3';markFilled(this);calc()" data-default="0.3" autocomplete="off">
         </div>
         <div class="field">
           <label>표본구간면적</label>
@@ -292,13 +292,13 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>함수율 (%)</label>
           <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
-            oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+            oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
         </div>
         <div class="field">
           <label>미보상비율 (%)</label>
           <input type="number" id="uninsRate" class="inp" inputmode="decimal"
             placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">
+            onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" autocomplete="off">
         </div>
       </div>
     </div>
@@ -312,12 +312,12 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>총수확량 (kg)</label>
           <input type="text" id="fullYield" class="inp" inputmode="decimal"
-            oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
+            oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
         </div>
         <div class="field">
           <label>함수율 (%)</label>
           <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.1"
-            oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+            oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
         </div>
       </div>
     </div>
@@ -607,8 +607,8 @@ function renderSampleInputs(proper){
         ${active ? '' : 'disabled'}
         style="width:100%;height:40px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${active?'var(--text)':'var(--hint)'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
         oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';debouncedCalc()"
-        onfocus="this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
-        onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';calc()">
+        onfocus="this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
+        onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';calc()" autocomplete="off">
     </div>`;
   }
   html += '</div>';
@@ -1009,36 +1009,26 @@ function setEditMode(){
 function lockInputs(){ setCalcMode(); }
 function unlockInputs(){ setEditMode(); }
 
-let _touchStartY = 0;
-let _touchMoved = false;
-document.addEventListener('touchstart', e=>{ _touchStartY=e.touches[0].clientY; _touchMoved=false; },{passive:true});
-document.addEventListener('touchmove', ()=>{ _touchMoved=true; },{passive:true});
-
 function bindMobileFocusHandlers(){
   document.querySelectorAll('input.inp, select.inp, input[type=number]').forEach(el=>{
     if(el.dataset.mobileFocusBound==='1') return;
     el.dataset.mobileFocusBound='1';
-    el.addEventListener('focus',()=>{
-      el.classList.add('mobile-focus');
-      const len=el.value.length;
-      try{ el.setSelectionRange(len,len); }catch(_){}
-    },{passive:true});
+    el.addEventListener('focus',()=>{ el.classList.add('mobile-focus'); },{passive:true});
     el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
     const isDate=el.type==='date';
     const isSelect=el.tagName==='SELECT';
     if(!isDate && !isSelect){
+      let _tsx=0,_tsy=0,_scrolling=false;
+      el.addEventListener('touchstart',(e)=>{ _tsx=e.touches[0].clientX; _tsy=e.touches[0].clientY; _scrolling=false; },{passive:true});
+      el.addEventListener('touchmove',(e)=>{ if(Math.abs(e.touches[0].clientX-_tsx)>6||Math.abs(e.touches[0].clientY-_tsy)>6) _scrolling=true; },{passive:true});
       el.addEventListener('touchend',(e)=>{
-        if(_touchMoved) return; // 스크롤 중이면 무시
+        if(_scrolling) return;
         if(e.cancelable) e.preventDefault();
-        const wasFilled=el.classList.contains('filled');
         el.focus();
         el.classList.add('mobile-focus');
-        if(wasFilled){
-          el.value='';
-          el.classList.remove('filled');
-        } else {
+        try{ el.select(); }catch(_){
           const len=el.value.length;
-          try{ el.setSelectionRange(len,len); }catch(_){}
+          try{ el.setSelectionRange(0,len); }catch(_){}
         }
       },{passive:false});
     }
