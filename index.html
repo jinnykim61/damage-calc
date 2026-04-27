@@ -118,6 +118,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
       <div class="crop-name">고구마</div>
       <div class="crop-desc">수확량 조사</div>
     </div>
+    <div class="crop-card done" onclick="go('red_bean')">
+      <span class="badge badge-done">완성</span>
+      <div class="crop-icon">🫘</div>
+      <div class="crop-name">팥</div>
+      <div class="crop-desc">수확량 조사</div>
+    </div>
   </div>
 </div>
 
@@ -167,6 +173,7 @@ function go(page){
   if(page==='onion') location.href='./onion.html';
   if(page==='bean') location.href='./bean.html';
   if(page==='sweetpotato') location.href='./sweetpotato.html';
+  if(page==='red_bean') location.href='./red_bean.html';
   if(page==='apple') location.href='./apple.html';
   if(page==='apple_multi') location.href='./apple_multi.html';
   if(page==='fruit') location.href='./fruit.html';

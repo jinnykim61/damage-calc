@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#185FA5">
-<title>콩 피해율 계산기</title>
+<title>팥 피해율 계산기</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -116,7 +116,7 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
 <div class="header">
   <button class="back-btn" onclick="location.href='./index.html'">‹</button>
   <div class="header-icon">🫘</div>
-  <div><h1>콩 피해율 계산기</h1><div class="header-sub">밭작물 · 수확량조사</div></div>
+  <div><h1>팥 피해율 계산기</h1><div class="header-sub">밭작물 · 수확량조사</div></div>
 </div>
 <div class="mode-tabs">
   <button class="mode-tab on" id="tab-sample" onclick="setMode('sample')">표본조사</button>
@@ -262,7 +262,7 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
   <div style="min-height:932px;background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
     <div style="height:26px"></div>
     <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:14px">
-      <div style="font-size:15px;font-weight:700">콩 피해율 계산결과</div>
+      <div style="font-size:15px;font-weight:700">팥 피해율 계산결과</div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
         <span id="cap-date-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
         <span id="cap-farmno-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
@@ -656,7 +656,7 @@ function addRow(){
 
 function saveState(){
   try{
-    localStorage.setItem('bean_state', JSON.stringify({
+    localStorage.setItem('red_bean_state', JSON.stringify({
       mode,
       farm_no: document.getElementById('farm_no')?.value||'',
       survey_date: document.getElementById('survey_date')?.value||'',
@@ -678,7 +678,7 @@ function saveState(){
 
 function loadState(){
   try{
-    const raw=localStorage.getItem('bean_state');
+    const raw=localStorage.getItem('red_bean_state');
     if(!raw) return;
     const s=JSON.parse(raw);
     ['avgYield','insArea','actArea','deadArea','uninsArea','harvArea','uninsRate',
@@ -694,7 +694,7 @@ function loadState(){
 }
 
 function resetAll(){
-  try{localStorage.removeItem('bean_state');}catch(e){}
+  try{localStorage.removeItem('red_bean_state');}catch(e){}
   ['avgYield','insArea','actArea','deadArea','uninsArea','harvArea','uninsRate',
    'fullWeight','fullMoisture','fullUninsRate',
    'fullSurvey','surveyArea','contractYn','commonSurvey'].forEach(id=>{
@@ -777,7 +777,7 @@ async function saveImage(){
     const link=document.createElement('a');
     const now=new Date();
     const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
-    link.download=`콩피해율_${stamp}.png`;link.href=canvas.toDataURL('image/png');link.click();
+    link.download=`팥피해율_${stamp}.png`;link.href=canvas.toDataURL('image/png');link.click();
   }catch(e){alert('저장 중 오류가 발생했어요.');}
 }
 
