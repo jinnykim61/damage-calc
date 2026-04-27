@@ -37,27 +37,25 @@ function bindMobileFocusHandlers(){
   document.querySelectorAll(selectors).forEach(el=>{
     if(el.dataset.mobileFocusBound === '1') return;
     el.dataset.mobileFocusBound = '1';
-    el.addEventListener('focus', ()=>{
-      el.classList.add('mobile-focus');
-      const len = el.value.length;
-      try{ el.setSelectionRange(len, len); }catch(_){}
-    }, {passive:true});
+    el.addEventListener('focus', ()=>{ el.classList.add('mobile-focus'); }, {passive:true});
     el.addEventListener('blur', ()=> el.classList.remove('mobile-focus'), {passive:true});
     const isSelect = el.tagName === 'SELECT';
     const isDate = el.type === 'date';
     if(!isSelect && !isDate){
-      el.addEventListener('touchend', (e)=>{
+      let _tsx=0,_tsy=0,_scrolling=false;
+      el.addEventListener('touchstart',(e)=>{ _tsx=e.touches[0].clientX; _tsy=e.touches[0].clientY; _scrolling=false; },{passive:true});
+      el.addEventListener('touchmove',(e)=>{ if(Math.abs(e.touches[0].clientX-_tsx)>6||Math.abs(e.touches[0].clientY-_tsy)>6) _scrolling=true; },{passive:true});
+      el.addEventListener('touchend',(e)=>{
+        if(_scrolling) return;
         if(e.cancelable) e.preventDefault();
-        const wasFilled = el.classList.contains('filled');
         el.focus();
         el.classList.add('mobile-focus');
-        if(wasFilled){
-          el.value = '';
-          el.classList.remove('filled');
-        } else {
-          const len = el.value.length;
-          try{ el.setSelectionRange(len, len); }catch(_){}
+        try{ el.select(); }catch(_){
+          const len=el.value.length;
+          try{ el.setSelectionRange(0,len); }catch(_){}
         }
+      },{passive:false});
+    }
       }, {passive:false});
     }
   });
@@ -297,7 +295,7 @@ tbody td input.filled:active{
         <label>농지번호 4자리</label>
         <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호"
           maxlength="4"
-          oninput="markFilled(this)" onchange="">
+          oninput="markFilled(this)" onchange="" autocomplete="off">
       </div>
     </div>
   </div>
@@ -308,36 +306,36 @@ tbody td input.filled:active{
       <div class="field">
         <label>평년수확량 (kg)</label>
         <input type="text" id="avg_yield" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onchange="calc()" onblur="calc()">
+          oninput="onCommaInput(this)" onchange="calc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
         <label>가입면적 (㎡)</label>
         <input type="text" id="ins_area" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this)" onchange="calc()" onblur="calc()">
+          oninput="onCommaInput(this)" onchange="calc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
         <label>실제경작면적 (㎡)</label>
         <input type="text" id="act_area" class="inp" inputmode="decimal"
-          oninput="onCommaInput(this);updateSamplesAndCalc()" onchange="updateSamplesAndCalc()">
+          oninput="onCommaInput(this);updateSamplesAndCalc()" onchange="updateSamplesAndCalc()" autocomplete="off">
       </div>
     </div>
     <div class="g3">
       <div class="field">
         <label>고사면적 (㎡)</label>
         <input type="number" id="dead_area" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
+          oninput="markFilled(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
       </div>
       <div class="field">
         <label>타작물/미보상 (㎡)</label>
         <input type="number" id="other_area" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="updateSamplesAndCalc()">
+          oninput="markFilled(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
       </div>
       <div class="field">
         <label>기수확면적 (㎡)</label>
         <input type="text" id="harv_area" class="inp" inputmode="decimal"
           enterkeyhint="next"
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('harvest_date').focus()}">
+          onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('harvest_date').focus()}" autocomplete="off">
       </div>
     </div>
     <div class="g3">
@@ -361,11 +359,11 @@ tbody td input.filled:active{
     <div class="g2">
       <div class="field">
         <label>조사일자</label>
-        <input type="date" id="survey_date" class="inp" onchange="markFilled(this);calc()">
+        <input type="date" id="survey_date" class="inp" onchange="markFilled(this);calc()" autocomplete="off">
       </div>
       <div class="field">
         <label>수확예정일</label>
-        <input type="date" id="harvest_date" class="inp" onchange="markFilled(this);calc()">
+        <input type="date" id="harvest_date" class="inp" onchange="markFilled(this);calc()" autocomplete="off">
       </div>
     </div>
     <div style="display:grid;grid-template-columns:2fr 0.75fr 0.75fr;gap:6px;margin-bottom:8px">
@@ -376,12 +374,13 @@ tbody td input.filled:active{
       <div class="field">
         <label>열공수 (개)</label>
         <input type="number" id="crack_count" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()">
+          oninput="markFilled(this)" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
         <label>미보상 (%)</label>
         <input type="number" id="unins_rate" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()">
+          enterkeyhint="done"
+          oninput="markFilled(this)" onblur="calc()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}" autocomplete="off">
       </div>
     </div>
   </div>
@@ -564,6 +563,17 @@ tbody td input.filled:active{
 </div>
 
 
+<!-- 입력 미완료 팝업 -->
+<div id="validation-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.2)">
+    <div style="font-size:22px;text-align:center;margin-bottom:8px">⚠️</div>
+    <div style="font-size:17px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">입력이 완료되지 않았습니다</div>
+    <div style="font-size:13px;line-height:1.7;color:#666;text-align:center;margin-bottom:6px">아래 항목을 확인해 주세요.</div>
+    <div id="validation-list" style="background:#FFF5F5;border:1px solid #ffd0d0;border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:#c0392b;line-height:2"></div>
+    <button onclick="document.getElementById('validation-overlay').style.display='none'" style="width:100%;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
+  </div>
+</div>
+
 <div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
     <div style="font-size:18px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">전체 초기화</div>
@@ -674,19 +684,19 @@ function renderSamples(){
       <td><input type="text" value="${s.len?formatDim(s.len):''}" inputmode="decimal"
         class="${s.len?'filled':''}"
         oninput="this.classList.toggle('filled',this.value!='');debouncedCalcTotals()"
-        onblur="this.value=normalizeDim(this.value);samples[${i}].len=this.value;calcTotals()"></td>
+        onblur="this.value=normalizeDim(this.value);samples[${i}].len=this.value;calcTotals()" autocomplete="off"></td>
       <td><input type="text" value="${s.wid?formatDim(s.wid):''}" inputmode="decimal"
         class="${s.wid?'filled':''}"
         oninput="this.classList.toggle('filled',this.value!='');debouncedCalcTotals()"
-        onblur="this.value=normalizeDim(this.value);samples[${i}].wid=this.value;calcTotals()"></td>
+        onblur="this.value=normalizeDim(this.value);samples[${i}].wid=this.value;calcTotals()" autocomplete="off"></td>
       <td><input type="text" value="${s.norm?Number(s.norm).toLocaleString():''}" inputmode="decimal"
         class="${s.norm?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'');debouncedCalcTotals()"
-        onblur="samples[${i}].norm=this.value.replace(/,/g,'');calcTotals()"></td>
+        onblur="samples[${i}].norm=this.value.replace(/,/g,'');calcTotals()" autocomplete="off"></td>
       <td><input type="text" value="${s.d80?Number(s.d80).toLocaleString():''}" inputmode="decimal"
         class="${s.d80?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].d80=this.value.replace(/,/g,'');debouncedCalcTotals()"
-        onblur="samples[${i}].d80=this.value.replace(/,/g,'');calcTotals()"></td>
+        onblur="samples[${i}].d80=this.value.replace(/,/g,'');calcTotals()" autocomplete="off"></td>
 
     </tr>`).join('');
   setTimeout(()=>{ updateGarlicCols(); bindMobileFocusHandlers(); calcTotals(); }, 0);
@@ -901,6 +911,38 @@ function calc(){
 let _isLocked = false;
 
 function setCalcMode(){
+  const missing = [];
+
+  if(!toNum(document.getElementById('avg_yield'))) missing.push('• 평년수확량');
+  if(!toNum(document.getElementById('act_area')))  missing.push('• 실제경작면적');
+  if(!document.getElementById('harvest_date').value) missing.push('• 수확예정일');
+
+  if(samples.length > 0){
+    const emptyRows = [];
+    samples.forEach((s,i)=>{
+      const hasLen  = parseFloat(s.len) > 0;
+      const hasWid  = parseFloat(s.wid) > 0;
+      const hasNorm = s.norm !== '' && s.norm !== undefined && s.norm !== null;
+      if(!hasLen || !hasWid || !hasNorm){
+        const fields = [];
+        if(!hasLen)  fields.push('길이');
+        if(!hasWid)  fields.push('폭');
+        if(!hasNorm) fields.push('정상');
+        emptyRows.push(`  ${i+1}구간: ${fields.join('·')} 미입력`);
+      }
+    });
+    if(emptyRows.length > 0){
+      missing.push('• 표본구간');
+      emptyRows.forEach(r => missing.push(r));
+    }
+  }
+
+  if(missing.length > 0){
+    document.getElementById('validation-list').innerHTML = missing.join('<br>');
+    document.getElementById('validation-overlay').style.display = 'flex';
+    return;
+  }
+
   _isLocked = true;
   document.querySelector('.content').classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
