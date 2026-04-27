@@ -1898,7 +1898,10 @@ function doCalc(manual = false) {
   if(manual) allData[currentCrop].calcDone = true;
   else allData[currentCrop].calcDone = false;
   saveState();
-  document.getElementById('result-section').scrollIntoView({behavior:'smooth', block:'start'});
+  // 착과수 탭일 때만 결과로 스크롤
+  if(currentMode === 1){
+    document.getElementById('result-section').scrollIntoView({behavior:'smooth', block:'start'});
+  }
 }
 
 // ── 초기화 ───────────────────────────────────────
