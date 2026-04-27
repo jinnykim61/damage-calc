@@ -21,30 +21,27 @@ function bindMobileFocusHandlers(){
   document.querySelectorAll('input.inp, select.inp, input.sg-inp, input[type=number], #setup-rows input').forEach(el=>{
     if(el.dataset.mobileFocusBound==='1') return;
     el.dataset.mobileFocusBound='1';
-    el.addEventListener('focus',()=>{
-      el.classList.add('mobile-focus');
-      const len=el.value.length;
-      try{ el.setSelectionRange(len,len); }catch(_){}
-    },{passive:true});
+    el.addEventListener('focus',()=>{ el.classList.add('mobile-focus'); try{el.select();}catch(_){} },{passive:true});
     el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
     const isDate = el.type==='date';
     if(!isDate){
+      let _tsx=0,_tsy=0,_scrolling=false;
+      el.addEventListener('touchstart',(e)=>{ _tsx=e.touches[0].clientX; _tsy=e.touches[0].clientY; _scrolling=false; },{passive:true});
+      el.addEventListener('touchmove',(e)=>{ if(Math.abs(e.touches[0].clientX-_tsx)>6||Math.abs(e.touches[0].clientY-_tsy)>6) _scrolling=true; },{passive:true});
       el.addEventListener('touchend',(e)=>{
+        if(_scrolling) return;
         if(e.cancelable) e.preventDefault();
-        const wasFilled = el.classList.contains('filled');
         el.focus();
         el.classList.add('mobile-focus');
-        if(wasFilled){
-          el.value='';
-          el.classList.remove('filled');
-        } else {
+        try{ el.select(); }catch(_){
           const len=el.value.length;
-          try{ el.setSelectionRange(len,len); }catch(_){}
+          try{ el.setSelectionRange(0,len); }catch(_){}
         }
       },{passive:false});
     }
   });
 }
+window._treeCalcDone = false;
 document.addEventListener('DOMContentLoaded',()=>{
   bindMobileFocusHandlers();
   document.addEventListener('click',()=>setTimeout(bindMobileFocusHandlers,0),{passive:true});
@@ -227,7 +224,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 <!-- 모드 탭 -->
 <div style="display:flex;background:var(--card);border-bottom:0.5px solid var(--border);position:sticky;top:57px;z-index:99">
   <div id="mode-tab-0" onclick="event.preventDefault();setMode(0)" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--blue);border-bottom:2.5px solid var(--blue);cursor:pointer">🌿 나무조사</div>
-  <div id="mode-tab-1" onclick="event.preventDefault();if(!canMoveToFruitTab()){showToast('실제결과주수를 먼저 입력해 주세요');return;}applyIntervalToVarieties();" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer">🍎 착과수 입력</div>
+  <div id="mode-tab-1" onclick="event.preventDefault();if(!canMoveToFruitTab()){showToast('실제결과주수를 먼저 입력해 주세요');return;}if(!window._treeCalcDone){document.getElementById('tree-calc-confirm-overlay').style.display='flex';return;}applyIntervalToVarieties();" style="flex:1;padding:11px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer">🍎 착과수 입력</div>
 </div>
 <div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
 
@@ -243,7 +240,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
       <div class="field">
         <label style="font-size:11px;color:var(--sub);font-weight:500">농지번호 4자리</label>
         <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호"
-          maxlength="4" oninput="this.classList.toggle('filled',this.value!=='');saveState()">
+          maxlength="4" oninput="this.classList.toggle('filled',this.value!=='');saveState()" autocomplete="off">
       </div>
       <div class="field">
         <label style="font-size:11px;color:var(--sub);font-weight:500">조사일자</label>
@@ -539,6 +536,16 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
       <button onclick="document.getElementById('variety-reset-overlay').style.display='none'" style="flex:1;height:46px;border:1.5px solid #d9d9d9;border-radius:12px;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
       <button id="variety-reset-confirm-btn" style="flex:1;height:46px;border:none;border-radius:12px;background:#e24b4a;color:#fff;font-size:15px;font-weight:700;cursor:pointer">초기화</button>
     </div>
+  </div>
+</div>
+
+<!-- 나무조사 계산 확인 팝업 -->
+<div id="tree-calc-confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:320px;box-shadow:0 18px 40px rgba(0,0,0,0.2);text-align:center">
+    <div style="font-size:22px;margin-bottom:8px">🌿</div>
+    <div style="font-size:16px;font-weight:800;color:#333;margin-bottom:10px">나무조사 계산을 먼저 해주세요</div>
+    <div style="font-size:13px;color:#666;line-height:1.7;margin-bottom:18px">나무조사 계산하기 버튼을<br>클릭한 후 착과수 입력 탭으로<br>이동할 수 있습니다.</div>
+    <button onclick="document.getElementById('tree-calc-confirm-overlay').style.display='none'" style="width:100%;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
   </div>
 </div>
 
@@ -850,8 +857,11 @@ function calcTreeResult() {
   const icntBtns = document.querySelectorAll('[id^="icnt-"]');
   if(rows1) rows1.style.pointerEvents = 'none';
   icntBtns.forEach(b => b.style.pointerEvents = 'none');
+  renderIntervalRows(); // 잠금 상태 반영하여 재렌더링
   onInput();
   showToast('나무조사 완료 — 하단 요약을 확인하세요');
+  // 나무조사 계산 완료 플래그
+  window._treeCalcDone = true;
   saveState();
 }
 
@@ -861,6 +871,7 @@ function setEditModeFromTree() {
   const icntBtns = document.querySelectorAll('[id^="icnt-"]');
   if(rows1) rows1.style.pointerEvents = '';
   icntBtns.forEach(b => b.style.pointerEvents = '');
+  window._treeCalcDone = false;
   showToast('수정 가능합니다');
 }
 // 천단위 구분 입력
@@ -918,8 +929,8 @@ function setMode(m) {
   document.getElementById('mode-tab-1').style.color = m===1 ? 'var(--blue)' : 'var(--hint)';
   document.getElementById('mode-tab-1').style.borderBottomColor = m===1 ? 'var(--blue)' : 'transparent';
   saveState();
-  // 착과수탭 진입 시 평년착과수 미입력이면 자동 포커스
-  if(m === 1) setTimeout(()=>{
+  // 착과수탭 진입 시 평년착과수 미입력이면 자동 포커스 (수정 중엔 안 움직임)
+  if(m === 1 && !_isLocked) setTimeout(()=>{
     const _af = document.getElementById('avg_fruit');
     if(_af && !_af.value) _af.focus();
   }, 150);
@@ -1960,12 +1971,13 @@ function resetAll() {
   const _r1 = document.getElementById('interval-rows-1');
   if(_r1) _r1.style.pointerEvents = '';
   document.querySelectorAll('[id^="icnt-"]').forEach(b => b.style.pointerEvents = '');
+  window._treeCalcDone = false;
   onInput();
   window.scrollTo({top:0, behavior:'smooth'});
-  // 첫 번째 가입주수 칸으로 포커스
+  // 농지번호로 포커스
   setTimeout(() => {
-    const _first = document.getElementById('reg-0');
-    if(_first) _first.focus();
+    const _farm = document.getElementById('farm_no');
+    if(_farm) _farm.focus();
   }, 300);
 }
 
