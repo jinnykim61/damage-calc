@@ -239,6 +239,19 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
     <button onclick="openResetModal()" style="height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
   </div>
   <div class="section">
+    <div class="g2">
+      <div class="field">
+        <label style="font-size:11px;color:var(--sub);font-weight:500">농지번호 4자리</label>
+        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호"
+          maxlength="4" oninput="this.classList.toggle('filled',this.value!=='');saveState()">
+      </div>
+      <div class="field">
+        <label style="font-size:11px;color:var(--sub);font-weight:500">조사일자</label>
+        <input type="date" id="survey_date" class="inp" onchange="this.classList.toggle('filled',this.value!=='');saveState()">
+      </div>
+    </div>
+  </div>
+  <div class="section">
     <div style="font-size:12px;color:var(--sub);font-weight:600;margin-bottom:10px">품종 수 선택</div>
     <div style="display:flex;gap:5px;margin-bottom:6px">
       <div onclick="setIntervalCount(1, true)" id="icnt-1" style="flex:1;padding:7px 0;text-align:center;border:1.5px solid var(--border);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--sub);cursor:pointer">1</div>
@@ -415,8 +428,12 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:900px;background:#f3f4f6;padding:0;z-index:-1">
   <div style="background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 8%,#f3f4f6 8%,#f3f4f6 100%);padding:0 20px 20px;box-sizing:border-box">
     <div style="height:18px"></div>
-    <div style="text-align:center;color:#fff;margin-bottom:12px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:12px">
       <div style="font-size:15px;font-weight:800;letter-spacing:0.04em" id="cap-title">사과 적과후착과수 조사결과</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span id="cap-date-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
+        <span id="cap-farmno-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
+      </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px">
 
@@ -1875,6 +1892,8 @@ function saveState(){
     allData[currentCrop].varieties = varieties;
     localStorage.setItem('apple_multi_v2', JSON.stringify({
       currentMode,
+      farm_no: document.getElementById('farm_no')?.value||'',
+      survey_date: document.getElementById('survey_date')?.value||'',
       allData,
       isLocked: _isLocked,
       intervalData,
@@ -1914,6 +1933,7 @@ function loadState(){
       af.value = allData[currentCrop].avgFruit || '';
       if(af.value) af.classList.add('filled');
     }
+    if(s.farm_no){const el=document.getElementById('farm_no');if(el){el.value=s.farm_no;el.classList.toggle('filled',s.farm_no!=='');}}
     if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
     return true;
   }catch(e){ return false; }
@@ -1933,6 +1953,7 @@ function resetAll() {
   document.getElementById('result-section').classList.remove('show');
   document.getElementById('result-detail-section').classList.remove('show');
   resetCalcBtn();
+  const _farmEl=document.getElementById('farm_no');if(_farmEl){_farmEl.value='';_farmEl.classList.remove('filled');}
   localStorage.removeItem('apple_multi_v2');
   unlockInputs();
   // 나무조사 계산하기 잠금 해제
@@ -1993,6 +2014,12 @@ async function saveImage() {
 
     // ── 헤더바
     document.getElementById('cap-title').textContent  = `${cropName} 적과후착과수 조사결과`;
+    const _survDate = document.getElementById('survey_date')?.value || '';
+    const _farmNo = (document.getElementById('farm_no')?.value || '').trim();
+    const _capDate = document.getElementById('cap-date-disp');
+    const _capFarm = document.getElementById('cap-farmno-disp');
+    if(_capDate) _capDate.textContent = _survDate || '';
+    if(_capFarm) _capFarm.textContent = _farmNo ? '농지번호: ' + _farmNo : '';
     document.getElementById('cap-avg').textContent    = avgFruit>0 ? avgFruit.toLocaleString()+'개' : '-';
     document.getElementById('cap-reg').textContent    = totalReg>0 ? totalReg.toLocaleString()+'주' : '-';
     document.getElementById('cap-survey').textContent = totalSurvey>0 ? totalSurvey.toLocaleString()+'주' : '-';
@@ -2134,6 +2161,8 @@ if ('serviceWorker' in navigator) {
 // ── 초기 실행 ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', ()=>{
   const _loaded = loadState();
+  // 조사일자 항상 오늘 날짜
+  (()=>{ const d=new Date(); const sd=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); const el=document.getElementById('survey_date'); if(el){el.value=sd;el.classList.add('filled');} })();
   setIntervalCount(intervalCount || 2);
   renderIntervalRows();
   onInput();
