@@ -45,17 +45,11 @@ function bindMobileFocusHandlers(){
       el.addEventListener('touchend', (e)=>{
         if(_isScrolling) return; // 스크롤 중이었으면 포커스 안 줌
         if(e.cancelable) e.preventDefault();
-        const wasFilled = el.classList.contains('filled');
         el.focus();
         el.classList.add('mobile-focus');
-        if(wasFilled){
-          // 입력값 있는 칸 터치 → 전체 삭제 후 새로 입력
-          el.value = '';
-          el.classList.remove('filled');
-        } else {
-          // 빈 칸 터치 → 커서 맨 끝
+        try{ el.select(); }catch(_){
           const len = el.value.length;
-          try{ el.setSelectionRange(len, len); }catch(_){}
+          try{ el.setSelectionRange(0, len); }catch(_){}
         }
       }, {passive:false});
     }
