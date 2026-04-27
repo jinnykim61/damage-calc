@@ -33,10 +33,12 @@ function bindMobileFocusHandlers(){
         if(e.cancelable) e.preventDefault();
         el.focus();
         el.classList.add('mobile-focus');
-        try{ el.select(); }catch(_){
-          const len=el.value.length;
-          try{ el.setSelectionRange(0,len); }catch(_){}
-        }
+        setTimeout(()=>{
+          try{ el.select(); }catch(_){
+            const len=el.value.length;
+            try{ el.setSelectionRange(0,len); }catch(_){}
+          }
+        }, 50);
       },{passive:false});
     }
   });
@@ -1410,6 +1412,8 @@ function calcVariety(vi) {
   }
 
   // 표본 입력 완료 시 자동 접힘 제거 (엔터 키에서만 처리)
+  onInput(); // 전체 합계·피해율 실시간 반영
+  if(_isLocked) doCalc(false); // 계산하기 잠금 상태면 결과도 즉시 갱신
   saveState();
 }
 

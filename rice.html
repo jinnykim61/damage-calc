@@ -511,6 +511,17 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
   </div>
 </div>
 
+<!-- 입력 미완료 팝업 -->
+<div id="validation-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.2)">
+    <div style="font-size:22px;text-align:center;margin-bottom:8px">⚠️</div>
+    <div style="font-size:17px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">입력이 완료되지 않았습니다</div>
+    <div style="font-size:13px;line-height:1.7;color:#666;text-align:center;margin-bottom:6px">아래 항목을 확인해 주세요.</div>
+    <div id="validation-list" style="background:#FFF5F5;border:1px solid #ffd0d0;border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:#c0392b;line-height:2"></div>
+    <button onclick="document.getElementById('validation-overlay').style.display='none'" style="width:100%;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
+  </div>
+</div>
+
 <div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:360;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.18)">
     <div style="font-size:18px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">전체 초기화</div>
@@ -993,10 +1004,54 @@ if('serviceWorker' in navigator){
 let _isLocked = false;
 let _isRestoring = false; // 복원 중 saveState 차단용
 function setCalcMode(){
+  const missing = [];
+
+  // 공통 필수
+  if(!toNum(document.getElementById('avgYield'))) missing.push('• 평년수확량');
+  if(!toNum(document.getElementById('actArea')))  missing.push('• 실제경작면적');
+
+  if(mode === 'sample'){
+    // 이랑길이·이랑폭
+    if(!parseFloat(document.getElementById('rowLen').value)) missing.push('• 이랑길이');
+    if(!parseFloat(document.getElementById('rowWid').value)) missing.push('• 이랑폭');
+
+    // 표본구간별 중량
+    const proper = parseInt(document.getElementById('properSampleDisp')?.value) || 0;
+    if(proper > 0){
+      const emptyWeights = [];
+      for(let i=0; i<proper; i++){
+        const el = document.getElementById('sp'+i);
+        if(el && el.value === '') emptyWeights.push(i+1);
+      }
+      if(emptyWeights.length > 0)
+        missing.push(`• 중량 미입력 구간: ${emptyWeights.join('·')}번 (0이면 0 입력)`);
+    } else {
+      missing.push('• 표본구간 중량 (실제경작면적 입력 후 구간 생성됩니다)');
+    }
+
+    // 함수율
+    if(!parseFloat(document.getElementById('moisture').value))
+      missing.push('• 함수율');
+
+  } else {
+    // 전수조사
+    if(!toNum(document.getElementById('fullYield')))
+      missing.push('• 총수확량');
+    if(!parseFloat(document.getElementById('fullMoisture')?.value))
+      missing.push('• 함수율');
+  }
+
+  if(missing.length > 0){
+    document.getElementById('validation-list').innerHTML = missing.join('<br>');
+    document.getElementById('validation-overlay').style.display = 'flex';
+    return;
+  }
+
   _isLocked = true;
   document.querySelector('.content').classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
   document.getElementById('btn-edit').classList.remove('active');
+  calc();
   saveState();
 }
 function setEditMode(){
@@ -1026,10 +1081,12 @@ function bindMobileFocusHandlers(){
         if(e.cancelable) e.preventDefault();
         el.focus();
         el.classList.add('mobile-focus');
-        try{ el.select(); }catch(_){
-          const len=el.value.length;
-          try{ el.setSelectionRange(0,len); }catch(_){}
-        }
+        setTimeout(()=>{
+          try{ el.select(); }catch(_){
+            const len=el.value.length;
+            try{ el.setSelectionRange(0,len); }catch(_){}
+          }
+        }, 50);
       },{passive:false});
     }
   });
