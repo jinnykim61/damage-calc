@@ -865,6 +865,7 @@ function calcTreeResult() {
   const icntBtns = document.querySelectorAll('[id^="icnt-"]');
   if(rows1) rows1.style.pointerEvents = 'none';
   icntBtns.forEach(b => b.style.pointerEvents = 'none');
+  renderIntervalRows(); // 잠금 상태 반영하여 재렌더링
   onInput();
   showToast('나무조사 완료 — 하단 요약을 확인하세요');
   saveState();
