@@ -143,13 +143,30 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     <div style="font-size:11px;color:#666;margin-top:2px">농업재해보험 손해평가사 전용 · Cool-Running</div>
   </div>
 
+  <!-- 전체 초기화 버튼 (legend 아래, 섹션 밖) -->
+  <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+    <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
+  </div>
+
+  <!-- 농지번호 + 조사일자 -->
+  <div class="section">
+    <div class="g2">
+      <div class="field">
+        <label>농지번호 4자리</label>
+        <input type="text" id="farm_no" class="inp" inputmode="numeric" placeholder="농지번호"
+          maxlength="4" oninput="markFilled(this);saveState()">
+      </div>
+      <div class="field">
+        <label>조사일자</label>
+        <input type="date" id="surveyDate" class="inp" onchange="markFilled(this);saveState()">
+      </div>
+    </div>
+  </div>
+
   <!-- 1. 기본정보 -->
   <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">① 기본정보</div>
-      <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1.4fr 0.6fr;gap:6px;margin-bottom:8px">
+    <div class="sec-title">① 기본정보</div>
+    <div class="g2" style="margin-bottom:8px">
       <div class="field">
         <label>품종</label>
         <select id="variety" class="inp filled" onchange="markFilled(this);calc()">
@@ -171,10 +188,6 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           </label>
         </div>
       </div>
-      <div class="field">
-        <label>계약변경</label>
-        <input type="text" id="contractYn" class="auto" readonly>
-      </div>
     </div>
     <div class="g3">
       <div class="field">
@@ -188,8 +201,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
           oninput="onCommaInput(this);debouncedCalc()" onblur="calc()">
       </div>
       <div class="field">
-        <label>조사일자</label>
-        <input type="date" id="surveyDate" class="inp" onchange="markFilled(this)">
+        <label>계약변경</label>
+        <input type="text" id="contractYn" class="auto" readonly>
       </div>
     </div>
   </div>
@@ -244,13 +257,13 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">
         <div class="field">
           <label>이랑길이 (m)</label>
-          <input type="number" id="rowLen" class="inp" inputmode="decimal" step="0.01"
-            oninput="markFilled(this);debouncedCalc()" onblur="calc()">
+          <input type="text" id="rowLen" class="inp" inputmode="decimal"
+            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value);markFilled(this);calc()">
         </div>
         <div class="field">
           <label>이랑폭 (m)</label>
-          <input type="number" id="rowWid" class="inp filled" inputmode="decimal" step="0.01" value="0.3"
-            oninput="markFilled(this);debouncedCalc()" onblur="calc()" data-default="0.3">
+          <input type="text" id="rowWid" class="inp filled" inputmode="decimal" value="0.3"
+            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value)||'0.3';markFilled(this);calc()" data-default="0.3">
         </div>
         <div class="field">
           <label>표본구간면적</label>
@@ -350,7 +363,13 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
   <div style="min-height:932px;background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
     <div style="height:26px"></div>
-    <div style="text-align:center;color:#fff;margin-bottom:14px"><div style="font-size:15px;font-weight:700">벼 피해율 계산결과</div></div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700">벼 피해율 계산결과</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span id="cap-date-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
+        <span id="cap-farmno-disp" style="font-size:15px;font-weight:800;color:#fff"></span>
+      </div>
+    </div>
     <div style="display:flex;flex-direction:column;gap:12px">
 
       <!-- 1. 기본정보 -->
@@ -505,6 +524,15 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
 <script>
 function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
+
+function normalizeDim(val){
+  if(!val && val!==0) return '';
+  let v = String(val).trim();
+  if(/^\.\d/.test(v)) v = '0' + v;
+  const num = parseFloat(v);
+  if(isNaN(num)) return '';
+  return num.toString();
+}
 let mode = 'sample';
 
 const STD_MOISTURE = {mebyeo: 0.15, chalbyeo: 0.13, bunjil: 0.14};
@@ -747,7 +775,7 @@ function showResult(box, pctEl, avg, survey, eff, area, unins, pihaeyul, isDis){
 function saveState(){
   if(_isRestoring) return; // 복원 중에는 저장 차단
   const ids = ['avgYield','insArea','actArea','deadArea','uninsArea','preArea',
-               'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture','surveyDate'];
+               'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture','surveyDate','farm_no'];
   const state = {mode, disease: document.getElementById('dis-y')?.checked ? 'y' : 'n', isLocked: _isLocked};
   ids.forEach(id => { const el=document.getElementById(id); if(el) state[id]=el.value; });
 
@@ -786,7 +814,7 @@ function loadState(){
       if(dy){ dy.checked = true; onDiseaseChk(); }
     } else { onDiseaseChk(); }
     Object.keys(s).forEach(id => {
-      if(id==='mode'||id==='spVals'||id==='disease') return;
+      if(id==='mode'||id==='spVals'||id==='disease'||id==='surveyDate'||id==='isLocked') return;
       const el = document.getElementById(id);
       if(el && s[id]!==''){ el.value=s[id]; el.classList.toggle('filled', true); }
     });
@@ -813,7 +841,7 @@ function loadState(){
 function resetAll(){
   try{ localStorage.removeItem('rice_state'); }catch(e){}
   ['avgYield','insArea','actArea','deadArea','uninsArea','preArea','uninsRate',
-   'rowLen','rowWid','moisture','fullYield','fullMoisture'].forEach(id=>{
+   'rowLen','rowWid','moisture','fullYield','fullMoisture','farm_no'].forEach(id=>{
     const el=document.getElementById(id); if(el){el.value='';el.classList.remove('filled');}
   });
   // 품종 메벼
@@ -865,6 +893,13 @@ async function saveImage(){
 }
 
 function fillRiceCaptureTemplate(){
+  // 날짜 + 농지번호 캡처
+  const _survDate = document.getElementById('surveyDate')?.value || '';
+  const _farmNo = (document.getElementById('farm_no')?.value || '').trim();
+  const _capDate = document.getElementById('cap-date-disp');
+  const _capFarm = document.getElementById('cap-farmno-disp');
+  if(_capDate) _capDate.textContent = _survDate || '';
+  if(_capFarm) _capFarm.textContent = _farmNo ? '농지번호: ' + _farmNo : '';
   // 1. 기본정보
   const variety = document.getElementById('variety');
   const varietyTxt = variety ? variety.options[variety.selectedIndex].text : '-';
@@ -1026,7 +1061,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const rw = document.getElementById('rowWid');
     if(rw && !rw.value){ rw.value='0.3'; rw.classList.add('filled'); }
     const sd = document.getElementById('surveyDate');
-    if(sd && !sd.value){
+    if(sd){
       const t = new Date();
       sd.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
       sd.classList.add('filled');
