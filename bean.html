@@ -37,6 +37,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;-webkit-appearance:none;text-align:center}
 input.inp:focus{outline:none !important;border-color:#185FA5 !important;box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;background:#dceeff !important;color:#185FA5 !important}
+input.inp:focus-visible{outline:none !important;border-color:#185FA5 !important;box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;background:#dceeff !important;color:#185FA5 !important}
 input.inp.mobile-focus{outline:none !important;border-color:#185FA5 !important;box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;background:#dceeff !important;color:#185FA5 !important}
 input.inp.filled:focus{background:#dceeff !important;color:#185FA5 !important;border-color:#185FA5 !important}
 input.inp.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
@@ -49,6 +50,7 @@ tbody td{padding:3px 2px;border-bottom:0.5px solid #eee;text-align:center}
 tfoot td{padding:6px 1px;background:#f0f0f0;font-weight:700;font-size:10px;text-align:center;border-top:1.5px solid var(--border)}
 tbody td input{width:100%;height:34px;border:1.5px solid var(--binp);border-radius:6px;text-align:center;font-size:13px;background:white;-webkit-appearance:none;box-sizing:border-box;color:var(--text);transition:background 0.15s,border-color 0.15s}
 tbody td input:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.22)!important;background:#DCEEFF!important;color:#185FA5!important}
+tbody td input:focus-visible{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.22)!important;background:#DCEEFF!important;color:#185FA5!important}
 tbody td input.filled{background:#e8faf3;border-color:var(--green);color:#0d5c35}
 tbody td input.filled:focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(55,138,221,0.22)!important;background:#DCEEFF!important;color:#185FA5!important}
 .info-strip{font-size:12px;color:var(--sub);margin-top:8px;display:flex;gap:14px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border)}
@@ -339,6 +341,16 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
   </div>
 </div>
 
+<div id="validation-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.2)">
+    <div style="font-size:22px;text-align:center;margin-bottom:8px">⚠️</div>
+    <div style="font-size:17px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">입력이 완료되지 않았습니다</div>
+    <div style="font-size:13px;line-height:1.7;color:#666;text-align:center;margin-bottom:6px">아래 항목을 확인해 주세요.</div>
+    <div id="validation-list" style="background:#FFF5F5;border:1px solid #ffd0d0;border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:#c0392b;line-height:2"></div>
+    <button onclick="closeValidationModal()" style="width:100%;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
+  </div>
+</div>
+
 <div id="reset-overlay">
   <div class="reset-modal">
     <div class="title">전체 초기화</div>
@@ -390,19 +402,38 @@ function bindMobileFocusHandlers(){
       try{ el.setSelectionRange(len, len); }catch(_){}
     }, {passive:true});
     el.addEventListener('blur',  ()=> el.classList.remove('mobile-focus'), {passive:true});
-    el.addEventListener('touchend', (e)=>{
-      if(e.cancelable) e.preventDefault();
-      const wasFilled = el.classList.contains('filled');
-      el.focus();
-      el.classList.add('mobile-focus');
-      if(wasFilled){
-        el.value = '';
-        el.classList.remove('filled');
-      } else {
-        const len = el.value.length;
-        try{ el.setSelectionRange(len, len); }catch(_){}
-      }
-    }, {passive:false});
+
+    const isDate = el.type === 'date';
+    if(!isDate){
+      let _touchStartX = 0, _touchStartY = 0, _isScrolling = false;
+
+      el.addEventListener('touchstart', (e)=>{
+        _touchStartX = e.touches[0].clientX;
+        _touchStartY = e.touches[0].clientY;
+        _isScrolling = false;
+      }, {passive:true});
+
+      el.addEventListener('touchmove', (e)=>{
+        const dx = Math.abs(e.touches[0].clientX - _touchStartX);
+        const dy = Math.abs(e.touches[0].clientY - _touchStartY);
+        if(dx > 6 || dy > 6) _isScrolling = true;
+      }, {passive:true});
+
+      el.addEventListener('touchend', (e)=>{
+        if(_isScrolling) return; // 스크롤 중이었으면 포커스 안 줌
+        if(e.cancelable) e.preventDefault();
+        const wasFilled = el.classList.contains('filled');
+        el.focus();
+        el.classList.add('mobile-focus');
+        if(wasFilled){
+          el.value = '';
+          el.classList.remove('filled');
+        } else {
+          const len = el.value.length;
+          try{ el.setSelectionRange(len, len); }catch(_){}
+        }
+      }, {passive:false});
+    }
   });
 }
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -592,7 +623,60 @@ function showResult(avg, survey, unit, area, unins, pihaeyul){
 // ── 계산하기 / 수정하기 모드 ─────────────────────
 let _isLocked = false;
 
+function closeValidationModal(){
+  document.getElementById('validation-overlay').style.display='none';
+}
+
 function setCalcMode(){
+  const missing = [];
+
+  // 공통 필수 항목
+  if(!toNum(document.getElementById('avgYield'))){
+    missing.push('• 평년수확량');
+  }
+  if(!toNum(document.getElementById('actArea'))){
+    missing.push('• 실경작면적');
+  }
+
+  if(mode === 'sample'){
+    // 표본조사 모드: 길이·이랑폭·중량·함수율
+    if(samples.length > 0){
+      const emptyRows = [];
+      samples.forEach((s, i) => {
+        const hasLen    = parseFloat(s.len)    > 0;
+        const hasWid    = parseFloat(s.wid)    > 0;
+        const hasWeight = s.weight !== '' && s.weight !== undefined && s.weight !== null;
+        const hasMoist  = parseFloat(s.moist)  > 0;
+        if(!hasLen || !hasWid || !hasWeight || !hasMoist){
+          const fields = [];
+          if(!hasLen)    fields.push('길이');
+          if(!hasWid)    fields.push('이랑폭');
+          if(!hasWeight) fields.push('중량');
+          if(!hasMoist)  fields.push('함수율');
+          emptyRows.push(`  ${i+1}구간: ${fields.join('·')} 미입력`);
+        }
+      });
+      if(emptyRows.length > 0){
+        missing.push('• 표본구간');
+        emptyRows.forEach(r => missing.push(r));
+      }
+    }
+  } else {
+    // 전수조사 모드: 계근중량·함수율
+    if(!toNum(document.getElementById('fullWeight'))){
+      missing.push('• 계근중량');
+    }
+    if(!parseFloat(document.getElementById('fullMoisture').value)){
+      missing.push('• 함수율');
+    }
+  }
+
+  if(missing.length > 0){
+    document.getElementById('validation-list').innerHTML = missing.join('<br>');
+    document.getElementById('validation-overlay').style.display = 'flex';
+    return;
+  }
+
   _isLocked = true;
   document.querySelector('.content').classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
@@ -621,9 +705,9 @@ function renderSamples(){
         class="${s.wid?'filled':''}"
         oninput="this.classList.toggle('filled',!!this.value);calcTotals()"
         onblur="this.value=normalizeDim(this.value);samples[${i}].wid=this.value;calc()"></td>
-      <td><input type="number" value="${s.weight||''}" inputmode="decimal"
-        class="${s.weight?'filled':''}"
-        oninput="samples[${i}].weight=this.value;this.classList.toggle('filled',!!this.value);calcTotals()"
+      <td><input type="number" value="${s.weight!==''&&s.weight!==undefined&&s.weight!==null?s.weight:''}" inputmode="decimal"
+        class="${s.weight!==''&&s.weight!==undefined&&s.weight!==null?'filled':''}"
+        oninput="samples[${i}].weight=this.value;this.classList.toggle('filled',this.value!=='');calcTotals()"
         onblur="calc()"></td>
       <td><input type="number" value="${s.moist||''}" inputmode="decimal" step="0.1"
         class="${s.moist?'filled':''}"
