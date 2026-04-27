@@ -483,11 +483,7 @@ tbody td input.filled:active{
 
   <!-- 결과 -->
   <div class="result-box pending" id="result-section">
-    <div style="display:flex;justify-content:flex-end;padding:8px 0 0;gap:8px;font-size:11px;color:rgba(255,255,255,0.7);min-height:20px">
-      <span id="result-date-disp"></span>
-      <span id="result-farmno-disp"></span>
-    </div>
-    <div style="display:flex;align-items:center;padding:8px 0 14px">
+    <div style="display:flex;align-items:center;padding:14px 0">
       <div style="padding-right:12px;flex-shrink:0">
         <span style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;letter-spacing:0.04em">피해율</span>
       </div>
@@ -513,11 +509,11 @@ tbody td input.filled:active{
 <div id="capture-template" style="position:fixed;left:-99999px;top:0;width:430px;min-height:932px;background:#f3f4f6;padding:0;z-index:-1">
   <div style="min-height:932px;background:linear-gradient(180deg,#1f3b63 0%,#2f80ed 10%,#f3f4f6 10%,#f3f4f6 100%);padding:0 16px 24px;box-sizing:border-box">
     <div style="height:26px"></div>
-    <div style="color:#fff;margin-bottom:14px">
-      <div style="font-size:15px;font-weight:700;text-align:center">마늘 피해율 계산결과</div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;font-size:11px;opacity:0.8;margin-top:4px">
-        <span id="cap-date-disp"></span>
-        <span id="cap-farmno-disp"></span>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;color:#fff;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:700">마늘 피해율 계산결과</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span id="cap-date-disp" style="font-size:13px;font-weight:800;color:#fff"></span>
+        <span id="cap-farmno-disp" style="font-size:13px;font-weight:800;color:#fff"></span>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
@@ -689,13 +685,7 @@ function formatDim(val){
 
 // ── 결과창 날짜/농지번호 업데이트 ────────────────
 function updateFarmNoDisplay(){
-  const farmNo = (document.getElementById('farm_no').value||'').trim();
-  const dateStr = document.getElementById('survey_date').value || '';
-  const fmtD = v => { if(!v) return ''; const p=v.split('-'); return p.length===3?`${p[0]}-${p[1]}-${p[2]}`:v; };
-  const dateDisp = document.getElementById('result-date-disp');
-  const farmDisp = document.getElementById('result-farmno-disp');
-  if(dateDisp) dateDisp.textContent = dateStr ? fmtD(dateStr) : '';
-  if(farmDisp) farmDisp.textContent = farmNo ? `농지번호: ${farmNo}` : '';
+  // 캡처 템플릿은 fillGarlicCaptureTemplate에서 처리
 }
 
 // 천단위 구분 입력
@@ -1240,8 +1230,10 @@ document.getElementById('btn-install').addEventListener('click',async()=>{
 
 // ── 초기 실행 ─────────────────────────────────────
 const loaded = loadState();
+// 조사일자는 항상 오늘 날짜로 초기화
+document.getElementById('survey_date').value=fmt(new Date());
+document.getElementById('survey_date').classList.add('filled');
 if(!loaded){
-  document.getElementById('survey_date').value=fmt(new Date());
   // 저장값 없을 때도 기본값 난지형 + filled
   const cropEl=document.getElementById('crop');
   cropEl.value='garlic_s';
