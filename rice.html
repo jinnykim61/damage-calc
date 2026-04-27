@@ -49,10 +49,8 @@ input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:va
 select.inp{text-align:left;-webkit-appearance:auto;appearance:auto;}
 input.inp:focus,
 input.inp:focus-visible,
-input.inp:active,
 select.inp:focus,
-select.inp:focus-visible,
-select.inp:active{
+select.inp:focus-visible{
   outline:none !important;
   border-color:#185FA5 !important;
   box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;
@@ -503,6 +501,18 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
   </div>
 </div>
+<!-- 입력 미완료 검사 팝업 -->
+<div id="validation-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.2)">
+    <div style="font-size:22px;text-align:center;margin-bottom:8px">⚠️</div>
+    <div style="font-size:17px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">입력이 완료되지 않았습니다</div>
+    <div style="font-size:13px;line-height:1.7;color:#666;text-align:center;margin-bottom:6px">아래 항목을 확인해 주세요.</div>
+    <div id="validation-list" style="background:#FFF5F5;border:1px solid #ffd0d0;border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:#c0392b;line-height:2"></div>
+    <button onclick="document.getElementById('validation-overlay').style.display='none'" style="width:100%;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
+  </div>
+</div>
+
+<!-- 저장 완료 팝업 -->
 <div id="save-overlay">
   <div class="save-modal">
     <div style="font-size:36px;margin-bottom:10px">✅</div>
@@ -993,6 +1003,49 @@ if('serviceWorker' in navigator){
 let _isLocked = false;
 let _isRestoring = false; // 복원 중 saveState 차단용
 function setCalcMode(){
+  const missing = [];
+
+  // 공통 필수 항목
+  const avgYieldVal = parseFloat((document.getElementById('avgYield').value||'').replace(/,/g,''))||0;
+  if(!avgYieldVal) missing.push('• 평년수확량');
+
+  const actAreaVal = parseFloat((document.getElementById('actArea').value||'').replace(/,/g,''))||0;
+  if(!actAreaVal) missing.push('• 실제경작면적');
+
+  if(mode === 'sample'){
+    // 표본조사: 이랑길이·중량·함수율 체크
+    const rowLenVal = parseFloat(document.getElementById('rowLen').value)||0;
+    if(!rowLenVal) missing.push('• 이랑길이');
+
+    // 표본구간 중량 — sp0~sp(proper-1) 중 하나라도 미입력 확인
+    const proper = parseInt(document.getElementById('properSampleDisp').value)||0;
+    const emptyWeights = [];
+    for(let i=0; i<proper; i++){
+      const el = document.getElementById('sp'+i);
+      if(el && el.value === '') emptyWeights.push(i+1);
+    }
+    if(emptyWeights.length > 0 && proper > 0){
+      missing.push(`• 중량 미입력 구간: ${emptyWeights.join('·')}번 (0이면 0 입력)`);
+    } else if(proper === 0){
+      missing.push('• 중량 (실제경작면적 입력 후 구간 생성됩니다)');
+    }
+
+    const moistureVal = parseFloat(document.getElementById('moisture').value)||0;
+    if(!moistureVal) missing.push('• 함수율');
+  } else {
+    // 전수조사: 총수확량·함수율 체크
+    const fullYieldVal = parseFloat((document.getElementById('fullYield').value||'').replace(/,/g,''))||0;
+    if(!fullYieldVal) missing.push('• 총수확량');
+    const fullMoistureVal = parseFloat(document.getElementById('fullMoisture').value)||0;
+    if(!fullMoistureVal) missing.push('• 함수율');
+  }
+
+  if(missing.length > 0){
+    document.getElementById('validation-list').innerHTML = missing.join('<br>');
+    document.getElementById('validation-overlay').style.display = 'flex';
+    return;
+  }
+
   _isLocked = true;
   document.querySelector('.content').classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
@@ -1009,11 +1062,6 @@ function setEditMode(){
 function lockInputs(){ setCalcMode(); }
 function unlockInputs(){ setEditMode(); }
 
-let _touchStartY = 0;
-let _touchMoved = false;
-document.addEventListener('touchstart', e=>{ _touchStartY=e.touches[0].clientY; _touchMoved=false; },{passive:true});
-document.addEventListener('touchmove', ()=>{ _touchMoved=true; },{passive:true});
-
 function bindMobileFocusHandlers(){
   document.querySelectorAll('input.inp, select.inp, input[type=number]').forEach(el=>{
     if(el.dataset.mobileFocusBound==='1') return;
@@ -1027,8 +1075,11 @@ function bindMobileFocusHandlers(){
     const isDate=el.type==='date';
     const isSelect=el.tagName==='SELECT';
     if(!isDate && !isSelect){
+      let _tsx=0,_tsy=0,_scrolling=false;
+      el.addEventListener('touchstart',(e)=>{_tsx=e.touches[0].clientX;_tsy=e.touches[0].clientY;_scrolling=false;},{passive:true});
+      el.addEventListener('touchmove',(e)=>{if(Math.abs(e.touches[0].clientX-_tsx)>6||Math.abs(e.touches[0].clientY-_tsy)>6)_scrolling=true;},{passive:true});
       el.addEventListener('touchend',(e)=>{
-        if(_touchMoved) return; // 스크롤 중이면 무시
+        if(_scrolling) return;
         if(e.cancelable) e.preventDefault();
         const wasFilled=el.classList.contains('filled');
         el.focus();
