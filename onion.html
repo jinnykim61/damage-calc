@@ -280,13 +280,15 @@ tbody td input.filled:active{
   <div class="legend-item"><div class="dot-auto"></div>자동 계산</div>
 </div>
 
+<div style="display:flex;justify-content:flex-end;padding:8px 12px 0">
+  <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
+</div>
+
 <div class="content">
 
   <div class="section">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
       <div></div>
-      <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
-    </div>
     <select id="crop" style="display:none">
       <option value="onion" selected>양파</option>
     </select>
