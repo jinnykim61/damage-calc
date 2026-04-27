@@ -29,7 +29,11 @@ function bindMobileFocusHandlers(){
     el.addEventListener('blur',()=>el.classList.remove('mobile-focus'),{passive:true});
     const isDate = el.type==='date';
     if(!isDate){
+      let _tsx=0,_tsy=0,_scrolling=false;
+      el.addEventListener('touchstart',(e)=>{_tsx=e.touches[0].clientX;_tsy=e.touches[0].clientY;_scrolling=false;},{passive:true});
+      el.addEventListener('touchmove',(e)=>{if(Math.abs(e.touches[0].clientX-_tsx)>6||Math.abs(e.touches[0].clientY-_tsy)>6)_scrolling=true;},{passive:true});
       el.addEventListener('touchend',(e)=>{
+        if(_scrolling) return;
         if(e.cancelable) e.preventDefault();
         const wasFilled = el.classList.contains('filled');
         el.focus();
@@ -108,16 +112,16 @@ input.auto.warn{background:#FFF3CD;color:#856404;border-color:#ffc107}
 input.auto.ok{background:#e8faf3;color:var(--green);border-color:var(--green)}
 /* mobile focus */
 input.inp.mobile-focus,select.inp.mobile-focus,input.sg-inp.mobile-focus,
-input.inp:focus,input.inp:focus-visible,input.inp:active,
-select.inp:focus,select.inp:focus-visible,select.inp:active,
-input.sg-inp:focus,input.sg-inp:focus-visible,input.sg-inp:active{
+input.inp:focus,input.inp:focus-visible,
+select.inp:focus,select.inp:focus-visible,
+input.sg-inp:focus,input.sg-inp:focus-visible{
   outline:none !important;border-color:#185FA5 !important;
   box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
   background:#DCEEFF !important;color:#185FA5 !important;
 }
 input.inp.filled.mobile-focus,select.inp.filled.mobile-focus,
-input.inp.filled:focus,input.inp.filled:focus-visible,input.inp.filled:active,
-select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active{
+input.inp.filled:focus,input.inp.filled:focus-visible,
+select.inp.filled:focus,select.inp.filled:focus-visible{
   outline:none !important;border-color:#185FA5 !important;
   box-shadow:0 0 0 3px rgba(55,138,221,0.22) !important;
   background:#DCEEFF !important;color:#185FA5 !important;
@@ -539,6 +543,17 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
       <button onclick="document.getElementById('variety-reset-overlay').style.display='none'" style="flex:1;height:46px;border:1.5px solid #d9d9d9;border-radius:12px;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
       <button id="variety-reset-confirm-btn" style="flex:1;height:46px;border:none;border-radius:12px;background:#e24b4a;color:#fff;font-size:15px;font-weight:700;cursor:pointer">초기화</button>
     </div>
+  </div>
+</div>
+
+<!-- 입력 미완료 검사 팝업 -->
+<div id="validation-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.2)">
+    <div style="font-size:22px;text-align:center;margin-bottom:8px">⚠️</div>
+    <div style="font-size:17px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">입력이 완료되지 않았습니다</div>
+    <div style="font-size:13px;line-height:1.7;color:#666;text-align:center;margin-bottom:6px">아래 항목을 확인해 주세요.</div>
+    <div id="validation-list" style="background:#FFF5F5;border:1px solid #ffd0d0;border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:13px;color:#c0392b;line-height:2"></div>
+    <button onclick="document.getElementById('validation-overlay').style.display='none'" style="width:100%;height:46px;border:none;border-radius:12px;background:#185FA5;color:#fff;font-size:15px;font-weight:700;cursor:pointer">확인</button>
   </div>
 </div>
 
@@ -1750,14 +1765,11 @@ function doCalc(manual = false) {
 
   // 필수값 체크
   const missing = [];
-  if (!avgFruit) missing.push('평년착과량(kg)');
+  if (!avgFruit) missing.push('• 평년착과량(kg)');
   const hasActual = varieties.some(v => v.actual > 0);
-  if (!hasActual) missing.push('실제결과주수');
+  if (!hasActual) missing.push('• 실제결과주수');
   const hasSamples = varieties.some(v => v.samples.some(s => s !== '' && !isNaN(parseFloat(s))));
-  if (!hasSamples) missing.push('표본주 착과수');
-  if (missing.length > 0) {
-    showToast('입력 필요: ' + missing.join(', ')); return;
-  }
+  if (!hasSamples) missing.push('• 표본주 착과수');
 
   // 빈 칸 체크 — 착과수 0인 경우 0을 입력해야 함
   const emptySlots = [];
@@ -1766,11 +1778,15 @@ function doCalc(manual = false) {
     if (st <= 0) continue;
     const emptyCount = v.samples.filter(s => s === '').length;
     if (emptyCount > 0) {
-      emptySlots.push(`${v.name || ('품종'+(varieties.indexOf(v)+1))} (${emptyCount}칸 미입력)`);
+      emptySlots.push(`  ${v.name || ('품종'+(varieties.indexOf(v)+1))}: ${emptyCount}칸 미입력 (0이면 0 입력)`);
     }
   }
-  if (emptySlots.length > 0) {
-    showToast('착과수 0인 경우 0을 입력하세요: ' + emptySlots.join(', '), 3000); return;
+  emptySlots.forEach(r => missing.push(r));
+
+  if (missing.length > 0) {
+    document.getElementById('validation-list').innerHTML = missing.join('<br>');
+    document.getElementById('validation-overlay').style.display = 'flex';
+    return;
   }
 
   // 표본주 부족 경고 - ceil 방식
