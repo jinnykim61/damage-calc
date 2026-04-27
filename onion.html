@@ -378,7 +378,8 @@ tbody td input.filled:active{
       <div class="field">
         <label>열공수 (개)</label>
         <input type="number" id="crack_count" class="inp" inputmode="decimal"
-          oninput="markFilled(this)" onblur="calc()" autocomplete="off">
+          enterkeyhint="next"
+          oninput="markFilled(this)" onblur="calc()" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('unins_rate').focus()}" autocomplete="off">
       </div>
       <div class="field">
         <label>미보상 (%)</label>
@@ -697,10 +698,13 @@ function renderSamples(){
         class="${s.norm?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].norm=this.value.replace(/,/g,'');debouncedCalcTotals()"
         onblur="samples[${i}].norm=this.value.replace(/,/g,'');calcTotals()" autocomplete="off"></td>
-      <td><input type="text" value="${s.d80?Number(s.d80).toLocaleString():''}" inputmode="decimal"
-        class="${s.d80?'filled':''}"
+      <td><input type="text" value="${s.d80!==''&&s.d80!==undefined&&s.d80!==null?Number(s.d80).toLocaleString():''}" inputmode="decimal"
+        enterkeyhint="${i < samples.length-1 ? 'next' : 'done'}"
+        class="${s.d80!==''&&s.d80!==undefined&&s.d80!==null?'filled':''}"
         oninput="onCommaInput(this);samples[${i}].d80=this.value.replace(/,/g,'');debouncedCalcTotals()"
-        onblur="samples[${i}].d80=this.value.replace(/,/g,'');calcTotals()" autocomplete="off"></td>
+        onblur="samples[${i}].d80=this.value.replace(/,/g,'');calcTotals()"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();if(${i} < samples.length-1){const _rows=document.querySelectorAll('#sample-body tr');const _next=_rows[${i+1}]?.querySelector('input');if(_next)_next.focus();}else{this.setAttribute('readonly','');setTimeout(()=>{this.blur();this.removeAttribute('readonly');},10);}}"
+        autocomplete="off"></td>
 
     </tr>`).join('');
   setTimeout(()=>{ updateGarlicCols(); bindMobileFocusHandlers(); calcTotals(); }, 0);
