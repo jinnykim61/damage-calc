@@ -2058,7 +2058,6 @@ async function saveImage() {
       const sN      = validS.length;
       const sSum    = validS.reduce((a,x)=>a+parseFloat(x),0);
       const perTree = sN>0 ? sSum/sN : 0;
-      const avgPerTree = (avgFruit>0 && totalReg>0) ? avgFruit/totalReg : 0;
       const after   = perTree>0&&st>0 ? Math.round(perTree*st) : 0;
       totalSampleN  += sN; totalSampleSum += sSum; totalAfterSum += after;
       totalProperSum += properN;  // 품종별 적정표본 합산
@@ -2073,7 +2072,7 @@ async function saveImage() {
         ${td(sN>0?sN:'-')}
         ${td(properN>0?properN:'-')}
         ${td(sSum>0?Math.round(sSum).toLocaleString():'-')}
-        ${td(avgPerTree>0?avgPerTree.toFixed(4):'-')}
+        ${td(perTree>0?perTree.toFixed(4):'-')}
         ${td(after>0?after.toLocaleString():'-','#e8faf3',true,'#0d5c35')}
       </tr>`;
     }).join('');
