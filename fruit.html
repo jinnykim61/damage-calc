@@ -2026,10 +2026,45 @@ function resetAll() {
 
 // ── 계산하기 / 수정하기 모드 ─────────────────────
 let _isLocked = false;
+function _checkCalcMissing(){
+  const avgFruit = toNum(document.getElementById('avg_fruit'));
+  const missing = [];
+  if (!avgFruit) missing.push('• 평년착과량(kg)');
+  const hasActual = varieties.some(v => v.actual > 0);
+  if (!hasActual) missing.push('• 실제결과주수');
+  const hasSamples = varieties.some(v => v.samples.some(s => s !== '' && !isNaN(parseFloat(s))));
+  if (!hasSamples) missing.push('• 표본주 착과수');
+  const emptySlots = [];
+  for (const v of varieties) {
+    const st = getSurveyTarget(v);
+    if (st <= 0) continue;
+    const emptyCount = v.samples.filter(s => s === '').length;
+    if (emptyCount > 0)
+      emptySlots.push(`  ${v.name || ('품종'+(varieties.indexOf(v)+1))}: ${emptyCount}칸 미입력 (0이면 0 입력)`);
+  }
+  if (emptySlots.length > 0) { missing.push('• 표본주 착과수'); emptySlots.forEach(r=>missing.push(r)); }
+  const _totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
+  const _totalProper = getProperSample(_totalSurvey);
+  const shortVarieties = [];
+  for (const v of varieties) {
+    const _st = getSurveyTarget(v);
+    if (_st <= 0) continue;
+    const _pn = Math.max(1, Math.ceil(_totalProper * _st / _totalSurvey));
+    const inputted = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s))).length;
+    if (inputted < _pn) shortVarieties.push(`  ${v.name||'미입력'}: ${inputted}/${_pn}주 입력됨`);
+  }
+  if (shortVarieties.length > 0) { missing.push('• 표본주 부족'); shortVarieties.forEach(r=>missing.push(r)); }
+  return missing;
+}
 function setCalcMode(){
+  const _missing = _checkCalcMissing();
+  if(_missing.length > 0){
+    document.getElementById('validation-list').innerHTML = _missing.join('<br>');
+    document.getElementById('validation-overlay').style.display = 'flex';
+    return;
+  }
   _isLocked = true;
   document.querySelectorAll('.content').forEach(el => el.classList.add('locked'));
-  document.getElementById('mode-section-0')?.classList.add('locked');
   document.getElementById('btn-calc').classList.add('active');
   document.getElementById('btn-edit').classList.remove('active');
   doCalc(true, true);
