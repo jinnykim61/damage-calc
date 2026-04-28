@@ -351,7 +351,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
           oninput="const _raw=this.value.replace(/[^0-9]/g,'');this.value=_raw?Number(_raw).toLocaleString():'';
             this.classList.toggle('filled',!!_raw);this.style.borderColor=_raw?'var(--green)':'var(--binp)';this.style.background=_raw?'#e8faf3':'white';this.style.color=_raw?'#0d5c35':'var(--text)';onInput();saveState()"
           onfocus="const _v=this.value.replace(/,/g,'');this.value=_v;this.select();this.style.borderColor='var(--blue)';this.style.background='#dceeff';this.style.color='#185FA5'"
-          onblur="const _r=this.value.replace(/[^0-9]/g,'');this.value=_r?Number(_r).toLocaleString():'';this.style.borderColor=_r?'var(--green)':'var(--binp)';this.style.background=_r?'#e8faf3':'white';this.style.color=_r?'#0d5c35':'var(--text)';saveState()"
+          onblur="const _r=this.value.replace(/[^0-9]/g,'');this.value=_r?Number(_r).toLocaleString():'';const _filled=!!_r;this.classList.toggle('filled',_filled);this.style.borderColor=_filled?'var(--green)':'var(--binp)';this.style.background=_filled?'#e8faf3':'white';this.style.color=_filled?'#0d5c35':'var(--text)';this.style.fontWeight=_filled?'700':'400';saveState()"
           onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();
             setTimeout(()=>{
               const _first=document.querySelector('#variety-list input[type=number]');
@@ -941,6 +941,17 @@ function setMode(m) {
   document.getElementById('mode-tab-1').style.color = m===1 ? 'var(--blue)' : 'var(--hint)';
   document.getElementById('mode-tab-1').style.borderBottomColor = m===1 ? 'var(--blue)' : 'transparent';
   saveState();
+  // avg_fruit 스타일 복원 (탭 전환 시 인라인스타일 초기화 방지)
+  const _af = document.getElementById('avg_fruit');
+  if(_af){
+    const _r = _af.value.replace(/[^0-9]/g,'');
+    const _filled = !!_r;
+    _af.classList.toggle('filled', _filled);
+    _af.style.borderColor  = _filled ? 'var(--green)' : 'var(--binp)';
+    _af.style.background   = _filled ? '#e8faf3' : 'white';
+    _af.style.color        = _filled ? '#0d5c35' : 'var(--text)';
+    _af.style.fontWeight   = _filled ? '700' : '400';
+  }
   // 착과수탭 진입 시 평년착과수 미입력이면 자동 포커스 (수정 중엔 안 움직임)
   if(m === 1 && !_isLocked) setTimeout(()=>{
     const _af = document.getElementById('avg_fruit');
