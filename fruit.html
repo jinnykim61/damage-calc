@@ -12,7 +12,7 @@
 <meta name="theme-color" content="#185FA5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>종합과수 착과수 계산기</title>
+<title>포복자 착과수 계산기</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -212,7 +212,7 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
   <button class="back-btn" onclick="location.href='./index.html'">‹</button>
   <div class="header-icon">🍎</div>
   <div>
-    <h1>과수4종 착과수 계산기</h1>
+    <h1>포복자 착과수 계산기</h1>
     <div class="header-sub">포도 · 복숭아 · 자두</div>
   </div>
 </div>
@@ -2058,7 +2058,7 @@ async function saveImage() {
     if(!saved){ showToast('먼저 착과수 계산을 실행해 주세요'); return; }
     const { totalAfterFruit, rate, needReview, avgFruit } = saved;
 
-    const cropName    = '종합과수';
+    const cropName    = '포복자';
     const totalReg    = varieties.reduce((s,v)=>s+(v.reg||0),0);
     const totalSurvey = varieties.reduce((s,v)=>s+getSurveyTarget(v),0);
     const totalProper = getProperSample(totalSurvey);
