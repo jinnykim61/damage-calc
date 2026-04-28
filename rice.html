@@ -258,12 +258,14 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <div class="field">
           <label>이랑길이 (m)</label>
           <input type="text" id="rowLen" class="inp" inputmode="decimal"
-            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value);markFilled(this);calc()" autocomplete="off">
+            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value);markFilled(this);calc()"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('rowWid')?.focus();}" autocomplete="off">
         </div>
         <div class="field">
           <label>이랑폭 (m)</label>
           <input type="text" id="rowWid" class="inp filled" inputmode="decimal" value="0.3"
-            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value)||'0.3';markFilled(this);calc()" data-default="0.3" autocomplete="off">
+            oninput="markFilled(this);debouncedCalc()" onblur="this.value=normalizeDim(this.value)||'0.3';markFilled(this);calc()" data-default="0.3"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();setTimeout(()=>{const el=document.getElementById('sp0');if(el&&!el.disabled)el.focus();},100);}" autocomplete="off">
         </div>
         <div class="field">
           <label>표본구간면적</label>
@@ -790,8 +792,8 @@ function calc(){
       lastProper = -1; actualProper = 0; minProper = 0;
     } else if(proper !== lastProper){
       lastProper = proper;
-      if(actualProper < proper) actualProper = proper;
-      minProper = actualProper; // 처음 렌더링된 구간수 고정
+      actualProper = proper; // 항상 proper로 초기화 (추가버튼으로만 늘어남)
+      minProper = proper;
       renderSampleInputs(proper, actualProper);
       bindMobileFocusHandlers();
     }
@@ -940,19 +942,32 @@ function loadState(){
     // 이랑폭 기본값 복원
     const rowWidEl = document.getElementById('rowWid');
     if(rowWidEl && !rowWidEl.value){ rowWidEl.value='0.3'; rowWidEl.classList.add('filled'); }
-    // 표본구간 중량 복원 (calc 후 렌더링된 뒤에 실행)
+    // 표본구간 중량 복원 - proper 기준으로만 복원 (초과 구간값 무시)
     if(s.spVals && s.spVals.length>0){
       setTimeout(()=>{
-        s.spVals.forEach((v,i)=>{
-          const el=document.getElementById('sp'+i);
-          if(el && v){ el.value=v;
-            el.style.background='#e8faf3';
-            el.style.borderColor='#1D9E75';
-            el.style.color='#0d5c35';
-          }
-        });
+        const proper = parseInt(document.getElementById('properSampleDisp')?.value)||0;
+        if(proper > 0){
+          s.spVals.forEach((v,i)=>{
+            if(i >= proper) return; // 적정 초과 구간값 무시
+            const el=document.getElementById('sp'+i);
+            if(el && v){ el.value=v;
+              el.style.background='#e8faf3';
+              el.style.borderColor='#1D9E75';
+              el.style.color='#0d5c35';
+            }
+          });
+        }
         calc();
       }, 200);
+    }
+    // 잠금 상태 복원
+    if(s.isLocked){
+      setTimeout(()=>{
+        _isLocked=true;
+        document.querySelector('.content')?.classList.add('locked');
+        document.getElementById('btn-calc')?.classList.add('active');
+        document.getElementById('btn-edit')?.classList.remove('active');
+      },250);
     }
   }catch(e){}
 }
@@ -1204,60 +1219,26 @@ function bindMobileFocusHandlers(){
 document.addEventListener('DOMContentLoaded', function(){
   bindMobileFocusHandlers();
   document.addEventListener('click',()=>setTimeout(bindMobileFocusHandlers,0),{passive:true});
-  clearOldCache();
   loadState();
-  setMode(mode); // 저장된 모드로 복원
+  setMode(mode);
   lastProper = -1;
 
   // 기본값 설정 (저장값 없을 때만)
-  (function(){
-    const v = document.getElementById('variety');
-    if(v && !v.value){ v.value='mebyeo'; v.classList.add('filled'); }
-    else if(v && v.value) v.classList.add('filled');
-    const rw = document.getElementById('rowWid');
-    if(rw && !rw.value){ rw.value='0.3'; rw.classList.add('filled'); }
-    const sd = document.getElementById('surveyDate');
-    if(sd){
-      const t = new Date();
-      sd.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
-      sd.classList.add('filled');
-    }
-  })();
+  const v = document.getElementById('variety');
+  if(v && !v.value){ v.value='mebyeo'; v.classList.add('filled'); }
+  else if(v && v.value) v.classList.add('filled');
+  const rw = document.getElementById('rowWid');
+  if(rw && !rw.value){ rw.value='0.3'; rw.classList.add('filled'); }
+  const sd = document.getElementById('surveyDate');
+  if(sd && !sd.value){
+    const t = new Date();
+    sd.value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+    sd.classList.add('filled');
+  }
 
-  // calc 실행 (표본구간 렌더링 포함)
   setTimeout(function(){
     calc();
-    // 저장된 표본값 복원 - calc 후 렌더링 완료 시점에 실행
     setTimeout(function(){
-      try{
-        _isRestoring = true; // 복원 시작 — saveState 차단
-        const raw = localStorage.getItem('rice_state');
-        if(!raw){ _isRestoring = false; document.body.style.visibility='visible'; return; }
-        const s = JSON.parse(raw);
-        // 표본값 복원
-        if(s.spVals && s.spVals.some(function(v){return v;})){
-          let restored = false;
-          s.spVals.forEach(function(v,i){
-            const el = document.getElementById('sp'+i);
-            if(el && v){
-              el.value = v;
-              el.style.background='#e8faf3';
-              el.style.borderColor='#1D9E75';
-              el.style.color='#0d5c35';
-              restored = true;
-            }
-          });
-          if(restored) calc();
-        }
-        // 잠금 상태 복원 — 반드시 마지막에, saveState 호출 없이
-        if(s.isLocked){
-          _isLocked = true;
-          document.querySelector('.content').classList.add('locked');
-          document.getElementById('btn-calc').classList.add('active');
-          document.getElementById('btn-edit').classList.remove('active');
-        }
-      }catch(e){}
-      _isRestoring = false; // 복원 완료 — saveState 허용
       document.body.style.visibility = 'visible';
     }, 50);
   }, 0);
