@@ -807,9 +807,11 @@ function calc(){
       lastProper = -1; actualProper = 0; minProper = 0;
     } else if(proper !== lastProper){
       lastProper = proper;
-      actualProper = proper;
+      if(actualProper < proper){ actualProper = proper; } // 복원된 actualProper가 proper보다 크면 유지
       minProper = proper;
       renderSampleInputs(proper, actualProper);
+    } else {
+      if(actualProper < proper){ actualProper=proper; minProper=proper; renderSampleInputs(proper, actualProper); }
     }
     updateSampleBtns(proper);
 
@@ -911,7 +913,7 @@ function saveState(){
   if(_isRestoring) return; // 복원 중에는 저장 차단
   const ids = ['avgYield','insArea','actArea','deadArea','uninsArea','preArea',
                'variety','uninsRate','rowLen','rowWid','moisture','fullYield','fullMoisture','surveyDate','farm_no'];
-  const state = {mode, disease: document.getElementById('dis-y')?.checked ? 'y' : 'n', isLocked: _isLocked};
+  const state = {mode, disease: document.getElementById('dis-y')?.checked ? 'y' : 'n', isLocked: _isLocked, actualProper};
   ids.forEach(id => { const el=document.getElementById(id); if(el) state[id]=el.value; });
 
   // sp0 칸이 DOM에 있을 때만 spVals 새로 저장, 없으면 기존값 유지
@@ -944,24 +946,25 @@ function loadState(){
     if(!raw) return;
     const s = JSON.parse(raw);
     if(s.mode) { mode = s.mode; }
+    if(s.actualProper) actualProper = s.actualProper; // actualProper 복원
     if(s.disease === 'y'){
       const dy = document.getElementById('dis-y');
       if(dy){ dy.checked = true; onDiseaseChk(); }
     } else { onDiseaseChk(); }
     Object.keys(s).forEach(id => {
-      if(['mode','spVals','disease','isLocked'].includes(id)) return;
+      if(['mode','spVals','disease','isLocked','actualProper'].includes(id)) return;
       const el = document.getElementById(id);
       if(el && s[id]!==''){ el.value=s[id]; el.classList.toggle('filled', true); }
     });
     const rowWidEl = document.getElementById('rowWid');
     if(rowWidEl && !rowWidEl.value){ rowWidEl.value='0.3'; rowWidEl.classList.add('filled'); }
-    // 표본구간 중량 복원 - proper 기준으로만 복원
+    // 표본구간 중량 복원 - actualProper 기준으로 복원
     if(s.spVals && s.spVals.length>0){
       setTimeout(()=>{
-        const proper = parseInt(document.getElementById('properSampleDisp')?.value)||0;
-        if(proper > 0){
+        const restoreCount = s.actualProper || parseInt(document.getElementById('properSampleDisp')?.value)||0;
+        if(restoreCount > 0){
           s.spVals.forEach((v,i)=>{
-            if(i >= proper) return;
+            if(i >= restoreCount) return;
             const el=document.getElementById('sp'+i);
             if(el && v){ el.value=v; el.style.background='#e8faf3'; el.style.borderColor='#1D9E75'; el.style.color='#0d5c35'; }
           });
