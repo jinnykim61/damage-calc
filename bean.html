@@ -513,12 +513,13 @@ function calcCommon(){
     ? Math.round(avgYield*(actArea/insArea)*10)/10 : avgYield;
 
   return {avgYield, insArea, actArea, realArea, surveyArea, effAvg,
+          uninsArea, harvArea,
           uninsRate: (parseFloat(document.getElementById('uninsRate').value)||0)/100};
 }
 
 // ── 표본조사 계산 ──────────────────────────────────
 function calc(){
-  const {effAvg, surveyArea, uninsRate} = calcCommon();
+  const {effAvg, surveyArea, uninsRate, avgYield, insArea, uninsArea, harvArea} = calcCommon();
 
   const proper = surveyArea>0 ? getProper(surveyArea) : 0;
   document.getElementById('sample-badge').textContent = samples.length>0 ? `(${samples.length}구간)` : '';
@@ -550,7 +551,9 @@ function calc(){
 
   const m2 = totalEff/totalArea/1000;
   const m2r3 = Math.round(m2*1000)/1000;              // m2 소수3자리 ROUND
-  const surveyYield = Math.round(m2r3*surveyArea);     // 조사수확량 ROUND
+  // 조사수확량 = 단위면적당 × 조사대상면적 + ㎡당평년수확량 × (타작물미보상+기수확면적)
+  const m2Avg = insArea>0 ? Math.round(avgYield/insArea*10000)/10000 : 0;
+  const surveyYield = Math.floor(m2r3*surveyArea + m2Avg*(uninsArea+harvArea));
   const uninsLoss = Math.round(Math.max(0,effAvg-surveyYield)*uninsRate);
   // ROUND 피해율 (소수4자리)
   const pihaeyul = Math.max(0, Math.round((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000);
