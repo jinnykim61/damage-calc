@@ -541,6 +541,22 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
   </div>
 </div>
 
+<!-- 표본구간 삭제 확인 팝업 -->
+<div id="sample-confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:410;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.2)">
+    <div style="font-size:28px;text-align:center;margin-bottom:8px">🗑️</div>
+    <div style="font-size:17px;font-weight:800;color:#333;text-align:center;margin-bottom:10px">표본구간 삭제</div>
+    <div style="font-size:14px;line-height:1.7;color:#555;text-align:center;margin-bottom:18px">
+      <span id="sample-confirm-num">0</span>번 구간을 삭제할까요?<br>
+      <span style="color:#e24b4a;font-weight:700">입력된 값도 함께 삭제됩니다.</span>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('sample-confirm-overlay').style.display='none'" style="flex:1;height:46px;border:1.5px solid #d9d9d9;border-radius:12px;background:#f7f7f7;color:#555;font-size:15px;font-weight:700;cursor:pointer">취소</button>
+      <button onclick="document.getElementById('sample-confirm-overlay').style.display='none';doSampleMinus()" style="flex:1;height:46px;border:none;border-radius:12px;background:#e24b4a;color:#fff;font-size:15px;font-weight:700;cursor:pointer">삭제</button>
+    </div>
+  </div>
+</div>
+
 <!-- 표본구간 삭제 불가 팝업 -->
 <div id="sample-del-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:410;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(0,0,0,0.2)">
@@ -697,6 +713,12 @@ function sampleMinus(){
     document.getElementById('sample-del-overlay').style.display='flex';
     return;
   }
+  document.getElementById('sample-confirm-num').textContent = actualProper;
+  document.getElementById('sample-confirm-overlay').style.display='flex';
+}
+
+function doSampleMinus(){
+  const proper = parseInt(document.getElementById('properSampleDisp')?.value)||0;
   const lastEl = document.getElementById('sp'+(actualProper-1));
   if(lastEl) lastEl.value = '';
   actualProper--;
