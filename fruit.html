@@ -1794,16 +1794,13 @@ function onInput() {
 function doCalc(manual = false) {
   const avgFruit = toNum(document.getElementById('avg_fruit'));
 
-  // 필수값 체크
+  // 필수값·미입력 통합 팝업 체크
   const missing = [];
-  if (!avgFruit) missing.push('평년착과량(kg)');
+  if (!avgFruit) missing.push('• 평년착과량(kg)');
   const hasActual = varieties.some(v => v.actual > 0);
-  if (!hasActual) missing.push('실제결과주수');
+  if (!hasActual) missing.push('• 실제결과주수');
   const hasSamples = varieties.some(v => v.samples.some(s => s !== '' && !isNaN(parseFloat(s))));
-  if (!hasSamples) missing.push('표본주 착과수');
-  if (missing.length > 0) {
-    showToast('입력 필요: ' + missing.join(', ')); return;
-  }
+  if (!hasSamples) missing.push('• 표본주 착과수');
 
   // 빈 칸 체크 — 착과수 0인 경우 0을 입력해야 함
   const emptySlots = [];
@@ -1812,14 +1809,15 @@ function doCalc(manual = false) {
     if (st <= 0) continue;
     const emptyCount = v.samples.filter(s => s === '').length;
     if (emptyCount > 0) {
-      emptySlots.push(`${v.name || ('품종'+(varieties.indexOf(v)+1))} (${emptyCount}칸 미입력)`);
+      emptySlots.push(`  ${v.name || ('품종'+(varieties.indexOf(v)+1))}: ${emptyCount}칸 미입력 (0이면 0 입력)`);
     }
   }
   if (emptySlots.length > 0) {
-    showToast('착과수 0인 경우 0을 입력하세요: ' + emptySlots.join(', '), 3000); return;
+    missing.push('• 표본주 착과수');
+    emptySlots.forEach(r => missing.push(r));
   }
 
-  // 표본주 부족 경고 - ceil 방식
+  // 표본주 부족 경고
   const _totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
   const _totalProper = getProperSample(_totalSurvey);
   const shortVarieties = [];
@@ -1828,10 +1826,17 @@ function doCalc(manual = false) {
     if (_st <= 0) continue;
     const _pn = Math.max(1, Math.ceil(_totalProper * _st / _totalSurvey));
     const inputted = v.samples.filter(s => s!=='' && !isNaN(parseFloat(s))).length;
-    if (inputted < _pn) shortVarieties.push(`${v.name||'미입력'} (${inputted}/${_pn}주)`);
+    if (inputted < _pn) shortVarieties.push(`  ${v.name||'미입력'}: ${inputted}/${_pn}주 입력됨`);
   }
   if (shortVarieties.length > 0) {
-    showToast('표본 부족: ' + shortVarieties.join(', '), 3500);
+    missing.push('• 표본주 부족');
+    shortVarieties.forEach(r => missing.push(r));
+  }
+
+  if (missing.length > 0) {
+    document.getElementById('validation-list').innerHTML = missing.join('<br>');
+    document.getElementById('validation-overlay').style.display = 'flex';
+    return;
   }
 
   // 품종별 계산
