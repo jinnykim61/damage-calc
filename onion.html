@@ -891,7 +891,8 @@ function calc(){
   // ③ 비대지수 반영 후 ROUND3
   const unitYield = round3(tEff * (1 + growIdx) / 1000 / tA);
   // ④ FLOOR 조사수확량
-  const totalYield = Math.floor(unitYield * surveyArea);
+  const m2Avg = insArea>0 ? Math.round(avgYield/insArea*10000)/10000 : 0;
+  const totalYield = Math.floor(unitYield * surveyArea + m2Avg*(otherArea+harvArea));
   const estYield = tEff/1000/tA * growIdx * surveyArea; // 표시용
 
   const loss = Math.max(0, effAvg - totalYield);

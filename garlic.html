@@ -34,10 +34,12 @@ function bindMobileFocusHandlers(){
         if(e.cancelable) e.preventDefault();
         el.focus();
         el.classList.add('mobile-focus');
-        try{ el.select(); }catch(_){
-          const len=el.value.length;
-          try{ el.setSelectionRange(0,len); }catch(_){}
-        }
+        setTimeout(()=>{
+          try{ el.select(); }catch(_){
+            const len=el.value.length;
+            try{ el.setSelectionRange(0,len); }catch(_){}
+          }
+        }, 50);
       },{passive:false});
     }
   });
@@ -986,7 +988,8 @@ function calc(){
   // ③ 비대지수 반영 후 ROUND3
   const unitYield = round3(tEff * (1 + growIdx) / 1000 / tA);
   // ④ FLOOR 조사수확량
-  const totalYield = Math.floor(unitYield * surveyArea);
+  const m2Avg = insArea>0 ? Math.round(avgYield/insArea*10000)/10000 : 0;
+  const totalYield = Math.floor(unitYield * surveyArea + m2Avg*(otherArea+harvArea));
   const survYield = totalYield; // 표시용 (비대 포함)
   const estYield = tEff/1000/tA * growIdx * surveyArea; // 표시용 비대추정량
 
