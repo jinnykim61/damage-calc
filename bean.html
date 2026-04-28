@@ -553,7 +553,7 @@ function calc(){
   const m2r3 = Math.round(m2*10000)/10000;            // m2 소수4자리 ROUND
   // 조사수확량 = 단위면적당 × 조사대상면적 + ㎡당평년수확량 × (타작물미보상+기수확면적)
   const m2Avg = insArea>0 ? Math.round(avgYield/insArea*10000)/10000 : 0;
-  const surveyYield = Math.floor(m2r3*surveyArea + m2Avg*(uninsArea+harvArea));
+  const surveyYield = Math.round(m2r3*surveyArea) + Math.floor(m2Avg*(uninsArea+harvArea));
   const uninsLoss = Math.round(Math.max(0,effAvg-surveyYield)*uninsRate);
   // ROUND 피해율 (소수4자리)
   const pihaeyul = Math.max(0, Math.round((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000);
