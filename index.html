@@ -160,6 +160,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
       <div class="crop-name">벼</div>
       <div class="crop-desc">수확량 조사</div>
     </div>
+    <div class="crop-card done" onclick="go('wheat_barley_oat')">
+      <span class="badge badge-done">완성</span>
+      <div class="crop-icon">🌾🌿🥣</div>
+      <div class="crop-name">밀·보리·귀리</div>
+      <div class="crop-desc">수확량 조사</div>
+    </div>
   </div>
 </div>
 
@@ -178,6 +184,7 @@ function go(page){
   if(page==='apple_multi') location.href='./apple_multi.html';
   if(page==='fruit') location.href='./fruit.html';
   if(page==='rice') location.href='./rice.html';
+  if(page==='wheat_barley_oat') location.href='./wheat_barley_oat.html';
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
