@@ -31,10 +31,12 @@ function bindMobileFocusHandlers(){
         if(e.cancelable) e.preventDefault();
         el.focus();
         el.classList.add('mobile-focus');
-        try{ el.select(); }catch(_){
-          const len=el.value.length;
-          try{ el.setSelectionRange(0,len); }catch(_){}
-        }
+        setTimeout(()=>{
+          try{ el.select(); }catch(_){
+            const len=el.value.length;
+            try{ el.setSelectionRange(0,len); }catch(_){}
+          }
+        }, 50);
       },{passive:false});
     }
   });
@@ -695,6 +697,7 @@ function calc(){
   // ── 표본 합산 ─────────────────────────────────
   const round2 = v => Math.round(v*100)/100;
   const round3 = v => Math.round(v*1000)/1000;
+  const round4 = v => Math.round(v*10000)/10000;
   const trunc2 = v => Math.trunc(v*100)/100;
 
   let tA=0, tEff=0;
@@ -720,9 +723,9 @@ function calc(){
   // 미보상감수량 = (평년수확량 - 수확량) × 미보상비율
 
   const unitSample  = round3(tEff / 1000 / tA);            // 표본구간 단위면적당 수확량 kg/㎡
-  const unitAvg     = effAvg / actArea;                     // 단위면적당 평년수확량
+  const unitAvg     = round4(avgYield / insArea);           // 단위면적당 평년수확량 ROUND4
 
-  const survYield   = Math.floor(unitSample * surveyArea + unitAvg * (otherArea + harvArea));
+  const survYield   = Math.round(unitSample * surveyArea) + Math.round(unitAvg * (otherArea + harvArea));
   const loss        = Math.max(0, effAvg - survYield);
   const uninsLoss   = loss * uninsRate;
   const netLoss     = Math.max(0, loss - uninsLoss);
