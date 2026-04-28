@@ -1834,8 +1834,11 @@ function doCalc(manual = false) {
   }
 
   if (missing.length > 0) {
-    document.getElementById('validation-list').innerHTML = missing.join('<br>');
-    document.getElementById('validation-overlay').style.display = 'flex';
+    if (!manual) {
+      document.getElementById('validation-list').innerHTML = missing.join('<br>');
+      document.getElementById('validation-overlay').style.display = 'flex';
+    }
+    document.body.style.visibility = 'visible';
     return;
   }
 
@@ -2249,7 +2252,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(allData[currentCrop].calcDone){
     doCalc(true);
   }
-  document.body.style.visibility = 'visible';
+  document.body.style.visibility = 'visible'; // 반드시 표시
 });
 </script>
 </div><!-- /mode-section-1 -->
