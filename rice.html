@@ -929,14 +929,13 @@ function loadState(){
     const raw = localStorage.getItem('rice_state');
     if(!raw) return;
     const s = JSON.parse(raw);
-    _isRestoring = true;
     if(s.mode) { mode = s.mode; }
     if(s.disease === 'y'){
       const dy = document.getElementById('dis-y');
       if(dy){ dy.checked = true; onDiseaseChk(); }
     } else { onDiseaseChk(); }
     Object.keys(s).forEach(id => {
-      if(id==='mode'||id==='spVals'||id==='disease'||id==='isLocked') return;
+      if(['mode','spVals','disease','isLocked'].includes(id)) return;
       const el = document.getElementById(id);
       if(el && s[id]!==''){ el.value=s[id]; el.classList.toggle('filled', true); }
     });
@@ -957,11 +956,8 @@ function loadState(){
             }
           });
         }
-        _isRestoring = false;
         calc();
       }, 200);
-    } else {
-      _isRestoring = false;
     }
     // 잠금 상태 복원
     if(s.isLocked){
@@ -972,7 +968,7 @@ function loadState(){
         document.getElementById('btn-edit')?.classList.remove('active');
       },250);
     }
-  }catch(e){ _isRestoring = false; }
+  }catch(e){}
 }
 
 function resetAll(){
