@@ -1393,6 +1393,36 @@ function renderVarieties(totalSurvey) {
 }
 
 // ── 품종별 자동계산 업데이트 (표본입력 시) ────────
+function updateTotalsOnly() {
+  const avgFruit = toNum(document.getElementById('avg_fruit'));
+  const totalReg = varieties.reduce((s,v) => s + (v.reg||0), 0);
+  const totalSurvey = varieties.reduce((s,v) => s + getSurveyTarget(v), 0);
+  const properSample = varieties.reduce((s,v) => {
+    const sv = getSurveyTarget(v);
+    const tp = getProperSample(totalSurvey);
+    return s + (sv>0&&totalSurvey>0 ? Math.max(1,Math.ceil(tp*sv/totalSurvey)) : 0);
+  }, 0);
+  const totalActual = varieties.reduce((s,v) => s + (v.actual||0), 0);
+  {const _el=document.getElementById('total_trees'); if(_el) _el.value=totalReg > 0 ? totalReg.toLocaleString()+'주' : '';}
+  {const _el=document.getElementById('total_actual'); if(_el) _el.value=totalActual > 0 ? totalActual.toLocaleString()+'주' : '';}
+  {const _el=document.getElementById('total_survey_disp'); if(_el) _el.value=totalSurvey > 0 ? totalSurvey.toLocaleString()+'주' : '';}
+  {const _el=document.getElementById('proper_sample'); if(_el) _el.value=properSample > 0 ? properSample+'주' : '';}
+  updateTreeSummary(false);
+  const totalSampleN = varieties.reduce((s,v) => s + v.samples.filter(x=>x!==''&&!isNaN(parseFloat(x))).length, 0);
+  const totalSampleSum = varieties.reduce((s,v) => s + v.samples.reduce((ss,x)=>ss+(parseFloat(x)||0),0), 0);
+  const totalPerTree = totalSampleN > 0 ? totalSampleSum / totalSampleN : 0;
+  const totalAfterFruit = totalPerTree > 0 && totalSurvey > 0 ? Math.round(totalPerTree * totalSurvey) : 0;
+  updateSummaryBar(totalReg, totalSurvey, totalSampleN, properSample);
+  const snEl = document.getElementById('total_sampleN');
+  const ssEl = document.getElementById('total_sampleSum');
+  const spEl = document.getElementById('total_perTree');
+  const afEl = document.getElementById('total_afterFruit');
+  if(snEl) snEl.value = totalSampleN > 0 ? totalSampleN+'주' : '';
+  if(ssEl) ssEl.value = totalSampleSum > 0 ? Math.round(totalSampleSum).toLocaleString() : '';
+  if(spEl) spEl.value = totalPerTree > 0 ? totalPerTree.toFixed(1) : '';
+  if(afEl){ afEl.value = totalAfterFruit > 0 ? totalAfterFruit.toLocaleString() : ''; afEl.className = 'auto' + (totalAfterFruit>0?' ok':''); }
+}
+
 function calcVariety(vi) {
   const v = varieties[vi];
   const surveyTarget = getSurveyTarget(v);
@@ -1412,8 +1442,9 @@ function calcVariety(vi) {
   }
 
   // 표본 입력 완료 시 자동 접힘 제거 (엔터 키에서만 처리)
-  onInput(); // 전체 합계·피해율 실시간 반영
-  if(_isLocked) doCalc(false); // 계산하기 잠금 상태면 결과도 즉시 갱신
+  // 전체 합계만 업데이트 (renderVarieties 재호출 없이)
+  updateTotalsOnly();
+  if(_isLocked) doCalc(false);
   saveState();
 }
 
