@@ -1018,6 +1018,7 @@ function fillRiceCaptureTemplate(){
 
   // 3. 표본면적조사 및 미보상비율
   const proper = parseInt(document.getElementById('properSampleDisp').value)||0;
+  const capActive = actualProper > 0 ? actualProper : proper;
   const moisture = document.getElementById('moisture')?.value||'';
   const uninsRate = document.getElementById('uninsRate')?.value||'0';
 
@@ -1032,7 +1033,7 @@ function fillRiceCaptureTemplate(){
   const td9 = (i) => {
     const el = document.getElementById('sp'+i);
     const v = el ? (el.value||'') : '';
-    const active = i < proper;
+    const active = i < capActive;
     const bg = v ? '#e8faf3' : '#fff';
     const color = v ? '#0d5c35' : '#bbb';
     return `<td style="padding:5px 1px;border:1px solid #d1d5db;text-align:center;background:${bg};font-weight:700;font-size:10px;color:${color}">${active ? (v ? v : '') : ''}</td>`;
@@ -1041,7 +1042,7 @@ function fillRiceCaptureTemplate(){
   const row18 = document.getElementById('cap-row18');
   if(row18){
     let realTotal = 0;
-    for(let i=0;i<proper;i++){
+    for(let i=0;i<capActive;i++){
       const el=document.getElementById('sp'+i);
       if(el&&el.value) realTotal+=parseFloat(el.value)||0;
     }
