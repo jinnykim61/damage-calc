@@ -807,7 +807,8 @@ function calc(){
       lastProper = -1; actualProper = 0; minProper = 0;
     } else if(proper !== lastProper){
       lastProper = proper;
-      if(actualProper < proper){ actualProper = proper; } // 복원된 actualProper가 proper보다 크면 유지
+      if(actualProper > proper){ actualProper=proper; } // proper 초과 불가 - 리셋
+      if(actualProper < proper){ actualProper=proper; }
       minProper = proper;
       renderSampleInputs(proper, actualProper);
     } else {
@@ -961,7 +962,8 @@ function loadState(){
     // 표본구간 중량 복원 - actualProper 기준으로 복원
     if(s.spVals && s.spVals.length>0){
       setTimeout(()=>{
-        const restoreCount = s.actualProper || parseInt(document.getElementById('properSampleDisp')?.value)||0;
+        const proper2 = parseInt(document.getElementById('properSampleDisp')?.value)||0;
+        const restoreCount = Math.min(s.actualProper||proper2, proper2); // proper 초과 불가
         if(restoreCount > 0){
           s.spVals.forEach((v,i)=>{
             if(i >= restoreCount) return;
