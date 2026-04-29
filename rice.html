@@ -715,7 +715,7 @@ function renderSampleInputs(proper, active){
       <span style="font-size:12px;font-weight:700;color:${isActive?'var(--sub)':'var(--hint)'};text-align:center">${si+1}</span>
       <input type="number" inputmode="decimal" placeholder="" id="sp${si}"
         ${isActive ? '' : 'disabled'}
-        style="width:100%;height:40px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${isActive?'var(--text)':'var(--hint)'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
+        style="width:100%;height:${document.body.classList.contains('big-text')?'52':'40'}px;border:1.5px solid ${bc};border-radius:6px;font-size:${document.body.classList.contains('big-text')?'20':'15'}px;font-weight:${document.body.classList.contains('big-text')?'700':'600'};background:${bg};color:${isActive?'var(--text)':'var(--hint)'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
         oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';debouncedCalc()"
         onfocus="this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
         onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';calc()" autocomplete="off">
@@ -1309,6 +1309,8 @@ function toggleBigText(){
   btn.classList.toggle('on', on);
   lbl.textContent = on ? '원래대로' : '크게';
   try{ localStorage.setItem('rice_bigtext', on ? '1' : '0'); }catch(e){}
+  // 표본구간 입력칸 재렌더링
+  if(typeof renderSampleInputs === 'function' && typeof lastProper !== 'undefined') renderSampleInputs(lastProper, actualProper);
 }
 document.addEventListener('DOMContentLoaded', function(){
   try{
