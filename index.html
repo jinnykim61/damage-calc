@@ -279,10 +279,6 @@ function makeLblRow(r){
   if(date) html += `<span class="lbl-sep">·</span><span class="lbl-date">${date}</span>`;
   return `<div class="lbl-row">${html}</div>`;
 }
-function fmtTime(iso){
-  const d=new Date(iso);
-  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
 function fmtDateLabel(iso){
   const d=new Date(iso);
   const today=new Date(); today.setHours(0,0,0,0);

@@ -1257,7 +1257,7 @@ function fillGarlicCaptureTemplate(){
 // ── 이미지 캐시 저장 (당일 미리보기용) ──────────────
 function _saveImgCache(id, dataUrl) {
   try {
-    const today = new Date().toISOString().substring(0,10);
+    const _ld=new Date();const today=_ld.getFullYear()+'-'+String(_ld.getMonth()+1).padStart(2,'0')+'-'+String(_ld.getDate()).padStart(2,'0');
     let cache = [];
     try { cache = JSON.parse(localStorage.getItem('save_img_cache')||'[]'); } catch(_){}
     cache = cache.filter(c => String(c.id) !== String(id));
@@ -1302,7 +1302,7 @@ async function saveImage(){
         surveyDate: _survDate,
         pct: _pct,
         filename: `마늘피해율_${stamp}.png`,
-        savedAt: new Date().toISOString()
+        savedAt: (()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');})()
       };
       const _dataUrl = canvas.toDataURL('image/jpeg', 0.65);
       const _hist = JSON.parse(localStorage.getItem('save_history')||'[]');
