@@ -349,14 +349,18 @@ function renderHistory(){
           <button class="hist-img-del" onclick="event.stopPropagation();confirmDeleteItem(${r.id})">✕</button>
         </div>`;
       } else {
-        // 이전 날짜: 텍스트 행
-        html+=`<div class="hist-item">
+        // 이전 날짜: 텍스트 행 (이미지 있으면 클릭 가능)
+        const hasImg = !!imgData;
+        const clickAttr = hasImg ? `onclick="openImgModal('${r.id}')" style="cursor:pointer"` : '';
+        const imgHint = hasImg ? `<div style="width:20px;height:20px;border-radius:5px;background:#EBF4FF;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">🖼</div>` : `<div style="width:20px"></div>`;
+        html+=`<div class="hist-item" ${clickAttr}>
           <div class="hist-item-icon cat-${cat}">${icon}</div>
           <div class="hist-item-body">
             ${makeLblRow(r)}
           </div>
+          ${imgHint}
           <div class="hist-item-pct">${r.pct||'-'}</div>
-          <button class="hist-item-del" onclick="confirmDeleteItem(${r.id})">✕</button>
+          <button class="hist-item-del" onclick="event.stopPropagation();confirmDeleteItem(${r.id})">✕</button>
         </div>`;
       }
     });
