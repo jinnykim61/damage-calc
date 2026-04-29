@@ -324,7 +324,6 @@ function renderHistory(){
   let html='';
   Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(dk=>{
     const items=groups[dk];
-    const isToday=(dk===tStr);
     const lbl=items[0].savedAt ? fmtDateLabel(items[0].savedAt) : dk;
     html+=`<div class="hist-date-group"><div class="hist-date-label">📅 ${lbl} <span class="cnt">${items.length}건</span></div>`;
     items.forEach(r=>{
@@ -332,37 +331,19 @@ function renderHistory(){
       const cat=r.category||'밭작물';
       const imgData=imgMap[String(r.id)]||'';
 
-      if(isToday){
-        // 당일: 이미지 카드
-        const imgTag = imgData
-          ? `<img src="${imgData}" alt="저장이미지" onclick="openImgModal('${r.id}')" style="cursor:zoom-in">`
-          : `<div class="img-placeholder">${icon}</div>`;
-        html+=`<div class="hist-img-card">
-          ${imgTag}
-          <div class="hist-img-footer">
-            <div class="img-icon cat-${cat}">${icon}</div>
-            <div class="img-body">
-              ${makeLblRow(r)}
-            </div>
-            <div class="img-pct">${r.pct||'-'}</div>
-          </div>
-          <button class="hist-img-del" onclick="event.stopPropagation();confirmDeleteItem(${r.id})">✕</button>
-        </div>`;
-      } else {
-        // 이전 날짜: 텍스트 행 (이미지 있으면 클릭 가능)
-        const hasImg = !!imgData;
-        const clickAttr = hasImg ? `onclick="openImgModal('${r.id}')" style="cursor:pointer"` : '';
-        const imgHint = hasImg ? `<div style="width:20px;height:20px;border-radius:5px;background:#EBF4FF;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">🖼</div>` : `<div style="width:20px"></div>`;
-        html+=`<div class="hist-item" ${clickAttr}>
-          <div class="hist-item-icon cat-${cat}">${icon}</div>
-          <div class="hist-item-body">
-            ${makeLblRow(r)}
-          </div>
-          ${imgHint}
-          <div class="hist-item-pct">${r.pct||'-'}</div>
-          <button class="hist-item-del" onclick="event.stopPropagation();confirmDeleteItem(${r.id})">✕</button>
-        </div>`;
-      }
+      // 모든 항목: 텍스트 행, 이미지 있으면 클릭 시 팝업
+      const hasImg = !!imgData;
+      const clickAttr = hasImg ? `onclick="openImgModal('${r.id}')" style="cursor:pointer"` : '';
+      const imgHint = hasImg ? `<div style="width:22px;height:22px;border-radius:5px;background:#EBF4FF;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">🖼</div>` : `<div style="width:22px"></div>`;
+      html+=`<div class="hist-item" ${clickAttr}>
+        <div class="hist-item-icon cat-${cat}">${icon}</div>
+        <div class="hist-item-body">
+          ${makeLblRow(r)}
+        </div>
+        ${imgHint}
+        <div class="hist-item-pct">${r.pct||'-'}</div>
+        <button class="hist-item-del" onclick="event.stopPropagation();confirmDeleteItem(${r.id})">✕</button>
+      </div>`;
     });
     html+='</div>';
   });
