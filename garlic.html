@@ -444,7 +444,7 @@ tbody td input.filled:active{
         <span class="unit-badge">㎡</span>
         <input type="text" id="harv_area" class="inp" inputmode="decimal"
           enterkeyhint="next"
-          oninput="markFilled(this)" onblur="updateSamplesAndCalc()"
+          oninput="onCommaInput(this)" onblur="updateSamplesAndCalc()"
           onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('harvest_date').focus()}" autocomplete="off">
       </div>
     </div>
