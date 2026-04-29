@@ -118,6 +118,65 @@ input.inp.filled:focus,select.inp.filled:focus{box-shadow:0 0 0 3px rgba(29,158,
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;-webkit-appearance:none;text-align:center}
 
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
+/* 크게 보기 버튼 */
+.bigtext-btn{
+  height:34px;padding:0 12px;background:transparent;
+  border:1.5px solid var(--blue2);border-radius:var(--rs);
+  color:var(--blue2);font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:4px;transition:all .15s;
+  -webkit-appearance:none;appearance:none;
+}
+.bigtext-btn.on{
+  background:var(--blue2);color:#fff;
+  box-shadow:0 2px 8px rgba(55,138,221,0.35);
+}
+.bigtext-btn:active{opacity:0.8}
+
+/* 단위 배지 */
+.field{position:relative}
+.unit-badge{
+  position:absolute;right:6px;top:0;
+  font-size:10px;font-weight:600;color:var(--sub);
+  background:var(--bg);border-radius:4px;
+  padding:1px 4px;line-height:1.4;
+  pointer-events:none;z-index:1;
+}
+
+/* ── 크게보기 모드 ─────────────────────────────── */
+body.big-text input.inp,
+body.big-text select.inp{
+  height:52px !important;
+  font-size:20px !important;
+  font-weight:700 !important;
+  border-width:2px !important;
+}
+body.big-text input.auto{
+  height:52px !important;
+  font-size:18px !important;
+  font-weight:600 !important;
+}
+body.big-text .field label{
+  font-size:13px !important;
+}
+body.big-text tbody td input{
+  height:44px !important;
+  font-size:16px !important;
+  font-weight:700 !important;
+}
+body.big-text thead th{
+  font-size:12px !important;
+  padding:8px 2px !important;
+}
+body.big-text tfoot td{
+  font-size:12px !important;
+  padding:8px 1px !important;
+}
+body.big-text .field{gap:5px !important}
+/* 크게보기 - 날짜 칸은 폰트 작게 유지 */
+body.big-text input[type=date].inp{
+  font-size:15px !important;
+  letter-spacing:-0.03em;
+}
 
 /* 표본 테이블 */
 .tbl-wrap{overflow-x:auto;width:100%}
@@ -288,7 +347,7 @@ tbody td input.filled:active{
 
   <div class="section">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
-      <div></div>
+      <button class="bigtext-btn" id="bigtext-btn" onclick="toggleBigText()">🔍 <span id="bigtext-label">크게</span></button>
       <button class="reset-btn" onclick="openResetModal()" style="pointer-events:auto;position:relative;z-index:10">전체 초기화</button>
     </div>
     <select id="crop" style="display:none">
@@ -308,34 +367,40 @@ tbody td input.filled:active{
     <div class="sec-title">면적 정보</div>
     <div class="g3">
       <div class="field">
-        <label>평년수확량 (kg)</label>
+        <label>평년수확량</label>
+        <span class="unit-badge">kg</span>
         <input type="text" id="avg_yield" class="inp" inputmode="decimal"
           oninput="onCommaInput(this)" onchange="calc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>가입면적 (㎡)</label>
+        <label>가입면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="ins_area" class="inp" inputmode="decimal"
           oninput="onCommaInput(this)" onchange="calc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>실제경작면적 (㎡)</label>
+        <label>실제경작면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="act_area" class="inp" inputmode="decimal"
           oninput="onCommaInput(this);updateSamplesAndCalc()" onchange="updateSamplesAndCalc()" autocomplete="off">
       </div>
     </div>
     <div class="g3">
       <div class="field">
-        <label>고사면적 (㎡)</label>
+        <label>고사면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="number" id="dead_area" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>타작물/미보상 (㎡)</label>
+        <label>타작물/미보상</label>
+        <span class="unit-badge">㎡</span>
         <input type="number" id="other_area" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>기수확면적 (㎡)</label>
+        <label>기수확면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="harv_area" class="inp" inputmode="decimal"
           enterkeyhint="next"
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()"
@@ -348,7 +413,8 @@ tbody td input.filled:active{
         <input type="text" id="survey_area_disp" class="auto" readonly>
       </div>
       <div class="field">
-        <label>조사수확량 (kg)</label>
+        <label>조사수확량</label>
+        <span class="unit-badge">kg</span>
         <input type="text" id="area_err_disp" class="auto" readonly>
       </div>
       <div class="field">
@@ -376,13 +442,15 @@ tbody td input.filled:active{
         <input type="text" id="remain_info" class="auto" readonly>
       </div>
       <div class="field">
-        <label>열공수 (개)</label>
+        <label>열공수</label>
+        <span class="unit-badge">개</span>
         <input type="number" id="crack_count" class="inp" inputmode="decimal"
           enterkeyhint="next"
           oninput="markFilled(this)" onblur="calc()" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('unins_rate').focus()}" autocomplete="off">
       </div>
       <div class="field">
-        <label>미보상 (%)</label>
+        <label>미보상</label>
+        <span class="unit-badge">%</span>
         <input type="number" id="unins_rate" class="inp" inputmode="decimal"
           enterkeyhint="done"
           oninput="markFilled(this)" onblur="calc()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}" autocomplete="off">
@@ -1176,6 +1244,28 @@ window.addEventListener('pageshow', ()=>{
 });
 
 
+</script>
+
+<script>
+// ── 크게보기 토글 ─────────────────────────────────
+function toggleBigText(){
+  const on = document.body.classList.toggle('big-text');
+  const btn = document.getElementById('bigtext-btn');
+  const lbl = document.getElementById('bigtext-label');
+  btn.classList.toggle('on', on);
+  lbl.textContent = on ? '원래대로' : '크게';
+  try{ localStorage.setItem('onion_bigtext', on ? '1' : '0'); }catch(e){}
+}
+// 크게보기 상태 복원
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    if(localStorage.getItem('onion_bigtext')==='1'){
+      document.body.classList.add('big-text');
+      document.getElementById('bigtext-btn').classList.add('on');
+      document.getElementById('bigtext-label').textContent='원래대로';
+    }
+  }catch(e){}
+});
 </script>
 </body>
 </html>
