@@ -1758,11 +1758,17 @@ function closeVarietyNamePopup() {
 function confirmVarietyName() {
   if(_varNameIdx < 0) return;
   const val = document.getElementById('variety-name-input').value.trim();
+  const i = _varNameIdx;
   // varieties 배열에 반영 (나무조사 + 착과수 탭 연동)
-  while(allData[currentCrop].varieties.length <= _varNameIdx) allData[currentCrop].varieties.push(EMPTY_VARIETY());
-  allData[currentCrop].varieties[_varNameIdx].name = val;
+  while(allData[currentCrop].varieties.length <= i) allData[currentCrop].varieties.push(EMPTY_VARIETY());
+  allData[currentCrop].varieties[i].name = val;
   varieties = allData[currentCrop].varieties;
   closeVarietyNamePopup();
+  // 나무조사 탭 행 즉시 갱신
+  renderIntervalRows();
+  // 착과수 탭 카드 이름 즉시 갱신
+  const nameEl = document.getElementById(`card-name-${i}`);
+  if(nameEl) nameEl.textContent = `${val || ('품종'+(i+1))}${varieties[i]&&varieties[i].age>0?' '+varieties[i].age+'년':''}`;
   onInput();
   saveState();
 }
