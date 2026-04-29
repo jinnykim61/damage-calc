@@ -29,11 +29,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .help-btn{height:30px;padding:0 10px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:8px;color:white;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;white-space:nowrap}
 
 .tab-bar{display:flex;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.tab{flex:1;padding:11px 2px;text-align:center;font-size:12px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer;touch-action:manipulation}
-.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.tab{flex:1;padding:11px 2px 10px;text-align:center;font-size:12px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer;touch-action:manipulation;transition:color 0.2s,background 0.2s,border-color 0.2s;border-radius:0}
+.tab.on{color:var(--blue);border-bottom-color:var(--blue);background:#EBF4FF}
 
-.tab-content{display:none;padding:16px 14px}
-.tab-content.on{display:block}
+.tab-slider-wrap{overflow:hidden;width:100%}
+.tab-slider{display:flex;transition:transform 0.32s cubic-bezier(0.4,0,0.2,1);will-change:transform}
+.tab-content{flex:0 0 100%;width:100%;padding:16px 14px;box-sizing:border-box}
 
 .crop-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .crop-card{background:var(--card);border-radius:var(--r);padding:20px 14px;text-align:center;border:0.5px solid var(--border);cursor:pointer;position:relative;transition:transform 0.1s;touch-action:manipulation}
@@ -128,8 +129,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
   <div class="tab"    onclick="switchTab(3)">저장목록</div>
 </div>
 
+<!-- 탭 슬라이더 -->
+<div class="tab-slider-wrap">
+<div class="tab-slider" id="tab-slider">
+
 <!-- ① 밭작물 -->
-<div class="tab-content on" id="tab-0">
+<div class="tab-content" id="tab-0">
   <div class="crop-grid">
     <div class="crop-card done" onclick="go('garlic')">
       <span class="badge badge-done">완성</span>
@@ -210,6 +215,9 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
   <div id="hist-list"></div>
 </div>
 
+</div><!-- /tab-slider -->
+</div><!-- /tab-slider-wrap -->
+
 <!-- 이미지 전체보기 모달 (핀치줌+드래그) -->
 <div id="img-modal">
   <button id="img-modal-close" onclick="closeImgModal()">✕</button>
@@ -232,10 +240,15 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 
 <script>
 // ── 탭 전환 ──────────────────────────────────────
+// ── 탭 전환 (슬라이더) ──────────────────────────
+let _curTab = 0;
 function switchTab(i){
+  _curTab = i;
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',i===j));
-  document.querySelectorAll('.tab-content').forEach((c,j)=>c.classList.toggle('on',i===j));
-  if(i===3) renderHistory();
+  const slider = document.getElementById('tab-slider');
+  slider.style.transition = 'transform 0.32s cubic-bezier(0.4,0,0.2,1)';
+  slider.style.transform = `translateX(${-i*100}%)`;
+  if(i===3) setTimeout(renderHistory, 50);
 }
 
 // ── 페이지 이동 ──────────────────────────────────
@@ -475,36 +488,49 @@ function confirmClearAll(){
 function confirmAction(){ if(_pendingAction)_pendingAction(); _pendingAction=null; closeConfirm(); }
 function closeConfirm(){ document.getElementById('confirm-modal').classList.remove('show'); _pendingAction=null; }
 
-// ── 스와이프로 탭 전환 ──────────────────────────
+// ── 스와이프 (실시간 드래그 + 부드러운 릴리즈) ──
 (function(){
-  let _sx=0, _sy=0, _moved=false;
-  const THRESHOLD=50, MAX_VERT=80, TABS=4;
+  let _sx=0, _sy=0, _dragging=false, _vertLocked=false;
+  const TABS=4;
+  const getSlider = ()=>document.getElementById('tab-slider');
+
+  function inScrollArea(el){
+    return el.closest('#hist-list')||el.closest('.confirm-box')||el.closest('#img-zoom-wrap');
+  }
 
   document.addEventListener('touchstart', e=>{
-    // 이미지 모달 열려있으면 무시
     if(document.getElementById('img-modal').classList.contains('show')) return;
-    // 저장목록 스크롤 영역 터치 시 무시
-    const tgt=e.target;
-    if(tgt.closest('#hist-list')||tgt.closest('.confirm-box')) return;
+    if(inScrollArea(e.target)) return;
     _sx=e.touches[0].clientX;
     _sy=e.touches[0].clientY;
-    _moved=false;
+    _dragging=false; _vertLocked=false;
+    getSlider().style.transition='none';
   },{passive:true});
 
   document.addEventListener('touchmove', e=>{
-    if(Math.abs(e.touches[0].clientX-_sx)>10) _moved=true;
+    if(document.getElementById('img-modal').classList.contains('show')) return;
+    if(inScrollArea(e.target)) return;
+    const dx=e.touches[0].clientX-_sx;
+    const dy=e.touches[0].clientY-_sy;
+    if(!_dragging && !_vertLocked){
+      if(Math.abs(dy)>Math.abs(dx)+5){ _vertLocked=true; return; }
+      if(Math.abs(dx)>8) _dragging=true;
+    }
+    if(!_dragging||_vertLocked) return;
+    const base=-_curTab*100;
+    let pct=(dx/window.innerWidth)*100;
+    if(_curTab===0 && dx>0)       pct*=0.2;
+    if(_curTab===TABS-1 && dx<0)  pct*=0.2;
+    getSlider().style.transform=`translateX(${base+pct}%)`;
   },{passive:true});
 
   document.addEventListener('touchend', e=>{
-    if(!_moved) return;
-    if(document.getElementById('img-modal').classList.contains('show')) return;
+    if(!_dragging||_vertLocked){ _dragging=false; return; }
     const dx=e.changedTouches[0].clientX-_sx;
-    const dy=e.changedTouches[0].clientY-_sy;
-    if(Math.abs(dy)>MAX_VERT) return;
-    if(Math.abs(dx)<THRESHOLD) return;
-    const cur=Array.from(document.querySelectorAll('.tab')).findIndex(t=>t.classList.contains('on'));
-    if(dx<0 && cur<TABS-1) switchTab(cur+1); // 왼쪽으로 밀면 다음 탭
-    if(dx>0 && cur>0)      switchTab(cur-1); // 오른쪽으로 밀면 이전 탭
+    if(dx<-50 && _curTab<TABS-1)     switchTab(_curTab+1);
+    else if(dx>50 && _curTab>0)      switchTab(_curTab-1);
+    else                              switchTab(_curTab);
+    _dragging=false;
   },{passive:true});
 })();
 if('serviceWorker' in navigator){
