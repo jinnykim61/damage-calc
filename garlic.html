@@ -129,6 +129,51 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
 
+/* 크게 보기 버튼 */
+.bigtext-btn{
+  height:34px;padding:0 12px;background:transparent;
+  border:1.5px solid var(--blue2);border-radius:var(--rs);
+  color:var(--blue2);font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:4px;transition:all .15s;
+  -webkit-appearance:none;appearance:none;
+}
+.bigtext-btn.on{
+  background:var(--blue2);color:#fff;
+  box-shadow:0 2px 8px rgba(55,138,221,0.35);
+}
+.bigtext-btn:active{opacity:0.8}
+
+/* ── 크게보기 모드 ─────────────────────────────── */
+body.big-text input.inp,
+body.big-text select.inp{
+  height:52px !important;
+  font-size:20px !important;
+  font-weight:700 !important;
+  border-width:2px !important;
+}
+body.big-text input.auto{
+  height:52px !important;
+  font-size:18px !important;
+  font-weight:600 !important;
+}
+body.big-text .field label{
+  font-size:13px !important;
+}
+body.big-text tbody td input{
+  height:44px !important;
+  font-size:16px !important;
+  font-weight:700 !important;
+}
+body.big-text thead th{
+  font-size:12px !important;
+  padding:8px 2px !important;
+}
+body.big-text tfoot td{
+  font-size:12px !important;
+  padding:8px 1px !important;
+}
+body.big-text .field{gap:5px !important}
+
 /* 표본 테이블 */
 .tbl-wrap{overflow-x:auto;width:100%}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
@@ -323,7 +368,7 @@ tbody td input.filled:active{
 
   <div class="section">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
-      <div></div>
+      <button class="bigtext-btn" id="bigtext-btn" onclick="toggleBigText()">🔍 <span id="bigtext-label">크게</span></button>
       <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
@@ -1204,6 +1249,16 @@ async function saveImage(){
 }
 
 
+// ── 크게보기 토글 ─────────────────────────────────
+function toggleBigText(){
+  const on = document.body.classList.toggle('big-text');
+  const btn = document.getElementById('bigtext-btn');
+  const lbl = document.getElementById('bigtext-label');
+  btn.classList.toggle('on', on);
+  lbl.textContent = on ? '원래대로' : '크게';
+  try{ localStorage.setItem('garlic_bigtext', on ? '1' : '0'); }catch(e){}
+}
+
 // ── localStorage 저장/불러오기 ────────────────────
 function saveState(){
   const state={
@@ -1273,6 +1328,14 @@ document.getElementById('btn-install').addEventListener('click',async()=>{
 
 // ── 초기 실행 ─────────────────────────────────────
 const loaded = loadState();
+// 크게보기 상태 복원
+try{
+  if(localStorage.getItem('garlic_bigtext')==='1'){
+    document.body.classList.add('big-text');
+    document.getElementById('bigtext-btn').classList.add('on');
+    document.getElementById('bigtext-label').textContent='원래대로';
+  }
+}catch(e){}
 // 조사일자는 항상 오늘 날짜로 초기화
 document.getElementById('survey_date').value=fmt(new Date());
 document.getElementById('survey_date').classList.add('filled');
