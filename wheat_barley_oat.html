@@ -52,7 +52,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .sec-head .sec-title{margin-bottom:0}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
-.field{display:flex;flex-direction:column;gap:3px}
+.field{display:flex;flex-direction:column;gap:3px;position:relative}
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 input.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;transition:background .15s,border-color .15s;text-align:center}
 input.inp:focus,input.inp:focus-visible,input.inp:active{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(24,95,165,0.2)!important;background:#dceeff!important;color:#185FA5!important}
@@ -61,6 +61,33 @@ input.inp.filled:focus{background:#dceeff!important;color:#185FA5!important;bord
 input.inp.mobile-focus{outline:none!important;border-color:#185FA5!important;box-shadow:0 0 0 3px rgba(24,95,165,0.2)!important;background:#dceeff!important;color:#185FA5!important}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;text-align:center}
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
+/* 크게 보기 버튼 */
+.bigtext-btn{
+  height:34px;padding:0 12px;background:transparent;
+  border:1.5px solid var(--blue2);border-radius:var(--rs);
+  color:var(--blue2);font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:4px;transition:all .15s;
+  -webkit-appearance:none;appearance:none;
+}
+.bigtext-btn.on{ background:var(--blue2);color:#fff;box-shadow:0 2px 8px rgba(55,138,221,0.35); }
+.bigtext-btn:active{opacity:0.8}
+/* 단위 배지 */
+.unit-badge{
+  position:absolute;right:6px;top:0;
+  font-size:10px;font-weight:600;color:var(--sub);
+  background:var(--bg);border-radius:4px;
+  padding:1px 4px;line-height:1.4;
+  pointer-events:none;z-index:1;
+}
+/* ── 크게보기 모드 ─────────────────────────────── */
+body.big-text input.inp,body.big-text select.inp{height:52px !important;font-size:20px !important;font-weight:700 !important;border-width:2px !important;}
+body.big-text input.auto{height:52px !important;font-size:18px !important;font-weight:600 !important;}
+body.big-text .field label{font-size:13px !important;}
+body.big-text tbody td input{height:44px !important;font-size:16px !important;font-weight:700 !important;}
+body.big-text thead th{font-size:12px !important;padding:8px 2px !important;}
+body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important;}
+body.big-text .field{gap:5px !important}
+body.big-text input[type=date].inp{font-size:15px !important;letter-spacing:-0.03em;}
 .result-box{background:linear-gradient(135deg,#185FA5 0%,#2478cc 100%);border-radius:18px;padding:0 12px;margin-bottom:10px;color:white;border:1.5px solid rgba(255,255,255,0.25);box-shadow:0 8px 28px rgba(24,95,165,0.5),inset 0 1px 0 rgba(255,255,255,0.2)}
 .result-box.pending{background:linear-gradient(135deg,#888 0%,#aaa 100%);border:1.5px solid rgba(255,255,255,0.15);box-shadow:none}
 .save-btn{background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);color:white;border-radius:12px;height:36px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 14px;white-space:nowrap;flex-shrink:0}
@@ -120,7 +147,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
 </div>
 
 <div class="content">
-  <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <button class="bigtext-btn" id="bigtext-btn" onclick="toggleBigText()">🔍 <span id="bigtext-label">크게</span></button>
     <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
   </div>
 
@@ -144,12 +172,14 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     <div class="sec-title">① 기본정보</div>
     <div class="g3">
       <div class="field">
-        <label>평년수확량 <span style="font-size:10px;color:var(--hint)">(kg)</span></label>
+        <label>평년수확량</label>
+        <span class="unit-badge">kg</span>
         <input type="text" id="avgYield" class="inp" inputmode="decimal"
           oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>가입면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
+        <label>가입면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="insArea" class="inp" inputmode="decimal"
           oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
@@ -166,22 +196,26 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     <div class="sec-title">② 면적정보</div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
       <div class="field">
-        <label style="display:flex;align-items:flex-start;gap:2px">실제경작면적<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
+        <label>실제경작면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="actArea" class="inp" inputmode="decimal"
           oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label style="display:flex;align-items:flex-start;gap:2px">고사면적<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
+        <label>고사면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="number" id="deadArea" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label style="display:flex;align-items:flex-start;gap:2px">타작물미보상<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
+        <label>타작물미보상</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="uninsArea" class="inp" inputmode="decimal"
           placeholder="0" oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label style="display:flex;align-items:flex-start;gap:2px">기수확면적<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
+        <label>기수확면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="number" id="preArea" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
@@ -196,7 +230,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <input type="text" id="properSample" class="auto" readonly>
       </div>
       <div class="field" id="field-fullSurveyYield" style="display:none">
-        <label>조사수확량 (kg)</label>
+        <label>조사수확량</label>
+        <span class="unit-badge">kg</span>
         <input type="text" id="fullSurveyYield" class="auto" readonly>
       </div>
     </div>
@@ -243,16 +278,19 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div id="sample-inputs"></div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:4px">
         <div class="field">
-          <label>합계<sup style="font-size:9px;color:var(--hint);margin-top:1px">g</sup></label>
+          <label>합계</label>
+          <span class="unit-badge">g</span>
           <input type="text" id="sampleTotal" class="auto" readonly>
         </div>
         <div class="field">
-          <label>함수율 (%)</label>
+          <label>함수율</label>
+          <span class="unit-badge">%</span>
           <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
             oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
         </div>
         <div class="field">
-          <label>미보상비율 (%)</label>
+          <label>미보상비율</label>
+          <span class="unit-badge">%</span>
           <input type="number" id="uninsRate" class="inp" inputmode="decimal"
             placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()"
             onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" autocomplete="off">
@@ -267,19 +305,22 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="sec-title">③ 전수조사 수확량</div>
       <div class="g2">
         <div class="field">
-          <label>총수확량 (kg)</label>
+          <label>총수확량</label>
+          <span class="unit-badge">kg</span>
           <input type="text" id="fullYield" class="inp" inputmode="decimal"
             oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
         </div>
         <div class="field">
-          <label>함수율 (%)</label>
+          <label>함수율</label>
+          <span class="unit-badge">%</span>
           <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.1"
             oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
         </div>
       </div>
       <div class="g2" style="margin-top:0">
         <div class="field">
-          <label>미보상비율 (%)</label>
+          <label>미보상비율</label>
+          <span class="unit-badge">%</span>
           <input type="number" id="fullUninsRate" class="inp" inputmode="decimal"
             placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
         </div>
@@ -735,7 +776,7 @@ function renderSampleInputs(proper, active){
     html += `<div style="display:flex;flex-direction:column;gap:2px;min-width:0">
       <span style="font-size:12px;font-weight:700;color:${isActive?'var(--sub)':'var(--hint)'};text-align:center">${i+1}</span>
       <input type="number" inputmode="decimal" id="sp${i}" ${isActive?'':'disabled'}
-        style="width:100%;height:40px;border:1.5px solid ${bc};border-radius:6px;font-size:15px;font-weight:600;background:${bg};color:${isActive?'var(--text)':'var(--hint)'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
+        style="width:100%;height:${document.body.classList.contains('big-text')?'52':'40'}px;border:1.5px solid ${bc};border-radius:6px;font-size:${document.body.classList.contains('big-text')?'20':'15'}px;font-weight:${document.body.classList.contains('big-text')?'700':'600'};background:${bg};color:${isActive?'var(--text)':'var(--hint)'};text-align:center;-webkit-appearance:none;box-sizing:border-box"
         oninput="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';debouncedCalc()"
         onfocus="this.select();this.style.background='#dceeff';this.style.borderColor='#185FA5';this.style.color='#185FA5'"
         onblur="this.style.background=this.value?'#e8faf3':'white';this.style.borderColor=this.value?'#1D9E75':'#378ADD';this.style.color=this.value?'#0d5c35':'#1a1a1a';calc()" autocomplete="off">
@@ -1126,6 +1167,27 @@ document.addEventListener('DOMContentLoaded',function(){
   },0);
 });
 setTimeout(()=>{document.body.style.visibility='visible';},1000);
+</script>
+
+<script>
+function toggleBigText(){
+  const on = document.body.classList.toggle('big-text');
+  const btn = document.getElementById('bigtext-btn');
+  const lbl = document.getElementById('bigtext-label');
+  btn.classList.toggle('on', on);
+  lbl.textContent = on ? '원래대로' : '크게';
+  try{ localStorage.setItem('wheat_bigtext', on ? '1' : '0'); }catch(e){}
+  if(typeof renderSampleInputs === 'function' && typeof lastProper !== 'undefined') renderSampleInputs(lastProper, actualProper);
+}
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    if(localStorage.getItem('wheat_bigtext')==='1'){
+      document.body.classList.add('big-text');
+      document.getElementById('bigtext-btn').classList.add('on');
+      document.getElementById('bigtext-label').textContent='원래대로';
+    }
+  }catch(e){}
+});
 </script>
 </body>
 </html>
