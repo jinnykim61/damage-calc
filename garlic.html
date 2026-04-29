@@ -174,6 +174,22 @@ body.big-text tfoot td{
 }
 body.big-text .field{gap:5px !important}
 
+/* 단위 배지 */
+.field{position:relative}
+.unit-badge{
+  position:absolute;right:6px;top:0;
+  font-size:10px;font-weight:600;color:var(--sub);
+  background:var(--bg);border-radius:4px;
+  padding:1px 4px;line-height:1.4;
+  pointer-events:none;z-index:1;
+}
+
+/* 크게보기 - 날짜 칸은 폰트 작게 유지 */
+body.big-text input[type=date].inp{
+  font-size:15px !important;
+  letter-spacing:-0.03em;
+}
+
 /* 표본 테이블 */
 .tbl-wrap{overflow-x:auto;width:100%}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
@@ -392,34 +408,40 @@ tbody td input.filled:active{
     <div class="sec-title">면적 정보</div>
     <div class="g3">
       <div class="field">
-        <label>평년수확량 (kg)</label>
+        <label>평년수확량</label>
+        <span class="unit-badge">kg</span>
         <input type="text" id="avg_yield" class="inp" inputmode="decimal"
           oninput="onCommaInput(this)" onchange="calc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>가입면적 (㎡)</label>
+        <label>가입면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="ins_area" class="inp" inputmode="decimal"
           oninput="onCommaInput(this)" onchange="calc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>실제경작면적 (㎡)</label>
+        <label>실제경작면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="act_area" class="inp" inputmode="decimal"
           oninput="onCommaInput(this);updateSamplesAndCalc()" onchange="updateSamplesAndCalc()" autocomplete="off">
       </div>
     </div>
     <div class="g3">
       <div class="field">
-        <label>고사면적 (㎡)</label>
+        <label>고사면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="number" id="dead_area" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>타작물/미보상 (㎡)</label>
+        <label>타작물/미보상</label>
+        <span class="unit-badge">㎡</span>
         <input type="number" id="other_area" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>기수확면적 (㎡)</label>
+        <label>기수확면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="harv_area" class="inp" inputmode="decimal"
           enterkeyhint="next"
           oninput="markFilled(this)" onblur="updateSamplesAndCalc()"
@@ -432,7 +454,8 @@ tbody td input.filled:active{
         <input type="text" id="survey_area_disp" class="auto" readonly>
       </div>
       <div class="field">
-        <label>조사수확량 (kg)</label>
+        <label>조사수확량</label>
+        <span class="unit-badge">kg</span>
         <input type="text" id="area_err_disp" class="auto" readonly>
       </div>
       <div class="field">
@@ -460,12 +483,14 @@ tbody td input.filled:active{
         <input type="text" id="remain_info" class="auto" readonly>
       </div>
       <div class="field">
-        <label>열공수 (개)</label>
+        <label>열공수</label>
+        <span class="unit-badge">개</span>
         <input type="number" id="crack_count" class="inp" inputmode="decimal"
           oninput="markFilled(this)" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>미보상 (%)</label>
+        <label>미보상</label>
+        <span class="unit-badge">%</span>
         <input type="number" id="unins_rate" class="inp" inputmode="decimal"
           enterkeyhint="done"
           oninput="markFilled(this)" onblur="calc()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}" autocomplete="off">
