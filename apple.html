@@ -92,9 +92,27 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .sec-title{font-size:12px;font-weight:600;color:var(--sub);letter-spacing:0.04em}
 .reset-btn{height:32px;padding:0 12px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:12px;font-weight:600;cursor:pointer}
+/* 크게 보기 버튼 */
+.bigtext-btn{
+  height:34px;padding:0 12px;background:transparent;
+  border:1.5px solid var(--blue2);border-radius:var(--rs);
+  color:var(--blue2);font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:4px;transition:all .15s;
+  -webkit-appearance:none;appearance:none;
+}
+.bigtext-btn.on{ background:var(--blue2);color:#fff;box-shadow:0 2px 8px rgba(55,138,221,0.35); }
+.bigtext-btn:active{opacity:0.8}
+/* ── 크게보기 모드 ─────────────────────────────── */
+body.big-text input.inp,body.big-text select.inp,body.big-text input.sg-inp{
+  height:52px !important;font-size:20px !important;font-weight:700 !important;border-width:2px !important;}
+body.big-text input.auto{height:52px !important;font-size:18px !important;font-weight:600 !important;}
+body.big-text .field label{font-size:13px !important;}
+body.big-text .sample-row input{height:44px !important;font-size:16px !important;font-weight:700 !important;}
+body.big-text .variety-name input{height:46px !important;font-size:16px !important;font-weight:700 !important;}
+body.big-text input[type=date].inp{font-size:15px !important;letter-spacing:-0.03em;}
 
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.field{display:flex;flex-direction:column;gap:3px}
+.field{display:flex;flex-direction:column;gap:3px;position:relative}
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 .field label.sm{font-size:9px}
 
@@ -234,7 +252,8 @@ select.inp.filled:focus,select.inp.filled:focus-visible,select.inp.filled:active
 
 <!-- 표본간격 탭 화면 -->
 <div id="mode-section-0">
-  <div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:flex-end">
+  <div style="background:var(--card);border-bottom:0.5px solid var(--border);padding:6px 12px;display:flex;justify-content:space-between;align-items:center">
+    <button class="bigtext-btn" id="bigtext-btn" onclick="toggleBigText()">🔍 <span id="bigtext-label">크게</span></button>
     <button onclick="openResetModal()" style="height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--red);cursor:pointer">전체 초기화</button>
   </div>
   <div class="section">
@@ -2310,5 +2329,25 @@ document.addEventListener('DOMContentLoaded', ()=>{
 </script>
 </div><!-- /mode-section-1 -->
 
+
+<script>
+function toggleBigText(){
+  const on = document.body.classList.toggle('big-text');
+  const btn = document.getElementById('bigtext-btn');
+  const lbl = document.getElementById('bigtext-label');
+  btn.classList.toggle('on', on);
+  lbl.textContent = on ? '원래대로' : '크게';
+  try{ localStorage.setItem('apple_bigtext', on ? '1' : '0'); }catch(e){}
+}
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    if(localStorage.getItem('apple_bigtext')==='1'){
+      document.body.classList.add('big-text');
+      const btn=document.getElementById('bigtext-btn');
+      if(btn){ btn.classList.add('on'); btn.querySelector('span').textContent='원래대로'; }
+    }
+  }catch(e){}
+});
+</script>
 </body>
 </html>
