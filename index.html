@@ -88,10 +88,12 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .hist-img-del{position:absolute;top:8px;right:8px;width:26px;height:26px;background:rgba(0,0,0,0.45);border-radius:50%;border:none;color:white;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;z-index:2}
 
 /* 이미지 전체보기 모달 */
-#img-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:600;align-items:center;justify-content:center;padding:16px}
-#img-modal.show{display:flex}
-#img-modal img{max-width:100%;max-height:90vh;border-radius:8px;object-fit:contain}
-#img-modal-close{position:absolute;top:16px;right:16px;width:36px;height:36px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#img-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:600;overflow:hidden;touch-action:none}
+#img-modal.show{display:block}
+#img-modal-close{position:absolute;top:16px;right:16px;width:38px;height:38px;background:rgba(255,255,255,0.18);border:none;border-radius:50%;color:white;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;touch-action:manipulation}
+#img-modal-hint{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.45);font-size:12px;white-space:nowrap;z-index:10;pointer-events:none}
+#img-zoom-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+#img-modal-src{max-width:100%;max-height:100%;object-fit:contain;transform-origin:center center;user-select:none;-webkit-user-select:none;display:block}
 
 .hist-empty{text-align:center;padding:50px 20px;color:var(--hint);font-size:13px;line-height:2}
 .hist-empty-icon{font-size:40px;margin-bottom:12px}
@@ -208,10 +210,13 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
   <div id="hist-list"></div>
 </div>
 
-<!-- 이미지 전체보기 모달 -->
-<div id="img-modal" onclick="closeImgModal()">
+<!-- 이미지 전체보기 모달 (핀치줌+드래그) -->
+<div id="img-modal">
   <button id="img-modal-close" onclick="closeImgModal()">✕</button>
-  <img id="img-modal-src" src="" alt="저장 이미지">
+  <div id="img-zoom-wrap">
+    <img id="img-modal-src" src="" alt="저장 이미지">
+  </div>
+  <div id="img-modal-hint">두 손가락으로 확대 · 탭 두 번으로 초기화</div>
 </div>
 
 <!-- 삭제 확인 모달 -->
@@ -350,11 +355,86 @@ function renderHistory(){
   container.innerHTML=html;
 }
 
-// ── 이미지 전체보기 ──────────────────────────────
+// ── 이미지 전체보기 (핀치줌 + 드래그 + 더블탭 초기화) ──
+let _iz = { scale:1, tx:0, ty:0, lastTap:0 };
+let _drag = { on:false, sx:0, sy:0, stx:0, sty:0 };
+let _pinch = { on:false, startDist:0, startScale:1, cx:0, cy:0, stx:0, sty:0 };
+
+function _applyTransform(){
+  const img = document.getElementById('img-modal-src');
+  img.style.transform = `translate(${_iz.tx}px,${_iz.ty}px) scale(${_iz.scale})`;
+}
+function _resetZoom(){
+  _iz.scale=1; _iz.tx=0; _iz.ty=0;
+  _applyTransform();
+}
+function _dist(t){ return Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY); }
+function _mid(t){ return {x:(t[0].clientX+t[1].clientX)/2, y:(t[0].clientY+t[1].clientY)/2}; }
+
+function _initZoomEvents(){
+  const modal = document.getElementById('img-modal');
+  const img   = document.getElementById('img-modal-src');
+
+  // 더블탭 초기화
+  modal.addEventListener('touchend', e=>{
+    if(e.touches.length > 0) return;
+    const now = Date.now();
+    if(now - _iz.lastTap < 280){ _resetZoom(); }
+    _iz.lastTap = now;
+  }, {passive:true});
+
+  // 단일 드래그
+  modal.addEventListener('touchstart', e=>{
+    if(e.touches.length === 1 && _iz.scale > 1){
+      _drag.on=true;
+      _drag.sx=e.touches[0].clientX; _drag.sy=e.touches[0].clientY;
+      _drag.stx=_iz.tx; _drag.sty=_iz.ty;
+    }
+    if(e.touches.length === 2){
+      _drag.on=false;
+      _pinch.on=true;
+      _pinch.startDist=_dist(e.touches);
+      _pinch.startScale=_iz.scale;
+      const m=_mid(e.touches);
+      _pinch.cx=m.x; _pinch.cy=m.y;
+      _pinch.stx=_iz.tx; _pinch.sty=_iz.ty;
+    }
+  },{passive:true});
+
+  modal.addEventListener('touchmove', e=>{
+    e.preventDefault();
+    if(_drag.on && e.touches.length===1){
+      _iz.tx = _drag.stx + (e.touches[0].clientX - _drag.sx);
+      _iz.ty = _drag.sty + (e.touches[0].clientY - _drag.sy);
+      _applyTransform();
+    }
+    if(_pinch.on && e.touches.length===2){
+      const d = _dist(e.touches);
+      let ns = _pinch.startScale * (d / _pinch.startDist);
+      ns = Math.min(Math.max(ns, 0.5), 6);
+      _iz.scale = ns;
+      _applyTransform();
+    }
+  },{passive:false});
+
+  modal.addEventListener('touchend', e=>{
+    if(e.touches.length < 2){ _pinch.on=false; }
+    if(e.touches.length === 0){ _drag.on=false; }
+    // 축소하면 위치도 초기화
+    if(_iz.scale <= 1){ _iz.scale=1; _iz.tx=0; _iz.ty=0; _applyTransform(); }
+  },{passive:true});
+
+  // 배경 탭으로 닫기 (이미지 자체 탭 제외)
+  modal.addEventListener('click', e=>{
+    if(e.target === modal) closeImgModal();
+  });
+}
+
 function openImgModal(id){
   const cache=loadImgCache();
-  const found=cache.find(c=>c.id==id);
+  const found=cache.find(c=>String(c.id)===String(id));
   if(!found||!found.img) return;
+  _resetZoom();
   document.getElementById('img-modal-src').src=found.img;
   document.getElementById('img-modal').classList.add('show');
   document.body.style.overflow='hidden';
@@ -363,7 +443,10 @@ function closeImgModal(){
   document.getElementById('img-modal').classList.remove('show');
   document.getElementById('img-modal-src').src='';
   document.body.style.overflow='';
+  _resetZoom();
 }
+// 이벤트 초기화 (DOM 준비 후)
+document.addEventListener('DOMContentLoaded', _initZoomEvents);
 
 // ── 삭제 확인 모달 ───────────────────────────────
 let _pendingAction=null;
