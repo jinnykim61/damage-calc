@@ -500,7 +500,7 @@ tbody td input.filled:active{
 
   <div class="section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span id="sample-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span id="sample-count-badge" style="font-size:14px;font-weight:700;color:var(--blue)"></span></div>
     <span style="font-size:10px;color:var(--hint);font-weight:400">길이·폭(m) / 중량(g)</span>
     </div>
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
@@ -1067,7 +1067,8 @@ function calc(){
   const uninsLoss = loss * uninsRate;
   const netLoss = Math.max(0, loss - uninsLoss);
   // ⑤ ROUND 피해율 (소수4자리)
-  const pct = Math.round(netLoss / effAvg * 10000) / 100;
+  const rawPct = Math.round((effAvg - totalYield) / effAvg * 10000) / 100; // 마이너스 포함 실제값
+  const pct = Math.round(netLoss / effAvg * 10000) / 100; // 표시용 (0 이상)
 
   document.getElementById('r-area').textContent=surveyArea.toLocaleString()+' ㎡';
   document.getElementById('r-avg-unit').textContent=(effAvg/actArea).toFixed(4)+' kg/㎡';
@@ -1079,8 +1080,19 @@ function calc(){
   document.getElementById('r-loss').textContent=netLoss.toLocaleString('ko-KR',{maximumFractionDigits:1})+' kg';
 
   resultBox.className='result-box';
-  pctEl.textContent=pct.toFixed(2)+'%';
-  pctEl.style.color='#FFD0D0';
+  if(rawPct < 0){
+    // 마이너스 피해율 → 실제값 표시, 파란색
+    pctEl.textContent=rawPct.toFixed(2)+'%';
+    pctEl.style.color='#60B4FF';
+  } else if(pct >= 1){
+    // 1% 이상 피해 → 빨간색
+    pctEl.textContent=pct.toFixed(2)+'%';
+    pctEl.style.color='#FFD0D0';
+  } else {
+    // 0% 이상 ~ 1% 미만 → 흰색(기본)
+    pctEl.textContent=pct.toFixed(2)+'%';
+    pctEl.style.color='#FFD0D0';
+  }
   saveState();
 }
 
