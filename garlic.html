@@ -1275,11 +1275,10 @@ async function saveImage(){
       const _survDate = document.getElementById('survey_date')?.value||'';
       const _pct = document.getElementById('result-pct')?.textContent||'-';
       const _cropEl = document.getElementById('crop');
-      const _cropTxt = _cropEl ? _cropEl.options[_cropEl.selectedIndex]?.text : '마늘';
       const _rec = {
         id: Date.now(),
         crop: '마늘',
-        cropDetail: _cropTxt,
+        cropDetail: '마늘',
         category: '밭작물',
         farmNo: _farmNo,
         surveyDate: _survDate,
@@ -1287,10 +1286,14 @@ async function saveImage(){
         filename: `마늘피해율_${stamp}.png`,
         savedAt: new Date().toISOString()
       };
+      const _dataUrl = canvas.toDataURL('image/jpeg', 0.65);
       const _hist = JSON.parse(localStorage.getItem('save_history')||'[]');
+      const _ei = _rec.farmNo ? _hist.findIndex(r=>r.crop===_rec.crop&&r.farmNo===_rec.farmNo) : -1;
+      if(_ei > -1){ _saveImgCache(_hist[_ei].id, ''); _hist.splice(_ei,1); }
       _hist.unshift(_rec);
       if(_hist.length > 200) _hist.splice(200);
       localStorage.setItem('save_history', JSON.stringify(_hist));
+      _saveImgCache(_rec.id, _dataUrl);
     }catch(_){}
     document.getElementById('save-done-overlay').style.display='flex';
   }catch(e){ alert('저장 중 오류가 발생했어요.'); }

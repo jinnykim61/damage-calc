@@ -2285,8 +2285,8 @@ async function saveImage() {
       const _pct = document.getElementById('result-pct')?.textContent||'-';
       const _rec = {
         id: Date.now(),
-        crop: cropName,
-        cropDetail: cropName,
+        crop: '착과수',
+        cropDetail: '착과수',
         category: '과수',
         farmNo: _farmNo,
         surveyDate: _survDate,
@@ -2294,10 +2294,14 @@ async function saveImage() {
         filename: `${cropName}착과수_${stamp}.png`,
         savedAt: new Date().toISOString()
       };
+      const _dataUrl = canvas.toDataURL('image/jpeg', 0.65);
       const _hist = JSON.parse(localStorage.getItem('save_history')||'[]');
+      const _ei = _rec.farmNo ? _hist.findIndex(r=>r.crop===_rec.crop&&r.farmNo===_rec.farmNo) : -1;
+      if(_ei > -1){ _saveImgCache(_hist[_ei].id, ''); _hist.splice(_ei,1); }
       _hist.unshift(_rec);
       if(_hist.length > 200) _hist.splice(200);
       localStorage.setItem('save_history', JSON.stringify(_hist));
+      _saveImgCache(_rec.id, _dataUrl);
     }catch(_){}
     document.getElementById('save-overlay').classList.add('show');
   } catch(e) {
