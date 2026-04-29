@@ -2278,6 +2278,27 @@ async function saveImage() {
     link.download = `${cropName}착과수_${stamp}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
+    // ── 저장목록 기록 ──────────────────────────────
+    try{
+      const _farmNo = (document.getElementById('farm_no')?.value||'').trim();
+      const _survDate = document.getElementById('survey_date')?.value||'';
+      const _pct = document.getElementById('result-pct')?.textContent||'-';
+      const _rec = {
+        id: Date.now(),
+        crop: cropName,
+        cropDetail: cropName,
+        category: '과수',
+        farmNo: _farmNo,
+        surveyDate: _survDate,
+        pct: _pct,
+        filename: `${cropName}착과수_${stamp}.png`,
+        savedAt: new Date().toISOString()
+      };
+      const _hist = JSON.parse(localStorage.getItem('save_history')||'[]');
+      _hist.unshift(_rec);
+      if(_hist.length > 200) _hist.splice(200);
+      localStorage.setItem('save_history', JSON.stringify(_hist));
+    }catch(_){}
     document.getElementById('save-overlay').classList.add('show');
   } catch(e) {
     showToast('저장 중 오류가 발생했어요');

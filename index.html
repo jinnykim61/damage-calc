@@ -10,15 +10,17 @@
 <title>손해평가 피해율계산기</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
+<!-- UPDATED -->
 <style>
 :root{
   --blue:#185FA5;--blue2:#378ADD;
   --border:#D8D6CE;--text:#1a1a1a;--sub:#666;--hint:#aaa;
-  --bg:#F5F4F0;--card:#fff;--green:#1D9E75;
+  --bg:#F5F4F0;--card:#fff;--green:#1D9E75;--red:#e24b4a;
   --r:12px;--rs:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh;-webkit-user-select:none;user-select:none;padding-bottom:env(safe-area-inset-bottom,50px)!important}
+.notranslate{translate:no!important}
 
 .header{background:var(--blue);color:white;padding:16px 16px 14px;display:flex;align-items:center;gap:10px}
 .header-icon{width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px}
@@ -27,14 +29,14 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .help-btn{height:30px;padding:0 10px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:8px;color:white;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;white-space:nowrap}
 
 .tab-bar{display:flex;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.tab{flex:1;padding:12px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer}
+.tab{flex:1;padding:11px 2px;text-align:center;font-size:12px;font-weight:600;color:var(--hint);border-bottom:2.5px solid transparent;cursor:pointer;touch-action:manipulation}
 .tab.on{color:var(--blue);border-bottom-color:var(--blue)}
 
 .tab-content{display:none;padding:16px 14px}
 .tab-content.on{display:block}
 
 .crop-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.crop-card{background:var(--card);border-radius:var(--r);padding:20px 14px;text-align:center;border:0.5px solid var(--border);cursor:pointer;position:relative;transition:transform 0.1s}
+.crop-card{background:var(--card);border-radius:var(--r);padding:20px 14px;text-align:center;border:0.5px solid var(--border);cursor:pointer;position:relative;transition:transform 0.1s;touch-action:manipulation}
 .crop-card:active{transform:scale(0.97)}
 .crop-card.done{border-color:var(--green)}
 .crop-card.ready{border-color:var(--blue)}
@@ -46,29 +48,39 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
 .badge-done{background:#e8faf3;color:var(--green)}
 .badge-new{background:#EBF4FF;color:var(--blue)}
 .badge-soon{background:#f0f0f0;color:#bbb}
-.badge{position:absolute;top:10px;right:10px;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700}
-.badge-done{background:#e8faf3;color:var(--green)}
-.badge-new{background:#EBF4FF;color:var(--blue)}
-.badge-soon{background:#f0f0f0;color:#bbb}
 
-.coming-soon{text-align:center;padding:50px 20px;color:var(--hint);font-size:13px;line-height:1.8}
-.coming-soon .cs-icon{font-size:44px;margin-bottom:14px}
-</style>
-<!-- build:1776393866 -->
+/* ── 저장목록 ── */
+.hist-toolbar{display:flex;gap:8px;margin-bottom:14px;align-items:center}
+.hist-filter-btn{height:32px;padding:0 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.15s;touch-action:manipulation}
+.hist-filter-btn.on{background:var(--blue);border-color:var(--blue);color:white}
+.hist-clear-btn{margin-left:auto;height:32px;padding:0 12px;border-radius:8px;border:1.5px solid #ffd0d0;background:#fff5f5;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;touch-action:manipulation}
 
-<style>
-  /* 터치 및 번역 방지 스타일 */
-  .notranslate { translate: no !important; }
-  body {
-    -webkit-user-select: none;
-    user-select: none;
-    padding-bottom: env(safe-area-inset-bottom, 50px) !important;
-  }
-  /* 카드 클릭 시 하이라이트 제거 및 터치 반응 개선 */
-  .crop-card {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
+.hist-date-group{margin-bottom:18px}
+.hist-date-label{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:8px;padding:0 2px;display:flex;align-items:center;gap:6px}
+.hist-date-label .cnt{background:#EBF4FF;color:var(--blue);border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700}
+
+.hist-item{background:var(--card);border-radius:var(--rs);padding:12px 14px;margin-bottom:8px;border:0.5px solid var(--border);display:flex;align-items:center;gap:12px;position:relative}
+.hist-item-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cat-밭작물{background:#f0faf4}
+.cat-과수{background:#fff4e8}
+.cat-논작물{background:#f0f6ff}
+.hist-item-body{flex:1;min-width:0}
+.hist-item-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px}
+.hist-item-meta{font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-item-pct{font-size:16px;font-weight:800;color:var(--blue);flex-shrink:0;text-align:right;min-width:52px;padding-right:6px}
+.hist-item-del{position:absolute;top:8px;right:8px;width:22px;height:22px;background:#ffeaea;border-radius:50%;border:none;color:var(--red);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+
+.hist-empty{text-align:center;padding:50px 20px;color:var(--hint);font-size:13px;line-height:2}
+.hist-empty-icon{font-size:40px;margin-bottom:12px}
+
+#confirm-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;align-items:center;justify-content:center}
+#confirm-modal.show{display:flex}
+.confirm-box{background:white;border-radius:var(--r);padding:24px 20px;text-align:center;width:270px}
+.confirm-box p{font-size:14px;color:var(--sub);margin-bottom:18px;line-height:1.6}
+.confirm-btns{display:flex;gap:8px}
+.confirm-btns button{flex:1;height:42px;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer}
+.btn-cancel-m{background:#f0f0f0;color:var(--sub)}
+.btn-del-m{background:var(--red);color:white}
 </style>
 </head>
 <body>
@@ -79,19 +91,19 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
     <h1>손해평가 피해율계산기</h1>
     <div class="header-sub">농업재해보험 손해평가사 전용</div>
   </div>
-  <button class="help-btn" onclick="location.href='./help.html'" title="도움말">
+  <button class="help-btn" onclick="location.href='./help.html'">
     <span style="font-size:13px;font-weight:600">도움말</span>
   </button>
 </div>
 
 <div class="tab-bar">
   <div class="tab on" onclick="switchTab(0)">밭작물</div>
-  <div class="tab" onclick="switchTab(1)">과수 4종</div>
-  <div class="tab" onclick="switchTab(2)">종합과수</div>
-  <div class="tab" onclick="switchTab(3)">논작물</div>
+  <div class="tab"    onclick="switchTab(1)">과수</div>
+  <div class="tab"    onclick="switchTab(2)">논작물</div>
+  <div class="tab"    onclick="switchTab(3)">저장목록</div>
 </div>
 
-<!-- 밭작물 v2 -->
+<!-- ① 밭작물 -->
 <div class="tab-content on" id="tab-0">
   <div class="crop-grid">
     <div class="crop-card done" onclick="go('garlic')">
@@ -127,7 +139,7 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
   </div>
 </div>
 
-<!-- 과수 4종 -->
+<!-- ② 과수 (4종 + 종합 합침) -->
 <div class="tab-content" id="tab-1">
   <div class="crop-grid">
     <div class="crop-card done" onclick="go('apple')">
@@ -136,12 +148,6 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
       <div class="crop-name">적과후착과수 조사</div>
       <div class="crop-desc">사과·배·단감·떫은감</div>
     </div>
-  </div>
-</div>
-
-<!-- 종합과수 -->
-<div class="tab-content" id="tab-2">
-  <div class="crop-grid">
     <div class="crop-card done" onclick="go('fruit')">
       <span class="badge badge-done">완성</span>
       <div class="crop-icon">🍇🍑🫐</div>
@@ -151,8 +157,8 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
   </div>
 </div>
 
-<!-- 논작물 -->
-<div class="tab-content" id="tab-3">
+<!-- ③ 논작물 -->
+<div class="tab-content" id="tab-2">
   <div class="crop-grid">
     <div class="crop-card done" onclick="go('rice')">
       <span class="badge badge-done">완성</span>
@@ -169,23 +175,147 @@ body{font-family:-apple-system,'Noto Sans KR',sans-serif;background:var(--bg);co
   </div>
 </div>
 
+<!-- ④ 저장목록 -->
+<div class="tab-content" id="tab-3">
+  <div class="hist-toolbar">
+    <button class="hist-filter-btn on" id="filter-all"   onclick="setFilter('all')">전체</button>
+    <button class="hist-filter-btn"    id="filter-today" onclick="setFilter('today')">오늘</button>
+    <button class="hist-clear-btn" onclick="confirmClearAll()">전체삭제</button>
+  </div>
+  <div id="hist-list"></div>
+</div>
+
+<!-- 삭제 확인 모달 -->
+<div id="confirm-modal">
+  <div class="confirm-box">
+    <p id="confirm-msg">삭제하시겠어요?</p>
+    <div class="confirm-btns">
+      <button class="btn-cancel-m" onclick="closeConfirm()">취소</button>
+      <button class="btn-del-m" onclick="confirmAction()">삭제</button>
+    </div>
+  </div>
+</div>
+
 <script>
+// ── 탭 전환 ──────────────────────────────────────
 function switchTab(i){
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',i===j));
   document.querySelectorAll('.tab-content').forEach((c,j)=>c.classList.toggle('on',i===j));
+  if(i===3) renderHistory();
 }
+
+// ── 페이지 이동 ──────────────────────────────────
 function go(page){
-  if(page==='garlic') location.href='./garlic.html';
-  if(page==='onion') location.href='./onion.html';
-  if(page==='bean') location.href='./bean.html';
-  if(page==='sweetpotato') location.href='./sweetpotato.html';
-  if(page==='red_bean') location.href='./red_bean.html';
-  if(page==='apple') location.href='./apple.html';
-  if(page==='apple_multi') location.href='./apple_multi.html';
-  if(page==='fruit') location.href='./fruit.html';
-  if(page==='rice') location.href='./rice.html';
-  if(page==='wheat_barley_oat') location.href='./wheat_barley_oat.html';
+  const map={
+    garlic:'./garlic.html', onion:'./onion.html', bean:'./bean.html',
+    sweetpotato:'./sweetpotato.html', red_bean:'./red_bean.html',
+    apple:'./apple.html', apple_multi:'./apple_multi.html',
+    fruit:'./fruit.html', rice:'./rice.html',
+    wheat_barley_oat:'./wheat_barley_oat.html'
+  };
+  if(map[page]) location.href=map[page];
 }
+
+// ── 저장목록 ──────────────────────────────────────
+let currentFilter='all';
+const CROP_ICONS={
+  '마늘':'🧄','양파':'🧅','콩':'🫘','고구마':'🍠','팥':'🫘',
+  '벼':'🌾','밀':'🌾','보리':'🌾','귀리':'🥣',
+  '사과':'🍎','배':'🍐','단감':'🟠','떫은감':'🟤',
+  '포도':'🍇','복숭아':'🍑','자두':'🫐'
+};
+function getIcon(crop){
+  for(const k of Object.keys(CROP_ICONS)){ if(crop&&crop.includes(k)) return CROP_ICONS[k]; }
+  return '📋';
+}
+function todayStr(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fmtTime(iso){
+  const d=new Date(iso);
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function fmtDateLabel(iso){
+  const d=new Date(iso);
+  const today=new Date(); today.setHours(0,0,0,0);
+  const yest=new Date(today); yest.setDate(yest.getDate()-1);
+  const tgt=new Date(d); tgt.setHours(0,0,0,0);
+  const days=['일','월','화','수','목','금','토'];
+  if(+tgt===+today) return '오늘';
+  if(+tgt===+yest)  return '어제';
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} (${days[d.getDay()]})`;
+}
+function loadHistory(){
+  try{ return JSON.parse(localStorage.getItem('save_history')||'[]'); }catch(_){ return []; }
+}
+function setFilter(f){
+  currentFilter=f;
+  document.getElementById('filter-all').classList.toggle('on',f==='all');
+  document.getElementById('filter-today').classList.toggle('on',f==='today');
+  renderHistory();
+}
+function renderHistory(){
+  const all=loadHistory();
+  const list=currentFilter==='today' ? all.filter(r=>r.savedAt&&r.savedAt.startsWith(todayStr())) : all;
+  const container=document.getElementById('hist-list');
+  if(!list.length){
+    container.innerHTML=`<div class="hist-empty"><div class="hist-empty-icon">📂</div>${currentFilter==='today'?'오늘 저장된 내역이 없어요':'저장된 내역이 없어요'}<br><span style="font-size:12px">계산 후 📷 갤러리 저장 버튼을 누르면<br>여기에 기록돼요</span></div>`;
+    return;
+  }
+  const groups={};
+  list.forEach(r=>{
+    const key=(r.savedAt||'').substring(0,10)||'날짜없음';
+    if(!groups[key]) groups[key]=[];
+    groups[key].push(r);
+  });
+  let html='';
+  Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(dk=>{
+    const items=groups[dk];
+    const lbl=items[0].savedAt ? fmtDateLabel(items[0].savedAt) : dk;
+    html+=`<div class="hist-date-group"><div class="hist-date-label">📅 ${lbl} <span class="cnt">${items.length}건</span></div>`;
+    items.forEach(r=>{
+      const icon=getIcon(r.crop||'');
+      const cat=r.category||'밭작물';
+      const farmTxt=r.farmNo?`농지번호 ${r.farmNo} · `:'';
+      const survTxt=r.surveyDate?`${r.surveyDate} · `:'';
+      const timeTxt=r.savedAt?fmtTime(r.savedAt):'';
+      html+=`<div class="hist-item">
+        <div class="hist-item-icon cat-${cat}">${icon}</div>
+        <div class="hist-item-body">
+          <div class="hist-item-title">${r.cropDetail||r.crop||'-'}</div>
+          <div class="hist-item-meta">${farmTxt}${survTxt}${timeTxt} 저장</div>
+        </div>
+        <div class="hist-item-pct">${r.pct||'-'}</div>
+        <button class="hist-item-del" onclick="confirmDeleteItem(${r.id})">✕</button>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  container.innerHTML=html;
+}
+
+// ── 삭제 확인 모달 ───────────────────────────────
+let _pendingAction=null;
+function confirmDeleteItem(id){
+  _pendingAction=()=>{
+    localStorage.setItem('save_history', JSON.stringify(loadHistory().filter(r=>r.id!==id)));
+    renderHistory();
+  };
+  document.getElementById('confirm-msg').innerHTML='이 항목을 삭제할까요?';
+  document.getElementById('confirm-modal').classList.add('show');
+}
+function confirmClearAll(){
+  const cnt=loadHistory().length;
+  if(!cnt){ alert('삭제할 내역이 없어요.'); return; }
+  _pendingAction=()=>{ localStorage.removeItem('save_history'); renderHistory(); };
+  document.getElementById('confirm-msg').innerHTML=`저장된 <strong>${cnt}건</strong>을 모두 삭제할까요?<br><span style="font-size:12px;color:#aaa">복구할 수 없어요</span>`;
+  document.getElementById('confirm-modal').classList.add('show');
+}
+function confirmAction(){ if(_pendingAction)_pendingAction(); _pendingAction=null; closeConfirm(); }
+function closeConfirm(){ document.getElementById('confirm-modal').classList.remove('show'); _pendingAction=null; }
+
+// ── 서비스워커 캐시 제거 ─────────────────────────
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
   caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));

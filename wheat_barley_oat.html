@@ -1099,6 +1099,17 @@ async function saveImage(){
     link.download=`${CROP_INFO[crop].label}피해율_${stamp}.png`;
     link.href=canvas.toDataURL('image/png');
     link.click();
+    try{
+      const _label=CROP_INFO[crop].label;
+      const _rec={id:Date.now(),crop:_label,cropDetail:_label,category:'논작물',
+        farmNo:(document.getElementById('farm_no')?.value||'').trim(),
+        surveyDate:document.getElementById('surveyDate')?.value||'',
+        pct:document.getElementById('result-pct')?.textContent||'-',
+        filename:`${_label}피해율_${stamp}.png`,savedAt:new Date().toISOString()};
+      const _h=JSON.parse(localStorage.getItem('save_history')||'[]');
+      _h.unshift(_rec);if(_h.length>200)_h.splice(200);
+      localStorage.setItem('save_history',JSON.stringify(_h));
+    }catch(_){}
     document.getElementById('save-overlay').classList.add('show');
   }catch(e){ alert('저장 중 오류: '+e.message); }
 }
