@@ -1115,6 +1115,24 @@ function fillOnionCaptureTemplate(){
   tbody.innerHTML = html || '<tr><td colspan="5" style="padding:10px;text-align:center;font-size:12px">-</td></tr>';
 }
 
+
+// ── 이미지 캐시 저장 (당일 미리보기용) ──────────────
+function _saveImgCache(id, dataUrl) {
+  try {
+    const today = new Date().toISOString().substring(0,10);
+    let cache = [];
+    try { cache = JSON.parse(localStorage.getItem('save_img_cache')||'[]'); } catch(_){}
+    cache = cache.filter(c => String(c.id) !== String(id));
+    if(dataUrl) {
+      cache.unshift({ id: id, date: today, img: dataUrl });
+      const todayItems = cache.filter(c => c.date === today).slice(0,15);
+      const otherItems = cache.filter(c => c.date !== today);
+      localStorage.setItem('save_img_cache', JSON.stringify([...todayItems, ...otherItems]));
+    } else {
+      localStorage.setItem('save_img_cache', JSON.stringify(cache));
+    }
+  } catch(_) {}
+}
 async function saveImage(){
   try{
     const isPending = document.getElementById('result-section').classList.contains('pending');

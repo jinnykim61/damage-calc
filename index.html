@@ -310,7 +310,7 @@ function renderHistory(){
   const all=loadHistory();
   const imgCache=loadImgCache();
   const imgMap={};
-  imgCache.forEach(c=>{ imgMap[c.id]=c.img; });
+  imgCache.forEach(c=>{ imgMap[String(c.id)]=c.img; });
   const tStr=todayStr();
   const list=currentFilter==='today' ? all.filter(r=>r.savedAt&&r.savedAt.startsWith(tStr)) : all;
   const container=document.getElementById('hist-list');
@@ -334,7 +334,7 @@ function renderHistory(){
     items.forEach(r=>{
       const icon=getIcon(r.crop||'');
       const cat=r.category||'밭작물';
-      const imgData=imgMap[r.id]||'';
+      const imgData=imgMap[String(r.id)]||'';
 
       if(isToday){
         // 당일: 이미지 카드
@@ -391,7 +391,7 @@ function confirmDeleteItem(id){
     // 텍스트 기록 삭제
     localStorage.setItem('save_history', JSON.stringify(loadHistory().filter(r=>r.id!==id)));
     // 이미지 캐시도 삭제
-    localStorage.setItem('save_img_cache', JSON.stringify(loadImgCache().filter(c=>c.id!==id)));
+    localStorage.setItem('save_img_cache', JSON.stringify(loadImgCache().filter(c=>String(c.id)!==String(id))));
     renderHistory();
   };
   document.getElementById('confirm-msg').innerHTML='이 항목을 삭제할까요?';
