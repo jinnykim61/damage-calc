@@ -43,7 +43,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
-.field{display:flex;flex-direction:column;gap:3px}
+.field{display:flex;flex-direction:column;gap:3px;position:relative}
 .field label{font-size:11px;color:var(--sub);font-weight:500}
 input.inp,select.inp{height:40px;border:1.5px solid var(--binp);border-radius:var(--rs);padding:0 8px;font-size:14px;background:white;color:var(--text);width:100%;transition:background 0.15s,border-color 0.15s;text-align:center}
 select.inp{text-align:left;-webkit-appearance:auto;appearance:auto;}
@@ -65,6 +65,33 @@ select.inp.filled{background:#e8faf3;border-color:var(--green);color:#000000;fon
 input.inp.mobile-focus,select.inp.mobile-focus{outline:none !important;border-color:#185FA5 !important;box-shadow:0 0 0 3px rgba(24,95,165,0.2) !important;background:#dceeff !important;color:#185FA5 !important}
 input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);padding:0 8px;font-size:14px;background:var(--auto);color:var(--sub);width:100%;text-align:center}
 .reset-btn{height:34px;padding:0 14px;background:transparent;border:1.5px solid var(--red);border-radius:var(--rs);color:var(--red);font-size:13px;font-weight:600;cursor:pointer}
+/* 크게 보기 버튼 */
+.bigtext-btn{
+  height:34px;padding:0 12px;background:transparent;
+  border:1.5px solid var(--blue2);border-radius:var(--rs);
+  color:var(--blue2);font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:4px;transition:all .15s;
+  -webkit-appearance:none;appearance:none;
+}
+.bigtext-btn.on{ background:var(--blue2);color:#fff;box-shadow:0 2px 8px rgba(55,138,221,0.35); }
+.bigtext-btn:active{opacity:0.8}
+/* 단위 배지 */
+.unit-badge{
+  position:absolute;right:6px;top:0;
+  font-size:10px;font-weight:600;color:var(--sub);
+  background:var(--bg);border-radius:4px;
+  padding:1px 4px;line-height:1.4;
+  pointer-events:none;z-index:1;
+}
+/* ── 크게보기 모드 ─────────────────────────────── */
+body.big-text input.inp,body.big-text select.inp{height:52px !important;font-size:20px !important;font-weight:700 !important;border-width:2px !important;}
+body.big-text input.auto{height:52px !important;font-size:18px !important;font-weight:600 !important;}
+body.big-text .field label{font-size:13px !important;}
+body.big-text tbody td input{height:44px !important;font-size:16px !important;font-weight:700 !important;}
+body.big-text thead th{font-size:12px !important;padding:8px 2px !important;}
+body.big-text tfoot td{font-size:12px !important;padding:8px 1px !important;}
+body.big-text .field{gap:5px !important}
+body.big-text input[type=date].inp{font-size:15px !important;letter-spacing:-0.03em;}
 
 /* 표본구간 그리드 */
 .sample-grid{display:grid;gap:6px;margin-bottom:8px}
@@ -144,7 +171,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
   </div>
 
   <!-- 전체 초기화 버튼 (legend 아래, 섹션 밖) -->
-  <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <button class="bigtext-btn" id="bigtext-btn" onclick="toggleBigText()">🔍 <span id="bigtext-label">크게</span></button>
     <button class="reset-btn" onclick="openResetModal()">전체 초기화</button>
   </div>
 
@@ -191,12 +219,14 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     </div>
     <div class="g3">
       <div class="field">
-        <label>평년수확량 <span style="font-size:10px;color:var(--hint)">(kg)</span></label>
+        <label>평년수확량</label>
+        <span class="unit-badge">kg</span>
         <input type="text" id="avgYield" class="inp" inputmode="decimal"
           oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label>가입면적 <span style="font-size:10px;color:var(--hint)">㎡</span></label>
+        <label>가입면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="insArea" class="inp" inputmode="decimal"
           oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
@@ -212,22 +242,26 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
     <div class="sec-title">② 면적정보</div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
       <div class="field">
-        <label style="display:flex;align-items:flex-start;gap:2px">실제경작면적<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
+        <label>실제경작면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="actArea" class="inp" inputmode="decimal"
           oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label style="display:flex;align-items:flex-start;gap:2px">고사면적<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
+        <label>고사면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="number" id="deadArea" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label style="display:flex;align-items:flex-start;gap:2px">타작물미보상<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
+        <label>타작물미보상</label>
+        <span class="unit-badge">㎡</span>
         <input type="text" id="uninsArea" class="inp" inputmode="decimal"
           placeholder="0" oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
       <div class="field">
-        <label style="display:flex;align-items:flex-start;gap:2px">기수확면적<sup style="font-size:9px;color:var(--hint);margin-top:1px">㎡</sup></label>
+        <label>기수확면적</label>
+        <span class="unit-badge">㎡</span>
         <input type="number" id="preArea" class="inp" inputmode="decimal"
           placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
       </div>
@@ -242,7 +276,8 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
         <input type="text" id="properSample" class="auto" readonly>
       </div>
       <div class="field" id="field-fullSurveyArea" style="display:none">
-        <label>조사수확량 (kg)</label>
+        <label>조사수확량</label>
+        <span class="unit-badge">kg</span>
         <input type="text" id="fullSurveyArea" class="auto" readonly>
       </div>
     </div>
@@ -294,16 +329,19 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <!-- 합계 / 함수율 / 미보상비율 -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:4px">
         <div class="field">
-          <label>합계<sup style="font-size:9px;color:var(--hint);margin-top:1px">g</sup></label>
+          <label>합계</label>
+          <span class="unit-badge">g</span>
           <input type="text" id="sampleTotal" class="auto" readonly>
         </div>
         <div class="field">
-          <label>함수율 (%)</label>
+          <label>함수율</label>
+          <span class="unit-badge">%</span>
           <input type="number" id="moisture" class="inp" inputmode="decimal" step="0.1"
             oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
         </div>
         <div class="field">
-          <label>미보상비율 (%)</label>
+          <label>미보상비율</label>
+          <span class="unit-badge">%</span>
           <input type="number" id="uninsRate" class="inp" inputmode="decimal"
             placeholder="0" oninput="markFilled(this);debouncedCalc()" onblur="calc()"
             onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" autocomplete="off">
@@ -318,12 +356,14 @@ input.auto{height:40px;border:0.5px solid var(--border);border-radius:var(--rs);
       <div class="sec-title">③ 전수조사 수확량</div>
       <div class="g2">
         <div class="field">
-          <label>총수확량 (kg)</label>
+          <label>총수확량</label>
+          <span class="unit-badge">kg</span>
           <input type="text" id="fullYield" class="inp" inputmode="decimal"
             oninput="onCommaInput(this);debouncedCalc()" onblur="calc()" autocomplete="off">
         </div>
         <div class="field">
-          <label>함수율 (%)</label>
+          <label>함수율</label>
+          <span class="unit-badge">%</span>
           <input type="number" id="fullMoisture" class="inp" inputmode="decimal" step="0.1"
             oninput="markFilled(this);debouncedCalc()" onblur="calc()" autocomplete="off">
         </div>
@@ -1259,6 +1299,26 @@ document.addEventListener('DOMContentLoaded', function(){
 
 // 안전망: 1초 후에도 hidden이면 강제 표시
 setTimeout(function(){ document.body.style.visibility = 'visible'; }, 1000);
+</script>
+
+<script>
+function toggleBigText(){
+  const on = document.body.classList.toggle('big-text');
+  const btn = document.getElementById('bigtext-btn');
+  const lbl = document.getElementById('bigtext-label');
+  btn.classList.toggle('on', on);
+  lbl.textContent = on ? '원래대로' : '크게';
+  try{ localStorage.setItem('rice_bigtext', on ? '1' : '0'); }catch(e){}
+}
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    if(localStorage.getItem('rice_bigtext')==='1'){
+      document.body.classList.add('big-text');
+      document.getElementById('bigtext-btn').classList.add('on');
+      document.getElementById('bigtext-label').textContent='원래대로';
+    }
+  }catch(e){}
+});
 </script>
 </body>
 </html>
