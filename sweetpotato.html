@@ -783,8 +783,8 @@ function calc(){
 let _isLocked = false;
 function vibrate(pattern){ try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){} }
 
-function setCalcMode(){
-  vibrate([30, 40, 60]);
+function setCalcMode(silent=false){
+  if(!silent) vibrate([30, 40, 60]);
   const missing = [];
 
   if(!toNum(document.getElementById('avg_yield')))
@@ -996,7 +996,7 @@ function loadState(){
     });
     if(s.farm_no){ const el=document.getElementById('farm_no'); el.value=s.farm_no; el.classList.add('filled'); }
     if(s.samples && s.samples.length>0) samples=s.samples;
-    if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
+    if(s.isLocked) setTimeout(()=>setCalcMode(true), 0);
     return true;
   }catch(e){ return false; }
 }
