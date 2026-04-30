@@ -328,7 +328,7 @@ tbody td input.filled:focus,tbody td input.filled:focus-visible{
   <!-- 표본구간 -->
   <div class="section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span id="sample-count-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+      <div class="sec-title" style="margin-bottom:0">표본구간 조사 <span id="sample-count-badge" style="font-size:14px;font-weight:700;color:var(--blue)"></span></div>
       <span style="font-size:10px;color:var(--hint);font-weight:400">길이·폭(m) / 중량(g)</span>
     </div>
     <div id="sample-guide" class="guide">실제경작면적 입력 후 자동으로 구간이 생성됩니다</div>
@@ -772,8 +772,10 @@ function calc(){
   document.getElementById('surv_yield_disp').value = survYield.toLocaleString('ko-KR')+' kg';
 
   resultBox.className='result-box';
-  pctEl.textContent = pct.toFixed(2)+'%';
-  pctEl.style.color = '#FFD0D0';
+  const _rawPctS = Math.round((effAvg - survYield) / effAvg * 10000) / 100;
+  if(_rawPctS < 0){ pctEl.textContent=_rawPctS.toFixed(2)+'%'; pctEl.style.color='#60B4FF'; }
+  else if(pct >= 1){ pctEl.textContent=pct.toFixed(2)+'%'; pctEl.style.color='#FFD0D0'; }
+  else { pctEl.textContent=pct.toFixed(2)+'%'; pctEl.style.color='#FFD0D0'; }
   saveState();
 }
 

@@ -223,7 +223,7 @@ tbody td input.filled:focus{outline:none!important;border-color:#185FA5!importan
   <div id="sec-sample">
     <div class="section">
       <div class="sec-head">
-        <div class="sec-title">③ 표본구간 조사 <span id="sample-badge" style="font-size:11px;font-weight:400;color:var(--blue)"></span></div>
+        <div class="sec-title">③ 표본구간 조사 <span id="sample-badge" style="font-size:14px;font-weight:700;color:var(--blue)"></span></div>
         <span style="font-size:10px;color:var(--hint);font-weight:400">길이·폭(m) / 중량(g) / 함수율(%)</span>
       </div>
       <div class="tbl-wrap">
@@ -642,8 +642,11 @@ function showResult(avg, survey, unit, area, unins, pihaeyul){
   const resultBox = document.getElementById('result-section');
   const pctEl = document.getElementById('result-pct');
   resultBox.className='result-box';
-  pctEl.textContent=(pihaeyul*100).toFixed(2)+'%';
-  pctEl.style.color='#FFD0D0';
+  const _rawPct = pihaeyul * 100;
+  pctEl.textContent = _rawPct.toFixed(2) + '%';
+  if(_rawPct < 0){ pctEl.style.color='#60B4FF'; }
+  else if(_rawPct >= 1){ pctEl.style.color='#FFD0D0'; }
+  else { pctEl.style.color='#FFD0D0'; }
   document.getElementById('r-avg').textContent=avg.toLocaleString()+' kg';
   document.getElementById('r-survey').textContent=survey.toLocaleString()+' kg';
   document.getElementById('r-unit').textContent=unit;

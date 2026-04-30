@@ -909,8 +909,11 @@ function setPending(box,pctEl){
 
 function showResult(box,pctEl,avg,survey,unins,pihaeyul){
   box.className='result-box';
-  pctEl.textContent=(pihaeyul*100).toFixed(2)+'%';
-  pctEl.style.color='#FFD0D0';
+  const _rawPct = pihaeyul * 100;
+  pctEl.textContent = _rawPct.toFixed(2) + '%';
+  if(_rawPct < 0){ pctEl.style.color='#60B4FF'; }
+  else if(_rawPct >= 1){ pctEl.style.color='#FFD0D0'; }
+  else { pctEl.style.color='#FFD0D0'; }
   document.getElementById('r-avg').textContent    = avg.toLocaleString('ko-KR')+' kg';
   document.getElementById('r-survey').textContent = survey.toLocaleString('ko-KR')+' kg';
   const loss = Math.max(0,avg-survey);
