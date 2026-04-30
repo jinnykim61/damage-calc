@@ -1226,7 +1226,10 @@ if('serviceWorker' in navigator){
 // ── 계산하기 / 수정하기 모드 ─────────────────────
 let _isLocked = false;
 let _isRestoring = false; // 복원 중 saveState 차단용
+function vibrate(pattern){ try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){} }
+
 function setCalcMode(){
+  vibrate([30, 40, 60]);
   const missing = [];
 
   // 공통 필수

@@ -898,7 +898,10 @@ function closeTree(i) {
   if(_isLocked) doCalc(true);
 }
 function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
+function vibrate(pattern){ try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){} }
+
 function calcTreeResult() {
+  vibrate([30, 40, 60]);
   // 입력 잠금
   const rows1 = document.getElementById('interval-rows-1');
   const icntBtns = document.querySelectorAll('[id^="icnt-"]');
@@ -2167,6 +2170,7 @@ function _checkCalcMissing(){
   return missing;
 }
 function setCalcMode(){
+  vibrate([30, 40, 60]);
   const _missing = _checkCalcMissing();
   if(_missing.length > 0){
     document.getElementById('validation-list').innerHTML = _missing.join('<br>');
