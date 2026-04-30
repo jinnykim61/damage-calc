@@ -900,7 +900,8 @@ function closeTree(i) {
 function openResetModal(){ document.getElementById('reset-overlay').style.display='flex'; }
 function vibrate(pattern){ try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){} }
 
-function calcTreeResult() {
+function calcTreeResult(silent=false) {
+  if(!silent) vibrate([30, 40, 60]);
   vibrate([30, 40, 60]);
   // 입력 잠금
   const rows1 = document.getElementById('interval-rows-1');
@@ -2101,7 +2102,12 @@ function loadState(){
       if(af.value) af.classList.add('filled');
     }
     if(s.farm_no){const el=document.getElementById('farm_no');if(el){el.value=s.farm_no;el.classList.toggle('filled',s.farm_no!=='');}}
-    if(s.isLocked) setTimeout(()=>setCalcMode(), 0);
+    if(s.isLocked) setTimeout(()=>{
+      _isLocked=true;
+      document.querySelector('.content')?.classList.add('locked');
+      document.getElementById('btn-calc')?.classList.add('active');
+      document.getElementById('btn-edit')?.classList.remove('active');
+    }, 0);
     return true;
   }catch(e){ return false; }
 }
@@ -2169,7 +2175,8 @@ function _checkCalcMissing(){
   if (shortVarieties.length > 0) { missing.push('• 표본주 부족'); shortVarieties.forEach(r=>missing.push(r)); }
   return missing;
 }
-function setCalcMode(){
+function setCalcMode(silent=false){
+  if(!silent) vibrate([30, 40, 60]);
   vibrate([30, 40, 60]);
   const _missing = _checkCalcMissing();
   if(_missing.length > 0){
