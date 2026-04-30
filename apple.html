@@ -1312,7 +1312,10 @@ function updateTreeSummary(showZero) {
   },0);
   if(_rv) _rv.textContent = _regT>0?_regT.toLocaleString()+'주':'-';
   if(_av) _av.textContent = _actT>0?_actT.toLocaleString()+'주':'-';
-  if(_tv) _tv.textContent = _propSum>0?_propSum+'주':'-';
+  const _actualSS = allData[currentCrop].varieties
+    ? allData[currentCrop].varieties.slice(0,intervalCount).reduce((s,v)=>s+(v&&v.samples?v.samples.length:0),0) : 0;
+  const _dispSum = _actualSS > 0 ? _actualSS : _propSum;
+  if(_tv) _tv.textContent = _dispSum>0?_dispSum+'주':'-';
   if(_pv) _pv.textContent = _propSum>0?_propSum+'주':'-';
   const _did=document.getElementById('iv-dead');
   const _diu=document.getElementById('iv-unable');
