@@ -1040,9 +1040,7 @@ function renderIntervalRows() {
       html += `<div style="border-bottom:0.5px solid var(--border)">
         <div style="display:grid;grid-template-columns:80px 58px 58px 62px 58px;padding:6px 8px;align-items:center;gap:4px">
           <div onclick="openVarietyNamePopup(${i})" style="cursor:pointer;touch-action:manipulation;position:relative;display:flex;align-items:center;justify-content:center;min-height:34px">
-            <div style="font-size:${(allData[currentCrop].varieties[i]&&allData[currentCrop].varieties[i].name)?'11':'12'}px;color:var(--blue);font-weight:700;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:72px;text-align:center">
-              ${(allData[currentCrop].varieties[i]&&allData[currentCrop].varieties[i].name)||('품종'+(i+1))}
-            </div>
+            ${(()=>{const _n=(allData[currentCrop].varieties[i]&&allData[currentCrop].varieties[i].name)||('품종'+(i+1));const _len=_n.length;const _fs=_len<=2?15:_len<=3?14:_len<=4?13:_len<=5?12:_len<=6?11:10;return `<div style="font-size:${_fs}px;color:var(--blue);font-weight:700;word-break:keep-all;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:72px;text-align:center">${_n}</div>`;})()}
             <div style="position:absolute;top:0;right:0;font-size:9px;line-height:1;color:var(--hint)">✏️</div>
           </div>
           <input type="number" value="${d.reg||''}" placeholder="" inputmode="decimal" autocomplete="off"
@@ -1524,6 +1522,7 @@ function toggleCard(vi) {
   const header = document.querySelector(`#vc-${vi} > div:first-child`);
   const nameEl = document.getElementById(`card-name-${vi}`);
   const iconEl = document.getElementById(`card-icon-${vi}`);
+  const numEl = document.querySelector(`#vc-${vi} .variety-num`);
   if(body) body.style.display = cardOpen ? 'none' : 'block';
   if(card){ card.style.padding = cardOpen ? '0' : '14px'; }
   if(header){
@@ -1534,6 +1533,11 @@ function toggleCard(vi) {
   }
   if(nameEl) nameEl.style.color = cardOpen ? '#fff' : 'var(--text)';
   if(iconEl){ iconEl.style.color = cardOpen ? 'rgba(255,255,255,0.8)' : 'var(--sub)'; }
+  if(numEl){
+    numEl.style.background = cardOpen ? 'rgba(255,255,255,0.2)' : 'var(--blue)';
+    numEl.style.color = '#fff';
+    numEl.style.border = cardOpen ? 'none' : '';
+  }
   updateCardSummary(vi);
   saveState();
 }
