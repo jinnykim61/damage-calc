@@ -872,9 +872,9 @@ function calc(){
     const addYield   = unitAvg*(uninsArea+preArea);
     const totalYield = Math.floor(effWeight*surveyArea + addYield);
     const uninsLoss   = Math.round(Math.max(0,effAvg-totalYield)*uninsRate*10000)/10000;
-    let pihaeyul = Math.floor((effAvg-totalYield-uninsLoss)/effAvg*10000)/10000;
-    pihaeyul = Math.max(0,pihaeyul);
-    showResult(resultBox,pctEl,effAvg,totalYield,uninsLoss,pihaeyul);
+    const rawPct1 = Math.floor((effAvg-totalYield-uninsLoss)/effAvg*10000)/10000;
+    let pihaeyul = Math.max(0,rawPct1);
+    showResult(resultBox,pctEl,effAvg,totalYield,uninsLoss,rawPct1 < 0 ? rawPct1 : pihaeyul);
 
   } else {
     // 전수조사
@@ -892,9 +892,9 @@ function calc(){
       const addYieldF  = unitAvgF*(uninsArea+preArea);
       const totalYieldF= Math.floor(surveyYield+addYieldF);
       const uninsLoss  = Math.round(Math.max(0,effAvg-totalYieldF)*fullUninsRate*10000)/10000;
-      let pihaeyul = Math.floor((effAvg-totalYieldF-uninsLoss)/effAvg*10000)/10000;
-      pihaeyul = Math.max(0,pihaeyul);
-      showResult(resultBox,pctEl,effAvg,totalYieldF,uninsLoss,pihaeyul);
+      const rawPct2 = Math.floor((effAvg-totalYieldF-uninsLoss)/effAvg*10000)/10000;
+      let pihaeyul = Math.max(0,rawPct2);
+      showResult(resultBox,pctEl,effAvg,totalYieldF,uninsLoss,rawPct2 < 0 ? rawPct2 : pihaeyul);
     } else {
       setPending(resultBox,pctEl);
     }

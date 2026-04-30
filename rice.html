@@ -898,12 +898,12 @@ function calc(){
     const uninsLoss = Math.round(Math.max(0, effAvg - totalYield) * uninsRate * 10000) / 10000;
 
     // 피해율 ROUNDDOWN
-    let pihaeyul = Math.floor((effAvg - totalYield - uninsLoss) / effAvg * 10000) / 10000;
-    pihaeyul = Math.max(0, pihaeyul);
+    const rawPihaeyul = Math.floor((effAvg - totalYield - uninsLoss) / effAvg * 10000) / 10000;
+    let pihaeyul = Math.max(0, rawPihaeyul);
     // 병충해단독사고: 최고한도 70%
     if(disease === 'y') pihaeyul = Math.min(pihaeyul, 0.7);
 
-    showResult(resultBox, pctEl, effAvg, totalYield, effWeight + ' kg/㎡', surveyArea, uninsLoss, pihaeyul, disease==='y');
+    showResult(resultBox, pctEl, effAvg, totalYield, effWeight + ' kg/㎡', surveyArea, uninsLoss, rawPihaeyul < 0 ? rawPihaeyul : pihaeyul, disease==='y');
 
   } else {
     // 전수조사
@@ -923,11 +923,11 @@ function calc(){
       const addYieldF = unitAvgF * (uninsArea + preArea);
       const totalYieldF = Math.floor(surveyYield + addYieldF);
       const uninsLoss = Math.round(Math.max(0, effAvg - totalYieldF) * uninsRate * 10000) / 10000;
-      let pihaeyul = Math.floor((effAvg - totalYieldF - uninsLoss) / effAvg * 10000) / 10000;
-      pihaeyul = Math.max(0, pihaeyul);
+      const rawPihaeyulF = Math.floor((effAvg - totalYieldF - uninsLoss) / effAvg * 10000) / 10000;
+      let pihaeyul = Math.max(0, rawPihaeyulF);
       if(disease === 'y') pihaeyul = Math.min(pihaeyul, 0.7);
 
-      showResult(resultBox, pctEl, effAvg, totalYieldF, '-', surveyArea, uninsLoss, pihaeyul, disease==='y');
+      showResult(resultBox, pctEl, effAvg, totalYieldF, '-', surveyArea, uninsLoss, rawPihaeyulF < 0 ? rawPihaeyulF : pihaeyul, disease==='y');
     } else {
       resultBox.className = 'result-box pending';
       pctEl.textContent = '- -'; pctEl.style.color='white';

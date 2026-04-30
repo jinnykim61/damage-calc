@@ -594,7 +594,8 @@ function calc(){
   const surveyYield = Math.round(m2r3*surveyArea) + Math.floor(m2Avg*(uninsArea+harvArea));
   const uninsLoss = Math.round(Math.max(0,effAvg-surveyYield)*uninsRate);
   // ROUND 피해율 (소수4자리)
-  const pihaeyul = Math.max(0, Math.round((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000);
+  const _rawP = Math.round((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000;
+  const pihaeyul = _rawP < 0 ? _rawP : Math.max(0, _rawP);
 
   document.getElementById('s-area').textContent = totalArea>0 ? totalArea.toFixed(2)+' ㎡' : '-';
   document.getElementById('s-unit').textContent = m2r3.toFixed(4)+' kg/㎡';
@@ -622,7 +623,8 @@ function calcFull(){
 
   const uninsLoss = Math.round(Math.max(0,effAvg-surveyYield)*fullUninsRate);
   // ROUND 피해율 (소수4자리)
-  const pihaeyul = Math.max(0, Math.round((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000);
+  const _rawP = Math.round((effAvg-surveyYield-uninsLoss)/effAvg*10000)/10000;
+  const pihaeyul = _rawP < 0 ? _rawP : Math.max(0, _rawP);
   showResult(effAvg, surveyYield, '-', surveyArea, uninsLoss, pihaeyul);
   saveState();
 }
