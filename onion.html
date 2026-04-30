@@ -1217,7 +1217,12 @@ function loadState(){
 
     if(s.farm_no){ const farmEl=document.getElementById('farm_no'); if(farmEl){ farmEl.value=s.farm_no; farmEl.classList.add('filled'); } }
     if(s.samples && s.samples.length>0) samples=s.samples;
-    if(s.isLocked) setTimeout(()=>setCalcMode(true), 0);
+    if(s.isLocked) setTimeout(()=>{
+      _isLocked=true;
+      document.querySelector('.content')?.classList.add('locked');
+      document.getElementById('btn-calc')?.classList.add('active');
+      document.getElementById('btn-edit')?.classList.remove('active');
+    }, 0);
     return true;
   }catch(e){ return false; }
 }

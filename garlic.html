@@ -1393,7 +1393,12 @@ function loadState(){
     }
 
     if(s.samples && s.samples.length>0) samples=s.samples;
-    if(s.isLocked) setTimeout(()=>setCalcMode(true), 0);
+    if(s.isLocked) setTimeout(()=>{
+      _isLocked=true;
+      document.querySelector('.content')?.classList.add('locked');
+      document.getElementById('btn-calc')?.classList.add('active');
+      document.getElementById('btn-edit')?.classList.remove('active');
+    }, 0);
     return true;
   }catch(e){ return false; }
 }

@@ -799,7 +799,12 @@ function loadState(){
     if(s.farm_no){const el=document.getElementById('farm_no');if(el){el.value=s.farm_no;el.classList.add('filled');}}
     if(s.samples&&s.samples.length>0){samples=s.samples;renderSamples();}
     if(s.mode) setMode(s.mode);
-    if(s.isLocked) setTimeout(()=>setCalcMode(true), 0);
+    if(s.isLocked) setTimeout(()=>{
+      _isLocked=true;
+      document.querySelector('.content')?.classList.add('locked');
+      document.getElementById('btn-calc')?.classList.add('active');
+      document.getElementById('btn-edit')?.classList.remove('active');
+    }, 0);
   }catch(e){}
 }
 
